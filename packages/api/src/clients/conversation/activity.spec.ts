@@ -323,12 +323,30 @@ describe('ConversationActivityClient', () => {
       text: 'hi',
     });
 
-expect(spy).toHaveBeenCalledWith(
-      '/v3/conversations/1/activities',
+    expect(spy).toHaveBeenCalledWith(
+      '/v3/conversations/1/activities/2',
       {
         type: 'message',
         text: 'hi',
-        replyToId: '2',
+      },
+      expectTelemetryConfig()
+    );
+  });
+
+  it('should reply with a targeted activity', async () => {
+    const client = new ConversationActivityClient('');
+    const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
+
+    await client.replyTargeted('1', '2', {
+      type: 'message',
+      text: 'hi',
+    });
+
+    expect(spy).toHaveBeenCalledWith(
+      '/v3/conversations/1/activities/2?isTargetedActivity=true',
+      {
+        type: 'message',
+        text: 'hi',
       },
       expectTelemetryConfig()
     );
@@ -469,6 +487,18 @@ expect(spy).toHaveBeenCalledWith(
       async (client: ConversationActivityClient, http: TestHttpClient) => {
         mockAdapter(http, { id: 'targeted-id' });
         await client.createTargeted('conversation-id', { type: 'message', text: 'hi' });
+      },
+    ],
+    [
+      'replyTargeted',
+      'reply_targeted',
+      async (client: ConversationActivityClient, http: TestHttpClient) => {
+        mockAdapter(http, { id: 'targeted-id' });
+        await client.replyTargeted(
+          'conversation-id',
+          'activity-id',
+          { type: 'message', text: 'hi' }
+        );
       },
     ],
     [

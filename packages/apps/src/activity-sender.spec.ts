@@ -1,7 +1,13 @@
 import { context, propagation, ROOT_CONTEXT } from '@opentelemetry/api';
 import type { Context, ContextManager } from '@opentelemetry/api';
 
-import { ActivityParams, Client, ConversationReference, MessageActivity } from '@microsoft/teams.api';
+import {
+  ActivityParams,
+  Client,
+  ConversationReference,
+  MessageActivity,
+  MessageActivityInput
+} from '@microsoft/teams.api';
 
 import { ActivitySender } from './activity-sender';
 import { Agent365BaggageKeys, withAgent365Baggage } from './diagnostics/agent365-baggage';
@@ -63,6 +69,8 @@ describe('ActivitySender', () => {
     mockClient = {
       conversations: {
         createActivity: jest.fn().mockResolvedValue({ id: 'activity-1' }),
+        replyToActivity: jest.fn().mockResolvedValue({ id: 'activity-1' }),
+        replyToTargetedActivity: jest.fn().mockResolvedValue({ id: 'activity-1' }),
         updateActivity: jest.fn().mockResolvedValue({ id: 'activity-1' }),
         createTargetedActivity: jest.fn().mockResolvedValue({ id: 'activity-1' }),
         updateTargetedActivity: jest.fn().mockResolvedValue({ id: 'activity-1' }),
@@ -98,6 +106,75 @@ describe('ActivitySender', () => {
       );
       expect(createClient).toHaveBeenCalledWith(ref.serviceUrl, undefined);
       expect(result).toEqual(expect.objectContaining({ id: 'activity-1' }));
+    });
+
+    it('should call the reply endpoint for a threaded activity', async () => {
+      await sender.send(
+        { type: 'message', text: 'thread reply' },
+        ref,
+        { threadRootId: 'root-456' }
+      );
+
+      const conversations = (mockClient as any).conversations;
+      expect(conversations.replyToActivity).toHaveBeenCalledWith(
+        'conv-123',
+        'root-456',
+        expect.objectContaining({
+          type: 'message',
+          text: 'thread reply',
+          conversation: ref.conversation,
+        })
+      );
+      expect(conversations.createActivity).not.toHaveBeenCalled();
+    });
+
+    it('does not infer thread placement from a legacy threaded conversation ID', async () => {
+      const legacyRef = {
+        ...ref,
+        conversation: {
+          ...ref.conversation,
+          id: 'conv-123;messageid=789',
+        },
+      };
+
+      await sender.send({ type: 'message', text: 'legacy reply' }, legacyRef);
+      const conversations = (mockClient as any).conversations;
+      expect(conversations.createActivity).toHaveBeenCalledWith(
+        'conv-123;messageid=789',
+        expect.objectContaining({
+          conversation: expect.objectContaining({ id: 'conv-123;messageid=789' }),
+        })
+      );
+      expect(conversations.replyToActivity).not.toHaveBeenCalled();
+    });
+
+    it('should call the targeted reply endpoint for a targeted threaded activity', async () => {
+      const groupRef = {
+        ...ref,
+        conversation: { id: 'conv-123', conversationType: 'groupChat' },
+      };
+      const activity = new MessageActivityInput('targeted thread reply')
+        .prependQuote('root-456')
+        .withRecipient({ id: 'user-1', role: 'user' }, true);
+
+      await sender.send(activity, groupRef, { threadRootId: 'root-456' });
+
+      const conversations = (mockClient as any).conversations;
+      expect(conversations.replyToTargetedActivity).toHaveBeenCalledWith(
+        'conv-123',
+        'root-456',
+        expect.objectContaining({
+          text: '<quoted messageId="root-456"/> targeted thread reply',
+          recipient: expect.objectContaining({ isTargeted: true }),
+          entities: expect.arrayContaining([
+            expect.objectContaining({
+              type: 'quotedReply',
+              quotedReply: { messageId: 'root-456' },
+            }),
+          ]),
+        })
+      );
+      expect(conversations.createTargetedActivity).not.toHaveBeenCalled();
     });
 
     it('should call update for an existing activity', async () => {

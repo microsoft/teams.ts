@@ -60,25 +60,6 @@ export async function handleQuoteMessage(
 }
 
 /**
- * Handles the command that composes a quote with the message builder.
- * @returns Whether the command matched.
- */
-export async function handleAddQuote(
-  context: MessageContext,
-  text: string
-): Promise<boolean> {
-  if (text !== 'quote add') {
-    return false;
-  }
-
-  const sent = await context.send('Please review the latest PR before end of day.');
-  const message = new MessageActivityInput()
-    .addQuote(sent.id, 'Done! Left my comments on the PR.');
-  await context.send(message);
-  return true;
-}
-
-/**
  * Handles the command that composes multiple quotes.
  * @returns Whether the command matched.
  */
@@ -97,26 +78,6 @@ export async function handleQuoteBatch(
     .addQuote(sentA.id, 'I can take the docs - will have a draft by Thursday.')
     .addQuote(sentB.id, 'Looks great, approved!')
     .addQuote(sentC.id);
-  await context.send(message);
-  return true;
-}
-
-/**
- * Handles the command that manually combines a quote and text.
- * @returns Whether the command matched.
- */
-export async function handleQuoteManual(
-  context: MessageContext,
-  text: string
-): Promise<boolean> {
-  if (text !== 'quote manual') {
-    return false;
-  }
-
-  const sent = await context.send('Deployment to staging is complete.');
-  const message = new MessageActivityInput()
-    .addQuote(sent.id)
-    .addText(' Verified - all smoke tests passing.');
   await context.send(message);
   return true;
 }

@@ -7,6 +7,7 @@ import { IStorage } from '@microsoft/teams.common';
 
 import { ActivitySender } from './activity-sender';
 import { App } from './app';
+import { ActivityContext } from './contexts/activity';
 import { Agent365BaggageKeys } from './diagnostics/agent365-baggage';
 import {
   getTeamsBotApplicationTracer,
@@ -995,6 +996,7 @@ describe('App', () => {
         sent.push(event);
       });
 
+      const contextSend = jest.spyOn(ActivityContext.prototype, 'send');
       jest
         .spyOn(ActivitySender.prototype, 'send')
         .mockImplementation(async (activity) => ({ id: 'sent-1', ...activity }) as any);
@@ -1012,6 +1014,9 @@ describe('App', () => {
 
       expect(sent.length).toBeGreaterThanOrEqual(1);
       expect(sent.some((e) => e.activity !== undefined)).toBe(true);
+      expect(
+        (contextSend.mock.calls as unknown[][]).some((call) => call.length === 1)
+      ).toBe(true);
     });
 
     it('should emit the "error" event when a route throws', async () => {

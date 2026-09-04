@@ -733,15 +733,32 @@ describe('App', () => {
       await app.stop();
     });
 
-    it('should construct threaded ID when called with conversationId, messageId, and activity', async () => {
+    it('should route the three-argument form through the reply endpoint', async () => {
       const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
       jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
 
       await app.testReply('19:abc@thread.skype', '1680000000000', { type: 'message', text: 'Hello thread' });
 
       expect(mockSend).toHaveBeenCalled();
-      const [, ref] = mockSend.mock.calls[0];
-      expect(ref.conversation.id).toBe('19:abc@thread.skype;messageid=1680000000000');
+      const [, ref, options] = mockSend.mock.calls[0];
+      expect(ref.conversation.id).toBe('19:abc@thread.skype');
+      expect(options.threadRootId).toBe('1680000000000');
+    });
+
+    it('should preserve a targeted recipient for proactive threaded routing', async () => {
+      const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
+      jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
+      const activity = new MessageActivity('Targeted reply')
+        .withRecipient({ id: 'user-1', role: 'user' }, true);
+
+      await app.testReply('19:abc@thread.skype', '1680000000000', activity);
+
+      const [params, ref, options] = mockSend.mock.calls[0];
+      expect(params.recipient).toEqual(
+        expect.objectContaining({ id: 'user-1', isTargeted: true })
+      );
+      expect(ref.conversation.id).toBe('19:abc@thread.skype');
+      expect(options.threadRootId).toBe('1680000000000');
     });
 
     it('should pass conversationId as-is when called with two args', async () => {
@@ -755,26 +772,42 @@ describe('App', () => {
       expect(ref.conversation.id).toBe('19:abc@thread.skype');
     });
 
-    it('should pass pre-constructed threaded ID as-is when called with two args', async () => {
+    it('should translate a pre-constructed threaded ID when called with two args', async () => {
       const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
       jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
 
       await app.testReply('19:abc@thread.skype;messageid=123', { type: 'message', text: 'Hello' });
 
       expect(mockSend).toHaveBeenCalled();
-      const [, ref] = mockSend.mock.calls[0];
-      expect(ref.conversation.id).toBe('19:abc@thread.skype;messageid=123');
+      const [, ref, options] = mockSend.mock.calls[0];
+      expect(ref.conversation.id).toBe('19:abc@thread.skype');
+      expect(options.threadRootId).toBe('123');
     });
 
-    it('should construct threaded ID for any conversation type (three-arg form)', async () => {
+    it('should translate a legacy threaded ID passed directly to send', async () => {
+      const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
+      jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
+
+      await app.testSend(
+        '19:abc@thread.skype;messageid=456',
+        { type: 'message', text: 'Hello' }
+      );
+
+      const [, ref, options] = mockSend.mock.calls[0];
+      expect(ref.conversation.id).toBe('19:abc@thread.skype');
+      expect(options.threadRootId).toBe('456');
+    });
+
+    it('should use endpoint placement for any conversation type (three-arg form)', async () => {
       const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
       jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
 
       await app.testReply('19:meeting_abc@thread.v2', '123', { type: 'message', text: 'Hello' });
 
       expect(mockSend).toHaveBeenCalled();
-      const [, ref] = mockSend.mock.calls[0];
-      expect(ref.conversation.id).toBe('19:meeting_abc@thread.v2;messageid=123');
+      const [, ref, options] = mockSend.mock.calls[0];
+      expect(ref.conversation.id).toBe('19:meeting_abc@thread.v2');
+      expect(options.threadRootId).toBe('123');
     });
 
     it('should throw on invalid messageId in three-arg form', async () => {

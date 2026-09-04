@@ -1,33 +1,21 @@
-import { Activity } from '@microsoft/teams.api';
-import { App, IActivityContext, toThreadedConversationId } from '@microsoft/teams.apps';
+import { Activity, MessageActivityInput } from '@microsoft/teams.api';
+import {
+  App,
+  getProactiveThreadReference,
+  IActivityContext,
+} from '@microsoft/teams.apps';
 
 type MessageContext = IActivityContext<Extract<Activity, { type: 'message' }>>;
-
-/**
- * Handles the command that sends a reactive threaded reply.
- * @returns Whether the command matched.
- */
-export async function handleThreadReply(
-  context: MessageContext,
-  text: string
-): Promise<boolean> {
-  if (text !== 'thread reply') {
-    return false;
-  }
-
-  await context.reply('This is a threaded reply to your message.');
-  return true;
-}
 
 /**
  * Handles the command that sends to the current thread without quoting.
  * @returns Whether the command matched.
  */
-export async function handleThreadSend(
+export async function handleDefaultSend(
   context: MessageContext,
   text: string
 ): Promise<boolean> {
-  if (text !== 'thread send') {
+  if (text !== 'default send') {
     return false;
   }
 
@@ -48,7 +36,8 @@ export async function handleProactiveThread(
     return false;
   }
 
-  const { conversationId, threadRootId } = getThreadReference(context);
+  const { conversationId, threadRootId } =
+    getProactiveThreadReference(context.activity);
   await app.reply(
     conversationId,
     threadRootId,
@@ -58,33 +47,76 @@ export async function handleProactiveThread(
 }
 
 /**
- * Handles the command that manually constructs a threaded conversation ID.
+ * Handles the command that sends a quoted proactive threaded reply.
  * @returns Whether the command matched.
  */
-export async function handleManualThread(
+export async function handleProactiveThreadQuote(
   app: App,
   context: MessageContext,
   text: string
 ): Promise<boolean> {
-  if (text !== 'thread manual') {
+  if (text !== 'thread proactive quote') {
     return false;
   }
 
-  const { conversationId, threadRootId } = getThreadReference(context);
-  const threadId = toThreadedConversationId(conversationId, threadRootId);
-  await app.send(
-    threadId,
-    'This was sent using `toThreadedConversationId()` + `app.send()` for manual control.'
+  const { conversationId, threadRootId } =
+    getProactiveThreadReference(context.activity);
+  await app.reply(
+    conversationId,
+    threadRootId,
+    new MessageActivityInput(
+      'This is explicitly placed in the thread and quotes your message.'
+    ).prependQuote(context.activity.id)
   );
   return true;
 }
 
-function getThreadReference(context: MessageContext): {
-  conversationId: string;
-  threadRootId: string;
-} {
-  const conversationId = context.ref.conversation.id;
-  const threadParts = conversationId.split(';messageid=');
-  const threadRootId = threadParts.length > 1 ? threadParts[1] : context.activity.id;
-  return { conversationId, threadRootId };
+/**
+ * Handles the command that sends a proactive targeted threaded reply.
+ * @returns Whether the command matched.
+ */
+export async function handleProactiveTargetedThread(
+  app: App,
+  context: MessageContext,
+  text: string
+): Promise<boolean> {
+  if (text !== 'thread proactive targeted') {
+    return false;
+  }
+
+  const { conversationId, threadRootId } =
+    getProactiveThreadReference(context.activity);
+  await app.reply(
+    conversationId,
+    threadRootId,
+    new MessageActivityInput(
+      'This proactive targeted message uses the explicit reply endpoint.'
+    ).withRecipient(context.activity.from, true)
+  );
+  return true;
+}
+
+/**
+ * Handles the command that sends a quoted proactive targeted threaded reply.
+ * @returns Whether the command matched.
+ */
+export async function handleProactiveTargetedThreadQuote(
+  app: App,
+  context: MessageContext,
+  text: string
+): Promise<boolean> {
+  if (text !== 'thread proactive targeted quote') {
+    return false;
+  }
+
+  const { conversationId, threadRootId } =
+    getProactiveThreadReference(context.activity);
+  await app.reply(
+    conversationId,
+    threadRootId,
+    new MessageActivityInput('This proactive targeted reply quotes your message.')
+      .prependQuote(context.activity.id)
+      .withRecipient(context.activity.from, true)
+  );
+  return true;
 }

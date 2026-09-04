@@ -10,6 +10,12 @@ export type ActivitySenderOptions = {
    * Agentic identity scope to use when acquiring tokens for this send.
    */
   readonly agenticIdentity?: AgenticIdentity;
+
+  /**
+   * Root activity ID used to place a new activity in a thread through the Bot
+   * Framework reply endpoint. Omit it to create a root activity.
+   */
+  readonly threadRootId?: string;
 };
 
 /**

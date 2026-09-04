@@ -9,6 +9,7 @@ import {
   FILE_DOWNLOAD_INFO_CONTENT_TYPE,
   IMessageActivity,
   MessageActivity,
+  MessageActivityInput,
   TokenExchangeResource,
   TokenPostResource,
 } from '@microsoft/teams.api';
@@ -157,6 +158,7 @@ describe('ActivityContext', () => {
           team: { id: 'team-id' },
           meeting: { id: 'meeting-id' },
           notification: { alert: true },
+          thread: { id: 'thread-root-id' },
         },
       } as unknown as Activity;
     };
@@ -168,6 +170,7 @@ describe('ActivityContext', () => {
       expect(ctx.activity.team?.id).toEqual('team-id');
       expect(ctx.activity.meeting?.id).toEqual('meeting-id');
       expect(ctx.activity.notification?.alert).toEqual(true);
+      expect(ctx.activity.channelData?.thread?.id).toEqual('thread-root-id');
       // `tenant` is a class-only getter (not declared on the public interface),
       // so read it through the concrete instance shape.
       expect((ctx.activity as { tenant?: { id: string } }).tenant?.id).toEqual('tenant-id');
@@ -274,7 +277,7 @@ describe('ActivityContext', () => {
       expect(sentActivity.text).toEqual('<quoted messageId="msg-42"/>');
     });
     
-    it('reply to targeted message strips blockquote via addTargetedMessageInfo', async () => {
+    it('reply to targeted message preserves quote metadata with targetedMessageInfo', async () => {
       const activity = new MessageActivity('Hello world')
         .withFrom({ id: 'test-user', name: 'Test User', role: 'user' })
         .withRecipient({ id: 'bot-id', name: 'Bot', role: 'bot' }, true)
@@ -288,9 +291,6 @@ describe('ActivityContext', () => {
 
       expect(mockSender.send).toHaveBeenCalledTimes(1);
       const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
-      // Reply prepends blockquote, but send() auto-populates addTargetedMessageInfo
-      // which strips quotedReply entities — the blockquote text remains since it's
-      // the legacy format, not the <quoted .../> placeholder.
       expect(sentActivity.recipient).toEqual(
         expect.objectContaining({
           id: 'test-user',
@@ -302,6 +302,10 @@ describe('ActivityContext', () => {
       expect(sentActivity.entities).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
+            type: 'quotedReply',
+            quotedReply: { messageId: 'test-activity-id' },
+          }),
+          expect.objectContaining({
             type: 'targetedMessageInfo',
             messageId: 'test-activity-id',
           }),
@@ -312,7 +316,7 @@ describe('ActivityContext', () => {
   });
 
   describe('send', () => {
-    it('sends the activity to the sender plugin', async () => {
+    it('routes a one-argument send to the current inbound conversation', async () => {
       const activity = buildIncomingMessageActivity('Hello world');
       context = buildActivityContext(activity);
       await context.send('What is up?');
@@ -323,8 +327,90 @@ describe('ActivityContext', () => {
           text: 'What is up?',
           type: 'message',
         }),
-        mockRef
+        mockRef,
+        { threadRootId: 'test-activity-id' }
       );
+    });
+
+    it.each([
+      {
+        scope: 'personal with thread metadata',
+        conversationType: 'personal',
+        conversationId: 'personal-conversation',
+        threadId: 'ignored-thread',
+        expectedRoot: 'ignored-thread',
+      },
+      {
+        scope: 'group chat root message',
+        conversationType: 'groupChat',
+        conversationId: 'group-conversation',
+        threadId: undefined,
+        expectedRoot: undefined,
+      },
+      {
+        scope: 'group chat threaded reply',
+        conversationType: 'groupChat',
+        conversationId: 'group-conversation',
+        threadId: 'group-root',
+        expectedRoot: 'group-root',
+      },
+      {
+        scope: 'channel root message',
+        conversationType: 'channel',
+        conversationId: 'channel-conversation',
+        threadId: undefined,
+        expectedRoot: 'test-activity-id',
+      },
+      {
+        scope: 'channel threaded reply',
+        conversationType: 'channel',
+        conversationId: 'channel-conversation',
+        threadId: 'channel-root',
+        expectedRoot: 'channel-root',
+      },
+    ])('uses the expected placement for $scope', async ({
+      conversationType,
+      conversationId,
+      threadId,
+      expectedRoot,
+    }) => {
+      const activity = new MessageActivity('Hello')
+        .withFrom({ id: 'test-user', role: 'user' })
+        .withRecipient({ id: 'bot-id', role: 'bot' })
+        .withChannelId('msteams')
+        .withConversation({
+          id: conversationId,
+          conversationType: conversationType as 'personal' | 'groupChat' | 'channel',
+        })
+        .withId('test-activity-id');
+      if (threadId) {
+        activity.withChannelData({ thread: { id: threadId } });
+      }
+      context = buildActivityContext(activity);
+
+      await context.send('response');
+
+      const options = mockSender.send.mock.calls[0][2];
+      expect(options?.threadRootId).toBe(expectedRoot);
+    });
+
+    it('uses the legacy conversation suffix when thread metadata is absent', async () => {
+      const activity = new MessageActivity('Hello')
+        .withFrom({ id: 'test-user', role: 'user' })
+        .withRecipient({ id: 'bot-id', role: 'bot' })
+        .withChannelId('msteams')
+        .withConversation({
+          id: 'group-conversation;messageid=456',
+          conversationType: 'groupChat',
+        })
+        .withId('test-activity-id');
+      context = buildActivityContext(activity);
+
+      await context.send('response');
+
+      expect(mockSender.send.mock.calls[0][2]).toEqual({
+        threadRootId: '456',
+      });
     });
 
     describe('targeted messages', () => {
@@ -346,11 +432,12 @@ describe('ActivityContext', () => {
             type: 'message',
             recipient: expect.objectContaining({ id: 'test-user', name: 'Test User', role: 'user', isTargeted: true }),
           }),
-          mockRef
+          mockRef,
+          { threadRootId: 'test-activity-id' }
         );
       });
 
-      it('does not default send to targeted for a different conversation', async () => {
+      it('routes a legacy two-argument send to the alternate conversation', async () => {
         const activity = new MessageActivity('Hello world')
           .withFrom({ id: 'test-user', name: 'Test User', role: 'user' })
           .withRecipient({ id: 'bot-id', name: 'Bot', role: 'bot' }, true)
@@ -423,7 +510,8 @@ describe('ActivityContext', () => {
             type: 'message',
             recipient: expect.objectContaining({ id: 'test-user', name: 'Test User', role: 'user', isTargeted: true }),
           }),
-          mockRef
+          mockRef,
+          { threadRootId: 'test-activity-id' }
         );
         const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
         expect(sentActivity.entities).toBeUndefined();
@@ -469,7 +557,8 @@ describe('ActivityContext', () => {
             type: 'message',
             recipient: expect.objectContaining({ id: 'explicit-user-id', name: '', role: 'user', isTargeted: true }),
           }),
-          mockRef
+          mockRef,
+          { threadRootId: 'test-activity-id' }
         );
       });
 
@@ -515,7 +604,8 @@ describe('ActivityContext', () => {
               }),
             ]),
           }),
-          mockRef
+          mockRef,
+          { threadRootId: '1772129782775' }
         );
       });
 
@@ -575,7 +665,36 @@ describe('ActivityContext', () => {
               }),
             ]),
           }),
-          mockRef
+          mockRef,
+          { threadRootId: '1772129782775' }
+        );
+      });
+
+      it('preserves an explicit quote on a targeted threaded send', async () => {
+        const activity = buildIncomingMessageActivity('Hello world');
+        context = buildActivityContext(activity);
+        const targetedActivity = new MessageActivityInput()
+          .addQuote('quoted-message-id', 'Secret message')
+          .withRecipient(
+            { id: 'test-user', name: 'Test User', role: 'user' },
+            true
+          );
+
+        await context.send(targetedActivity);
+
+        expect(mockSender.send).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: '<quoted messageId="quoted-message-id"/> Secret message',
+            recipient: expect.objectContaining({ isTargeted: true }),
+            entities: expect.arrayContaining([
+              expect.objectContaining({
+                type: 'quotedReply',
+                quotedReply: { messageId: 'quoted-message-id' },
+              }),
+            ]),
+          }),
+          mockRef,
+          { threadRootId: 'test-activity-id' }
         );
       });
     });

@@ -48,6 +48,15 @@ app.on('message', async ({ send, activity, api }) => {
     await send(
       new MessageActivityInput('📋 Here is the public result — everyone can see this!')
     );
+  } else if (text.includes('test thread')) {
+    await send(
+      new MessageActivityInput()
+        .addQuote(
+          activity.id,
+          '🔒 This targeted reply stays in the current thread and keeps its quote.'
+        )
+        .withRecipient(activity.from, true)
+    );
   } else if (text.includes('send public')) {
     const isTargeted = activity.recipient?.isTargeted === true;
 
@@ -92,6 +101,7 @@ app.on('message', async ({ send, activity, api }) => {
       '- `test send` - Send a targeted message (only visible to you)\n' +
       '- `test update` - Send a targeted message, then update it after 3 seconds\n' +
       '- `test delete` - Send a targeted message, then delete it after 3 seconds\n' +
+      '- `test thread` - Send a quoted targeted reply in the current thread\n' +
       '- `test public` - Send a public reply (visible to all)\n' +
       '- `send public` - Only send a public message if the incoming message is targeted\n' +
       '- `send private` - Only send a private message if the incoming message is targeted\n' +

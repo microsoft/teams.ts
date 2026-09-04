@@ -64,7 +64,7 @@ import { AppTokenProvider, IAppTokenProvider } from './token-provider';
 import { AppEvents, IPlugin, PluginName, RouteHandler } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 import { getBooleanEnvValue } from './utils/env';
-import { toThreadedConversationId } from './utils/thread';
+import { parseLegacyThreadedConversationId } from './utils/thread';
 
 function isAppSendOptions(value: ActivityLike | DeprecatedInputActivity | AppSendOptions): value is AppSendOptions {
   if (typeof value === 'string') return false;
@@ -463,9 +463,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   /**
    * send an activity proactively to a conversation.
    *
-   * Sends to the exact conversation ID provided. For channel threads,
-   * the conversation ID must include `;messageid=` - use {@link toThreadedConversationId}
-   * to construct it, or use {@link reply} which handles this automatically.
+   * A valid legacy `;messageid={rootId}` suffix is translated to the Bot Framework
+   * reply endpoint for compatibility. Prefer {@link reply} for new threaded sends.
    *
    * @param conversationId the conversation to send to
    * @param activity the activity to send
@@ -489,8 +488,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       throw new Error('App has no credentials set up');
     }
 
+    const legacyThread = parseLegacyThreadedConversationId(conversationId);
     const params = toActivityParams(activity);
-
     const ref: ConversationReference = {
       channelId: 'msteams',
       serviceUrl: this.api.serviceUrl,
@@ -499,14 +498,20 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         role: 'bot',
       },
       conversation: {
-        id: conversationId,
+        id: legacyThread?.conversationId ?? conversationId,
       } as ConversationReference['conversation'],
     };
-
     const res = await this.activitySender.send(
       params,
       ref,
-      options?.agenticIdentity ? { agenticIdentity: options.agenticIdentity } : undefined,
+      legacyThread
+        ? {
+          agenticIdentity: options?.agenticIdentity,
+          threadRootId: legacyThread.threadRootId,
+        }
+        : options?.agenticIdentity
+          ? { agenticIdentity: options.agenticIdentity }
+          : undefined,
     );
     return res;
   }
@@ -514,10 +519,8 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   /**
    * send an activity proactively as a threaded reply.
    *
-   * Constructs a threaded conversation ID from the conversation ID
-   * and message ID via {@link toThreadedConversationId}, then sends
-   * to that thread. The service determines whether threading is
-   * supported for the given conversation type.
+   * Uses the Bot Framework reply endpoint to place the activity under
+   * the supplied thread root.
    *
    * @param conversationId the conversation ID
    * @param messageId the thread root message ID
@@ -535,19 +538,25 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     options?: AppSendOptions
   ): Promise<any>;
   /**
-   * send an activity proactively to a conversation.
+   * Send an activity proactively using the legacy two-argument reply form.
    *
-   * Sends to the exact conversation ID provided - threaded if
-   * it contains `;messageid=`, flat otherwise.
-   *
-   * @param conversationId the conversation to send to
-   * @param activity the activity to send
-   */
-  /**
-   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   * @deprecated Use `send(conversationId, activity, options)` for a root message,
+   * or `reply(conversationId, messageId, activity, options)` for a threaded reply.
    */
   async reply(conversationId: string, activity: DeprecatedInputActivity, options?: AppSendOptions): Promise<any>;
+  /**
+   * Send an activity proactively using the legacy two-argument reply form.
+   *
+   * @deprecated Use `send(conversationId, activity, options)` for a root message,
+   * or `reply(conversationId, messageId, activity, options)` for a threaded reply.
+   */
   async reply(conversationId: string, activity: ActivityLike, options?: AppSendOptions): Promise<any>;
+  /**
+   * Send an activity proactively using the legacy two-argument reply form.
+   *
+   * @deprecated Use `send(conversationId, activity, options)` for a root message,
+   * or `reply(conversationId, messageId, activity, options)` for a threaded reply.
+   */
   async reply(conversationId: string, activity: ActivityLike | DeprecatedInputActivity, options?: AppSendOptions): Promise<any>;
   async reply(
     conversationId: string,
@@ -556,7 +565,34 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     options?: AppSendOptions
   ) {
     if (typeof messageId === 'string' && activity !== undefined && !isAppSendOptions(activity)) {
-      return this.send(toThreadedConversationId(conversationId, messageId), activity, options);
+      if (!this.id) {
+        throw new Error('App has no credentials set up');
+      }
+      if (!conversationId) {
+        throw new Error('conversationId must be a non-empty string');
+      }
+      if (!messageId || !/^\d+$/.test(messageId) || messageId === '0') {
+        throw new Error(
+          `Invalid messageId "${messageId}": must be a non-zero numeric value`
+        );
+      }
+
+      const ref: ConversationReference = {
+        channelId: 'msteams',
+        serviceUrl: this.api.serviceUrl,
+        bot: {
+          id: this.id,
+          role: 'bot',
+        },
+        conversation: {
+          id: conversationId.split(';')[0],
+        } as ConversationReference['conversation'],
+      };
+
+      return this.activitySender.send(toActivityParams(activity), ref, {
+        agenticIdentity: options?.agenticIdentity,
+        threadRootId: messageId,
+      });
     }
 
     const opts = activity && isAppSendOptions(activity) ? activity : options;

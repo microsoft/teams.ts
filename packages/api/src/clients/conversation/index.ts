@@ -200,6 +200,17 @@ export class ConversationClient {
   }
 
   /**
+   * Reply to an activity as a targeted message visible only to its recipient.
+   *
+   * @param conversationId Base conversation ID without a legacy thread suffix.
+   * @param id Root activity ID that identifies the destination thread.
+   * @param params Outbound activity with a targeted recipient.
+   */
+  replyToTargetedActivity(conversationId: string, id: string, params: ActivityParams) {
+    return this._activities.replyTargeted(conversationId, id, params);
+  }
+
+  /**
    * Delete an activity in a conversation.
    */
   deleteActivity(conversationId: string, id: string) {

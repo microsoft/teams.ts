@@ -56,6 +56,7 @@ export class ActivitySender implements IActivitySender {
     options?: ActivitySenderOptions
   ): Promise<SentActivity> {
     const params = toActivityParams(activity);
+    const conversationId = ref.conversation.id;
 
     // Merge activity with conversation reference for the wire payload.
     const payload = {
@@ -73,20 +74,28 @@ export class ActivitySender implements IActivitySender {
       if (isTargeted) {
         const { recipient: _recipient, ...targetedUpdate } = payload;
         const res = await api.conversations.updateTargetedActivity(
-          ref.conversation.id,
+          conversationId,
           payload.id,
           targetedUpdate
         );
         return { ...payload, ...res };
       }
 
-      const res = await api.conversations.updateActivity(ref.conversation.id, payload.id, payload);
+      const res = await api.conversations.updateActivity(conversationId, payload.id, payload);
       return { ...payload, ...res };
     }
 
-    const res = isTargeted
-      ? await api.conversations.createTargetedActivity(ref.conversation.id, payload)
-      : await api.conversations.createActivity(ref.conversation.id, payload);
+    const res = options?.threadRootId
+      ? isTargeted
+        ? await api.conversations.replyToTargetedActivity(
+          conversationId,
+          options.threadRootId,
+          payload
+        )
+        : await api.conversations.replyToActivity(conversationId, options.threadRootId, payload)
+      : isTargeted
+        ? await api.conversations.createTargetedActivity(conversationId, payload)
+        : await api.conversations.createActivity(conversationId, payload);
     return { ...payload, ...res };
   }
 

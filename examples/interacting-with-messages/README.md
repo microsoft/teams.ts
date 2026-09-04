@@ -16,21 +16,24 @@ Each concept is kept in a separate source module:
 
 | Command | Behavior |
 |---------|----------|
-| `quote reply` | `context.reply()` auto-quotes the inbound message |
+| `quote reply` | `context.reply()` quotes the inbound message |
 | `quote message` | `context.quote()` quotes a previously sent message by ID |
-| `quote add` | `addQuote()` composes a quote with a response |
 | `quote batch` | Combines multiple quotes with mixed responses |
-| `quote manual` | Combines `addQuote()` and `addText()` manually |
 | *(quote a message)* | Displays the quoted-message metadata |
 
 ### Threading
 
 | Command | Behavior |
 |---------|----------|
-| `thread reply` | `context.reply()` sends a reactive threaded reply |
-| `thread send` | `context.send()` sends to the same thread without quoting |
+| `default send` | `context.send()` sends to the same thread without quoting |
 | `thread proactive` | `app.reply()` sends a proactive threaded reply |
-| `thread manual` | `toThreadedConversationId()` and `app.send()` provide manual control |
+| `thread proactive quote` | `app.reply()` sends a proactive threaded reply with an explicit quote |
+| `thread proactive targeted` | `app.reply()` sends a targeted proactive threaded reply |
+| `thread proactive targeted quote` | `app.reply()` sends a targeted proactive threaded reply with an explicit quote |
+
+The proactive commands use `getProactiveThreadReference()` to normalize the
+inbound conversation ID and resolve the explicit thread root before calling
+`app.reply()`.
 
 ### Reactions
 

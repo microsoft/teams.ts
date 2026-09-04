@@ -9,6 +9,7 @@ import { OnBehalfOf } from './on-behalf-of';
 import { ChannelDataSettings } from './settings';
 import { TeamInfo } from './team-info';
 import { TenantInfo } from './tenant-info';
+import { ThreadInfo } from './thread-info';
 
 /**
  *
@@ -17,6 +18,11 @@ import { TenantInfo } from './tenant-info';
  *
  */
 export type ChannelData = {
+  /**
+   * Thread metadata supplied on inbound messages.
+   */
+  readonly thread?: ThreadInfo;
+
   /**
    * @member {ChannelInfo} [channel] Information about the channel in which the
    * message was sent.
@@ -127,4 +133,5 @@ export * from './on-behalf-of';
 export * from './settings';
 export * from './team-info';
 export * from './tenant-info';
+export * from './thread-info';
 export * from './feedback-loop';

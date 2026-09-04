@@ -21,7 +21,12 @@ export * from './diagnostics';
 export * from './http';
 
 // Threading utilities
-export { toThreadedConversationId } from './utils/thread';
+export {
+  getDefaultThreadId,
+  getProactiveThreadReference,
+  toThreadedConversationId,
+} from './utils/thread';
+export type { ProactiveThreadReference } from './utils/thread';
 
 // HTML Widget utilities
 export { buildHtmlWidgetMarkdown, buildHtmlWidgetMessage, injectWidgetProtocol, validateSecurityPolicy, tryGetWidgetModelContext } from './utils/html-widget';

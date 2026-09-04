@@ -24,6 +24,7 @@ import { OAuthSignInOptions, startOAuthSignIn } from '../oauth';
 import { TurnStateContainer } from '../state';
 import { IStreamer } from '../types';
 import { IActivitySender } from '../types/plugin/sender';
+import { getDefaultThreadId } from '../utils/thread';
 
 /**
  * Constructor arguments for ActivityContext
@@ -184,20 +185,36 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
   ) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
 
   /**
-   * send an activity to the conversation
+   * send an activity to the current inbound conversation.
+   *
+   * In channels, sends to the current thread. In other scopes, sends as a normal message.
+   *
    * @param activity activity to send
-   * @param conversationRef optional conversation reference to send the activity to. By default, it will use the activity's conversation reference.
    */
   /**
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
    */
-  send(activity: DeprecatedInputActivity, conversationRef?: ConversationReference): Promise<SentActivity>;
-  send(activity: ActivityLike, conversationRef?: ConversationReference): Promise<SentActivity>;
-  send(activity: ActivityLike | DeprecatedInputActivity, conversationRef?: ConversationReference): Promise<SentActivity>;
+  send(activity: DeprecatedInputActivity): Promise<SentActivity>;
+  send(activity: ActivityLike): Promise<SentActivity>;
+
+  /**
+   * send an activity to a specific conversation.
+   *
+   * @param activity activity to send
+   * @param conversationRef conversation reference to send to
+   * @deprecated Reactive sends should target the current inbound conversation. Use App.send() to send to a different conversation.
+   */
+  send(activity: DeprecatedInputActivity, conversationRef: ConversationReference): Promise<SentActivity>;
+  /**
+   * @deprecated Reactive sends should target the current inbound conversation. Use App.send() to send to a different conversation.
+   */
+  send(activity: ActivityLike, conversationRef: ConversationReference): Promise<SentActivity>;
 
   /**
    * reply to the inbound activity, automatically quoting the inbound message
    * @param activity activity to send
+   * @deprecated Use `MessageActivityInput.addQuote(...)` with {@link send} so
+   * visual quoting remains explicit and independent from thread placement.
    */
   /**
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
@@ -210,6 +227,7 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
    * send a reply quoting a specific message by ID
    * @param messageId the ID of the message to quote
    * @param activity activity to send
+   * @deprecated Use `MessageActivityInput.addQuote(...)` with {@link send}.
    */
   /**
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
@@ -332,21 +350,32 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   }
 
   /**
-   * send an activity in the current conversation without quoting.
+   * send an activity to the current inbound conversation.
    *
-   * In channels, sends to the current thread. In scopes that do not
-   * support threading (group chat, meetings), sends as a normal message.
-   * To send with a visual quote of the inbound message, use {@link reply}.
+   * In channels, sends to the current thread. In group chats, a reply stays in
+   * its thread while a root message produces another root message. Personal
+   * chats and meetings send as normal messages.
    *
    * @param activity the activity to send
-   * @param conversationRef optional conversation reference to send to a different conversation or thread
    */
   /**
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
    */
-  async send(activity: DeprecatedInputActivity, conversationRef?: ConversationReference): Promise<SentActivity>;
-  async send(activity: ActivityLike, conversationRef?: ConversationReference): Promise<SentActivity>;
-  async send(activity: ActivityLike | DeprecatedInputActivity, conversationRef?: ConversationReference): Promise<SentActivity>;
+  async send(activity: DeprecatedInputActivity): Promise<SentActivity>;
+  async send(activity: ActivityLike): Promise<SentActivity>;
+
+  /**
+   * send an activity to a specific conversation.
+   *
+   * @param activity the activity to send
+   * @param conversationRef conversation reference to send to
+   * @deprecated Reactive sends should target the current inbound conversation. Use App.send() to send to a different conversation.
+   */
+  async send(activity: DeprecatedInputActivity, conversationRef: ConversationReference): Promise<SentActivity>;
+  /**
+   * @deprecated Reactive sends should target the current inbound conversation. Use App.send() to send to a different conversation.
+   */
+  async send(activity: ActivityLike, conversationRef: ConversationReference): Promise<SentActivity>;
   async send(activity: ActivityLike | DeprecatedInputActivity, conversationRef?: ConversationReference) {
     const params = toActivityParams(activity);
 
@@ -355,8 +384,6 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     }
 
     if (this.isTargetedOutbound(params)) {
-      this.stripQuotedReplyMetadata(params);
-
       // `targetedMessageInfo` points at the original targeted inbound message for prompt preview.
       // Do not add it for generic targeted sends; Teams can reject it if the referenced activity
       // was not itself delivered as a targeted message.
@@ -366,7 +393,12 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     }
 
     const ref = conversationRef ?? this.ref;
-    return this.activitySender.send(params, ref);
+    const threadRootId = !params.id
+      ? this.getOutboundThreadRoot(conversationRef)
+      : undefined;
+    return threadRootId
+      ? this.activitySender.send(params, ref, { threadRootId })
+      : this.activitySender.send(params, ref);
   }
 
   /**
@@ -378,6 +410,8 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    * To send without quoting, use {@link send}.
    *
    * @param activity the activity to send
+   * @deprecated Use `MessageActivityInput.addQuote(...)` with {@link send} so
+   * visual quoting remains explicit and independent from thread placement.
    */
   /**
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
@@ -397,6 +431,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    * Teams renders the quoted message as a preview bubble above the response text.
    * @param messageId - The ID of the message to quote
    * @param activity - The activity to send — a quote placeholder for messageId will be prepended to its text
+   * @deprecated Use `MessageActivityInput.addQuote(...)` with {@link send}.
    */
   /**
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
@@ -499,6 +534,18 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     return !conversationRef || conversationRef.conversation?.id === this.ref.conversation?.id;
   }
 
+  private getOutboundThreadRoot(
+    conversationRef?: ConversationReference
+  ): string | undefined {
+    if (!this.isSameConversation(conversationRef)) {
+      return undefined;
+    }
+
+    return this.activity.type === 'message'
+      ? getDefaultThreadId(this.activity)
+      : undefined;
+  }
+
   private applyTargetedRecipient(params: ActivityParams) {
     params.recipient = {
       ...this.activity.from,
@@ -508,16 +555,6 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
 
   private isTargetedOutbound(params: ActivityParams): params is MessageActivityParams {
     return params.type === 'message' && params.recipient?.isTargeted === true;
-  }
-
-  private stripQuotedReplyMetadata(params: MessageActivityParams) {
-    if (params.entities) {
-      params.entities = params.entities.filter((e) => e.type !== 'quotedReply');
-    }
-
-    if (params.text) {
-      params.text = params.text.replace(`<quoted messageId="${this.activity.id}"/>`, '').trim();
-    }
   }
 
   private addTargetedMessageInfo(params: MessageActivityParams) {

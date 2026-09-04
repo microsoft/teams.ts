@@ -3,10 +3,8 @@ import { App } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common';
 
 import {
-  handleAddQuote,
   handleQuoteBatch,
   handleQuotedMessage,
-  handleQuoteManual,
   handleQuoteMessage,
   handleQuoteReply,
 } from './quoting';
@@ -17,10 +15,11 @@ import {
   registerReactionEvents,
 } from './reactions';
 import {
-  handleManualThread,
+  handleDefaultSend,
+  handleProactiveTargetedThread,
+  handleProactiveTargetedThreadQuote,
   handleProactiveThread,
-  handleThreadReply,
-  handleThreadSend,
+  handleProactiveThreadQuote,
 } from './threading';
 
 const app = new App({
@@ -36,16 +35,16 @@ app.on('message', async (context) => {
     await context.send(
       '**Interacting with Messages**\n\n' +
       '**Quoting:**\n' +
-      '- `quote reply` - auto-quote your message\n' +
+      '- `quote reply` - quote your incoming message\n' +
       '- `quote message` - quote a previously sent message\n' +
-      '- `quote add` - compose a quote with the message builder\n' +
-      '- `quote batch` - combine multiple quotes\n' +
-      '- `quote manual` - combine a quote and text manually\n\n' +
+      '- `quote batch` - combine multiple quotes\n\n' +
       '**Threading:**\n' +
-      '- `thread reply` - send a reactive threaded reply\n' +
-      '- `thread send` - send to the same thread without quoting\n' +
+      '- `default send` - send to the same thread without quoting\n' +
       '- `thread proactive` - send a proactive threaded reply\n' +
-      '- `thread manual` - construct a threaded conversation ID manually\n\n' +
+      '- `thread proactive quote` - send a quoted proactive threaded reply\n' +
+      '- `thread proactive targeted` - send a proactive targeted threaded reply\n' +
+      '- `thread proactive targeted quote` - send a quoted proactive targeted threaded reply\n' +
+      '\n' +
       '**Reactions:**\n' +
       '- `reaction add <type>` - add a reaction to your message\n' +
       '- `reaction remove <type>` - add, then remove, a reaction\n' +
@@ -65,23 +64,11 @@ app.on('message', async (context) => {
     return;
   }
 
-  if (await handleAddQuote(context, text)) {
-    return;
-  }
-
   if (await handleQuoteBatch(context, text)) {
     return;
   }
 
-  if (await handleQuoteManual(context, text)) {
-    return;
-  }
-
-  if (await handleThreadReply(context, text)) {
-    return;
-  }
-
-  if (await handleThreadSend(context, text)) {
+  if (await handleDefaultSend(context, text)) {
     return;
   }
 
@@ -89,7 +76,15 @@ app.on('message', async (context) => {
     return;
   }
 
-  if (await handleManualThread(app, context, text)) {
+  if (await handleProactiveThreadQuote(app, context, text)) {
+    return;
+  }
+
+  if (await handleProactiveTargetedThread(app, context, text)) {
+    return;
+  }
+
+  if (await handleProactiveTargetedThreadQuote(app, context, text)) {
     return;
   }
 
