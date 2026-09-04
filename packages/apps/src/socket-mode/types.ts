@@ -123,16 +123,6 @@ export type SocketModeOptions = {
   readonly fallbackToHttp?: boolean;
 
   /**
-   * How long, in milliseconds, `App.stop()` waits for in-flight activities to
-   * finish during drain before closing the socket. New activities are refused
-   * as soon as draining begins; already-admitted ones are given until this
-   * deadline to complete and return their reply.
-   *
-   * @default 10000
-   */
-  readonly drainTimeoutMs?: number;
-
-  /**
    * SignalR keep-alive ping interval in milliseconds — how often the client
    * pings the server while otherwise idle. Should stay comfortably below
    * {@link serverTimeoutMs}. Defaults to SignalR's built-in 15s.
