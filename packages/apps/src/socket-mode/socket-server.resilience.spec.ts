@@ -4,7 +4,7 @@ import { SocketModeAdapter } from './socket-server';
 import { SocketActivityEnvelope } from './types';
 
 // A controllable fake for the single-generation connection so the adapter's
-// reconnect supervisor, dispatch fence, and drain can be driven
+// reconnect supervisor and dispatch fence can be driven
 // without a live socket. Each constructed connection is recorded; tests trigger
 // readiness/closure and can queue a start failure to simulate a failed cycle.
 jest.mock('./socket-connection', () => {
@@ -218,12 +218,17 @@ describe('SocketModeAdapter resilience', () => {
     it('runs all concurrently-delivered activities without an admission cap', async () => {
       // There is no concurrency cap or queue: every activity SignalR delivers is
       // dispatched to the handler immediately, even while earlier ones are still
-      // in flight. inFlight reflects the true concurrent count (used only for drain).
+      // in flight.
       let release!: () => void;
       const gate = new Promise<void>((r) => (release = r));
+      let concurrent = 0;
+      let maxConcurrent = 0;
       const server = await makeServer();
       onMessaging(server, async () => {
+        concurrent++;
+        maxConcurrent = Math.max(maxConcurrent, concurrent);
         await gate;
+        concurrent--;
         return { status: 200 };
       });
       await server.start();
@@ -232,46 +237,15 @@ describe('SocketModeAdapter resilience', () => {
       // Fire a burst larger than the old default cap (50) — none is rejected.
       const replies = Array.from({ length: 60 }, (_, i) => h.onActivity(env(`e${i}`)));
       await new Promise((r) => setTimeout(r, 0));
-      expect(server.inFlightCount).toBe(60);
+      // All 60 handlers are running at once — proof there is no admission cap.
+      expect(maxConcurrent).toBe(60);
 
       release();
       const settled = await Promise.all(replies);
       // Every activity ran and got a real 200 ack (no 503 overload frames).
       expect(settled.every((r) => r?.status === 200)).toBe(true);
-      expect(server.inFlightCount).toBe(0);
 
       await server.stop();
-    });
-  });
-
-  describe('drain on stop', () => {
-    it('waits for in-flight activities to finish before closing', async () => {
-      let release!: () => void;
-      const gate = new Promise<void>((r) => (release = r));
-      const server = await makeServer({ drainTimeoutMs: 1000 });
-      let completed = false;
-      onMessaging(server, async () => {
-        await gate;
-        completed = true;
-        return { status: 200 };
-      });
-      await server.start();
-      const h = connState.connections[0].handlers;
-
-      const inflight = h.onActivity(env('e1'));
-      expect(server.inFlightCount).toBe(1);
-
-      const stopping = server.stop();
-      await new Promise((r) => setTimeout(r, 10));
-      // Still draining: the handler hasn't been allowed to finish yet.
-      expect(completed).toBe(false);
-
-      release();
-      await stopping;
-
-      expect(completed).toBe(true);
-      expect(connState.connections[0].stopped).toBeGreaterThanOrEqual(1);
-      await inflight;
     });
   });
 
