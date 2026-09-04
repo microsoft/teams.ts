@@ -24,6 +24,29 @@ export type NegotiateDeps = {
 export const DEFAULT_NEGOTIATE_TIMEOUT_MS = 15_000;
 
 /**
+ * Reject a negotiate URL that isn't HTTPS. The negotiate request carries a Bot
+ * Framework JWT in the `authorization` header; sending it over plaintext `http`
+ * would leak that token. A narrow exception is made for loopback hosts
+ * (`localhost`/`127.0.0.1`/`::1`) so local test endpoints still work.
+ */
+export function assertSecureNegotiateUrl(negotiateUrl: string): void {
+  let parsed: URL;
+  try {
+    parsed = new URL(negotiateUrl);
+  } catch {
+    throw new Error(`Socket Mode negotiate URL is not a valid URL: ${negotiateUrl}`);
+  }
+  if (parsed.protocol === 'https:') return;
+  const host = parsed.hostname;
+  const isLoopback = host === 'localhost' || host === '127.0.0.1' || host === '::1' || host === '[::1]';
+  if (parsed.protocol === 'http:' && isLoopback) return;
+  throw new Error(
+    `Socket Mode negotiate URL must use https (got ${parsed.protocol}//${host}); ` +
+    'the negotiate request carries a bearer token.'
+  );
+}
+
+/**
  * Error thrown by {@link negotiate} when the service returns a non-2xx status.
  * Carries the parsed `Retry-After` (in milliseconds) when the service asked the
  * caller to back off — typically on `429` or `503` — so the reconnect
@@ -71,6 +94,8 @@ export async function negotiate(deps: NegotiateDeps): Promise<NegotiateResult> {
       '(clientId/clientSecret, managed identity, or a token provider).'
     );
   }
+
+  assertSecureNegotiateUrl(deps.negotiateUrl);
 
   deps.log?.debug(`socket-mode: negotiate POST ${deps.negotiateUrl}`);
 
