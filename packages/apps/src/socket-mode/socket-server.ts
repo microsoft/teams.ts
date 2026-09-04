@@ -31,7 +31,6 @@ const DEFAULT_READINESS_TIMEOUT_MS = 30_000;
 const DEFAULT_STARTUP_TIMEOUT_MS = 30_000;
 const DEFAULT_KEEPALIVE_INTERVAL_MS = 15_000;
 const DEFAULT_SERVER_TIMEOUT_MS = 30_000;
-const DEFAULT_DRAIN_TIMEOUT_MS = 10_000;
 
 /** Reconnect back-off bounds: capped exponential with full jitter. */
 const RECONNECT_INITIAL_DELAY_MS = 1_000;
@@ -165,25 +164,12 @@ export class SocketModeAdapter implements IHttpServerAdapter {
   /** Aborts all in-flight negotiate/connect/back-off waits when stopping. */
   private abort?: AbortController;
   private stopped = false;
-  private draining = false;
-  /**
-   * Number of activities currently being processed (shared across all geos).
-   * Tracked only so {@link stop} can drain in-flight work before closing; there
-   * is no concurrency cap — SignalR delivers each activity and the handler runs
-   * immediately.
-   */
-  private inFlight = 0;
 
   constructor(
     readonly options: SocketModeOptions = {},
     private readonly deps: SocketModeAdapterDeps
   ) {
     this.log = deps.logger ?? new ConsoleLogger('SocketModeAdapter');
-  }
-
-  /** Number of inbound activities currently being processed (for diagnostics). */
-  get inFlightCount(): number {
-    return this.inFlight;
   }
 
   /**
@@ -292,7 +278,6 @@ export class SocketModeAdapter implements IHttpServerAdapter {
   async start(_port?: number | string): Promise<void> {
     this.assertCloudSupported();
     this.stopped = false;
-    this.draining = false;
     this._lifecycle = 'starting';
     this.abort = new AbortController();
 
@@ -320,26 +305,25 @@ export class SocketModeAdapter implements IHttpServerAdapter {
   }
 
   /**
-   * {@link IHttpServerAdapter} lifecycle: drain and close every geo. Stops
-   * admitting new activities, waits for in-flight ones up to the drain deadline,
-   * aborts any reconnect/back-off in progress, then closes all sockets.
+   * {@link IHttpServerAdapter} lifecycle: stop admitting activities, abort any
+   * reconnect/back-off in progress, then close every geo's socket. In-flight
+   * handlers are not awaited: any activity whose reply doesn't make it out before
+   * shutdown is redelivered by the Teams backend to another connection/instance.
    */
   async stop(): Promise<void> {
     if (this.stopped) return;
     this.stopped = true;
-    this.draining = true;
     this._lifecycle = 'stopped';
     this.log.info('socket-mode: stopping Socket Mode');
 
     this.abort?.abort();
 
-    await this.drainInFlight();
     await Promise.all(this.geos.map((g) => g.stop().catch(() => undefined)));
   }
 
   /** True while the server is up and admitting (used by geo dispatch fences). */
   get accepting(): boolean {
-    return !this.stopped && !this.draining;
+    return !this.stopped;
   }
 
   /** Shared abort signal for all geo supervisors. */
@@ -418,12 +402,11 @@ export class SocketModeAdapter implements IHttpServerAdapter {
 
   /**
    * Dispatch one inbound envelope behind the per-geo state fence (only the
-   * current, ready generation of that geo may run, never while draining or
-   * stopped). There is no concurrency cap or admission queue: SignalR already
-   * invokes the handler per activity, the Teams backend load-balances delivery
-   * across connections/instances, and each activity carries a reply deadline, so
-   * an in-SDK cap would mostly produce work whose reply is discarded. `inFlight`
-   * is tracked only so {@link stop} can drain before closing.
+   * current, ready generation of that geo may run, never once stopped). There is
+   * no concurrency cap or admission queue: SignalR already invokes the handler
+   * per activity, the Teams backend load-balances delivery across
+   * connections/instances, and each activity carries a reply deadline, so an
+   * in-SDK cap would mostly produce work whose reply is discarded.
    */
   async dispatch(geo: GeoSocket, gen: number, envelope: SocketActivityEnvelope): Promise<ReplyFrame | undefined> {
     if (!geo.canDispatch(gen)) {
@@ -431,12 +414,7 @@ export class SocketModeAdapter implements IHttpServerAdapter {
       return undefined;
     }
 
-    this.inFlight++;
-    try {
-      return await this.handleEnvelope(envelope);
-    } finally {
-      this.inFlight--;
-    }
+    return await this.handleEnvelope(envelope);
   }
 
   /**
@@ -467,19 +445,6 @@ export class SocketModeAdapter implements IHttpServerAdapter {
       );
     }
     return geos;
-  }
-
-  /** Wait for in-flight activities to finish, up to the drain deadline. */
-  private async drainInFlight(): Promise<void> {
-    const deadline = Date.now() + (this.options.drainTimeoutMs ?? DEFAULT_DRAIN_TIMEOUT_MS);
-    while (this.inFlight > 0 && Date.now() < deadline) {
-      await new Promise((resolve) => setTimeout(resolve, 20));
-    }
-    if (this.inFlight > 0) {
-      this.log.warn(
-        `socket-mode: drain deadline reached with ${this.inFlight} activity(ies) still in flight`
-      );
-    }
   }
 
   /**
