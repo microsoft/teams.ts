@@ -69,9 +69,16 @@ function buildNegotiateUrl(base: string, geo: string): string {
 export type SocketModeEvents = {
   /** A geo's socket connected and Teams backend service confirmed readiness. */
   ready: { geo: string; frame: SocketReadyFrame };
-  /** A geo's socket dropped; a reconnect for that geo may be in progress. */
+  /**
+   * A geo's socket dropped unexpectedly; a reconnect for that geo may be in
+   * progress. Not emitted for a planned proactive token rotation, which
+   * renegotiates transparently without surfacing a drop.
+   */
   disconnected: { geo: string; error?: Error };
-  /** A geo's socket reconnected and re-established its Teams backend service group. */
+  /**
+   * A geo's socket reconnected after an unexpected drop and re-established its
+   * Teams backend service group. Not emitted for a planned token rotation.
+   */
   reconnected: { geo: string };
 };
 
@@ -597,6 +604,17 @@ export class SocketModeAdapter implements IHttpServerAdapter {
 }
 
 /**
+ * Why a connection generation terminated, so the supervisor can distinguish a
+ * planned token rotation (expected, non-warning) from an unexpected drop.
+ *
+ * - `{ planned: true }` — the proactive token-refresh timer deliberately tore
+ *   down the connection to renegotiate with a fresh token before expiry.
+ * - `{ planned: false, error? }` — the socket closed unexpectedly (network drop,
+ *   server close, transport error). `error` carries the cause when known.
+ */
+type CloseReason = { planned: true } | { planned: false; error?: Error };
+
+/**
  * One supervised socket connection for a single geo. Owns its own connection
  * generation, readiness gate, reconnect supervisor, and proactive token refresh,
  * and delegates shared concerns (envelope handling, events, back-off policy, the
@@ -615,7 +633,7 @@ class GeoSocket {
   private refreshTimer?: ReturnType<typeof setTimeout>;
   private _status: SocketModeStatus = 'idle';
   /** Settles when the current connection terminates; drives the supervisor. */
-  private closed: Promise<Error | undefined> = Promise.resolve(undefined);
+  private closed: Promise<CloseReason> = Promise.resolve({ planned: false });
 
   constructor(
     private readonly server: SocketModeAdapter,
@@ -692,14 +710,14 @@ class GeoSocket {
    * and — once ready — schedule proactive token refresh. Returns a promise that
    * settles when this connection terminates.
    */
-  private async connectCycle(gen: number): Promise<{ closed: Promise<Error | undefined> }> {
+  private async connectCycle(gen: number): Promise<{ closed: Promise<CloseReason> }> {
     let settled = false;
-    let settle!: (error?: Error) => void;
-    const closed = new Promise<Error | undefined>((resolve) => {
-      settle = (error) => {
+    let settle!: (reason: CloseReason) => void;
+    const closed = new Promise<CloseReason>((resolve) => {
+      settle = (reason) => {
         if (!settled) {
           settled = true;
-          resolve(error);
+          resolve(reason);
         }
       };
     });
@@ -708,11 +726,15 @@ class GeoSocket {
       onActivity: (envelope) => this.server.dispatch(this, gen, envelope),
       onReady: (frame) => {
         this.readyGen = gen;
+        // Set status before emitting so an observer reading `status` from the
+        // `ready` handler (including the final geo, which flips the aggregate to
+        // `ready`) sees the settled value rather than a stale `connecting`.
+        this._status = 'ready';
         this.server.emit('ready', { geo: this.geo, frame });
       },
       onClosed: (error) => {
         this.clearRefreshTimer();
-        settle(error);
+        settle({ planned: false, error });
       },
     };
 
@@ -720,7 +742,9 @@ class GeoSocket {
     this.connection = connection;
 
     await connection.start(this.server.abortSignal);
-    this.scheduleTokenRefresh(gen, connection.expiresInSeconds, () => settle());
+    this.scheduleTokenRefresh(gen, connection.expiresInSeconds, () =>
+      settle({ planned: true })
+    );
     return { closed };
   }
 
@@ -733,9 +757,9 @@ class GeoSocket {
     let closed = this.closed;
     while (this.server.accepting) {
       const aborted = this.whenAborted();
-      let error: Error | undefined;
+      let reason: CloseReason;
       try {
-        error = await Promise.race([closed, aborted.promise]);
+        reason = (await Promise.race([closed, aborted.promise])) ?? { planned: false };
       } finally {
         // Remove the abort listener registered for this iteration; without this
         // a listener accumulates on every reconnect for the process lifetime
@@ -744,10 +768,34 @@ class GeoSocket {
       }
       if (!this.server.accepting) return;
 
+      const planned = reason.planned === true;
+      const error = reason.planned ? undefined : reason.error;
+
       this.readyGen = -1;
-      this._status = 'disconnected';
-      this.log.warn(`socket-mode[${this.geo}]: disconnected; inbound delivery paused for this geo`, error);
-      this.server.emit('disconnected', { geo: this.geo, error });
+      if (planned) {
+        // Expected token rotation: renegotiate with a fresh token, but don't
+        // surface it as an outage. Keep the status as (re)connecting and skip
+        // the `disconnected` warning/event so observers don't see a false drop.
+        this._status = 'connecting';
+        this.log.info(
+          `socket-mode[${this.geo}]: proactively rotating token; renegotiating a fresh connection`
+        );
+      } else {
+        this._status = 'disconnected';
+        // Only pass `error` when we actually have one, so the logger never
+        // renders an `undefined` payload for an errorless close.
+        if (error) {
+          this.log.warn(
+            `socket-mode[${this.geo}]: disconnected; inbound delivery paused for this geo`,
+            error
+          );
+        } else {
+          this.log.warn(
+            `socket-mode[${this.geo}]: disconnected; inbound delivery paused for this geo`
+          );
+        }
+        this.server.emit('disconnected', { geo: this.geo, error });
+      }
 
       await this.connection?.stop().catch(() => undefined);
 
@@ -756,8 +804,12 @@ class GeoSocket {
 
       closed = next.closed;
       this._status = 'ready';
-      this.log.info(`socket-mode[${this.geo}]: reconnected; inbound delivery resumed for this geo`);
-      this.server.emit('reconnected', { geo: this.geo });
+      if (planned) {
+        this.log.info(`socket-mode[${this.geo}]: token rotated; inbound delivery continues for this geo`);
+      } else {
+        this.log.info(`socket-mode[${this.geo}]: reconnected; inbound delivery resumed for this geo`);
+        this.server.emit('reconnected', { geo: this.geo });
+      }
     }
   }
 
@@ -780,7 +832,7 @@ class GeoSocket {
     return { promise, dispose: () => signal.removeEventListener('abort', onAbort) };
   }
 
-  private async reconnect(prevError?: Error): Promise<{ closed: Promise<Error | undefined> } | undefined> {
+  private async reconnect(prevError?: Error): Promise<{ closed: Promise<CloseReason> } | undefined> {
     let attempt = 0;
     let retryAfterMs = this.server.retryAfterOf(prevError);
 
