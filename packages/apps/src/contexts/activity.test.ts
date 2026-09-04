@@ -9,6 +9,7 @@ import {
   FILE_DOWNLOAD_INFO_CONTENT_TYPE,
   IMessageActivity,
   MessageActivity,
+  MessageActivityInput,
   TokenExchangeResource,
   TokenPostResource,
 } from '@microsoft/teams.api';
