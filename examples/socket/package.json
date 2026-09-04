@@ -14,7 +14,7 @@
     "lint": "npx eslint",
     "lint:fix": "npx eslint --fix",
     "build": "npx tsc",
-    "start": "node .",
+    "start": "node -r dotenv/config .",
     "dev": "tsx watch -r dotenv/config src/index.ts"
   },
   "dependencies": {

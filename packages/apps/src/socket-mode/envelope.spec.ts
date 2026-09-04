@@ -26,6 +26,21 @@ describe('socket-mode envelope', () => {
       expect(readEnvelopeActivity({ activity: { type: 'invoke' } } as any)?.type).toBe('invoke');
       expect(readEnvelopeActivity({} as SocketActivityEnvelope)).toBeUndefined();
     });
+
+    it('ignores a malformed payload and falls back to a valid activity alias', () => {
+      // A non-object / typeless payload must not be returned as a bogus activity,
+      // nor suppress a valid `activity` alias on the same envelope.
+      expect(readEnvelopeActivity({ payload: 'oops', activity: { type: 'message' } } as any)?.type)
+        .toBe('message');
+      expect(readEnvelopeActivity({ payload: { noType: true }, activity: { type: 'invoke' } } as any)?.type)
+        .toBe('invoke');
+    });
+
+    it('returns undefined when neither payload nor activity is activity-shaped', () => {
+      expect(readEnvelopeActivity({ payload: 'oops' } as any)).toBeUndefined();
+      expect(readEnvelopeActivity({ payload: ['not', 'an', 'activity'] } as any)).toBeUndefined();
+      expect(readEnvelopeActivity({ payload: { id: 1 } } as any)).toBeUndefined();
+    });
   });
 
   describe('isInvokeEnvelope', () => {

@@ -178,6 +178,61 @@ describe('SocketModeAdapter (through App)', () => {
     expect(reply).toMatchObject({ status: 500, envelopeId: 'env-err' });
   });
 
+  it('rejects an envelope declaring an unsupported (newer) protocol version with a 400, without running the handler', async () => {
+    const app = createTestApp({
+      logger: new ConsoleLogger('test', { level: 'error' }),
+      clientId: 'bot1',
+      socketMode: { fallbackToHttp: false },
+    });
+
+    let handled = false;
+    app.on('card.action', (async () => {
+      handled = true;
+      return { status: 200 };
+    }) as any);
+
+    await app.start();
+
+    const reply = await connState.handlers!.onActivity({
+      type: 'invoke',
+      envelopeId: 'env-future',
+      protocolVersion: 999,
+      payload: invokeActivity(),
+    } as SocketActivityEnvelope);
+
+    // Handler never runs; the reply is a versioned 400 stamped with our version.
+    expect(handled).toBe(false);
+    expect(reply).toMatchObject({
+      protocolVersion: 1,
+      envelopeId: 'env-future',
+      status: 400,
+    });
+  });
+
+  it('still processes an envelope that omits protocolVersion (treated as current)', async () => {
+    const app = createTestApp({
+      logger: new ConsoleLogger('test', { level: 'error' }),
+      clientId: 'bot1',
+      socketMode: { fallbackToHttp: false },
+    });
+
+    let handled = false;
+    app.on('message', async () => {
+      handled = true;
+    });
+
+    await app.start();
+
+    const reply = await connState.handlers!.onActivity({
+      type: 'message',
+      envelopeId: 'env-nover',
+      payload: messageActivity(),
+    });
+
+    expect(handled).toBe(true);
+    expect(reply).toMatchObject({ status: 200, envelopeId: 'env-nover' });
+  });
+
   it('leaves HTTP-only features (tab, function) inert in socket-only mode', () => {
     const app = createTestApp({
       logger: new ConsoleLogger('test', { level: 'error' }),

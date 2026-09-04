@@ -414,4 +414,72 @@ describe('SocketModeAdapter resilience', () => {
       expect(server.status).toBe('stopped');
     });
   });
+
+  describe('onError reporting', () => {
+    /** Build an adapter whose deps include an onError hook. */
+    async function makeServerWithOnError(
+      onError: (error: Error) => void | Promise<void>
+    ): Promise<SocketModeAdapter> {
+      const server = new SocketModeAdapter({ geos: [''] } as any, {
+        tokenProvider: { getAppToken: async () => 'app-token' } as any,
+        messagingEndpoint: MESSAGING_ENDPOINT,
+        soleTransport: true,
+        onError,
+        logger: new ConsoleLogger('test', { level: 'error' }),
+      });
+      await server.initialize({ credentials: { clientId: 'bot1' } as any });
+      return server;
+    }
+
+    it('awaits an async onError hook before returning the 500 reply frame', async () => {
+      const order: string[] = [];
+      const server = await makeServerWithOnError(async () => {
+        // A microtask boundary: if onError were fire-and-forget (not awaited),
+        // 'reply' would be recorded before 'onError-done'.
+        await new Promise((r) => setTimeout(r, 5));
+        order.push('onError-done');
+      });
+      onMessaging(server, async () => {
+        throw new Error('handler boom');
+      });
+      await server.start();
+
+      const reply = await connState.connections[0].handlers.onActivity(env('e-err', 'invoke'));
+      order.push('reply');
+
+      expect(order).toEqual(['onError-done', 'reply']);
+      expect(reply).toMatchObject({ status: 500, envelopeId: 'e-err' });
+    });
+
+    it('receives the thrown error in the onError hook', async () => {
+      const seen: Error[] = [];
+      const server = await makeServerWithOnError((e) => {
+        seen.push(e);
+      });
+      onMessaging(server, async () => {
+        throw new Error('handler boom');
+      });
+      await server.start();
+
+      await connState.connections[0].handlers.onActivity(env('e-err2', 'invoke'));
+
+      expect(seen).toHaveLength(1);
+      expect(seen[0]).toBeInstanceOf(Error);
+      expect(seen[0].message).toMatch(/handler boom/);
+    });
+
+    it('does not crash dispatch when the onError hook itself throws', async () => {
+      const server = await makeServerWithOnError(() => {
+        throw new Error('hook boom');
+      });
+      onMessaging(server, async () => {
+        throw new Error('handler boom');
+      });
+      await server.start();
+
+      // A throwing onError hook must not propagate; a 500 frame is still returned.
+      const reply = await connState.connections[0].handlers.onActivity(env('e-err3', 'invoke'));
+      expect(reply).toMatchObject({ status: 500, envelopeId: 'e-err3' });
+    });
+  });
 });

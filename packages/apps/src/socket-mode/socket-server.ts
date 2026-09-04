@@ -9,6 +9,7 @@ import {
   buildInvokeReplyFrame,
   isInvokeEnvelope,
   readEnvelopeActivity,
+  readField,
   replyFrameBase,
 } from './envelope';
 import { NegotiateError } from './negotiate';
@@ -104,8 +105,13 @@ export type SocketModeAdapterDeps = {
    * those, so they are logged only at debug.
    */
   readonly soleTransport: boolean;
-  /** Surface an unexpected inbound-processing error to the app pipeline. */
-  readonly onError?: (error: Error) => void;
+  /**
+   * Surface an unexpected inbound-processing error to the app pipeline. May be
+   * async — the transport awaits it (behind an error boundary) so an
+   * `App.onError` that performs async work (logging, telemetry flush) completes
+   * before the reply frame is returned.
+   */
+  readonly onError?: (error: Error) => void | Promise<void>;
   /** Logger to use; defaults to a `SocketModeAdapter`-tagged console logger. */
   readonly logger?: ILogger;
 };
@@ -489,6 +495,28 @@ export class SocketModeAdapter implements IHttpServerAdapter {
    */
   private async handleEnvelope(envelope: SocketActivityEnvelope): Promise<ReplyFrame | undefined> {
     const base = replyFrameBase(envelope, this.botId);
+
+    // Reject an envelope declaring a protocol version newer than we support
+    // BEFORE dispatch: a future major version may change the reply contract, so
+    // running the handler and replying with our v1 frame could be misinterpreted.
+    // Absent/lower versions are treated as current for backward compatibility.
+    const declaredVersion = Number(readField(envelope, 'protocolVersion'));
+    if (Number.isFinite(declaredVersion) && declaredVersion > SOCKET_MODE_PROTOCOL_VERSION) {
+      this.log.warn(
+        `socket-mode: rejecting envelope with unsupported protocolVersion=${declaredVersion} ` +
+        `(supported=${SOCKET_MODE_PROTOCOL_VERSION}) envelopeId=${base.envelopeId ?? ''}`
+      );
+      return {
+        protocolVersion: SOCKET_MODE_PROTOCOL_VERSION,
+        envelopeId: base.envelopeId,
+        botKey: base.botKey,
+        status: 400,
+        body: { error: `unsupported protocolVersion ${declaredVersion}` },
+        recvAt: base.recvAt,
+        ts: Date.now(),
+      };
+    }
+
     const activity = readEnvelopeActivity(envelope);
 
     if (!activity) {
@@ -525,7 +553,7 @@ export class SocketModeAdapter implements IHttpServerAdapter {
         `socket-mode: failed to process an inbound activity type=${activity.type} envelopeId=${base.envelopeId ?? ''}`,
         error
       );
-      this.deps.onError?.(error);
+      await this.reportError(error);
       return {
         protocolVersion: SOCKET_MODE_PROTOCOL_VERSION,
         envelopeId: base.envelopeId,
@@ -535,6 +563,20 @@ export class SocketModeAdapter implements IHttpServerAdapter {
         recvAt: base.recvAt,
         ts: Date.now(),
       };
+    }
+  }
+
+  /**
+   * Invoke the optional {@link SocketModeAdapterDeps.onError} hook, awaiting it
+   * (behind an error boundary) so an async handler completes before we return
+   * the reply frame, and a throwing/rejecting hook can't crash the transport.
+   */
+  private async reportError(error: Error): Promise<void> {
+    if (!this.deps.onError) return;
+    try {
+      await this.deps.onError(error);
+    } catch (hookError) {
+      this.log.warn('socket-mode: onError hook threw; ignoring', hookError);
     }
   }
 
@@ -725,7 +767,16 @@ class GeoSocket {
   private async supervise(): Promise<void> {
     let closed = this.closed;
     while (this.server.accepting) {
-      const error = await Promise.race([closed, this.whenAborted()]);
+      const aborted = this.whenAborted();
+      let error: Error | undefined;
+      try {
+        error = await Promise.race([closed, aborted.promise]);
+      } finally {
+        // Remove the abort listener registered for this iteration; without this
+        // a listener accumulates on every reconnect for the process lifetime
+        // when `closed` (not the abort) wins the race.
+        aborted.dispose();
+      }
       if (!this.server.accepting) return;
 
       this.readyGen = -1;
@@ -745,15 +796,23 @@ class GeoSocket {
     }
   }
 
-  private whenAborted(): Promise<undefined> {
-    return new Promise<undefined>((resolve) => {
-      const signal = this.server.abortSignal;
-      if (!signal || signal.aborted) {
-        resolve(undefined);
-        return;
-      }
-      signal.addEventListener('abort', () => resolve(undefined), { once: true });
+  /**
+   * A promise that resolves when the server's abort signal fires, paired with a
+   * `dispose()` that removes the listener. The caller MUST call `dispose()` once
+   * the race it participates in settles, otherwise the listener leaks across
+   * reconnects.
+   */
+  private whenAborted(): { promise: Promise<undefined>; dispose: () => void } {
+    const signal = this.server.abortSignal;
+    if (!signal || signal.aborted) {
+      return { promise: Promise.resolve(undefined), dispose: () => undefined };
+    }
+    let onAbort!: () => void;
+    const promise = new Promise<undefined>((resolve) => {
+      onAbort = () => resolve(undefined);
+      signal.addEventListener('abort', onAbort, { once: true });
     });
+    return { promise, dispose: () => signal.removeEventListener('abort', onAbort) };
   }
 
   private async reconnect(prevError?: Error): Promise<{ closed: Promise<Error | undefined> } | undefined> {

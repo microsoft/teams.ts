@@ -25,6 +25,13 @@ export class SignalRSocketConnection implements ISocketConnection {
 
   private connection?: HubConnection;
   private stopped = false;
+  /**
+   * Whether the readiness gate has been settled (resolved or rejected). Guards
+   * the `SocketReady` handler so a duplicate or late readiness frame — including
+   * one that arrives after {@link stop} — cannot re-fire `onReady` or otherwise
+   * act on an already-settled connection.
+   */
+  private settled = false;
 
   constructor(
     private readonly context: SocketConnectionContext,
@@ -34,6 +41,7 @@ export class SignalRSocketConnection implements ISocketConnection {
 
   async start(signal?: AbortSignal): Promise<void> {
     this.stopped = false;
+    this.settled = false;
     this.throwIfAborted(signal);
 
     const neg = await negotiate({
@@ -60,8 +68,19 @@ export class SignalRSocketConnection implements ISocketConnection {
     let markReady!: () => void;
     let failReady!: (err: Error) => void;
     const ready = new Promise<void>((resolve, reject) => {
-      markReady = resolve;
-      failReady = reject;
+      // Settle exactly once: the first outcome (ready, close, timeout, or abort)
+      // wins, and every later signal — e.g. a duplicate `SocketReady` or a close
+      // after readiness — becomes a no-op instead of re-firing observers.
+      markReady = () => {
+        if (this.settled) return;
+        this.settled = true;
+        resolve();
+      };
+      failReady = (err: Error) => {
+        if (this.settled) return;
+        this.settled = true;
+        reject(err);
+      };
     });
 
     connection.on('Activity', (envelope: SocketActivityEnvelope) =>
@@ -69,6 +88,9 @@ export class SignalRSocketConnection implements ISocketConnection {
     );
 
     connection.on('SocketReady', (frame: SocketReadyFrame) => {
+      // Ignore a late/duplicate readiness frame once the gate has settled (e.g.
+      // after stop or a prior SocketReady) so `onReady` fires at most once.
+      if (this.settled || this.stopped) return;
       this.log?.debug('socket-mode: SocketReady received; readiness satisfied');
       // Complete the internal readiness transition FIRST so a throwing observer
       // can't wedge the connection into a permanent not-ready state (readiness
@@ -93,8 +115,20 @@ export class SignalRSocketConnection implements ISocketConnection {
       this.handlers.onClosed(error ?? undefined);
     });
 
+    // Register the abort listener BEFORE starting the connection so an abort
+    // during the `connection.start()` handshake (or any time before readiness)
+    // rejects the readiness gate, which stops the connection via the catch
+    // below. Registering it only after start left that window unguarded.
+    const onAbort = () => failReady(new Error('Socket Mode connect aborted'));
+    signal?.addEventListener('abort', onAbort, { once: true });
+
     await connection.start();
-    this.throwIfAborted(signal);
+    // An abort that landed during start won't have had a connection to stop; now
+    // that one exists, honor it explicitly.
+    if (signal?.aborted) {
+      await this.stop();
+      throw new Error('Socket Mode connect aborted');
+    }
     this.log?.debug('socket-mode: socket connected; awaiting SocketReady');
 
     const timeoutMs = this.context.readinessTimeoutMs;
@@ -108,9 +142,6 @@ export class SignalRSocketConnection implements ISocketConnection {
         )
       );
     }, timeoutMs);
-
-    const onAbort = () => failReady(new Error('Socket Mode connect aborted'));
-    signal?.addEventListener('abort', onAbort, { once: true });
 
     try {
       await ready;

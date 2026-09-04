@@ -20,12 +20,32 @@ export function readField<T = unknown>(obj: unknown, name: string): T | undefine
 }
 
 /**
+ * Whether a value is shaped like a Bot Framework {@link Activity}: a non-null,
+ * non-array object carrying a string `type`. Used to reject a malformed
+ * `payload` so it can't be returned as a bogus activity or suppress a valid
+ * `activity` alias on the same envelope.
+ */
+export function isActivityShaped(value: unknown): value is Activity {
+  return (
+    value != null &&
+    typeof value === 'object' &&
+    !Array.isArray(value) &&
+    typeof (value as { type?: unknown }).type === 'string'
+  );
+}
+
+/**
  * Extract the Bot Framework {@link Activity} from an inbound envelope. Teams backend service
- * carries it under `payload` (or `activity` on some builds).
+ * carries it under `payload` (or `activity` on some builds). Each candidate is
+ * validated with {@link isActivityShaped}, so a malformed `payload` falls
+ * through to the `activity` alias instead of masking it.
  */
 export function readEnvelopeActivity(env: SocketActivityEnvelope): Activity | undefined {
-  const payload = readField(env, 'payload') ?? readField(env, 'activity');
-  return payload as Activity | undefined;
+  const payload = readField(env, 'payload');
+  if (isActivityShaped(payload)) return payload;
+  const activity = readField(env, 'activity');
+  if (isActivityShaped(activity)) return activity;
+  return undefined;
 }
 
 /**
