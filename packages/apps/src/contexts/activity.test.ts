@@ -334,11 +334,11 @@ describe('ActivityContext', () => {
 
     it.each([
       {
-        scope: 'personal',
+        scope: 'personal with thread metadata',
         conversationType: 'personal',
         conversationId: 'personal-conversation',
         threadId: 'ignored-thread',
-        expectedRoot: undefined,
+        expectedRoot: 'ignored-thread',
       },
       {
         scope: 'group chat root message',

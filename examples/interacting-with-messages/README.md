@@ -31,6 +31,10 @@ Each concept is kept in a separate source module:
 | `thread proactive targeted` | `app.reply()` sends a targeted proactive threaded reply |
 | `thread proactive targeted quote` | `app.reply()` sends a targeted proactive threaded reply with an explicit quote |
 
+The proactive commands use `getProactiveThreadReference()` to normalize the
+inbound conversation ID and resolve the explicit thread root before calling
+`app.reply()`.
+
 ### Reactions
 
 | Command | Behavior |

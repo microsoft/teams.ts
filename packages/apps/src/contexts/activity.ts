@@ -24,7 +24,7 @@ import { OAuthSignInOptions, startOAuthSignIn } from '../oauth';
 import { TurnStateContainer } from '../state';
 import { IStreamer } from '../types';
 import { IActivitySender } from '../types/plugin/sender';
-import { parseLegacyThreadedConversationId } from '../utils/thread';
+import { getDefaultThreadId } from '../utils/thread';
 
 /**
  * Constructor arguments for ActivityContext
@@ -541,22 +541,9 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       return undefined;
     }
 
-    const conversationType = this.activity.conversation?.conversationType;
-    const legacyThread = parseLegacyThreadedConversationId(
-      this.activity.conversation?.id ?? ''
-    );
-    const inboundThreadRoot = this.activity.channelData?.thread?.id
-      ?? legacyThread?.threadRootId;
-
-    if (conversationType === 'groupChat') {
-      return inboundThreadRoot;
-    }
-
-    if (conversationType === 'channel') {
-      return inboundThreadRoot ?? this.activity.id;
-    }
-
-    return undefined;
+    return this.activity.type === 'message'
+      ? getDefaultThreadId(this.activity)
+      : undefined;
   }
 
   private applyTargetedRecipient(params: ActivityParams) {

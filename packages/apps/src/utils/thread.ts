@@ -1,3 +1,5 @@
+import type { IMessageActivity } from '@microsoft/teams.api';
+
 /**
  * Constructs a threaded conversation ID by appending `;messageid={messageId}`
  * to the conversation ID.
@@ -34,6 +36,21 @@ export type LegacyThreadedConversation = {
 };
 
 /**
+ * Base conversation and root activity used for an explicit proactive threaded reply.
+ */
+export type ProactiveThreadReference = {
+  /**
+   * Base conversation ID without a valid legacy `;messageid=` suffix.
+   */
+  readonly conversationId: string;
+
+  /**
+   * Root activity ID that identifies the destination thread.
+   */
+  readonly threadRootId: string;
+};
+
+/**
  * Parses a valid legacy `;messageid=` conversation suffix.
  * @internal
  */
@@ -49,4 +66,57 @@ export function parseLegacyThreadedConversationId(
     conversationId: match[1],
     threadRootId: match[2],
   };
+}
+
+/**
+ * Resolve the explicit conversation and thread root for a proactive reply to an
+ * inbound message.
+ *
+ * Typed `channelData.thread.id` metadata takes precedence over a valid legacy
+ * `;messageid=` suffix. A root inbound message uses its activity ID as the
+ * proactive thread root.
+ *
+ * @param activity Inbound message whose thread should receive the proactive reply.
+ * @returns Base conversation ID and explicit thread root for `App.reply()`.
+ */
+export function getProactiveThreadReference(
+  activity: IMessageActivity
+): ProactiveThreadReference {
+  const legacyThread = parseLegacyThreadedConversationId(activity.conversation.id);
+  return {
+    conversationId: legacyThread?.conversationId ?? activity.conversation.id,
+    threadRootId: activity.channelData?.thread?.id
+      ?? legacyThread?.threadRootId
+      ?? activity.id,
+  };
+}
+
+/**
+ * Resolve the default thread root for a reactive send in an inbound message's
+ * conversation scope.
+ *
+ * Typed `channelData.thread.id` metadata takes precedence over a valid legacy
+ * `;messageid=` suffix. A channel root message uses its activity ID. Group-chat
+ * and personal root messages return `undefined` so the send creates another root
+ * message.
+ *
+ * @param activity Inbound message that establishes the reactive send scope.
+ * @returns Thread root ID for reply placement, or `undefined` for root placement.
+ */
+export function getDefaultThreadId(
+  activity: IMessageActivity
+): string | undefined {
+  const threadRootId = activity.channelData?.thread?.id;
+  if (threadRootId) {
+    return threadRootId;
+  }
+
+  const legacyThread = parseLegacyThreadedConversationId(activity.conversation.id);
+  if (legacyThread) {
+    return legacyThread.threadRootId;
+  }
+
+  return activity.conversation.conversationType === 'channel'
+    ? activity.id
+    : undefined;
 }

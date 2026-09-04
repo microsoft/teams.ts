@@ -1,5 +1,9 @@
 import { Activity, MessageActivityInput } from '@microsoft/teams.api';
-import { App, IActivityContext } from '@microsoft/teams.apps';
+import {
+  App,
+  getProactiveThreadReference,
+  IActivityContext,
+} from '@microsoft/teams.apps';
 
 type MessageContext = IActivityContext<Extract<Activity, { type: 'message' }>>;
 
@@ -32,7 +36,8 @@ export async function handleProactiveThread(
     return false;
   }
 
-  const { conversationId, threadRootId } = getThreadReference(context);
+  const { conversationId, threadRootId } =
+    getProactiveThreadReference(context.activity);
   await app.reply(
     conversationId,
     threadRootId,
@@ -54,7 +59,8 @@ export async function handleProactiveThreadQuote(
     return false;
   }
 
-  const { conversationId, threadRootId } = getThreadReference(context);
+  const { conversationId, threadRootId } =
+    getProactiveThreadReference(context.activity);
   await app.reply(
     conversationId,
     threadRootId,
@@ -78,7 +84,8 @@ export async function handleProactiveTargetedThread(
     return false;
   }
 
-  const { conversationId, threadRootId } = getThreadReference(context);
+  const { conversationId, threadRootId } =
+    getProactiveThreadReference(context.activity);
   await app.reply(
     conversationId,
     threadRootId,
@@ -102,7 +109,8 @@ export async function handleProactiveTargetedThreadQuote(
     return false;
   }
 
-  const { conversationId, threadRootId } = getThreadReference(context);
+  const { conversationId, threadRootId } =
+    getProactiveThreadReference(context.activity);
   await app.reply(
     conversationId,
     threadRootId,
@@ -111,16 +119,4 @@ export async function handleProactiveTargetedThreadQuote(
       .withRecipient(context.activity.from, true)
   );
   return true;
-}
-
-function getThreadReference(context: MessageContext): {
-  conversationId: string;
-  threadRootId: string;
-} {
-  const [conversationId, legacyThreadRootId] =
-    context.ref.conversation.id.split(';messageid=');
-  const threadRootId = context.activity.channelData?.thread?.id
-    ?? legacyThreadRootId
-    ?? context.activity.id;
-  return { conversationId, threadRootId };
 }
