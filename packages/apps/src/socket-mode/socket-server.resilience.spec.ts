@@ -267,6 +267,75 @@ describe('SocketModeAdapter resilience', () => {
         jest.useRealTimers();
       }
     });
+
+    it('does not surface a planned refresh as a disconnect (no disconnected/reconnected events, no undefined warn)', async () => {
+      jest.useFakeTimers();
+      try {
+        connState.expiresInSeconds = 120;
+        // A recording logger so we can assert a planned refresh never logs an
+        // errorless (undefined-payload) disconnect warning.
+        const warnings: any[][] = [];
+        const recording = new ConsoleLogger('test', { level: 'error' });
+        (recording as any).warn = (...args: any[]) => warnings.push(args);
+
+        const server = new SocketModeAdapter({ geos: [''], reconnectDelaysMs: [0] } as any, {
+          tokenProvider: { getAppToken: async () => 'app-token' } as any,
+          messagingEndpoint: MESSAGING_ENDPOINT,
+          soleTransport: true,
+          logger: recording,
+        });
+        await server.initialize({ credentials: { clientId: 'bot1' } as any });
+        onMessaging(server, jest.fn(async () => ({ status: 200 })));
+
+        const disconnected = jest.fn();
+        const reconnected = jest.fn();
+        server.events.on('disconnected', disconnected);
+        server.events.on('reconnected', reconnected);
+
+        await server.start();
+        expect(server.status).toBe('ready');
+
+        // Fire the proactive refresh timer.
+        await jest.advanceTimersByTimeAsync(61_000);
+
+        // A fresh connection was negotiated...
+        expect(connState.connections.length).toBeGreaterThanOrEqual(2);
+        // ...but the planned rotation must NOT look like an outage.
+        expect(disconnected).not.toHaveBeenCalled();
+        expect(reconnected).not.toHaveBeenCalled();
+        expect(server.status).toBe('ready');
+        // And no disconnect warning was logged with an undefined error payload.
+        const droppedWarn = warnings.find((w) =>
+          typeof w[0] === 'string' && w[0].includes('disconnected; inbound delivery paused')
+        );
+        expect(droppedWarn).toBeUndefined();
+
+        await server.stop();
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    it('still reports an unexpected drop as disconnected (planned-vs-unexpected are distinguished)', async () => {
+      const server = await makeServer({ reconnectDelaysMs: [0] });
+      onMessaging(server, jest.fn(async () => ({ status: 200 })));
+      await server.start();
+
+      const disconnected = jest.fn();
+      const reconnected = jest.fn();
+      server.events.on('disconnected', disconnected);
+      server.events.on('reconnected', reconnected);
+
+      // A real socket drop (not a planned refresh) must still emit the events.
+      connState.connections[0].drop(new Error('network drop'));
+      await ticks();
+
+      expect(disconnected).toHaveBeenCalledTimes(1);
+      expect(disconnected.mock.calls[0][0].error).toBeInstanceOf(Error);
+      expect(reconnected).toHaveBeenCalledTimes(1);
+
+      await server.stop();
+    });
   });
 
   describe('startup retries', () => {
@@ -368,6 +437,34 @@ describe('SocketModeAdapter resilience', () => {
       // event carried the amer geo. The other geos were never rebuilt.
       expect(connState.connections).toHaveLength(4);
       expect(reconnected).toEqual(['amer']);
+      expect(server.status).toBe('ready');
+
+      await server.stop();
+    });
+
+    it('reports aggregate status ready by the time the final geo ready observer runs', async () => {
+      // Bug #3: a `ready` observer (per-geo) previously saw status 'connecting'
+      // even for the final geo, because geo status flipped to ready only AFTER
+      // the ready event fired. Assert the aggregate status is consistent by the
+      // time each ready observer runs, so the final one sees 'ready'.
+      const server = new SocketModeAdapter({ reconnectDelaysMs: [0] } as any, {
+        tokenProvider: { getAppToken: async () => 'app-token' } as any,
+        messagingEndpoint: MESSAGING_ENDPOINT,
+        soleTransport: true,
+        logger: new ConsoleLogger('test', { level: 'error' }),
+      });
+      await server.initialize({ credentials: { clientId: 'bot1' } as any });
+      onMessaging(server, jest.fn(async () => ({ status: 200 })));
+
+      const statusesAtReady: string[] = [];
+      server.events.on('ready', () => { statusesAtReady.push(server.status); });
+
+      await server.start();
+
+      // Three geos → three ready events. The last one must observe the aggregate
+      // as 'ready' (all geos ready), never a stale 'connecting'.
+      expect(statusesAtReady).toHaveLength(3);
+      expect(statusesAtReady[statusesAtReady.length - 1]).toBe('ready');
       expect(server.status).toBe('ready');
 
       await server.stop();
