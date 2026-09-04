@@ -1014,7 +1014,9 @@ describe('App', () => {
 
       expect(sent.length).toBeGreaterThanOrEqual(1);
       expect(sent.some((e) => e.activity !== undefined)).toBe(true);
-      expect(contextSend.mock.calls.some((call) => call.length === 1)).toBe(true);
+      expect(
+        (contextSend.mock.calls as unknown[][]).some((call) => call.length === 1)
+      ).toBe(true);
     });
 
     it('should emit the "error" event when a route throws', async () => {

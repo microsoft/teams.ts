@@ -55,6 +55,13 @@ export class ActivitySender implements IActivitySender {
     ref: ConversationReference,
     options?: ActivitySenderOptions
   ): Promise<SentActivity> {
+    if (
+      activity.recipient?.isTargeted === true
+      && ref.conversation.conversationType === 'personal'
+    ) {
+      throw new Error('Targeted messages are not supported in 1:1 (personal) chats.');
+    }
+
     const params = toActivityParams(activity);
     const conversationId = ref.conversation.id;
 
@@ -67,10 +74,6 @@ export class ActivitySender implements IActivitySender {
 
     // Check if this is a targeted message
     const isTargeted = payload.recipient?.isTargeted === true;
-
-    if (isTargeted && ref.conversation.conversationType === 'personal') {
-      throw new Error('Targeted messages are not supported in 1:1 (personal) chats.');
-    }
 
     const api = this.createClient(ref.serviceUrl, options?.agenticIdentity);
 
