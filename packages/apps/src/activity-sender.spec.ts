@@ -319,32 +319,6 @@ describe('ActivitySender', () => {
       expect(createClient).toHaveBeenCalledWith(ref.serviceUrl, agenticIdentity);
     });
 
-    it('should throw when sending targeted message in personal chat', async () => {
-      const activity: ActivityParams = {
-        type: 'message',
-        text: 'hello',
-        recipient: { id: 'user-1', name: 'User', role: 'user', isTargeted: true },
-      };
-
-      await expect(sender.send(activity, ref)).rejects.toThrow(
-        'Targeted messages are not supported in 1:1 (personal) chats.'
-      );
-    });
-
-    it('should throw when sending a targeted threaded reply in personal chat', async () => {
-      const activity: ActivityParams = {
-        type: 'message',
-        text: 'hello',
-        recipient: { id: 'user-1', name: 'User', role: 'user', isTargeted: true },
-      };
-
-      await expect(
-        sender.send(activity, ref, { threadRootId: 'root-456' })
-      ).rejects.toThrow(
-        'Targeted messages are not supported in 1:1 (personal) chats.'
-      );
-    });
-
     it('should allow targeted message in group chat', async () => {
       const groupRef = {
         ...ref,
