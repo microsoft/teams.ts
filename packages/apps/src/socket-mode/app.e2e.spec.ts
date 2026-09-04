@@ -203,7 +203,7 @@ describe('Socket Mode App e2e matrix', () => {
       expect(connState.stopCalls).toBeGreaterThanOrEqual(1);
     });
 
-    it('dispatches a PascalCase invoke and always replies with the current protocol version', async () => {
+    it('dispatches a PascalCase invoke and replies with the current protocol version', async () => {
       const app = createTestApp({
         clientId: 'bot1',
         logger: quiet(),
@@ -216,7 +216,7 @@ describe('Socket Mode App e2e matrix', () => {
       await app.start();
 
       const reply = await connState.handlers!.onActivity({
-        ProtocolVersion: SOCKET_MODE_PROTOCOL_VERSION + 99,
+        ProtocolVersion: SOCKET_MODE_PROTOCOL_VERSION,
         EnvelopeId: 'pascal-envelope',
         Type: 'invoke',
         Payload: invokeActivity(),
@@ -228,6 +228,33 @@ describe('Socket Mode App e2e matrix', () => {
         botKey: 'bot1',
         status: 202,
         body: { name: 'adaptiveCard/action' },
+      });
+    });
+
+    it('rejects a future inbound protocol version before dispatch', async () => {
+      const app = createTestApp({
+        clientId: 'bot1',
+        logger: quiet(),
+        socketMode: { fallbackToHttp: false },
+      });
+      const handler = jest.fn();
+      app.on('card.action', handler);
+      await app.start();
+
+      const reply = await connState.handlers!.onActivity({
+        ProtocolVersion: SOCKET_MODE_PROTOCOL_VERSION + 1,
+        EnvelopeId: 'future-protocol',
+        Type: 'invoke',
+        Payload: invokeActivity(),
+      } as unknown as SocketActivityEnvelope);
+
+      expect(handler).not.toHaveBeenCalled();
+      expect(reply).toMatchObject({
+        protocolVersion: SOCKET_MODE_PROTOCOL_VERSION,
+        envelopeId: 'future-protocol',
+        botKey: 'bot1',
+        status: 400,
+        body: { error: `unsupported protocolVersion ${SOCKET_MODE_PROTOCOL_VERSION + 1}` },
       });
     });
 
