@@ -189,6 +189,48 @@ describe('SignalRSocketConnection', () => {
     expect(onReady).toHaveBeenCalled();
   });
 
+  it('fires onReady at most once even if a duplicate SocketReady arrives', async () => {
+    const handlers = makeHandlers();
+    const conn = new SignalRSocketConnection(makeContext(), handlers);
+    await conn.start();
+    expect(handlers.onReady).toHaveBeenCalledTimes(1);
+
+    // A late/duplicate readiness frame must be ignored once the gate settled.
+    state.handlers.SocketReady({ botKey: 'bot', connectionId: 'c2' });
+    expect(handlers.onReady).toHaveBeenCalledTimes(1);
+  });
+
+  it('ignores a SocketReady that arrives after stop', async () => {
+    state.autoReady = false;
+    const handlers = makeHandlers();
+    const conn = new SignalRSocketConnection(makeContext({ readinessTimeoutMs: 10_000 }), handlers);
+    const startPromise = conn.start();
+    await new Promise((r) => setTimeout(r, 10));
+
+    await conn.stop();
+    // A readiness frame racing in after stop must not re-notify observers.
+    state.handlers.SocketReady?.({ botKey: 'bot' });
+    expect(handlers.onReady).not.toHaveBeenCalled();
+
+    // Settle the pending start so the test doesn't leak a promise.
+    state.handlers.__close?.(new Error('stopped'));
+    await startPromise.catch(() => undefined);
+  });
+
+  it('stops the started connection when the signal aborts during start', async () => {
+    // autoReady=false so readiness stays pending while we abort mid-connect.
+    state.autoReady = false;
+    const conn = new SignalRSocketConnection(makeContext({ readinessTimeoutMs: 10_000 }), makeHandlers());
+    const ac = new AbortController();
+
+    const startPromise = conn.start(ac.signal);
+    await new Promise((r) => setTimeout(r, 10)); // let negotiate+start flush
+    ac.abort();
+
+    await expect(startPromise).rejects.toThrow(/aborted/i);
+    expect(state.stopped).toBeGreaterThanOrEqual(1);
+  });
+
   it('bridges SignalR internal diagnostics into the app logger', async () => {
     const log = {
       debug: jest.fn(),

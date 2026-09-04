@@ -107,4 +107,33 @@ describe('socket-mode negotiate', () => {
 
     expect(result.expiresIn).toBe(0);
   });
+
+  it('rejects a plaintext http negotiate URL before sending the bearer token', async () => {
+    const fetchMock = mockFetch();
+
+    await expect(
+      negotiate({
+        negotiateUrl: 'http://apx.example/v3/websockets/connect',
+        getBotToken: async () => 'bot-jwt',
+      })
+    ).rejects.toThrow(/must use https/i);
+
+    // The token was acquired but never sent over the wire.
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('allows a loopback http negotiate URL for local testing', async () => {
+    const fetchMock = mockFetch(async () =>
+      jsonResponse({ url: 'wss://sr/hub', accessToken: 'sr-token', expiresIn: 60 })
+    );
+
+    await expect(
+      negotiate({
+        negotiateUrl: 'http://localhost:3978/v3/websockets/connect',
+        getBotToken: async () => 'bot-jwt',
+      })
+    ).resolves.toMatchObject({ accessToken: 'sr-token' });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
 });
