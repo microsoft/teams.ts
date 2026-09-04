@@ -16,11 +16,9 @@ Each concept is kept in a separate source module:
 
 | Command | Behavior |
 |---------|----------|
-| `quote reply` | `context.reply()` auto-quotes the inbound message |
+| `quote reply` | `context.reply()` quotes the inbound message |
 | `quote message` | `context.quote()` quotes a previously sent message by ID |
-| `quote add` | `addQuote()` composes a quote with a response |
 | `quote batch` | Combines multiple quotes with mixed responses |
-| `quote manual` | Combines `addQuote()` and `addText()` manually |
 | *(quote a message)* | Displays the quoted-message metadata |
 
 ### Threading
