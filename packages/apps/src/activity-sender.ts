@@ -65,7 +65,6 @@ export class ActivitySender implements IActivitySender {
       conversation: ref.conversation,
     };
 
-    // Check if this is a targeted message
     const isTargeted = payload.recipient?.isTargeted === true;
 
     const api = this.createClient(ref.serviceUrl, options?.agenticIdentity);

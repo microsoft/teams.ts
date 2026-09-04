@@ -319,6 +319,29 @@ describe('ActivitySender', () => {
       expect(createClient).toHaveBeenCalledWith(ref.serviceUrl, agenticIdentity);
     });
 
+    it('should send a targeted message in a personal conversation', async () => {
+      const activity: ActivityParams = {
+        type: 'message',
+        text: 'hello',
+        recipient: { id: 'user-1', name: 'User', role: 'user', isTargeted: true },
+      };
+
+      const result = await sender.send(activity, ref);
+
+      expect(mockClient.conversations.createTargetedActivity).toHaveBeenCalledWith(
+        'conv-123',
+        expect.objectContaining({
+          type: 'message',
+          text: 'hello',
+          recipient: expect.objectContaining({
+            id: 'user-1',
+            isTargeted: true,
+          }),
+        })
+      );
+      expect(result).toEqual(expect.objectContaining({ id: 'activity-1' }));
+    });
+
     it('should allow targeted message in group chat', async () => {
       const groupRef = {
         ...ref,
