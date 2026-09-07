@@ -34,7 +34,7 @@
     "dotenv": "^17.4.2",
     "env-cmd": "latest",
     "rimraf": "^6.0.1",
-    "tsx": "^4.23.12",
+    "tsx": "^4.23.13",
     "typescript": "^5.4.5"
   }
 }

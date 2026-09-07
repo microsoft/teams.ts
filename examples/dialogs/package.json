@@ -29,7 +29,7 @@
     "@types/node": "^22.5.4",
     "dotenv": "^17.4.2",
     "env-cmd": "latest",
-    "tsx": "^4.23.12",
+    "tsx": "^4.23.13",
     "typescript": "^5.4.5"
   }
 }
