@@ -12,7 +12,7 @@
     "README.md"
   ],
   "engines": {
-    "node": ">=20"
+    "node": ">=22.12.0"
   },
   "repository": {
     "type": "git",
@@ -39,17 +39,17 @@
     "@microsoft/teams.common": "*",
     "@opentelemetry/api": "^1.9.1",
     "jwt-decode": "^4.0.0",
-    "qs": "^6.15.3"
+    "qs": "^6.16.0"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
-    "@types/jest": "^29.5.12",
+    "@types/jest": "^30.0.0",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/qs": "^6.15.1",
-    "jest": "^29.7.0",
+    "jest": "^30.5.1",
     "jsonwebtoken": "^9.0.2",
     "rimraf": "^6.0.1",
-    "ts-jest": "^29.2.5",
+    "ts-jest": "^29.4.12",
     "tsup": "^8.4.0",
     "typescript": "^5.4.5"
   }

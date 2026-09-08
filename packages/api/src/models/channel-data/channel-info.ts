@@ -8,7 +8,7 @@ export type ChannelInfo = {
   /**
    * @member {string} [id] Unique identifier representing a channel
    */
-  id: string;
+  id?: string;
 
   /**
    * @member {string} [name] Name of the channel

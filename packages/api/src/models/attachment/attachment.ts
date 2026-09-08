@@ -26,7 +26,8 @@ export type Attachment = {
   name?: string;
 
   /**
-   * (OPTIONAL) Thumbnail associated with attachment
+   * (OPTIONAL) Thumbnail associated with attachment.
+   * Not set by Teams when a bot receives an upload.
    */
   thumbnailUrl?: string;
 };

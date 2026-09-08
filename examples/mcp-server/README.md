@@ -86,9 +86,9 @@ Terminal 2:
 npm run inspect
 ```
 
-In the inspector UI (opens in your browser), pick **Streamable HTTP** as the
-transport and enter `http://localhost:3978/mcp` as the URL, then click
-**Connect**.
+The inspector serves its UI at `http://localhost:6274`. Open the
+token-bearing URL printed by the CLI, rather than the bare URL, then connect
+to the example server at `http://localhost:3978/mcp`.
 
 ## Example agent flow
 

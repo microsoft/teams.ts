@@ -16,7 +16,7 @@
     "build:bundle:visualize": "npx vite-bundle-visualizer"
   },
   "dependencies": {
-    "@fluentui/react-components": "^9.6.0",
+    "@fluentui/react-components": "^9.74.6",
     "@fluentui/react-icons": "^2.0.274",
     "@microsoft/teams.api": "*",
     "@microsoft/teams.cards": "*",
@@ -32,23 +32,23 @@
     "react-markdown": "^10.0.0",
     "react-router": "^8.3.0",
     "remark-breaks": "^4.0.0",
-    "zustand": "^5.0.3"
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
-    "@eslint/js": "^9.19.0",
+    "@eslint/js": "^9.39.5",
     "@rollup/plugin-node-resolve": "^16.0.0",
-    "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.3.5",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^4.3.4",
     "eslint": "^9.19.0",
-    "eslint-plugin-react-compiler": "^19.0.0-beta-40c6c23-20250301",
+    "eslint-plugin-react-compiler": "^19.0.0-beta-ebf51a3-20250411",
     "eslint-plugin-react-hooks": "^5.0.0",
-    "eslint-plugin-react-refresh": "^0.4.16",
+    "eslint-plugin-react-refresh": "^0.5.4",
     "globals": "^15.14.0",
-    "react-refresh": "^0.16.0",
+    "react-refresh": "^0.18.0",
     "remark-gfm": "^4.0.1",
     "typescript": "~5.7.2",
-    "typescript-eslint": "^8.22.0",
+    "typescript-eslint": "^8.67.0",
     "vite": "^6.4.3"
   }
 }

@@ -1,0 +1,16 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": ["dist/**"],
+      "cache": false,
+      "dependsOn": [
+        "@microsoft/teams.api#build",
+        "@microsoft/teams.apps#build",
+        "@microsoft/teams.cards#build",
+        "@microsoft/teams.common#build"
+      ]
+    }
+  }
+}

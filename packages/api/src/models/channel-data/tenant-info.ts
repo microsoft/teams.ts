@@ -8,5 +8,5 @@ export type TenantInfo = {
   /**
    * @member {string} [id] Unique identifier representing a tenant
    */
-  id: string;
+  id?: string;
 };

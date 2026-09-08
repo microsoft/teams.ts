@@ -2,6 +2,9 @@ import type { IListStorage } from './storage';
 
 /**
  * An in-memory list storage.
+ *
+ * @deprecated Use an application-owned collection, or store the complete
+ * collection as a value in `LocalStorage`.
  */
 export class ListLocalStorage<T = any> implements IListStorage<T> {
     protected readonly _list: T[];

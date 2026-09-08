@@ -9,6 +9,7 @@ import {
   ITypingActivityInput,
   MessageActivityInput,
   SentActivity,
+  TextFormat,
   toActivityParams,
   TypingActivityInput,
 } from '@microsoft/teams.api';
@@ -140,12 +141,15 @@ export class HttpStream implements IStreamer {
   /**
    * Send a typing/status update without adding to the main text.
    * @param text Status text (ex. "Thinking...")
+   * @param textFormat Format of `text` (ex. `'extendedmarkdown'`). Omit or pass `null`
+   * to use the Teams default (`'markdown'`).
    */
-  update(text: string) {
+  update(text: string, textFormat?: TextFormat | null) {
     this.emit({
       type: 'typing',
       text: text,
-      channelData: { streamType: 'informative' }
+      channelData: { streamType: 'informative' },
+      ...(textFormat ? { textFormat } : {}),
     });
   }
 
@@ -209,6 +213,7 @@ export class HttpStream implements IStreamer {
     const finalAttachments = this.finalActivity?.attachments ?? [];
     const finalEntities = this.finalActivity?.entities ?? [];
     const finalSuggestedActions = this.finalActivity?.suggestedActions;
+    const finalTextFormat = this.finalActivity?.textFormat;
 
     if (this.text === '' && !finalAttachments.length && !finalSuggestedActions) {
       this._logger.warn('no text, attachments, or suggested actions to send, cannot close stream');
@@ -229,6 +234,10 @@ export class HttpStream implements IStreamer {
         .addEntities(...finalEntities)
         .withChannelData(this.channelData)
         .addStreamFinal();
+
+      if (finalTextFormat) {
+        activity.withTextFormat(finalTextFormat);
+      }
 
       if (finalSuggestedActions) {
         activity.withSuggestedActions(finalSuggestedActions);
@@ -284,6 +293,7 @@ export class HttpStream implements IStreamer {
     const finalAttachments = this.finalActivity?.attachments ?? [];
     const finalEntities = (this.finalActivity?.entities ?? []).filter((e) => e.type !== 'streaminfo');
     const finalSuggestedActions = this.finalActivity?.suggestedActions;
+    const finalTextFormat = this.finalActivity?.textFormat;
 
     const activity: IMessageActivityInput = {
       type: 'message',
@@ -298,6 +308,10 @@ export class HttpStream implements IStreamer {
 
     if (finalSuggestedActions) {
       activity.suggestedActions = finalSuggestedActions;
+    }
+
+    if (finalTextFormat) {
+      activity.textFormat = finalTextFormat;
     }
 
     return this.sendWithRetry(activity);
@@ -369,14 +383,27 @@ export class HttpStream implements IStreamer {
       // Once the stream has timed out, stop sending chunks for this cycle.
       if (this._timedOut) return;
 
-      // Send informative updates immediately
+      // Streamed text chunks use last-emitted-message-wins for textFormat (same as
+      // attachments/entities/etc.), so they render like the final message.
+      const textFormat = this.finalActivity?.textFormat;
+
+      // Send informative updates immediately. Each carries its own textFormat
+      // (finalActivity isn't set yet at this point), so read it off the update.
       for (const informativeUpdate of informativeUpdates) {
-        const activity = new TypingActivityInput().withText(informativeUpdate.text || '').withChannelData({ streamType: 'informative' });
+        const activity = new TypingActivityInput()
+          .withText(informativeUpdate.text || '')
+          .withChannelData({ streamType: 'informative' });
+        if (informativeUpdate.textFormat) {
+          activity.withTextFormat(informativeUpdate.textFormat);
+        }
         await this.pushStreamChunk(activity);
       }
 
       if (this.text) {
         const activity = new TypingActivityInput().withText(this.text);
+        if (textFormat) {
+          activity.withTextFormat(textFormat);
+        }
         await this.pushStreamChunk(activity);
       }
 

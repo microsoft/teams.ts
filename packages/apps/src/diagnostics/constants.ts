@@ -5,9 +5,10 @@
 export const APP_SPAN_NAMES = {
   activityProcess: 'microsoft.teams.activity.process',
   handler: 'microsoft.teams.handler',
-  oauthTokenExchange: 'microsoft.teams.oauth.token_exchange',
-  oauthVerifyState: 'microsoft.teams.oauth.verify_state',
-  oauthSigninFailure: 'microsoft.teams.oauth.signin_failure',
+  oauth: 'microsoft.teams.oauth',
+  stateLoad: 'microsoft.teams.state.load',
+  stateSave: 'microsoft.teams.state.save',
+  stateDelete: 'microsoft.teams.state.delete',
 } as const;
 
 /**
@@ -67,6 +68,10 @@ export const APP_OAUTH_OPERATION = {
   tokenExchange: 'token_exchange',
   verifyState: 'verify_state',
   signinFailure: 'signin_failure',
+  signIn: 'signin',
+  signOut: 'signout',
+  getToken: 'get_token',
+  connectionStatus: 'connection_status',
 } as const;
 
 /**
@@ -74,10 +79,15 @@ export const APP_OAUTH_OPERATION = {
  * Private OAuth result values used by Teams apps diagnostics instrumentation.
  */
 export const APP_OAUTH_RESULT = {
-  success: 'success',
-  failure: 'failure',
-  noToken: 'no_token',
-  notified: 'notified',
+  cached: 'token_cached',
+  cardSent: 'signin_card_sent',
+  hit: 'token_found',
+  miss: 'token_not_found',
+  success: 'operation_succeeded',
+  failure: 'operation_failed',
+  duplicate: 'request_deduplicated',
+  noToken: 'connection_not_matched',
+  notified: 'failure_callback_notified',
 } as const;
 
 /**
@@ -88,3 +98,9 @@ export const APP_OAUTH_ERROR_TYPE = {
   httpError: 'http_error',
   exception: 'exception',
 } as const;
+
+/**
+ * @internal
+ * OAuth connection value used for operations spanning every connection.
+ */
+export const APP_OAUTH_ALL_CONNECTIONS = 'all';
