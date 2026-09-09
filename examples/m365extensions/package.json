@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@microsoft/agents-activity": "^1.5.0",
-    "@microsoft/agents-hosting": "^1.5.0",
+    "@microsoft/agents-hosting": "^1.8.1",
     "@microsoft/agents-hosting-express": "^1.5.0",
     "@microsoft/teams.api": "*",
     "@microsoft/teams.cards": "*",

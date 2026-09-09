@@ -39,11 +39,11 @@
   },
   "peerDependencies": {
     "@microsoft/agents-activity": "^1.5.0",
-    "@microsoft/agents-hosting": "^1.5.0"
+    "@microsoft/agents-hosting": "^1.8.1"
   },
   "devDependencies": {
     "@microsoft/agents-activity": "^1.5.0",
-    "@microsoft/agents-hosting": "^1.5.0",
+    "@microsoft/agents-hosting": "^1.8.1",
     "@microsoft/teams.config": "*",
     "@types/jest": "^30.0.0",
     "@types/node": "^22.0.2",
