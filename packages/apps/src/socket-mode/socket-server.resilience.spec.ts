@@ -468,18 +468,18 @@ describe('SocketModeAdapter resilience', () => {
       });
     }
 
-    it('rejects Socket Mode in a sovereign cloud without an explicit endpoint', async () => {
+    it('rejects Socket Mode in a sovereign cloud', async () => {
       const server = cloudServer();
       await server.initialize({ cloud: sovereign });
       await expect(server.start()).rejects.toThrow(/not supported in this cloud/i);
+      expect(connState.connections).toHaveLength(0);
     });
 
-    it('allows a sovereign cloud when an explicit negotiateBaseUrl is provided', async () => {
+    it('still rejects in a sovereign cloud when negotiateBaseUrl is provided', async () => {
       const server = cloudServer({ negotiateBaseUrl: 'https://apx.gov.example', geos: [''] });
       await server.initialize({ cloud: sovereign });
-      await server.start();
-      expect(server.status).toBe('ready');
-      await server.stop();
+      await expect(server.start()).rejects.toThrow(/not supported in this cloud/i);
+      expect(connState.connections).toHaveLength(0);
     });
   });
 

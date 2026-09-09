@@ -430,20 +430,17 @@ export class SocketModeAdapter implements IHttpServerAdapter {
   }
 
   /**
-   * Reject Socket Mode in a sovereign cloud unless the caller supplied an
-   * explicit negotiate endpoint. The default negotiate host targets the public
-   * commercial cloud, so silently using it from a sovereign cloud would cross a
-   * data boundary and present a token with the wrong audience.
+   * Socket Mode is currently supported only in regular production clouds.
+   * This guard fails fast before negotiate so unsupported sovereign deployments
+   * get an explicit local error instead of a runtime negotiate failure.
    */
   private assertCloudSupported(): void {
-    if (this.options.negotiateBaseUrl) return; // explicit endpoint overrides the gate
     const cloud = this.cloud;
     if (!cloud || cloud.tokenIssuer === PUBLIC.tokenIssuer) return;
     throw new Error(
       `Socket Mode is not supported in this cloud environment (tokenIssuer=${cloud.tokenIssuer}). ` +
-      'The default negotiate endpoint targets the public commercial cloud; using it from a ' +
-      'sovereign cloud would cross a data boundary. Set socketMode.negotiateBaseUrl to your ' +
-      'cloud\'s Socket Mode endpoint, or use the HTTP inbound transport instead.'
+      'Socket Mode currently supports only regular production clouds. ' +
+      'Use the HTTP inbound transport instead.'
     );
   }
 
