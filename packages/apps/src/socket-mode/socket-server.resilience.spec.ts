@@ -1,5 +1,6 @@
 import { ConsoleLogger } from '@microsoft/teams.common';
 
+import { NegotiateError } from './negotiate';
 import { SocketModeAdapter } from './socket-server';
 import { SocketActivityEnvelope } from './types';
 
@@ -158,6 +159,36 @@ describe('SocketModeAdapter resilience', () => {
       // conn[0] initial, conn[1] failed attempt, conn[2] successful reconnect.
       expect(connState.connections.length).toBeGreaterThanOrEqual(3);
       expect(server.status).toBe('ready');
+
+      await server.stop();
+    });
+
+    it('does not retry a reconnect rejected with HTTP 403 and logs the terminal error', async () => {
+      const errors: any[][] = [];
+      const logger = new ConsoleLogger('test', { level: 'error' });
+      (logger as any).error = (...args: any[]) => errors.push(args);
+      const server = new SocketModeAdapter({ geos: [''], reconnectDelaysMs: [0] } as any, {
+        tokenProvider: { getAppToken: async () => 'app-token' } as any,
+        messagingEndpoint: MESSAGING_ENDPOINT,
+        soleTransport: true,
+        logger,
+      });
+      await server.initialize({ credentials: { clientId: 'bot1' } as any });
+      onMessaging(server, jest.fn(async () => ({ status: 200 })));
+      await server.start();
+
+      connState.startErrorQueue.push(
+        new NegotiateError('HTTP 403 Forbidden: bot is not authorized', 403)
+      );
+      connState.connections[0].drop();
+      await ticks();
+
+      expect(connState.connections).toHaveLength(2);
+      expect(server.status).toBe('disconnected');
+      expect(errors).toContainEqual([
+        expect.stringMatching(/reconnect stopped.*non-retryable/i),
+        expect.objectContaining({ statusCode: 403 }),
+      ]);
 
       await server.stop();
     });
@@ -349,6 +380,45 @@ describe('SocketModeAdapter resilience', () => {
       expect(server.status).toBe('ready');
       expect(connState.connections.length).toBeGreaterThanOrEqual(2); // retried before succeeding
       await server.stop();
+    });
+
+    it('continues retrying HTTP 401 failures so corrected credentials can recover', async () => {
+      const server = await makeServer({ reconnectDelaysMs: [0], startupTimeoutMs: 5000 });
+      connState.startErrorQueue.push(
+        new NegotiateError('HTTP 401 Unauthorized: verify bot credentials', 401)
+      );
+
+      await server.start();
+
+      expect(server.status).toBe('ready');
+      expect(connState.connections).toHaveLength(2);
+      await server.stop();
+    });
+
+    it('does not retry HTTP 403 during startup and logs the terminal error', async () => {
+      const errors: any[][] = [];
+      const logger = new ConsoleLogger('test', { level: 'error' });
+      (logger as any).error = (...args: any[]) => errors.push(args);
+      const server = new SocketModeAdapter(
+        { geos: [''], reconnectDelaysMs: [0], startupTimeoutMs: 5000 } as any,
+        {
+          tokenProvider: { getAppToken: async () => 'app-token' } as any,
+          messagingEndpoint: MESSAGING_ENDPOINT,
+          soleTransport: true,
+          logger,
+        }
+      );
+      await server.initialize({ credentials: { clientId: 'bot1' } as any });
+      connState.startErrorQueue.push(
+        new NegotiateError('HTTP 403 Forbidden: bot is not authorized', 403)
+      );
+
+      await expect(server.start()).rejects.toMatchObject({ statusCode: 403 });
+      expect(connState.connections).toHaveLength(1);
+      expect(errors).toContainEqual([
+        expect.stringMatching(/initial connection failed.*non-retryable/i),
+        expect.objectContaining({ statusCode: 403 }),
+      ]);
     });
 
     it('rejects App.start when the startup budget is exhausted', async () => {

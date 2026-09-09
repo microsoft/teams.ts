@@ -48,14 +48,39 @@ export function assertSecureNegotiateUrl(negotiateUrl: string): void {
 
 /**
  * Error thrown by {@link negotiate} when the service returns a non-2xx status.
- * Carries the parsed `Retry-After` (in milliseconds) when the service asked the
- * caller to back off — typically on `429` or `503` — so the reconnect
- * supervisor can honor it instead of using its own back-off.
+ * Carries the HTTP status and the parsed `Retry-After` (in milliseconds) when
+ * the service asked the caller to back off — typically on `429` or `503` — so
+ * the reconnect supervisor can distinguish terminal authorization failures
+ * from retryable service failures.
  */
 export class NegotiateError extends Error {
-  constructor(message: string, readonly retryAfterMs?: number) {
+  constructor(
+    message: string,
+    /** HTTP status returned by the Socket Mode negotiate endpoint. */
+    readonly statusCode: number,
+    /** Service-requested delay before retrying, when supplied. */
+    readonly retryAfterMs?: number
+  ) {
     super(message);
     this.name = 'NegotiateError';
+  }
+}
+
+/** Build an actionable error message for a failed negotiate request. */
+function negotiateErrorMessage(status: number, body: string): string {
+  switch (status) {
+    case 401:
+      return (
+        'Socket Mode negotiate failed with HTTP 401 Unauthorized. Verify the bot credentials ' +
+        '(clientId/clientSecret, managed identity, or token provider) and restart the app after correcting them.'
+      );
+    case 403:
+      return (
+        'Socket Mode negotiate failed with HTTP 403 Forbidden. The credentials are valid, but this bot is not ' +
+        'authorized to use Socket Mode. Verify the bot registration and Socket Mode access for this environment.'
+      );
+    default:
+      return `Socket Mode negotiate failed with HTTP ${status}${body ? `: ${body}` : '.'}`;
   }
 }
 
@@ -117,7 +142,8 @@ export async function negotiate(deps: NegotiateDeps): Promise<NegotiateResult> {
       `socket-mode: negotiate failed status=${res.status} body=${body || '(empty)'}`
     );
     throw new NegotiateError(
-      `Socket Mode negotiate failed: HTTP ${res.status} ${body}`,
+      negotiateErrorMessage(res.status, body),
+      res.status,
       parseRetryAfterMs(res)
     );
   }

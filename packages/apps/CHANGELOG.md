@@ -1,5 +1,12 @@
 # @microsoft/teams.apps
 
+## Unreleased
+
+### Patch Changes
+
+- Improve Socket Mode negotiate errors for HTTP 401 and 403 responses, and stop retrying terminal 403
+  authorization failures.
+
 ## 2.0.5
 
 ### Patch Changes

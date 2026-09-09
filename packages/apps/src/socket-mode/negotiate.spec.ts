@@ -61,6 +61,30 @@ describe('socket-mode negotiate', () => {
     ).rejects.toThrow(/HTTP 503/);
   });
 
+  it('explains how to fix bot credentials after a 401 response', async () => {
+    mockFetch(async () => jsonResponse({ error: 'invalid token' }, false, 401));
+
+    await expect(
+      negotiate({ negotiateUrl, getBotToken: async () => 'bot-jwt' })
+    ).rejects.toMatchObject({
+      name: 'NegotiateError',
+      statusCode: 401,
+      message: expect.stringMatching(/verify the bot credentials.*clientId\/clientSecret/i),
+    });
+  });
+
+  it('explains the authorization problem after a 403 response', async () => {
+    mockFetch(async () => jsonResponse({ error: 'forbidden' }, false, 403));
+
+    await expect(
+      negotiate({ negotiateUrl, getBotToken: async () => 'bot-jwt' })
+    ).rejects.toMatchObject({
+      name: 'NegotiateError',
+      statusCode: 403,
+      message: expect.stringMatching(/not authorized to use Socket Mode/i),
+    });
+  });
+
   it('parses Retry-After (delta-seconds) into NegotiateError.retryAfterMs on a 429', async () => {
     mockFetch(async () => ({
       ok: false,
@@ -74,7 +98,11 @@ describe('socket-mode negotiate', () => {
 
     await expect(
       negotiate({ negotiateUrl, getBotToken: async () => 'bot-jwt' })
-    ).rejects.toMatchObject({ name: 'NegotiateError', retryAfterMs: 5000 });
+    ).rejects.toMatchObject({
+      name: 'NegotiateError',
+      statusCode: 429,
+      retryAfterMs: 5000,
+    });
   });
 
   it('throws when the response is missing url/accessToken', async () => {

@@ -51,6 +51,11 @@ function retryAfterFrom(error: unknown): number | undefined {
   return error instanceof NegotiateError ? error.retryAfterMs : undefined;
 }
 
+/** A 403 is an authorization decision and cannot succeed on retry. */
+function isRetryableConnectionError(error: unknown): boolean {
+  return !(error instanceof NegotiateError && error.statusCode === 403);
+}
+
 /** Join a base URL, an optional geo segment, and the negotiate path. */
 function buildNegotiateUrl(base: string, geo: string): string {
   const trimmedBase = base.replace(/\/+$/, '');
@@ -398,6 +403,11 @@ export class SocketModeAdapter implements IHttpServerAdapter {
     return retryAfterFrom(error);
   }
 
+  /** Whether a failed connection attempt can be retried without reconfiguration. */
+  isRetryable(error: unknown): boolean {
+    return isRetryableConnectionError(error);
+  }
+
   /** Emit a lifecycle event without letting a throwing listener break state. */
   emit<K extends keyof SocketModeEvents>(event: K, payload: SocketModeEvents[K]): void {
     try {
@@ -672,6 +682,13 @@ class GeoSocket {
       } catch (err: any) {
         lastError = err;
         if (!this.server.accepting) break;
+        if (!this.server.isRetryable(err)) {
+          this.log.error(
+            `socket-mode[${this.geo}]: initial connection failed with a non-retryable error`,
+            err
+          );
+          break;
+        }
         const delay = this.server.retryAfterOf(err) ?? this.server.backoffDelay(attempt);
         attempt++;
         if (Date.now() + delay >= deadline) break; // no budget for another attempt
@@ -848,6 +865,14 @@ class GeoSocket {
       try {
         return await this.connectCycle(gen);
       } catch (err: any) {
+        if (!this.server.isRetryable(err)) {
+          this._status = 'disconnected';
+          this.log.error(
+            `socket-mode[${this.geo}]: reconnect stopped after a non-retryable error`,
+            err
+          );
+          return undefined;
+        }
         retryAfterMs = this.server.retryAfterOf(err);
         this.log.warn(`socket-mode[${this.geo}]: reconnect attempt ${attempt} failed; will retry`, err);
       }
