@@ -52,8 +52,8 @@ function retryAfterFrom(error: unknown): number | undefined {
 }
 
 /** A 403 is an authorization decision and cannot succeed on retry. */
-function isRetryableConnectionError(error: unknown): boolean {
-  return !(error instanceof NegotiateError && error.statusCode === 403);
+function isTerminalConnectionError(error: unknown): boolean {
+  return error instanceof NegotiateError && error.statusCode === 403;
 }
 
 /** Join a base URL, an optional geo segment, and the negotiate path. */
@@ -403,11 +403,6 @@ export class SocketModeAdapter implements IHttpServerAdapter {
     return retryAfterFrom(error);
   }
 
-  /** Whether a failed connection attempt can be retried without reconfiguration. */
-  isRetryable(error: unknown): boolean {
-    return isRetryableConnectionError(error);
-  }
-
   /** Emit a lifecycle event without letting a throwing listener break state. */
   emit<K extends keyof SocketModeEvents>(event: K, payload: SocketModeEvents[K]): void {
     try {
@@ -682,7 +677,7 @@ class GeoSocket {
       } catch (err: any) {
         lastError = err;
         if (!this.server.accepting) break;
-        if (!this.server.isRetryable(err)) {
+        if (isTerminalConnectionError(err)) {
           this.log.error(
             `socket-mode[${this.geo}]: initial connection failed with a non-retryable error`,
             err
@@ -865,7 +860,7 @@ class GeoSocket {
       try {
         return await this.connectCycle(gen);
       } catch (err: any) {
-        if (!this.server.isRetryable(err)) {
+        if (isTerminalConnectionError(err)) {
           this._status = 'disconnected';
           this.log.error(
             `socket-mode[${this.geo}]: reconnect stopped after a non-retryable error`,
