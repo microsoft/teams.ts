@@ -49,18 +49,6 @@ By default, the app receives Teams activities at `/api/messages`.
 For local-only testing without Teams service token validation, set `dangerouslyAllowUnauthenticatedRequests: true` or
 `DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS=true`.
 
-## Socket Mode connection errors
-
-Socket Mode reports actionable errors when its negotiate request is rejected:
-
-- `401 Unauthorized` indicates that the bot credentials could not be authenticated. Verify the configured
-  `clientId` and `clientSecret`, managed identity, or custom token provider, then restart the app.
-- `403 Forbidden` indicates that the credentials are valid but the bot is not authorized to use Socket Mode in
-  the current environment. Verify the bot registration and Socket Mode access. The SDK does not retry this
-  response because authorization will not change between attempts.
-- Other failures are retried with backoff during startup and reconnect. Service-provided `Retry-After` values are
-  honored when present.
-
 ## Use your existing server
 
 `@microsoft/teams.apps` can start its own HTTP server, or plug into an existing server/framework with an HTTP adapter.
