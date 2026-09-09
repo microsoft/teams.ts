@@ -43,7 +43,7 @@
     "eslint": "^9.19.0",
     "eslint-plugin-react-compiler": "^19.0.0-beta-ebf51a3-20250411",
     "eslint-plugin-react-hooks": "^5.0.0",
-    "eslint-plugin-react-refresh": "^0.5.4",
+    "eslint-plugin-react-refresh": "^0.5.5",
     "globals": "^15.14.0",
     "react-refresh": "^0.18.0",
     "remark-gfm": "^4.0.1",
