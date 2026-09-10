@@ -869,10 +869,9 @@ class GeoSocket {
             `socket-mode[${this.geo}]: reconnect stopped after a non-retryable error`,
             err
           );
-          if (!outageReported) {
+          if (!outageReported || !prevError) {
             this.server.emit('disconnected', { geo: this.geo, error: err });
           }
-          return undefined;
         }
         retryAfterMs = this.server.retryAfterOf(err);
         this.log.warn(`socket-mode[${this.geo}]: reconnect attempt ${attempt} failed; will retry`, err);
