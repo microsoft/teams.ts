@@ -98,6 +98,20 @@ describe('FilesAccessor', () => {
     expect(files).toHaveLength(0);
   });
 
+  it('skips an attachment whose contentUrl is not a string', async () => {
+    // The wire is untrusted, so `contentUrl` gets the same shape check `content` gets. Without it a truthy non-string
+    // passes the locator test, is surfaced, and then throws inside the sharing-url encoder instead of being skipped.
+    const attachment = {
+      contentType: FILE_DOWNLOAD_INFO_CONTENT_TYPE,
+      name: 'weird.pdf',
+      contentUrl: { href: 'https://contoso.sharepoint.com/nested' },
+    } as unknown as Attachment;
+
+    const files = await new FilesAccessor(activityWith([attachment]), log).list();
+
+    expect(files).toHaveLength(0);
+  });
+
   it('surfaces a malformed-content file that still carries a contentUrl, routing it through Graph as the app', async () => {
     // `content` and `contentUrl` are sibling fields read independently, so content that fails the shape check zeroes
     // `downloadUrl` while `contentUrl` survives. The route is gated on shape rather than identity, so a non-agentic
