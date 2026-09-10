@@ -17,6 +17,7 @@ import type { IHttpServerAdapter } from './http/adapter';
 import type { OAuthSettings } from './oauth';
 import type { StateOptions } from './state';
 import type { IPlugin } from './types';
+import type { SocketModeOptions } from './socket-mode';
 
 /**
  * Options for proactive app sends and replies.
@@ -151,6 +152,27 @@ export type AppOptions<TPlugin extends IPlugin> = {
    * HTTP server adapter for handling bot requests
    */
   readonly httpServerAdapter?: IHttpServerAdapter;
+
+    /**
+     * **Experimental.** Receive inbound activities over Socket Mode — a Teams
+     * backend service-negotiated outbound WebSocket — instead of (or alongside) an
+     * HTTP messaging endpoint, so the bot needs no public URL or dev tunnel.
+     *
+     * Pass `true` for all defaults, or an object to configure it. By default a
+     * single bot opens one connection per geo (`amer`, `emea`, `apac`) and *also*
+     * stands up an HTTP messaging endpoint (`fallbackToHttp` defaults to `true`)
+     * so the service can deliver over either transport; set
+     * `socketMode.fallbackToHttp = false` for a socket-only app with no HTTP
+     * transport (browser features like `app.tab()`/`app.function()` then have no
+     * transport and are inert). Each activity is delivered over exactly one
+     * transport, so no dedupe is required.
+     *
+     * Cannot be combined with the deprecated `HttpPlugin`. Observe the socket via
+     * {@link App.socketMode}.
+     *
+     * @experimental This API is in preview and may change in the future.
+     */
+    readonly socketMode?: boolean | SocketModeOptions;
 
   /**
    * Legacy app-wide OAuth settings.
