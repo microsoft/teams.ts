@@ -101,6 +101,9 @@ export class IncomingFile implements IIncomingFile {
     const opened = await openFileStream(this.target(), this.fetchOptions(options));
     this._priorFetchSucceeded = true;
 
+    // Checked before opening the writable: creating or truncating the destination is a side effect an already-aborted call must not have.
+    options?.signal?.throwIfAborted();
+
     const writable = createWriteStream(path);
     const reader = opened.stream.getReader();
 
