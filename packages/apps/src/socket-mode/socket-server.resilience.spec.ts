@@ -335,6 +335,47 @@ describe('SocketModeAdapter resilience', () => {
       }
     });
 
+    it('retires rapid overlapping generations independently', async () => {
+      jest.useFakeTimers();
+      try {
+        connState.expiresInSeconds = 1;
+        const handler = jest.fn(async () => ({ status: 200 }));
+        const server = await makeServer({ reconnectDelaysMs: [0] });
+        onMessaging(server, handler);
+        await server.start();
+        const first = connState.connections[0];
+
+        await jest.advanceTimersByTimeAsync(1_000);
+        expect(connState.connections).toHaveLength(2);
+        const second = connState.connections[1];
+
+        // Let the second generation trigger one more quick handoff, but keep the
+        // third generation stable so the individual retirement times are clear.
+        connState.expiresInSeconds = undefined;
+        await jest.advanceTimersByTimeAsync(1_000);
+        expect(connState.connections).toHaveLength(3);
+
+        await first.handlers.onActivity(env('first-retiring'));
+        await second.handlers.onActivity(env('second-retiring'));
+        expect(handler).toHaveBeenCalledTimes(2);
+
+        await jest.advanceTimersByTimeAsync(3_999);
+        expect(first.stopped).toBe(0);
+        expect(second.stopped).toBe(0);
+
+        await jest.advanceTimersByTimeAsync(1);
+        expect(first.stopped).toBe(1);
+        expect(second.stopped).toBe(0);
+
+        await jest.advanceTimersByTimeAsync(1_000);
+        expect(second.stopped).toBe(1);
+
+        await server.stop();
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
     it('renegotiates before the negotiate token expires', async () => {
       jest.useFakeTimers();
       try {
