@@ -32,7 +32,7 @@ export function unsupportedFileCard(
       new Fact('Type', downloaded.contentType),
       new Fact('Size', humanSize(downloaded.bytes.length)),
       new Fact('Scope', file.scope),
-      new Fact('Source', file.source)
+      new Fact('Listed from', file.source)
     ),
     new TextBlock(note, { wrap: true, isSubtle: true, spacing: 'Medium' })
   );

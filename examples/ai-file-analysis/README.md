@@ -72,6 +72,27 @@ Leave any of them unset and the example starts in metadata-only mode. It still r
 
 Image bytes are sent inline as a data URI rather than as a link, so the pre-authorized `tempauth` download URL is never handed to the model.
 
+## Where the bytes come from
+
+A file arrives as metadata, not as bytes. Which route turns that metadata into bytes depends on the shape of the attachment, not on who is reading it.
+
+- **A bot reads through the pre-authorized download URL.** Teams provides URL on the attachment and the SDK fetches it directly, with no tokens attached, shown in this example.
+- **An agentic user reads through Microsoft Graph.** Agentic Users never receive a pre-authorized URL, so the SDK resolves the file through Graph's `/shares` endpoint using the agent's own credential.
+
+The route is determined by whether or not the pre-authorized URL exists. If it does, it is used. Otherwise, the Graph path is followed. 
+
+### The download URL expires, and that is final
+
+A pre-authorized URL is short-lived, on the order of an hour, and the exact lifetime is set per URL rather than fixed. Do not depend on a particular number. Once it lapses `download()` raises `FileUrlExpiredError` and those bytes are unreachable: there is no recovery, and the file has to be sent again.
+
+That shapes how you write a handler rather than being a detail to note. Download when the file arrives, as this sample does, instead of storing an `IIncomingFile` to read later. Queued work, retry-with-backoff, and anything that waits on a person are the shapes that run into it.
+
+### Agentic users
+
+The handler code is the same: `list()` then `download()`, with the SDK selecting the agent's own credential rather than the app's. A failed Graph read raises `FileRetrievalError`, which names the identity that was refused and links the permissions documentation for it.
+
+Running it is what differs, and sideloading this sample will not get you there. An agentic user is published through the Teams admin center rather than an app manifest, receives activities on its blueprint's notification URL rather than at your bot endpoint, and needs a Graph file permission consented on that blueprint by an administrator. If you already have one provisioned, point its notification URL at this sample and the code runs unchanged. If you do not, this sample is not the place to start.
+
 ## Limits
 
 The sample accepts up to five files per message. Text input is capped at 100 KB per file and 250 KB per message, and images at 1 MB each. Supported image formats are PNG, JPEG, GIF, and WebP. Anything skipped or truncated produces a message explaining why.
