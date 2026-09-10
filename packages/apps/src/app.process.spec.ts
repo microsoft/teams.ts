@@ -2,7 +2,7 @@ import { context, propagation, ROOT_CONTEXT } from '@opentelemetry/api';
 import type { Baggage, Context, ContextManager, Span, Tracer } from '@opentelemetry/api';
 import { AxiosError } from 'axios';
 
-import { IMessageActivity, InvokeResponse, ISignInFailureInvokeActivity, ITaskFetchInvokeActivity, IToken, MessageActivity, TaskModuleResponse, TokenStatus } from '@microsoft/teams.api';
+import { AgenticIdentity, IMessageActivity, InvokeResponse, ISignInFailureInvokeActivity, ITaskFetchInvokeActivity, IToken, MessageActivity, TaskModuleResponse, TokenStatus } from '@microsoft/teams.api';
 import { IStorage } from '@microsoft/teams.common';
 
 import { ActivitySender } from './activity-sender';
@@ -865,6 +865,46 @@ describe('App', () => {
 
       expect(credential).toBeDefined();
       expect(credential.actor).toBe('agenticUser');
+    });
+
+    it('wires the agentic credential through to a real token acquisition, not just the right actor label', async () => {
+      // The two tests above assert `credential.actor` but never invoke `credential.token()`, so they would both stay
+      // green if the token callback were wired to the wrong acquisition, or to nothing. This resolves it, which is
+      // the half that proves the seam actually reaches `getAgenticGraphToken` with the inbound identity.
+      const incomingActivity: IMessageActivity = new MessageActivity('hello')
+        .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
+        .withRecipient({
+          id: 'bot-1',
+          name: 'Test Bot',
+          role: 'bot',
+          agenticAppId: 'agent-app',
+          agenticUserId: 'agentic-user',
+          agenticAppBlueprintId: 'blueprint-id',
+          tenantId: 'tenant-id',
+        })
+        .withConversation({ id: 'conv-123', conversationType: 'personal' })
+        .withChannelId('msteams')
+        .withServiceUrl('https://service.url/')
+        .toInterface();
+
+      const seen: AgenticIdentity[] = [];
+      jest.spyOn(app as any, 'getAgenticGraphToken').mockImplementation(async (...args: any[]) => {
+        seen.push(args[0] as AgenticIdentity);
+        return 'agent-token';
+      });
+
+      let credential: any;
+      app.on('message', ({ files }) => {
+        credential = (files as any).credential;
+      });
+
+      await app.process({ token, body: incomingActivity });
+
+      expect(await credential.token()).toBe('agent-token');
+
+      // And it must have been handed the identity off the inbound activity rather than a blank or a default.
+      expect(seen).toHaveLength(1);
+      expect(seen[0]).toMatchObject({ agenticAppId: 'agent-app', agenticUserId: 'agentic-user' });
     });
 
     it('gives ctx.files an app credential when the inbound activity has no agentic user', async () => {

@@ -192,9 +192,48 @@ describe('graphShare fetch path', () => {
     ).rejects.toMatchObject({ reason: 'accessDenied', actor: 'agenticUser' });
   });
 
+  it('names the identity and carries the service message on a status it does not map', async () => {
+    // A status outside 401/403 is not a typed reason, so the only diagnosis a caller gets is what the service said
+    // and who was refused. An identity with no provisioned drive is the case that makes this matter, because Graph
+    // answers the drive lookup rather than the sharing token and the message is the only thing that says so.
+    const { fetch } = recordingFetch([
+      {
+        status: 404,
+        body: JSON.stringify({ error: { code: 'ResourceNotFound', message: 'Unable to retrieve the mysite URL.' } }),
+      },
+    ]);
+
+    await expect(
+      openFileStream(target({ contentUrl: CONTENT_URL }), { fetch, credential: agenticCredential })
+    ).rejects.toThrow(/agenticUser.*404.*mysite/s);
+  });
+
 });
 
 describe('an expired pre-authorized URL', () => {
+  it('releases the response body rather than leaving the connection open', async () => {
+    // The success path returns the stream to the caller, who owns closing it. On a failure path there is no caller to
+    // hand it to, so the fetch path must discard it itself. Expiry and denial are the headline error modes for this
+    // feature, so this is a common path rather than an edge, and a regression would leak a connection per failure
+    // while leaving every success test green.
+    let cancelled = false;
+    const fetch: FileFetch = async () =>
+      new Response(
+        new ReadableStream({
+          cancel() {
+            cancelled = true;
+          },
+        }),
+        { status: 401 }
+      );
+
+    await expect(
+      openFileStream(target({ downloadUrl: DOWNLOAD_URL }), { fetch, credential: appCredential })
+    ).rejects.toThrow(FileUrlExpiredError);
+
+    expect(cancelled).toBe(true);
+  });
+
   it('is terminal: it throws FileUrlExpiredError', async () => {
     const { fetch } = recordingFetch([{ status: 401 }]);
 

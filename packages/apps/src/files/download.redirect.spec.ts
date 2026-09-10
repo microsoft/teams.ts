@@ -60,7 +60,7 @@ describe('redirects during a Graph fetch', () => {
   };
 
   it('does not forward the bearer to the storage host it is redirected to', async () => {
-    const { status, seen } = await fetchThroughRedirect((_, storagePort) => `http://localhost:${storagePort}/blob`);
+    const { status, seen } = await fetchThroughRedirect((_, storagePort) => `http://127.0.0.1:${storagePort}/blob`);
 
     expect(status).toBe(200);
     expect(seen).toHaveLength(2);
