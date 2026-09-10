@@ -350,6 +350,104 @@ describe('ActivityContext', () => {
         );
       });
 
+      it('sends a targeted channel root reply as a root message', async () => {
+        const rootMessageId = '1772129782775';
+        const threadedConversationId = `test-conversation;messageid=${rootMessageId}`;
+        const activity = new MessageActivity('Hello world')
+          .withFrom({ id: 'test-user', name: 'Test User', role: 'user' })
+          .withRecipient({ id: 'bot-id', name: 'Bot', role: 'bot' }, true)
+          .withChannelId('test-channel')
+          .withConversation({
+            id: threadedConversationId,
+            conversationType: 'channel',
+            isGroup: false,
+          })
+          .withId(rootMessageId);
+        mockRef = {
+          ...mockRef,
+          activityId: rootMessageId,
+          conversation: activity.conversation,
+        };
+        context = buildActivityContext(activity);
+
+        await context.reply('Secret message');
+
+        expect(mockSender.send).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: 'Secret message',
+            recipient: expect.objectContaining({ isTargeted: true }),
+          }),
+          expect.objectContaining({
+            conversation: expect.objectContaining({ id: 'test-conversation' }),
+          })
+        );
+        expect(mockRef.conversation.id).toBe(threadedConversationId);
+      });
+
+      it('keeps a targeted channel reply in an existing reply chain', async () => {
+        const activity = new MessageActivity('Hello world')
+          .withFrom({ id: 'test-user', name: 'Test User', role: 'user' })
+          .withRecipient({ id: 'bot-id', name: 'Bot', role: 'bot' }, true)
+          .withChannelId('test-channel')
+          .withConversation({
+            id: 'test-conversation;messageid=1772129782775',
+            conversationType: 'channel',
+            isGroup: false,
+          })
+          .withId('1772129782999');
+        mockRef = {
+          ...mockRef,
+          activityId: activity.id,
+          conversation: activity.conversation,
+        };
+        context = buildActivityContext(activity);
+
+        await context.reply('Secret message');
+
+        expect(mockSender.send).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: 'Secret message',
+            recipient: expect.objectContaining({ isTargeted: true }),
+          }),
+          mockRef
+        );
+      });
+
+      it('does not change placement for a public channel root response', async () => {
+        const rootMessageId = '1772129782775';
+        const activity = new MessageActivity('Hello world')
+          .withFrom({ id: 'test-user', name: 'Test User', role: 'user' })
+          .withRecipient({ id: 'bot-id', name: 'Bot', role: 'bot' }, true)
+          .withChannelId('test-channel')
+          .withConversation({
+            id: `test-conversation;messageid=${rootMessageId}`,
+            conversationType: 'channel',
+            isGroup: false,
+          })
+          .withId(rootMessageId);
+        mockRef = {
+          ...mockRef,
+          activityId: rootMessageId,
+          conversation: activity.conversation,
+        };
+        context = buildActivityContext(activity);
+
+        await context.send(
+          new MessageActivity('Public message').withRecipient(activity.from)
+        );
+
+        expect(mockSender.send).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: 'Public message',
+            recipient: expect.objectContaining({
+              id: 'test-user',
+              isTargeted: undefined,
+            }),
+          }),
+          mockRef
+        );
+      });
+
       it('does not default send to targeted for a different conversation', async () => {
         const activity = new MessageActivity('Hello world')
           .withFrom({ id: 'test-user', name: 'Test User', role: 'user' })

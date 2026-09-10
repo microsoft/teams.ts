@@ -185,6 +185,9 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
 
   /**
    * send an activity to the conversation
+   *
+   * A targeted response to a channel root message is sent as another targeted
+   * root message because Teams does not support targeted replies to root messages.
    * @param activity activity to send
    * @param conversationRef optional conversation reference to send the activity to. By default, it will use the activity's conversation reference.
    */
@@ -336,6 +339,8 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    *
    * In channels, sends to the current thread. In scopes that do not
    * support threading (group chat, meetings), sends as a normal message.
+   * A targeted response to a channel root message is sent as another targeted
+   * root message because Teams does not support targeted replies to root messages.
    * To send with a visual quote of the inbound message, use {@link reply}.
    *
    * @param activity the activity to send
@@ -366,7 +371,10 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     }
 
     const ref = conversationRef ?? this.ref;
-    return this.activitySender.send(params, ref);
+    return this.activitySender.send(
+      params,
+      this.getTargetedRootConversationReference(params, ref, conversationRef)
+    );
   }
 
   /**
@@ -508,6 +516,40 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
 
   private isTargetedOutbound(params: ActivityParams): params is MessageActivityParams {
     return params.type === 'message' && params.recipient?.isTargeted === true;
+  }
+
+  private getTargetedRootConversationReference(
+    params: ActivityParams,
+    ref: ConversationReference,
+    conversationRef?: ConversationReference
+  ): ConversationReference {
+    if (
+      !this.isTargetedOutbound(params)
+      || !this.isIncomingTargeted()
+      || this.activity.conversation.conversationType !== 'channel'
+      || !this.isSameConversation(conversationRef)
+      || !this.activity.id
+    ) {
+      return ref;
+    }
+
+    const rootMessageSuffix = `;messageid=${this.activity.id}`;
+    if (!ref.conversation.id.endsWith(rootMessageSuffix)) {
+      return ref;
+    }
+
+    const conversationId = ref.conversation.id.slice(0, -rootMessageSuffix.length);
+    if (!conversationId) {
+      return ref;
+    }
+
+    return {
+      ...ref,
+      conversation: {
+        ...ref.conversation,
+        id: conversationId,
+      },
+    };
   }
 
   private stripQuotedReplyMetadata(params: MessageActivityParams) {
