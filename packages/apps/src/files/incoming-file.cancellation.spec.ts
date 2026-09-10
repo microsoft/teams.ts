@@ -92,7 +92,7 @@ describe('cancellation', () => {
     controller.abort();
 
     await expect(
-      file({ fetch: ok }).saveAs('/tmp/should-not-exist-pr-j.bin', { signal: controller.signal })
+      file({ fetch: ok }).saveAs(join(tmpdir(), 'should-not-exist.bin'), { signal: controller.signal })
     ).rejects.toThrow();
   });
 
@@ -106,7 +106,7 @@ describe('cancellation', () => {
     controller.abort();
 
     await expect(
-      downloaded.saveAs('/tmp/should-not-exist-pr-j-snapshot.bin', { signal: controller.signal })
+      downloaded.saveAs(join(tmpdir(), 'should-not-exist-snapshot.bin'), { signal: controller.signal })
     ).rejects.toThrow();
   });
 });
@@ -126,7 +126,7 @@ describe('additivity of the options parameter', () => {
     expect(await handle().text()).toBe('bytes');
     expect(await handle().arrayBuffer()).toBeDefined();
 
-    const path = join(tmpdir(), `pr-j-additive-${Date.now()}.bin`);
+    const path = join(tmpdir(), `additive-${Date.now()}.bin`);
     await handle().saveAs(path);
     await rm(path, { force: true });
   });
@@ -144,7 +144,7 @@ describe('additivity of the options parameter', () => {
     expect(downloaded.text()).toBe('bytes');
     expect(downloaded.arrayBuffer()).toBeDefined();
 
-    const path = join(tmpdir(), `pr-j-additive-snapshot-${Date.now()}.bin`);
+    const path = join(tmpdir(), `additive-snapshot-${Date.now()}.bin`);
     await downloaded.saveAs(path);
     await rm(path, { force: true });
   });
