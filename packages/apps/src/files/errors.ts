@@ -67,7 +67,7 @@ export class FileScopeNotSupportedError extends FileError {
 /**
  * Raised when a file's bytes could not be retrieved through Microsoft Graph.
  *
- * Distinct from {@link FileUrlExpiredError}, which means a pre-authorized URL lapsed and cannot be renewed. This means a Graph fetch was attempted and did not produce bytes.
+ * Distinct from {@link FileUrlExpiredError}, which means a pre-authorized URL lapsed and cannot be renewed. This means the Graph route was the one that failed, either refused by the service or ruled out before the request when no usable credential was available.
  */
 export class FileRetrievalError extends FileError {
   /** Lets callers branch without string-matching the message. */
