@@ -72,3 +72,19 @@ describe('buildDriveItemContentUrl', () => {
     expect(buildDriveItemContentUrl('https://a.example/b', 'https://graph.microsoft.com/')).not.toContain('//v1.0');
   });
 });
+
+describe('graph host root safety', () => {
+  it('refuses an http root, because the request carries a bearer token', () => {
+    // The download URL is already required to be https and carries no bearer. This one does, so it gets at least the
+    // same check: a mistyped scheme would otherwise put a Graph token on the wire in cleartext.
+    expect(() => buildDriveItemContentUrl('https://a.example/b', 'http://graph.microsoft.com')).toThrow(/must use https/);
+  });
+
+  it('allows http on loopback, so a mock Graph in local development still works', () => {
+    expect(buildDriveItemContentUrl('https://a.example/b', 'http://localhost:3000')).toContain('http://localhost:3000/v1.0/shares/');
+  });
+
+  it('refuses a root that is not a URL at all', () => {
+    expect(() => buildDriveItemContentUrl('https://a.example/b', 'not-a-url')).toThrow(/must use https/);
+  });
+});
