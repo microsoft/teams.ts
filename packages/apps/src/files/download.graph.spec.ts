@@ -95,6 +95,28 @@ describe('graphShare fetch path', () => {
     expect(calls).toHaveLength(0);
   });
 
+  it('carries the acquisition failure as details when the credential throws', async () => {
+    // An acquisition that threw and an identity with no permissions both arrive here as "no token", but the fixes
+    // differ: one is a transient or configuration fault, the other is a consent problem. The canned guidance names
+    // consent, so without the cause a transient Entra failure reads as a permissions problem that is not there.
+    const { fetch, calls } = recordingFetch([{ status: 200 }]);
+    const throws: GraphCredential = {
+      actor: 'agenticUser',
+      token: async () => {
+        throw new Error('AADSTS7000215: Invalid client secret provided.');
+      },
+    };
+
+    await expect(
+      openFileStream(target({ contentUrl: CONTENT_URL }), { fetch, credential: throws })
+    ).rejects.toMatchObject({
+      reason: 'noGraphCredential',
+      actor: 'agenticUser',
+      details: 'AADSTS7000215: Invalid client secret provided.',
+    });
+    expect(calls).toHaveLength(0);
+  });
+
   it('reports noGraphCredential for a token carrying no roles and no scopes, before any request', async () => {
     // Verified against real Graph 2026-08-26: an app-only token with an empty `roles` claim returns 401 generalException/spException, which is indistinguishable on the wire from a genuine denial but has a completely different fix. Calling it accessDenied sends the developer to check file sharing when the real problem is that the app registration has no Graph permissions at all.
     const { fetch, calls } = recordingFetch([{ status: 200 }]);
