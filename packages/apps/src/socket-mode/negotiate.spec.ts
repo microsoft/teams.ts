@@ -69,7 +69,9 @@ describe('socket-mode negotiate', () => {
     ).rejects.toMatchObject({
       name: 'NegotiateError',
       statusCode: 401,
-      message: expect.stringMatching(/verify the bot credentials.*clientId\/clientSecret/i),
+      message: expect.stringMatching(
+        /HTTP 401.*invalid token.*verify the bot credentials.*clientId\/clientSecret/i
+      ),
     });
   });
 
@@ -81,7 +83,7 @@ describe('socket-mode negotiate', () => {
     ).rejects.toMatchObject({
       name: 'NegotiateError',
       statusCode: 403,
-      message: expect.stringMatching(/not authorized to use Socket Mode/i),
+      message: expect.stringMatching(/HTTP 403.*forbidden.*not authorized to use Socket Mode/i),
     });
   });
 
