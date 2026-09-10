@@ -12,7 +12,7 @@ export type FileDownloadInfo = {
   downloadUrl?: string;
 
   /**
-   * @member {string} [uniqueId] The OneDrive/ODSP drive-item id for the file. This is the storage-specific file identity a Graph fetch keys off.
+   * @member {string} [uniqueId] The ODSP/OneDrive identifier for the file. Useful for correlation, dedup and logging, but not for retrieval: a Graph fetch resolves bytes from the attachment's `contentUrl` through `/shares`, and this value arrives as a GUID, which is a SharePoint `listItemUniqueId` shape rather than a Graph `driveItem.id`.
    */
   uniqueId?: string;
 

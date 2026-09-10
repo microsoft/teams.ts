@@ -8,6 +8,7 @@ import {
 } from '@microsoft/teams.api';
 import { Client as HttpClient, ILogger } from '@microsoft/teams.common';
 
+import { GraphCredential } from './download';
 import { IncomingFile } from './incoming-file';
 import { IFilesAccessor, IIncomingFile } from './types';
 
@@ -43,7 +44,9 @@ export class FilesAccessor implements IFilesAccessor {
     private readonly activity: Activity,
     private readonly log: ILogger,
     /** The app's HTTP client, threaded into every {@link IncomingFile} so downloads go through the SDK's outbound pipeline rather than a bare `fetch`. */
-    private readonly httpClient?: HttpClient
+    private readonly httpClient?: HttpClient,
+    /** Graph credential for the current actor, resolved at fetch time. Absent when the app has no Graph route, in which case an expired URL cannot be recovered. */
+    private readonly credential?: GraphCredential
   ) {}
 
   async list(): Promise<IIncomingFile[]> {
@@ -95,13 +98,25 @@ export class FilesAccessor implements IFilesAccessor {
 
     const content = asFileDownloadInfo(attachment.content);
     const downloadUrl = content?.downloadUrl;
+    const contentUrl = attachment.contentUrl;
     const name = attachment.name;
 
-    // A `file.download.info` without fetchable URL or name cannot be turned into a usable handle. Skip it and leave a breadcrumb rather than throwing.
-    if (!downloadUrl || !name) {
-      this.log.debug(
-        `files: skipping file.download.info attachment at index ${index}; missing ${!name ? 'name' : 'downloadUrl'}`
-      );
+    // `downloadUrl` is fetched directly. A `contentUrl` without one is the Agentic User case and resolves through Graph, restricted to `personal` because agentic delivery in other scopes is unvalidated: surfacing a handle there will produce a `list()` entry that then fails at `download()`. The `downloadUrl` branch keeps its existing scope behaviour.
+    const hasLocator = Boolean(downloadUrl || contentUrl);
+    const canFetch = Boolean(downloadUrl) || (scope === 'personal' && Boolean(contentUrl));
+
+    if (!canFetch || !name) {
+      // Split by cause: a malformed attachment is a real defect, while an out-of-scope file is expected noise.
+      if (!name || !hasLocator) {
+        this.log.warn(
+          `skipping file.download.info attachment at index ${index}; missing ${!name ? 'name' : 'a download or content URL'}`
+        );
+      } else {
+        this.log.debug(
+          `skipping file.download.info attachment at index ${index}; '${scope}' scope files are not fetchable yet`
+        );
+      }
+
       return undefined;
     }
 
@@ -114,11 +129,13 @@ export class FilesAccessor implements IFilesAccessor {
       extension: content?.fileType,
       scope,
       source: 'botActivity',
-      // Browsable link to the file in OneDrive/SharePoint; not fetchable like `downloadUrl`.
-      contentUrl: attachment.contentUrl,
+      // Browsable link to the file in OneDrive/SharePoint. Not directly fetchable like `downloadUrl`, but it is the locator a Graph `/shares` resolution keys off.
+      contentUrl,
       raw: attachment,
       downloadUrl,
       httpClient: this.httpClient,
+      credential: this.credential,
+      log: this.log,
     });
   }
 }

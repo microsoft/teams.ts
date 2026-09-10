@@ -1,6 +1,6 @@
 import { writeFile } from 'fs/promises';
 
-import { IDownloadedFile } from './types';
+import { IDownloadedFile, IFileReadOptions } from './types';
 
 /**
  * Constructor arguments for {@link DownloadedFile}.
@@ -40,7 +40,7 @@ export class DownloadedFile implements IDownloadedFile {
     return copy.buffer;
   }
 
-  async saveAs(path: string): Promise<void> {
-    await writeFile(path, this.bytes);
+  async saveAs(path: string, options?: IFileReadOptions): Promise<void> {
+    await writeFile(path, this.bytes, { signal: options?.signal });
   }
 }
