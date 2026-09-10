@@ -15,9 +15,9 @@ import type {
 import type { IAgent365BaggageOptions } from './diagnostics/agent365-baggage';
 import type { IHttpServerAdapter } from './http/adapter';
 import type { OAuthSettings } from './oauth';
+import type { SocketModeOptions } from './socket-mode';
 import type { StateOptions } from './state';
 import type { IPlugin } from './types';
-import type { SocketModeOptions } from './socket-mode';
 
 /**
  * Options for proactive app sends and replies.
