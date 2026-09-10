@@ -442,6 +442,41 @@ describe('SocketModeAdapter resilience', () => {
       }
     });
 
+    it('reports an outage if the old socket dies before its replacement is ready', async () => {
+      jest.useFakeTimers();
+      try {
+        connState.expiresInSeconds = 120;
+        connState.autoReadyQueue = [true, false];
+        const server = await makeServer({ reconnectDelaysMs: [0] });
+        onMessaging(server, jest.fn(async () => ({ status: 200 })));
+        const disconnected = jest.fn();
+        const reconnected = jest.fn();
+        server.events.on('disconnected', disconnected);
+        server.events.on('reconnected', reconnected);
+        await server.start();
+
+        await jest.advanceTimersByTimeAsync(61_000);
+        const oldConnection = connState.connections[0];
+        const replacement = connState.connections[1];
+        const error = new Error('old socket dropped during rotation');
+
+        oldConnection.drop(error);
+
+        expect(server.status).toBe('disconnected');
+        expect(disconnected).toHaveBeenCalledTimes(1);
+        expect(disconnected).toHaveBeenCalledWith({ geo: '', error });
+
+        replacement.fireReady();
+        await jest.advanceTimersByTimeAsync(0);
+
+        expect(server.status).toBe('ready');
+        expect(reconnected).toHaveBeenCalledTimes(1);
+        await server.stop();
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
     it('reports a terminal planned-refresh failure as disconnected', async () => {
       jest.useFakeTimers();
       try {
