@@ -37,6 +37,7 @@ import {
   recordTeamsBotActivityProcessDuration
 } from './diagnostics/helpers';
 import { IActivityEvent } from './events';
+import { selectFilesCredential } from './files-credential';
 import { Router } from './router';
 import type { Route } from './router/route';
 import { IRoutes } from './routes';
@@ -74,6 +75,8 @@ export interface IActivityProcessorOptions<TPlugin extends IPlugin = IPlugin> {
    * app has no credentials configured.
    */
   readonly getAppGraphToken: (tenantId?: string) => Promise<IToken | null>;
+  /** Acquires a Microsoft Graph token for an Agentic User, or `null` when the app has no credentials or the identity is not user-backed. */
+  readonly getAgenticGraphToken: (identity: AgenticIdentity) => Promise<IToken | null>;
   readonly activitySender: IActivitySender;
   readonly api: ApiClient;
   readonly client: HttpClient;
@@ -268,6 +271,17 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
 
       const activitySender = new ActivitySender(this.options.log, apiClientFactory);
 
+      // Resolved at fetch time rather than eagerly, so a turn that never touches files pays nothing for it.
+      //
+      // An Agentic User reads as itself. An app-only token sees what the app may read tenant-wide, a different set from what was shared with the agent, so it would 403 on exactly the files the agent was given.
+      const filesCredential = selectFilesCredential({
+        agenticIdentity,
+        tenantId: extractTenantId(activity),
+        graphBaseUrlRoot: this.options.graphBaseUrl,
+        getAppGraphToken: (t) => this.options.getAppGraphToken(t),
+        getAgenticGraphToken: (i) => this.options.getAgenticGraphToken(i),
+      });
+
       const context = new ActivityContext({
         activity,
         next,
@@ -285,6 +299,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
         validateOAuthConnection: this.options.validateOAuthConnection,
         onOAuthSignInInitiated: this.options.onOAuthSignInInitiated,
         getOAuthConnectionStatus: this.options.getOAuthConnectionStatus,
+        filesCredential,
         activitySender,
         ...pluginContexts
       });
