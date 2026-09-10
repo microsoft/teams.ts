@@ -727,7 +727,6 @@ class GeoSocket {
   private async connectCycle(gen: number): Promise<{ closed: Promise<CloseReason> }> {
     let settled = false;
     let settle!: (reason: CloseReason) => void;
-    let connection!: ISocketConnection;
     const closed = new Promise<CloseReason>((resolve) => {
       settle = (reason) => {
         if (!settled) {
@@ -753,13 +752,19 @@ class GeoSocket {
       onClosed: (error) => {
         if (this.active?.gen === gen) {
           this.clearRefreshTimer();
+          if (settled && this.server.accepting) {
+            // The refresh signal already advanced the supervisor, so report a
+            // predecessor that dies while the replacement is still connecting.
+            this.active = undefined;
+            this.reportDisconnected(error);
+          }
         }
         this.retiring.delete(gen);
         settle({ planned: false, error });
       },
     };
 
-    connection = this.server.createConnection(this.negotiateUrl, handlers);
+    const connection = this.server.createConnection(this.negotiateUrl, handlers);
 
     await connection.start(this.server.abortSignal);
     this.scheduleTokenRefresh(gen, connection.expiresInSeconds, () =>
@@ -798,20 +803,7 @@ class GeoSocket {
           `socket-mode[${this.geo}]: proactively rotating token; renegotiating a fresh connection`
         );
       } else {
-        this._status = 'disconnected';
-        // Only pass `error` when we actually have one, so the logger never
-        // renders an `undefined` payload for an errorless close.
-        if (error) {
-          this.log.warn(
-            `socket-mode[${this.geo}]: disconnected; inbound delivery paused for this geo`,
-            error
-          );
-        } else {
-          this.log.warn(
-            `socket-mode[${this.geo}]: disconnected; inbound delivery paused for this geo`
-          );
-        }
-        this.server.emit('disconnected', { geo: this.geo, error });
+        this.reportDisconnected(error);
       }
 
       if (!planned) {
@@ -846,8 +838,13 @@ class GeoSocket {
       if (planned) {
         if (previous && this.retiring.get(previous.gen) === previous.connection) {
           void this.retire(previous);
+          this.log.info(
+            `socket-mode[${this.geo}]: token rotated; inbound delivery continues for this geo`
+          );
+        } else {
+          this.log.info(`socket-mode[${this.geo}]: reconnected; inbound delivery resumed for this geo`);
+          this.server.emit('reconnected', { geo: this.geo });
         }
-        this.log.info(`socket-mode[${this.geo}]: token rotated; inbound delivery continues for this geo`);
       } else {
         this.log.info(`socket-mode[${this.geo}]: reconnected; inbound delivery resumed for this geo`);
         this.server.emit('reconnected', { geo: this.geo });
@@ -898,12 +895,13 @@ class GeoSocket {
         return await this.connectCycle(gen);
       } catch (err: any) {
         if (isTerminalConnectionError(err)) {
+          const outageReported = options.outageReported || this._status === 'disconnected';
           this._status = 'disconnected';
           this.log.error(
             `socket-mode[${this.geo}]: reconnect stopped after a non-retryable error`,
             err
           );
-          if (!options.outageReported || !prevError) {
+          if (!outageReported || !prevError) {
             this.server.emit('disconnected', { geo: this.geo, error: err });
           }
           return undefined;
@@ -914,6 +912,19 @@ class GeoSocket {
       }
     }
     return undefined;
+  }
+
+  private reportDisconnected(error?: Error): void {
+    this._status = 'disconnected';
+    if (error) {
+      this.log.warn(
+        `socket-mode[${this.geo}]: disconnected; inbound delivery paused for this geo`,
+        error
+      );
+    } else {
+      this.log.warn(`socket-mode[${this.geo}]: disconnected; inbound delivery paused for this geo`);
+    }
+    this.server.emit('disconnected', { geo: this.geo, error });
   }
 
   /** Retire the superseded socket after APX's cached IDs have aged out. */
