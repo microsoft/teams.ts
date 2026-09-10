@@ -634,8 +634,8 @@ class GeoSocket {
   private generation = 0;
   /** The ready generation receiving new backend traffic. */
   private active?: { gen: number; connection: ISocketConnection };
-  /** The prior generation kept alive during backend's connection-ID cache window. */
-  private retiring?: { gen: number; connection: ISocketConnection };
+  /** Prior generations kept alive during backend's connection-ID cache window. */
+  private readonly retiring = new Map<number, ISocketConnection>();
   private supervisorLoop?: Promise<void>;
   private refreshTimer?: ReturnType<typeof setTimeout>;
   private _status: SocketModeStatus = 'idle';
@@ -655,7 +655,7 @@ class GeoSocket {
 
   /** Accept frames from the active socket and its briefly overlapping predecessor. */
   canDispatch(gen: number): boolean {
-    return this.server.accepting && (this.active?.gen === gen || this.retiring?.gen === gen);
+    return this.server.accepting && (this.active?.gen === gen || this.retiring.has(gen));
   }
 
   /**
@@ -709,11 +709,11 @@ class GeoSocket {
   /** Close every connection generation still owned by this geo. */
   async stop(): Promise<void> {
     this.clearRefreshTimer();
-    const connections = [this.active?.connection, this.retiring?.connection].filter(
+    const connections = [this.active?.connection, ...this.retiring.values()].filter(
       (connection): connection is ISocketConnection => connection !== undefined
     );
     this.active = undefined;
-    this.retiring = undefined;
+    this.retiring.clear();
     await Promise.all(connections.map((connection) => connection.stop().catch(() => undefined)));
     await this.supervisorLoop?.catch(() => undefined);
     this._status = 'stopped';
@@ -741,7 +741,7 @@ class GeoSocket {
       onActivity: (envelope) => this.server.dispatch(this, gen, envelope),
       onReady: (frame) => {
         if (this.active && this.active.gen !== gen) {
-          this.retiring = this.active;
+          this.retiring.set(this.active.gen, this.active.connection);
         }
         this.active = { gen, connection };
         // Set status before emitting so an observer reading `status` from the
@@ -754,9 +754,7 @@ class GeoSocket {
         if (this.active?.gen === gen) {
           this.clearRefreshTimer();
         }
-        if (this.retiring?.gen === gen) {
-          this.retiring = undefined;
-        }
+        this.retiring.delete(gen);
         settle({ planned: false, error });
       },
     };
@@ -846,7 +844,7 @@ class GeoSocket {
       closed = next.closed;
       this._status = 'ready';
       if (planned) {
-        if (previous && this.retiring?.gen === previous.gen) {
+        if (previous && this.retiring.get(previous.gen) === previous.connection) {
           void this.retire(previous);
         }
         this.log.info(`socket-mode[${this.geo}]: token rotated; inbound delivery continues for this geo`);
@@ -921,8 +919,8 @@ class GeoSocket {
   /** Retire the superseded socket after APX's cached IDs have aged out. */
   private async retire(previous: { gen: number; connection: ISocketConnection }): Promise<void> {
     const slept = await this.server.sleep(CONNECTION_HANDOFF_MS);
-    if (!slept || this.retiring?.gen !== previous.gen) return;
-    this.retiring = undefined;
+    if (!slept || this.retiring.get(previous.gen) !== previous.connection) return;
+    this.retiring.delete(previous.gen);
     await previous.connection.stop().catch(() => undefined);
   }
 
