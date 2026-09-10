@@ -91,7 +91,7 @@ That shapes how you write a handler rather than being a detail to note. Download
 
 The handler code is the same: `list()` then `download()`, with the SDK selecting the agent's own credential rather than the app's. A failed Graph read raises `FileRetrievalError`, which names the identity that was refused and links the permissions documentation for it.
 
-Running it is what differs, and sideloading this sample will not get you there. An agentic user is published through the Teams admin center rather than an app manifest, receives activities on its blueprint's notification URL rather than at your bot endpoint, and needs a Graph file permission consented on that blueprint by an administrator. If you already have one provisioned, point its notification URL at this sample and the code runs unchanged. If you do not, this sample is not the place to start.
+Running it is what differs, and sideloading this sample will not get you there. An agentic user is published through the Teams admin center rather than an app manifest, receives activities on its blueprint's notification URL rather than at your bot endpoint, and needs a Graph file permission consented on that blueprint by an administrator. If you already have one provisioned, point its notification URL at this sample and the code runs unchanged. To provision one, start with the [Microsoft Agent 365 documentation](https://learn.microsoft.com/microsoft-agent-365/), and see [inheritable permissions](https://learn.microsoft.com/entra/agent-id/concept-inheritable-permissions) for how an agent gets the Graph scopes this path needs.
 
 ## Limits
 
