@@ -98,7 +98,8 @@ export class FilesAccessor implements IFilesAccessor {
 
     const content = asFileDownloadInfo(attachment.content);
     const downloadUrl = content?.downloadUrl;
-    const contentUrl = attachment.contentUrl;
+    // Narrowed for the same reason `content` is shape-checked above: the wire is untrusted, and a truthy non-string here would pass the locator test and then throw inside the sharing-url encoder rather than being skipped.
+    const contentUrl = typeof attachment.contentUrl === 'string' ? attachment.contentUrl : undefined;
     const name = attachment.name;
 
     // `downloadUrl` is fetched directly. A `contentUrl` without one is the Agentic User case and resolves through Graph, restricted to `personal` because agentic delivery in other scopes is unvalidated: surfacing a handle there will produce a `list()` entry that then fails at `download()`. The `downloadUrl` branch keeps its existing scope behaviour.
