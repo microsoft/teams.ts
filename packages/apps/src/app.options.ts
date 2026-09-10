@@ -164,8 +164,10 @@ export type AppOptions<TPlugin extends IPlugin> = {
      * so the service can deliver over either transport; set
      * `socketMode.fallbackToHttp = false` for a socket-only app with no HTTP
      * transport (browser features like `app.tab()`/`app.function()` then have no
-     * transport and are inert). Each activity is delivered over exactly one
-     * transport, so no dedupe is required.
+     * transport and are inert). Initial delivery uses one transport, but an
+     * activity may be retried over HTTP if socket delivery fails after processing
+     * begins. Handlers with side effects should be idempotent or deduplicate using
+     * a stable activity identifier.
      *
      * Cannot be combined with the deprecated `HttpPlugin`. Observe the socket via
      * {@link App.socketMode}.

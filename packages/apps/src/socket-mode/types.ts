@@ -112,9 +112,11 @@ export type SocketModeOptions = {
    * (`app.tab()`, `app.function()`, OAuth callbacks) stay unavailable. Set
    * `false` for a socket-only app.
    *
-   * Delivery contract: each activity is delivered over **exactly one** transport
-   * — the socket when it can deliver, otherwise HTTP — never both. There is no
-   * duplicate delivery to guard against.
+   * Initial delivery uses one transport. If socket delivery fails after the bot
+   * begins processing, Teams backend service may retry the same activity over
+   * HTTP because it cannot know whether processing completed. Handlers that
+   * produce side effects should therefore be idempotent or deduplicate by a
+   * stable activity identifier.
    *
    * @experimental Transitional for the Socket Mode rollout; may change or be
    * removed without a major-version bump.
