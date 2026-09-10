@@ -43,6 +43,7 @@ import { IRoutes } from './routes';
 import { TurnStateLoader } from './state';
 import { IActivitySender, IPlugin, RouteHandler, StreamCancelledError } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
+import { extractTenantId } from './utils';
 
 function getAgenticIdentity(account?: Account): AgenticIdentity | undefined {
   if (!account?.agenticAppBlueprintId) {
@@ -196,12 +197,8 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
       );
       const appGraph = new GraphClient(
         client.clone({
-          // The token provider returns null when the app has no credentials, but
-          // the HTTP token contract treats only undefined as "no token"; coerce
-          // so null is never forwarded as an auth header.
-          token: async () =>
-            (await this.options.getAppGraphToken(activity.conversation.tenantId ?? 'common')) ??
-            undefined,
+          // The token provider returns null when the app has no credentials, but the HTTP token contract treats only undefined as "no token"; coerce so null is never forwarded as an auth header.
+          token: async () => (await this.options.getAppGraphToken(extractTenantId(activity))) ?? undefined,
         }),
         { baseUrlRoot: this.options.graphBaseUrl }
       );
