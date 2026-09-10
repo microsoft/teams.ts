@@ -10,6 +10,7 @@ jest.mock('@microsoft/signalr', () => {
     handlers: Record<string, (...args: any[]) => any>;
     started: number;
     stopped: number;
+    startGate?: Promise<void>;
     logger?: { log: (level: number, message: string) => void };
   } = { autoReady: true, handlers: {}, started: 0, stopped: 0 };
 
@@ -22,6 +23,7 @@ jest.mock('@microsoft/signalr', () => {
     onclose: (h: (...args: any[]) => any) => { state.handlers.__close = h; },
     start: async () => {
       state.started++;
+      await state.startGate;
       if (state.autoReady) {
         state.handlers.SocketReady?.({ botKey: 'bot', connectionId: 'c1' });
       }
@@ -52,6 +54,7 @@ const state = signalr.__state as {
   handlers: Record<string, (...args: any[]) => any>;
   started: number;
   stopped: number;
+  startGate?: Promise<void>;
   logger?: { log: (level: number, message: string) => void };
 };
 
@@ -81,6 +84,7 @@ describe('SignalRSocketConnection', () => {
     state.handlers = {};
     state.started = 0;
     state.stopped = 0;
+    state.startGate = undefined;
     state.logger = undefined;
     globalThis.fetch = jest.fn(async () => ({
       ok: true,
@@ -229,6 +233,26 @@ describe('SignalRSocketConnection', () => {
 
     await expect(startPromise).rejects.toThrow(/aborted/i);
     expect(state.stopped).toBeGreaterThanOrEqual(1);
+  });
+
+  it('stops the connection when the signal aborts during the SignalR handshake', async () => {
+    let finishHandshake!: () => void;
+    state.startGate = new Promise<void>((resolve) => {
+      finishHandshake = resolve;
+    });
+    const conn = new SignalRSocketConnection(makeContext(), makeHandlers());
+    const ac = new AbortController();
+
+    const startPromise = conn.start(ac.signal);
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    expect(state.started).toBe(1);
+
+    ac.abort();
+    await Promise.resolve();
+    expect(state.stopped).toBe(1);
+
+    finishHandshake();
+    await expect(startPromise).rejects.toThrow(/aborted/i);
   });
 
   it('bridges SignalR internal diagnostics into the app logger', async () => {

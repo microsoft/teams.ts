@@ -115,14 +115,21 @@ export class SignalRSocketConnection implements ISocketConnection {
       this.handlers.onClosed(error ?? undefined);
     });
 
-    // Register the abort listener BEFORE starting the connection so an abort
-    // during the `connection.start()` handshake (or any time before readiness)
-    // rejects the readiness gate, which stops the connection via the catch
-    // below. Registering it only after start left that window unguarded.
-    const onAbort = () => failReady(new Error('Socket Mode connect aborted'));
+    let connected = false;
+    // Stop immediately on abort because the supervisor cannot see this connection
+    // until it reaches readiness.
+    const onAbort = () => {
+      if (connected) {
+        failReady(new Error('Socket Mode connect aborted'));
+      }
+      void this.stop().catch((err) => {
+        this.log?.warn('socket-mode: failed to stop an aborted connection', err);
+      });
+    };
     signal?.addEventListener('abort', onAbort, { once: true });
 
     await connection.start();
+    connected = true;
     // An abort that landed during start won't have had a connection to stop; now
     // that one exists, honor it explicitly.
     if (signal?.aborted) {
