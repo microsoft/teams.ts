@@ -109,7 +109,7 @@ function noCredentialGuidance(actor: FileActor): string {
       // Linked rather than described because the agent permission model is still moving, and stale instructions in an error message are worse than none.
       return 'the agentic user has no usable Graph permissions. An agent identity gets Graph scopes from its blueprint\'s inheritable permissions or from a direct grant, and an administrator must consent to them. See https://learn.microsoft.com/entra/agent-id/concept-inheritable-permissions';
     case 'app':
-      // Not a route the SDK takes on its own: Graph file reads happen as the agentic user. An app reaching here means a file arrived in a shape that should not occur, so the remedy is not a permission grant.
+      // Graph file reads happen as the agentic user. Granting the app file permissions would make this succeed, which is why the message says it may be used rather than that it cannot.
       return 'the app has no usable Graph credential for this file. Graph file retrieval is supported for Agentic Users, which read as their own identity; an app identity and/or user-delegated permissions may be used but are not supported via the SDK at this time';
   }
 }
