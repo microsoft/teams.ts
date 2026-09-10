@@ -872,6 +872,7 @@ class GeoSocket {
           if (!outageReported || !prevError) {
             this.server.emit('disconnected', { geo: this.geo, error: err });
           }
+          return undefined;
         }
         retryAfterMs = this.server.retryAfterOf(err);
         this.log.warn(`socket-mode[${this.geo}]: reconnect attempt ${attempt} failed; will retry`, err);
