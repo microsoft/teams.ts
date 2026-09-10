@@ -199,11 +199,12 @@ async function openGraphFileStream(
   options?: OpenFileStreamOptions
 ): Promise<OpenedFileStream> {
   const actor = options?.credential?.actor;
-  const token = await tryResolveToken(options);
+  const { token, failure } = await tryResolveToken(options);
 
   // Detectable before any HTTP call, so a missing consent names itself instead of arriving as an opaque Graph 401.
   if (!token || carriesNoGraphPermissions(token)) {
-    throw new FileRetrievalError('noGraphCredential', actor);
+    // An acquisition that threw is not the same as an identity with no permissions, and the guidance for one is wrong for the other, so the cause is carried rather than dropped.
+    throw new FileRetrievalError('noGraphCredential', actor, failure);
   }
 
   const url = buildDriveItemContentUrl(sharingUrl, options?.credential?.baseUrlRoot);
@@ -216,8 +217,13 @@ async function openGraphFileStream(
   }
 
   if (!response.ok || !response.stream) {
-    response.discard();
-    throw new Error(`failed to download file: ${response.status} ${response.statusText}`.trim());
+    // Carry Graph's own text and name the identity, as the 401/403 arm does.
+    // An unexpected status here is often diagnosable only from the service message, so discarding it would leave the caller a bare status code.
+    const details = extractServiceError(await response.readText());
+    throw new Error(
+      `failed to download file through Graph as '${actor ?? 'app'}': ${response.status} ${response.statusText}`.trim() +
+        (details ? ` (${details})` : '')
+    );
   }
 
   const contentType = response.contentType ?? target.contentType ?? 'application/octet-stream';
@@ -234,16 +240,17 @@ async function openGraphFileStream(
  *
  * On the expiry path the caller already holds a more precise error, so an acquisition failure must leave it intact rather than surfacing as an untyped rejection.
  */
-async function tryResolveToken(options?: OpenFileStreamOptions): Promise<string | undefined> {
+async function tryResolveToken(options?: OpenFileStreamOptions): Promise<{ token?: string; failure?: string }> {
   if (!options?.credential) {
-    return undefined;
+    return {};
   }
 
   try {
-    return await options.credential.token();
+    return { token: await options.credential.token() };
   } catch (err) {
-    options.log?.debug(`could not acquire a Graph token: ${(err as Error).message}`);
-    return undefined;
+    const failure = (err as Error).message;
+    options.log?.debug(`could not acquire a Graph token: ${failure}`);
+    return { failure };
   }
 }
 
