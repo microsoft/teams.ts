@@ -98,6 +98,27 @@ describe('FilesAccessor', () => {
     expect(files).toHaveLength(0);
   });
 
+  it('surfaces a malformed-content file that still carries a contentUrl, routing it through Graph as the app', async () => {
+    // `content` and `contentUrl` are sibling fields read independently, so content that fails the shape check zeroes
+    // `downloadUrl` while `contentUrl` survives. The route is gated on shape rather than identity, so a non-agentic
+    // turn reaches Graph. The app almost never holds a consented Graph file permission, so the practical outcome is a
+    // typed error rather than unauthorized access.
+    const attachment: Attachment = {
+      contentType: FILE_DOWNLOAD_INFO_CONTENT_TYPE,
+      name: 'weird.pdf',
+      content: { downloadUrl: { href: 'https://download.example/nested' } },
+      contentUrl: 'https://contoso.sharepoint.com/personal/a/Documents/weird.pdf',
+    };
+
+    const files = await new FilesAccessor(activityWith([attachment]), log).list();
+
+    // `downloadUrl` is private on IIncomingFile, so the observable evidence is that the file is surfaced at all and
+    // carries its contentUrl. A file whose content parsed cleanly would be surfaced too, so what this pins is that
+    // malformed content does not cause the attachment to be skipped when a sibling contentUrl survives.
+    expect(files).toHaveLength(1);
+    expect(files[0].contentUrl).toBe('https://contoso.sharepoint.com/personal/a/Documents/weird.pdf');
+  });
+
   it('skips a file.download.info carrying a non-string uniqueId alongside a valid downloadUrl', async () => {
     const attachment: Attachment = {
       contentType: FILE_DOWNLOAD_INFO_CONTENT_TYPE,
