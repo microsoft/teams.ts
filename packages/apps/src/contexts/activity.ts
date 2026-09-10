@@ -18,6 +18,7 @@ import {
 import { Client as HttpClient, ILogger, IStorage } from '@microsoft/teams.common';
 
 import { ApiClient, GraphClient } from '../api';
+import { GraphCredential } from '../files/download';
 import { FilesAccessor } from '../files/files-accessor';
 import { IFilesAccessor } from '../files/types';
 import { OAuthSignInOptions, startOAuthSignIn } from '../oauth';
@@ -153,6 +154,8 @@ export interface IBaseActivityContextOptions<T extends Activity = Activity> {
    * @deprecated Register and retain the required `OAuthFlow` explicitly.
    */
   connectionName: string;
+  /** Graph credential used by the file path, selected per actor and resolved at fetch time. Not a general-purpose credential: it exists so `ctx.files` can reach bytes that the pre-authorized download URL cannot, and it is deliberately not surfaced on the public context. */
+  filesCredential?: GraphCredential;
 
   /**
    * the user token for the activity context
@@ -328,7 +331,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     this.next = next;
     this.stream = activitySender.createStream(value.ref);
     this.connectionName = value.connectionName;
-    this.files = new FilesAccessor(this.activity, this.log, value.client);
+    this.files = new FilesAccessor(this.activity, this.log.child('files'), value.client, value.filesCredential);
   }
 
   /**

@@ -521,9 +521,7 @@ describe('App', () => {
       });
 
       it('does not let a nested send downgrade the values the activity established', async () => {
-        // ctx.send builds its ConversationReference from `activity.recipient`, so its
-        // agent id is recipient.id while the activity resolver prefers agenticAppId.
-        // The nested send scope must not overwrite the richer value.
+        // ctx.send builds its ConversationReference from `activity.recipient`, so its agent id is recipient.id while the activity resolver prefers agenticAppId. The nested send scope must not overwrite the richer value.
         const agenticInbound: IMessageActivity = new MessageActivity('hello')
           .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
           .withRecipient({
@@ -840,6 +838,55 @@ describe('App', () => {
       });
     });
 
+    it('gives ctx.files an agentic credential when the inbound activity carries an agentic user', async () => {
+      // `selectFilesCredential` and `FilesAccessor` are each covered on their own, and both stay green if nothing connects them, leaving `ctx.files` with no credential and every Graph path unreachable.
+      const incomingActivity: IMessageActivity = new MessageActivity('hello')
+        .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
+        .withRecipient({
+          id: 'bot-1',
+          name: 'Test Bot',
+          role: 'bot',
+          agenticAppId: 'agent-app',
+          agenticUserId: 'agentic-user',
+          agenticAppBlueprintId: 'blueprint-id',
+          tenantId: 'tenant-id',
+        })
+        .withConversation({ id: 'conv-123', conversationType: 'personal' })
+        .withChannelId('msteams')
+        .withServiceUrl('https://service.url/')
+        .toInterface();
+
+      let credential: any;
+      app.on('message', ({ files }) => {
+        credential = (files as any).credential;
+      });
+
+      await app.process({ token, body: incomingActivity });
+
+      expect(credential).toBeDefined();
+      expect(credential.actor).toBe('agenticUser');
+    });
+
+    it('gives ctx.files an app credential when the inbound activity has no agentic user', async () => {
+      const incomingActivity: IMessageActivity = new MessageActivity('hello')
+        .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
+        .withRecipient({ id: 'bot-1', name: 'Test Bot', role: 'bot' })
+        .withConversation({ id: 'conv-123', conversationType: 'personal' })
+        .withChannelId('msteams')
+        .withServiceUrl('https://service.url/')
+        .toInterface();
+
+      let credential: any;
+      app.on('message', ({ files }) => {
+        credential = (files as any).credential;
+      });
+
+      await app.process({ token, body: incomingActivity });
+
+      expect(credential).toBeDefined();
+      expect(credential.actor).toBe('app');
+    });
+
     it('should use different serviceUrls for different incoming activities', async () => {
       const serviceUrl1 = 'https://service-1.botframework.com';
       const serviceUrl2 = 'https://service-2.botframework.com';
@@ -887,9 +934,7 @@ describe('App', () => {
     });
 
     it('should expose interface methods like getQuotedMessages on message activities', async () => {
-      // Use a plain object (as would arrive from JSON deserialization over HTTP)
-      // rather than a MessageActivity instance, to verify the context constructor
-      // enriches it with bound interface methods.
+      // Use a plain object (as would arrive from JSON deserialization over HTTP) rather than a MessageActivity instance, to verify the context constructor enriches it with bound interface methods.
       const incomingActivity = {
         type: 'message',
         text: 'hello',
