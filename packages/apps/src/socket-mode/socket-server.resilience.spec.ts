@@ -347,6 +347,32 @@ describe('SocketModeAdapter resilience', () => {
       }
     });
 
+    it('reports a terminal planned-refresh failure as disconnected', async () => {
+      jest.useFakeTimers();
+      try {
+        connState.expiresInSeconds = 120;
+        const server = await makeServer({ reconnectDelaysMs: [0] });
+        onMessaging(server, jest.fn(async () => ({ status: 200 })));
+        const disconnected = jest.fn();
+        server.events.on('disconnected', disconnected);
+        await server.start();
+
+        const forbidden = new NegotiateError(
+          'HTTP 403 Forbidden: bot is not authorized',
+          403
+        );
+        connState.startErrorQueue.push(forbidden);
+        await jest.advanceTimersByTimeAsync(61_000);
+
+        expect(server.status).toBe('disconnected');
+        expect(disconnected).toHaveBeenCalledTimes(1);
+        expect(disconnected).toHaveBeenCalledWith({ geo: '', error: forbidden });
+        await server.stop();
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
     it('still reports an unexpected drop as disconnected (planned-vs-unexpected are distinguished)', async () => {
       const server = await makeServer({ reconnectDelaysMs: [0] });
       onMessaging(server, jest.fn(async () => ({ status: 200 })));

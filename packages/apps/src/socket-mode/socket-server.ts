@@ -76,8 +76,8 @@ export type SocketModeEvents = {
   ready: { geo: string; frame: SocketReadyFrame };
   /**
    * A geo's socket dropped unexpectedly; a reconnect for that geo may be in
-   * progress. Not emitted for a planned proactive token rotation, which
-   * renegotiates transparently without surfacing a drop.
+   * progress. A successful proactive token rotation does not emit this event;
+   * a terminal rotation failure does because inbound delivery cannot resume.
    */
   disconnected: { geo: string; error?: Error };
   /**
@@ -811,7 +811,7 @@ class GeoSocket {
 
       await this.connection?.stop().catch(() => undefined);
 
-      const next = await this.reconnect(error);
+      const next = await this.reconnect(error, !planned);
       if (!next) return; // stopped while backing off
 
       closed = next.closed;
@@ -844,7 +844,10 @@ class GeoSocket {
     return { promise, dispose: () => signal.removeEventListener('abort', onAbort) };
   }
 
-  private async reconnect(prevError?: Error): Promise<{ closed: Promise<CloseReason> } | undefined> {
+  private async reconnect(
+    prevError: Error | undefined,
+    outageReported: boolean
+  ): Promise<{ closed: Promise<CloseReason> } | undefined> {
     let attempt = 0;
     let retryAfterMs = this.server.retryAfterOf(prevError);
 
@@ -866,6 +869,9 @@ class GeoSocket {
             `socket-mode[${this.geo}]: reconnect stopped after a non-retryable error`,
             err
           );
+          if (!outageReported) {
+            this.server.emit('disconnected', { geo: this.geo, error: err });
+          }
           return undefined;
         }
         retryAfterMs = this.server.retryAfterOf(err);
