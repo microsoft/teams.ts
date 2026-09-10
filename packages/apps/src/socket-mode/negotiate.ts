@@ -66,6 +66,25 @@ export class NegotiateError extends Error {
   }
 }
 
+/** Build an actionable error message for a failed negotiate request. */
+function negotiateErrorMessage(status: number, body: string): string {
+  const serviceError = `Socket Mode negotiate failed: HTTP ${status}${body ? ` ${body}` : ''}`;
+  switch (status) {
+    case 401:
+      return (
+        `${serviceError}. Verify the bot credentials ` +
+        '(clientId/clientSecret, managed identity, or token provider) and restart the app after correcting them.'
+      );
+    case 403:
+      return (
+        `${serviceError}. The credentials are valid, but this bot is not ` +
+        'authorized to use Socket Mode. Verify the bot registration and Socket Mode access for this environment.'
+      );
+    default:
+      return serviceError;
+  }
+}
+
 /**
  * Parse an HTTP `Retry-After` header (delta-seconds or an HTTP date) into
  * milliseconds, returning `undefined` when absent or unparseable.
@@ -124,7 +143,7 @@ export async function negotiate(deps: NegotiateDeps): Promise<NegotiateResult> {
       `socket-mode: negotiate failed status=${res.status} body=${body || '(empty)'}`
     );
     throw new NegotiateError(
-      `Socket Mode negotiate failed: HTTP ${res.status} ${body}`,
+      negotiateErrorMessage(res.status, body),
       res.status,
       parseRetryAfterMs(res)
     );
