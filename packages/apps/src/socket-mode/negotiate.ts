@@ -68,19 +68,20 @@ export class NegotiateError extends Error {
 
 /** Build an actionable error message for a failed negotiate request. */
 function negotiateErrorMessage(status: number, body: string): string {
+  const serviceError = `Socket Mode negotiate failed: HTTP ${status}${body ? ` ${body}` : ''}`;
   switch (status) {
     case 401:
       return (
-        'Socket Mode negotiate failed with HTTP 401 Unauthorized. Verify the bot credentials ' +
+        `${serviceError}. Verify the bot credentials ` +
         '(clientId/clientSecret, managed identity, or token provider) and restart the app after correcting them.'
       );
     case 403:
       return (
-        'Socket Mode negotiate failed with HTTP 403 Forbidden. The credentials are valid, but this bot is not ' +
+        `${serviceError}. The credentials are valid, but this bot is not ` +
         'authorized to use Socket Mode. Verify the bot registration and Socket Mode access for this environment.'
       );
     default:
-      return `Socket Mode negotiate failed with HTTP ${status}${body ? `: ${body}` : '.'}`;
+      return serviceError;
   }
 }
 
