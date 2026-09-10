@@ -61,7 +61,7 @@ describe('socket-mode negotiate', () => {
     ).rejects.toThrow(/HTTP 503/);
   });
 
-  it('explains how to fix bot credentials after a 401 response', async () => {
+  it('preserves the status and response body after a 401 response', async () => {
     mockFetch(async () => jsonResponse({ error: 'invalid token' }, false, 401));
 
     await expect(
@@ -69,13 +69,11 @@ describe('socket-mode negotiate', () => {
     ).rejects.toMatchObject({
       name: 'NegotiateError',
       statusCode: 401,
-      message: expect.stringMatching(
-        /HTTP 401.*invalid token.*verify the bot credentials.*clientId\/clientSecret/i
-      ),
+      message: 'Socket Mode negotiate failed: HTTP 401 {"error":"invalid token"}',
     });
   });
 
-  it('explains the authorization problem after a 403 response', async () => {
+  it('preserves the status and response body after a 403 response', async () => {
     mockFetch(async () => jsonResponse({ error: 'forbidden' }, false, 403));
 
     await expect(
@@ -83,7 +81,7 @@ describe('socket-mode negotiate', () => {
     ).rejects.toMatchObject({
       name: 'NegotiateError',
       statusCode: 403,
-      message: expect.stringMatching(/HTTP 403.*forbidden.*not authorized to use Socket Mode/i),
+      message: 'Socket Mode negotiate failed: HTTP 403 {"error":"forbidden"}',
     });
   });
 
