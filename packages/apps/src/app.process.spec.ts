@@ -927,6 +927,17 @@ describe('App', () => {
       expect(credential.actor).toBe('app');
     });
 
+    it('keeps the files credential off the public context type', () => {
+      // Deliberately type-level. Handlers receive `toInterface()` output, which is built from an explicit field list
+      // and never carried this, so a runtime assertion passes whether or not the property is declared. What was
+      // actually wrong is that the public type advertised a property that could only ever be `undefined`.
+      // ts-jest type-checks specs, so this fails the build if the declaration comes back.
+      const ctx = {} as import('./contexts/activity').IActivityContext;
+
+      // @ts-expect-error filesCredential is constructor-only and must not appear on the public context type.
+      void ctx.filesCredential;
+    });
+
     it('should use different serviceUrls for different incoming activities', async () => {
       const serviceUrl1 = 'https://service-1.botframework.com';
       const serviceUrl2 = 'https://service-2.botframework.com';

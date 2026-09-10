@@ -32,6 +32,13 @@ import { IActivitySender } from '../types/plugin/sender';
  */
 export interface IActivityContextConstructorArgs {
   /**
+   * Graph credential used by the file path, selected per actor and resolved at fetch time.
+   *
+   * Constructor-only, and deliberately absent from {@link IBaseActivityContextOptions}: it exists so `ctx.files` can reach bytes the pre-authorized download URL cannot, and a handler has no reason to hold it. Declaring it here keeps it off the public context type and out of the instance, rather than advertising a property that is always `undefined`.
+   */
+  filesCredential?: GraphCredential;
+
+  /**
    * activity sender for sending activities and creating streams
    */
   activitySender: IActivitySender;
@@ -154,8 +161,6 @@ export interface IBaseActivityContextOptions<T extends Activity = Activity> {
    * @deprecated Register and retain the required `OAuthFlow` explicitly.
    */
   connectionName: string;
-  /** Graph credential used by the file path, selected per actor and resolved at fetch time. Not a general-purpose credential: it exists so `ctx.files` can reach bytes that the pre-authorized download URL cannot, and it is deliberately not surfaced on the public context. */
-  filesCredential?: GraphCredential;
 
   /**
    * the user token for the activity context
@@ -289,6 +294,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       validateOAuthConnection,
       onOAuthSignInInitiated,
       getOAuthConnectionStatus,
+      filesCredential,
       ...rest
     } = value;
 
@@ -331,7 +337,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     this.next = next;
     this.stream = activitySender.createStream(value.ref);
     this.connectionName = value.connectionName;
-    this.files = new FilesAccessor(this.activity, this.log.child('files'), value.client, value.filesCredential);
+    this.files = new FilesAccessor(this.activity, this.log.child('files'), value.client, filesCredential);
   }
 
   /**
