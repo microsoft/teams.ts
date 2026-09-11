@@ -40,6 +40,10 @@ interface MessageBase {
   createdDateTime: string;
 }
 
+const toUTCString = (value?: string | Date) => {
+  return (value instanceof Date ? value : new Date(value || Date.now())).toUTCString();
+};
+
 const createMessageBase = (
   event: ActivityEvent<IMessageActivity | ITypingActivity>
 ): MessageBase => {
@@ -66,7 +70,7 @@ const createMessageBase = (
           }
         : undefined,
     },
-    createdDateTime: (event.body.timestamp || new Date()).toUTCString(),
+    createdDateTime: toUTCString(event.body.timestamp),
   };
 };
 
@@ -303,7 +307,7 @@ export const useChatStore = create<ChatStore>()(
           message.body.textContent = event.body.text;
         }
 
-        message.lastModifiedDateTime = (event.body.timestamp || new Date()).toUTCString();
+        message.lastModifiedDateTime = toUTCString(event.body.timestamp);
         state.put(state.chat.id, message);
         return state;
       },

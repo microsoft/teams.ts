@@ -15,7 +15,7 @@ const BLUEPRINT_ID = '00000000-0000-0000-0000-000000000005';
 const baseActivity = {
   type: 'event',
   id: 'activity-id',
-  timestamp: new Date('2026-06-29T00:00:00Z'),
+  timestamp: '2026-06-29T00:00:00Z',
   serviceUrl: 'https://smba.trafficmanager.net/amer/tenant/',
   channelId: 'agents',
   from: { id: 'system', name: 'System', role: 'bot', tenantId: TENANT_ID },
