@@ -51,6 +51,11 @@ function retryAfterFrom(error: unknown): number | undefined {
   return error instanceof NegotiateError ? error.retryAfterMs : undefined;
 }
 
+/** A 403 is an authorization decision and cannot succeed on retry. */
+function isTerminalConnectionError(error: unknown): boolean {
+  return error instanceof NegotiateError && error.statusCode === 403;
+}
+
 /** Join a base URL, an optional geo segment, and the negotiate path. */
 function buildNegotiateUrl(base: string, geo: string): string {
   const trimmedBase = base.replace(/\/+$/, '');
@@ -71,8 +76,8 @@ export type SocketModeEvents = {
   ready: { geo: string; frame: SocketReadyFrame };
   /**
    * A geo's socket dropped unexpectedly; a reconnect for that geo may be in
-   * progress. Not emitted for a planned proactive token rotation, which
-   * renegotiates transparently without surfacing a drop.
+   * progress. A successful proactive token rotation does not emit this event;
+   * a terminal rotation failure does because inbound delivery cannot resume.
    */
   disconnected: { geo: string; error?: Error };
   /**
@@ -672,6 +677,13 @@ class GeoSocket {
       } catch (err: any) {
         lastError = err;
         if (!this.server.accepting) break;
+        if (isTerminalConnectionError(err)) {
+          this.log.error(
+            `socket-mode[${this.geo}]: initial connection failed with a non-retryable error`,
+            err
+          );
+          break;
+        }
         const delay = this.server.retryAfterOf(err) ?? this.server.backoffDelay(attempt);
         attempt++;
         if (Date.now() + delay >= deadline) break; // no budget for another attempt
@@ -799,7 +811,7 @@ class GeoSocket {
 
       await this.connection?.stop().catch(() => undefined);
 
-      const next = await this.reconnect(error);
+      const next = await this.reconnect(error, !planned);
       if (!next) return; // stopped while backing off
 
       closed = next.closed;
@@ -832,7 +844,10 @@ class GeoSocket {
     return { promise, dispose: () => signal.removeEventListener('abort', onAbort) };
   }
 
-  private async reconnect(prevError?: Error): Promise<{ closed: Promise<CloseReason> } | undefined> {
+  private async reconnect(
+    prevError: Error | undefined,
+    outageReported: boolean
+  ): Promise<{ closed: Promise<CloseReason> } | undefined> {
     let attempt = 0;
     let retryAfterMs = this.server.retryAfterOf(prevError);
 
@@ -848,6 +863,17 @@ class GeoSocket {
       try {
         return await this.connectCycle(gen);
       } catch (err: any) {
+        if (isTerminalConnectionError(err)) {
+          this._status = 'disconnected';
+          this.log.error(
+            `socket-mode[${this.geo}]: reconnect stopped after a non-retryable error`,
+            err
+          );
+          if (!outageReported || !prevError) {
+            this.server.emit('disconnected', { geo: this.geo, error: err });
+          }
+          return undefined;
+        }
         retryAfterMs = this.server.retryAfterOf(err);
         this.log.warn(`socket-mode[${this.geo}]: reconnect attempt ${attempt} failed; will retry`, err);
       }
