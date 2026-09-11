@@ -50,11 +50,11 @@ app.on('message', async (ctx) => {
   }
 });
 
-graph.onSignInComplete(async (ctx, token) => {
+graph.onSignInComplete(async (ctx: Parameters<typeof graph.signIn>[0], token: { token: string }) => {
   await sendGraphProfile(ctx, token.token);
 });
 
-github.onSignInComplete(async (ctx, token) => {
+github.onSignInComplete(async (ctx: Parameters<typeof github.signIn>[0], token: { token: string }) => {
   await sendGitHubProfile(ctx, token.token);
 });
 
@@ -94,7 +94,7 @@ async function sendGitHubProfile(
 
 function createFailureHandler(connection: string) {
   return async (
-    ctx: Parameters<typeof graph.signIn>[0],
+    ctx: Parameters<typeof graph.signIn>[0] | Parameters<typeof github.signIn>[0],
     failure?: { code?: string; message?: string }
   ) => {
     ctx.log.error(`${connection} sign-in failed: ${failure?.code} - ${failure?.message}`);

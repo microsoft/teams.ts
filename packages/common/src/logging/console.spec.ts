@@ -125,6 +125,41 @@ describe('ConsoleLogger', () => {
     expect(infoSpy).toHaveBeenCalledTimes(3);
   });
 
+  it('should render Error name, message, and stack instead of {}', () => {
+    const logger = new ConsoleLogger('test');
+    const error = new Error('negotiate failed');
+    logger.warn('reconnect failed', error);
+
+    const output = warnSpy.mock.calls.map((c) => c.join(' ')).join('\n');
+    // Would fail before the fix: JSON.stringify(error) === '{}'.
+    expect(output).not.toContain('{}');
+    expect(output).toContain('Error');
+    expect(output).toContain('negotiate failed');
+  });
+
+  it('should expand an Error nested inside a logged object', () => {
+    const logger = new ConsoleLogger('test');
+    logger.warn({ context: 'refresh', error: new TypeError('bad token') });
+
+    const output = warnSpy.mock.calls.map((c) => c.join(' ')).join('\n');
+    expect(output).toContain('TypeError');
+    expect(output).toContain('bad token');
+    // The error must not collapse to an empty object.
+    expect(output).not.toContain('"error": {}');
+  });
+
+  it('should include a nested cause when present', () => {
+    const logger = new ConsoleLogger('test');
+    const root = new Error('root cause');
+    const wrapper = new Error('outer failure', { cause: root });
+    logger.error(wrapper);
+
+    const output = errorSpy.mock.calls.map((c) => c.join(' ')).join('\n');
+    expect(output).toContain('outer failure');
+    expect(output).toContain('caused by');
+    expect(output).toContain('root cause');
+  });
+
   describe('pattern matching with exclusions', () => {
     afterEach(() => {
       delete process.env.LOG;

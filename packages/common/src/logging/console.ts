@@ -73,8 +73,10 @@ export class ConsoleLogger implements ILogger {
     for (const m of msg) {
       let text = new String(m);
 
-      if (typeof m === 'object') {
-        text = JSON.stringify(m, null, 2);
+      if (m instanceof Error) {
+        text = formatError(m);
+      } else if (typeof m === 'object') {
+        text = JSON.stringify(m, errorReplacer, 2);
       }
 
       for (const line of text.split('\n')) {
@@ -95,6 +97,35 @@ export class ConsoleLogger implements ILogger {
       pattern: mergedPattern
     });
   }
+}
+
+/**
+ * Render an {@link Error} as a readable multi-line string. `JSON.stringify(err)`
+ * yields `{}` because `name`/`message`/`stack` are non-enumerable, which hides
+ * the very details a failure log needs, so we read them explicitly. Prefers the
+ * full `stack` (which already begins with `name: message`) and falls back to
+ * `name: message` when no stack is present.
+ */
+function formatError(err: Error): string {
+  const header = err.message ? `${err.name}: ${err.message}` : err.name;
+  const base = err.stack && err.stack.length > 0 ? err.stack : header;
+  const cause = (err as { cause?: unknown }).cause;
+  if (cause instanceof Error) {
+    return `${base}\ncaused by: ${formatError(cause)}`;
+  }
+  return base;
+}
+
+/**
+ * `JSON.stringify` replacer that expands any nested {@link Error} value into a
+ * plain object carrying its `name`/`message`/`stack`, so an Error passed inside
+ * a larger object is not silently serialized as `{}`.
+ */
+function errorReplacer(_key: string, value: unknown): unknown {
+  if (value instanceof Error) {
+    return { name: value.name, message: value.message, stack: value.stack };
+  }
+  return value;
 }
 
 function parsePatternString(pattern: string): {
