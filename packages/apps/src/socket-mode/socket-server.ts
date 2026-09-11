@@ -813,10 +813,10 @@ class GeoSocket {
       }
 
       const previous = planned ? this.active : undefined;
-      const next = await this.reconnect(error, {
+      const next = await this.reconnect({
         keepServing: planned,
         outageReported: !planned,
-      });
+      }, error);
       if (!next) {
         // A terminal planned-refresh failure has already been reported by
         // reconnect(). Do not leave the predecessor serving without a
@@ -872,11 +872,8 @@ class GeoSocket {
   }
 
   private async reconnect(
-    prevError?: Error,
-    options: { keepServing: boolean; outageReported: boolean } = {
-      keepServing: false,
-      outageReported: false,
-    }
+    options: { keepServing: boolean; outageReported: boolean },
+    prevError?: Error
   ): Promise<{ closed: Promise<CloseReason> } | undefined> {
     let attempt = 0;
     let retryAfterMs = this.server.retryAfterOf(prevError);

@@ -11,6 +11,7 @@ jest.mock('@microsoft/signalr', () => {
     started: number;
     stopped: number;
     startGate?: Promise<void>;
+    startError?: Error;
     logger?: { log: (level: number, message: string) => void };
   } = { autoReady: true, handlers: {}, started: 0, stopped: 0 };
 
@@ -24,6 +25,9 @@ jest.mock('@microsoft/signalr', () => {
     start: async () => {
       state.started++;
       await state.startGate;
+      if (state.startError) {
+        throw state.startError;
+      }
       if (state.autoReady) {
         state.handlers.SocketReady?.({ botKey: 'bot', connectionId: 'c1' });
       }
@@ -55,6 +59,7 @@ const state = signalr.__state as {
   started: number;
   stopped: number;
   startGate?: Promise<void>;
+  startError?: Error;
   logger?: { log: (level: number, message: string) => void };
 };
 
@@ -85,6 +90,7 @@ describe('SignalRSocketConnection', () => {
     state.started = 0;
     state.stopped = 0;
     state.startGate = undefined;
+    state.startError = undefined;
     state.logger = undefined;
     globalThis.fetch = jest.fn(async () => ({
       ok: true,
@@ -253,6 +259,17 @@ describe('SignalRSocketConnection', () => {
 
     finishHandshake();
     await expect(startPromise).rejects.toThrow(/aborted/i);
+  });
+
+  it('removes the abort listener when the SignalR handshake fails', async () => {
+    state.startError = new Error('handshake failed');
+    const conn = new SignalRSocketConnection(makeContext(), makeHandlers());
+    const ac = new AbortController();
+    const removeEventListener = jest.spyOn(ac.signal, 'removeEventListener');
+
+    await expect(conn.start(ac.signal)).rejects.toThrow('handshake failed');
+
+    expect(removeEventListener).toHaveBeenCalledWith('abort', expect.any(Function));
   });
 
   it('bridges SignalR internal diagnostics into the app logger', async () => {
