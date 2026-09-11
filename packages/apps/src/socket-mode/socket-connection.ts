@@ -128,35 +128,38 @@ export class SignalRSocketConnection implements ISocketConnection {
     };
     signal?.addEventListener('abort', onAbort, { once: true });
 
-    await connection.start();
-    connected = true;
-    // An abort that landed during start won't have had a connection to stop; now
-    // that one exists, honor it explicitly.
-    if (signal?.aborted) {
-      await this.stop();
-      throw new Error('Socket Mode connect aborted');
-    }
-    this.log?.debug('socket-mode: socket connected; awaiting SocketReady');
-
-    const timeoutMs = this.context.readinessTimeoutMs;
-    const timer = setTimeout(() => {
-      this.log?.warn(
-        `socket-mode: readiness timed out after ${timeoutMs}ms (no SocketReady frame)`
-      );
-      failReady(
-        new Error(
-          `Socket Mode readiness timed out after ${timeoutMs}ms (no SocketReady frame).`
-        )
-      );
-    }, timeoutMs);
-
     try {
-      await ready;
-    } catch (err) {
-      await this.stop();
-      throw err;
+      await connection.start();
+      connected = true;
+      // An abort that landed during start won't have had a connection to stop; now
+      // that one exists, honor it explicitly.
+      if (signal?.aborted) {
+        await this.stop();
+        throw new Error('Socket Mode connect aborted');
+      }
+      this.log?.debug('socket-mode: socket connected; awaiting SocketReady');
+
+      const timeoutMs = this.context.readinessTimeoutMs;
+      const timer = setTimeout(() => {
+        this.log?.warn(
+          `socket-mode: readiness timed out after ${timeoutMs}ms (no SocketReady frame)`
+        );
+        failReady(
+          new Error(
+            `Socket Mode readiness timed out after ${timeoutMs}ms (no SocketReady frame).`
+          )
+        );
+      }, timeoutMs);
+
+      try {
+        await ready;
+      } catch (err) {
+        await this.stop();
+        throw err;
+      } finally {
+        clearTimeout(timer);
+      }
     } finally {
-      clearTimeout(timer);
       signal?.removeEventListener('abort', onAbort);
     }
   }
