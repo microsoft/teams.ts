@@ -13,7 +13,8 @@ jest.mock('./socket-connection', () => {
     connections: FakeConnection[];
     startErrorQueue: Error[];
     expiresInSeconds?: number;
-  } = { connections: [], startErrorQueue: [] };
+    autoReadyQueue: boolean[];
+  } = { connections: [], startErrorQueue: [], autoReadyQueue: [] };
 
   class FakeConnection {
     handlers: any;
@@ -22,11 +23,13 @@ jest.mock('./socket-connection', () => {
     autoReady = true;
     started = 0;
     stopped = 0;
+    resolveReady?: () => void;
 
     constructor(context: any, handlers: any) {
       this.context = context;
       this.handlers = handlers;
       this.expiresInSeconds = state.expiresInSeconds;
+      this.autoReady = state.autoReadyQueue.length > 0 ? state.autoReadyQueue.shift()! : true;
       state.connections.push(this);
     }
 
@@ -34,11 +37,22 @@ jest.mock('./socket-connection', () => {
       this.started++;
       const err = state.startErrorQueue.shift();
       if (err) throw err;
-      if (this.autoReady) this.handlers.onReady({ botKey: 'bot' });
+      if (this.autoReady) {
+        this.handlers.onReady({ botKey: 'bot' });
+        return;
+      }
+      await new Promise<void>((resolve) => {
+        this.resolveReady = resolve;
+      });
     }
 
     async stop() {
       this.stopped++;
+    }
+
+    fireReady() {
+      this.handlers.onReady({ botKey: 'bot' });
+      this.resolveReady?.();
     }
 
     /** Simulate the socket dropping (drives the supervisor). */
@@ -60,6 +74,7 @@ type FakeConnection = {
   autoReady: boolean;
   started: number;
   stopped: number;
+  fireReady: () => void;
   drop: (error?: Error) => void;
 };
 
@@ -67,6 +82,7 @@ const connState = (jest.requireMock('./socket-connection') as any).__state as {
   connections: FakeConnection[];
   startErrorQueue: Error[];
   expiresInSeconds?: number;
+  autoReadyQueue: boolean[];
 };
 
 const MESSAGING_ENDPOINT = '/api/messages';
@@ -122,6 +138,7 @@ describe('SocketModeAdapter resilience', () => {
     connState.connections = [];
     connState.startErrorQueue = [];
     connState.expiresInSeconds = undefined;
+    connState.autoReadyQueue = [];
   });
 
   describe('reconnect supervisor', () => {
@@ -281,6 +298,84 @@ describe('SocketModeAdapter resilience', () => {
   });
 
   describe('proactive token refresh', () => {
+    it('keeps the old socket until its replacement is ready and backend cache entries expire', async () => {
+      jest.useFakeTimers();
+      try {
+        connState.expiresInSeconds = 120;
+        connState.autoReadyQueue = [true, false];
+        const handler = jest.fn(async () => ({ status: 200 }));
+        const server = await makeServer({ reconnectDelaysMs: [0] });
+        onMessaging(server, handler);
+        await server.start();
+        const oldConnection = connState.connections[0];
+
+        await jest.advanceTimersByTimeAsync(61_000);
+        expect(connState.connections).toHaveLength(2);
+        const replacement = connState.connections[1];
+
+        expect(oldConnection.stopped).toBe(0);
+        await oldConnection.handlers.onActivity(env('before-ready'));
+        expect(handler).toHaveBeenCalledTimes(1);
+
+        replacement.fireReady();
+        await jest.advanceTimersByTimeAsync(0);
+
+        expect(oldConnection.stopped).toBe(0);
+        await oldConnection.handlers.onActivity(env('cached-old-id'));
+        expect(handler).toHaveBeenCalledTimes(2);
+
+        await jest.advanceTimersByTimeAsync(4_999);
+        expect(oldConnection.stopped).toBe(0);
+        await jest.advanceTimersByTimeAsync(1);
+        expect(oldConnection.stopped).toBe(1);
+
+        await server.stop();
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    it('retires rapid overlapping generations independently', async () => {
+      jest.useFakeTimers();
+      try {
+        connState.expiresInSeconds = 1;
+        const handler = jest.fn(async () => ({ status: 200 }));
+        const server = await makeServer({ reconnectDelaysMs: [0] });
+        onMessaging(server, handler);
+        await server.start();
+        const first = connState.connections[0];
+
+        await jest.advanceTimersByTimeAsync(1_000);
+        expect(connState.connections).toHaveLength(2);
+        const second = connState.connections[1];
+
+        // Let the second generation trigger one more quick handoff, but keep the
+        // third generation stable so the individual retirement times are clear.
+        connState.expiresInSeconds = undefined;
+        await jest.advanceTimersByTimeAsync(1_000);
+        expect(connState.connections).toHaveLength(3);
+
+        await first.handlers.onActivity(env('first-retiring'));
+        await second.handlers.onActivity(env('second-retiring'));
+        expect(handler).toHaveBeenCalledTimes(2);
+
+        await jest.advanceTimersByTimeAsync(3_999);
+        expect(first.stopped).toBe(0);
+        expect(second.stopped).toBe(0);
+
+        await jest.advanceTimersByTimeAsync(1);
+        expect(first.stopped).toBe(1);
+        expect(second.stopped).toBe(0);
+
+        await jest.advanceTimersByTimeAsync(1_000);
+        expect(second.stopped).toBe(1);
+
+        await server.stop();
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
     it('renegotiates before the negotiate token expires', async () => {
       jest.useFakeTimers();
       try {
@@ -341,6 +436,41 @@ describe('SocketModeAdapter resilience', () => {
         );
         expect(droppedWarn).toBeUndefined();
 
+        await server.stop();
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    it('reports an outage if the old socket dies before its replacement is ready', async () => {
+      jest.useFakeTimers();
+      try {
+        connState.expiresInSeconds = 120;
+        connState.autoReadyQueue = [true, false];
+        const server = await makeServer({ reconnectDelaysMs: [0] });
+        onMessaging(server, jest.fn(async () => ({ status: 200 })));
+        const disconnected = jest.fn();
+        const reconnected = jest.fn();
+        server.events.on('disconnected', disconnected);
+        server.events.on('reconnected', reconnected);
+        await server.start();
+
+        await jest.advanceTimersByTimeAsync(61_000);
+        const oldConnection = connState.connections[0];
+        const replacement = connState.connections[1];
+        const error = new Error('old socket dropped during rotation');
+
+        oldConnection.drop(error);
+
+        expect(server.status).toBe('disconnected');
+        expect(disconnected).toHaveBeenCalledTimes(1);
+        expect(disconnected).toHaveBeenCalledWith({ geo: '', error });
+
+        replacement.fireReady();
+        await jest.advanceTimersByTimeAsync(0);
+
+        expect(server.status).toBe('ready');
+        expect(reconnected).toHaveBeenCalledTimes(1);
         await server.stop();
       } finally {
         jest.useRealTimers();
@@ -468,18 +598,18 @@ describe('SocketModeAdapter resilience', () => {
       });
     }
 
-    it('rejects Socket Mode in a sovereign cloud without an explicit endpoint', async () => {
+    it('rejects Socket Mode in a sovereign cloud', async () => {
       const server = cloudServer();
       await server.initialize({ cloud: sovereign });
       await expect(server.start()).rejects.toThrow(/not supported in this cloud/i);
+      expect(connState.connections).toHaveLength(0);
     });
 
-    it('allows a sovereign cloud when an explicit negotiateBaseUrl is provided', async () => {
+    it('still rejects in a sovereign cloud when negotiateBaseUrl is provided', async () => {
       const server = cloudServer({ negotiateBaseUrl: 'https://apx.gov.example', geos: [''] });
       await server.initialize({ cloud: sovereign });
-      await server.start();
-      expect(server.status).toBe('ready');
-      await server.stop();
+      await expect(server.start()).rejects.toThrow(/not supported in this cloud/i);
+      expect(connState.connections).toHaveLength(0);
     });
   });
 

@@ -12,8 +12,10 @@ import { HttpMethod, HttpRouteHandler, IHttpServerAdapter, IHttpServerInitialize
  * which transport delivers each activity, so the SDK just needs to receive on
  * both. There's no fallback logic or health state — route registrations and
  * static-file mounts fan out to every child, and each delivers what it receives
- * into the shared {@link HttpServer} pipeline. The Teams backend service delivers
- * each activity over exactly one transport, so there is no double-processing.
+ * into the shared {@link HttpServer} pipeline. Initial delivery uses one
+ * transport, but the Teams backend service may retry over HTTP after an
+ * ambiguous socket failure, so application handlers can observe the same
+ * activity more than once.
  *
  * Lifecycle: {@link start} starts each child in array order (HTTP first, then the
  * socket) so the messaging endpoint is listening before the socket dials out;

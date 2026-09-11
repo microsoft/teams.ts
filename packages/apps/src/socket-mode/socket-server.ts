@@ -38,6 +38,11 @@ const RECONNECT_MAX_DELAY_MS = 15_000;
 
 /** Renegotiate this long before the negotiate token is due to expire. */
 const TOKEN_REFRESH_MARGIN_MS = 60_000;
+/**
+ * Backend caches connection IDs for roughly five seconds. Keep the superseded
+ * socket alive for that window after its replacement reaches `SocketReady`.
+ */
+const CONNECTION_HANDOFF_MS = 5_000;
 
 /**
  * Default geographies a bot connects to. One socket is opened per geo (the geo
@@ -430,20 +435,17 @@ export class SocketModeAdapter implements IHttpServerAdapter {
   }
 
   /**
-   * Reject Socket Mode in a sovereign cloud unless the caller supplied an
-   * explicit negotiate endpoint. The default negotiate host targets the public
-   * commercial cloud, so silently using it from a sovereign cloud would cross a
-   * data boundary and present a token with the wrong audience.
+   * Socket Mode is currently supported only in regular production clouds.
+   * This guard fails fast before negotiate so unsupported sovereign deployments
+   * get an explicit local error instead of a runtime negotiate failure.
    */
   private assertCloudSupported(): void {
-    if (this.options.negotiateBaseUrl) return; // explicit endpoint overrides the gate
     const cloud = this.cloud;
     if (!cloud || cloud.tokenIssuer === PUBLIC.tokenIssuer) return;
     throw new Error(
       `Socket Mode is not supported in this cloud environment (tokenIssuer=${cloud.tokenIssuer}). ` +
-      'The default negotiate endpoint targets the public commercial cloud; using it from a ' +
-      'sovereign cloud would cross a data boundary. Set socketMode.negotiateBaseUrl to your ' +
-      'cloud\'s Socket Mode endpoint, or use the HTTP inbound transport instead.'
+      'Socket Mode currently supports only regular production clouds. ' +
+      'Use the HTTP inbound transport instead.'
     );
   }
 
@@ -628,12 +630,12 @@ type CloseReason = { planned: true } | { planned: false; error?: Error };
  * the others.
  */
 class GeoSocket {
-  /** Monotonic connection generation; fences out frames from superseded connections. */
+  /** Monotonic connection generation. */
   private generation = 0;
-  private currentGen = 0;
-  /** The generation that has satisfied `SocketReady`; `-1` when none is ready. */
-  private readyGen = -1;
-  private connection?: ISocketConnection;
+  /** The ready generation receiving new backend traffic. */
+  private active?: { gen: number; connection: ISocketConnection };
+  /** Prior generations kept alive during backend's connection-ID cache window. */
+  private readonly retiring = new Map<number, ISocketConnection>();
   private supervisorLoop?: Promise<void>;
   private refreshTimer?: ReturnType<typeof setTimeout>;
   private _status: SocketModeStatus = 'idle';
@@ -651,9 +653,9 @@ class GeoSocket {
     return this._status;
   }
 
-  /** The dispatch fence: current generation, ready, and the server is accepting. */
+  /** Accept frames from the active socket and its briefly overlapping predecessor. */
   canDispatch(gen: number): boolean {
-    return this.server.accepting && gen === this.currentGen && this.readyGen === gen;
+    return this.server.accepting && (this.active?.gen === gen || this.retiring.has(gen));
   }
 
   /**
@@ -669,7 +671,6 @@ class GeoSocket {
 
     while (this.server.accepting) {
       const gen = ++this.generation;
-      this.currentGen = gen;
       try {
         this.closed = (await this.connectCycle(gen)).closed;
         this._status = 'ready';
@@ -705,14 +706,15 @@ class GeoSocket {
     });
   }
 
-  /** Drain-agnostic close of this geo: abort refresh, close the connection. */
+  /** Close every connection generation still owned by this geo. */
   async stop(): Promise<void> {
     this.clearRefreshTimer();
-    const connection = this.connection;
-    this.connection = undefined;
-    if (connection) {
-      await connection.stop().catch(() => undefined);
-    }
+    const connections = [this.active?.connection, ...this.retiring.values()].filter(
+      (connection): connection is ISocketConnection => connection !== undefined
+    );
+    this.active = undefined;
+    this.retiring.clear();
+    await Promise.all(connections.map((connection) => connection.stop().catch(() => undefined)));
     await this.supervisorLoop?.catch(() => undefined);
     this._status = 'stopped';
   }
@@ -737,7 +739,10 @@ class GeoSocket {
     const handlers: SocketConnectionHandlers = {
       onActivity: (envelope) => this.server.dispatch(this, gen, envelope),
       onReady: (frame) => {
-        this.readyGen = gen;
+        if (this.active && this.active.gen !== gen) {
+          this.retiring.set(this.active.gen, this.active.connection);
+        }
+        this.active = { gen, connection };
         // Set status before emitting so an observer reading `status` from the
         // `ready` handler (including the final geo, which flips the aggregate to
         // `ready`) sees the settled value rather than a stale `connecting`.
@@ -745,13 +750,21 @@ class GeoSocket {
         this.server.emit('ready', { geo: this.geo, frame });
       },
       onClosed: (error) => {
-        this.clearRefreshTimer();
+        if (this.active?.gen === gen) {
+          this.clearRefreshTimer();
+          if (settled && this.server.accepting) {
+            // The refresh signal already advanced the supervisor, so report a
+            // predecessor that dies while the replacement is still connecting.
+            this.active = undefined;
+            this.reportDisconnected(error);
+          }
+        }
+        this.retiring.delete(gen);
         settle({ planned: false, error });
       },
     };
 
     const connection = this.server.createConnection(this.negotiateUrl, handlers);
-    this.connection = connection;
 
     await connection.start(this.server.abortSignal);
     this.scheduleTokenRefresh(gen, connection.expiresInSeconds, () =>
@@ -783,41 +796,55 @@ class GeoSocket {
       const planned = reason.planned === true;
       const error = reason.planned ? undefined : reason.error;
 
-      this.readyGen = -1;
       if (planned) {
-        // Expected token rotation: renegotiate with a fresh token, but don't
-        // surface it as an outage. Keep the status as (re)connecting and skip
-        // the `disconnected` warning/event so observers don't see a false drop.
-        this._status = 'connecting';
+        // Keep the current generation serving while its replacement negotiates
+        // and waits for SocketReady.
         this.log.info(
           `socket-mode[${this.geo}]: proactively rotating token; renegotiating a fresh connection`
         );
       } else {
-        this._status = 'disconnected';
-        // Only pass `error` when we actually have one, so the logger never
-        // renders an `undefined` payload for an errorless close.
-        if (error) {
-          this.log.warn(
-            `socket-mode[${this.geo}]: disconnected; inbound delivery paused for this geo`,
-            error
-          );
-        } else {
-          this.log.warn(
-            `socket-mode[${this.geo}]: disconnected; inbound delivery paused for this geo`
-          );
-        }
-        this.server.emit('disconnected', { geo: this.geo, error });
+        this.reportDisconnected(error);
       }
 
-      await this.connection?.stop().catch(() => undefined);
+      if (!planned) {
+        const dropped = this.active;
+        this.active = undefined;
+        await dropped?.connection.stop().catch(() => undefined);
+      }
 
-      const next = await this.reconnect(error, !planned);
-      if (!next) return; // stopped while backing off
+      const previous = planned ? this.active : undefined;
+      const next = await this.reconnect({
+        keepServing: planned,
+        outageReported: !planned,
+      }, error);
+      if (!next) {
+        // A terminal planned-refresh failure has already been reported by
+        // reconnect(). Do not leave the predecessor serving without a
+        // supervisor to observe its eventual close.
+        if (
+          planned &&
+          this.server.accepting &&
+          previous &&
+          this.active?.gen === previous.gen
+        ) {
+          this.active = undefined;
+          await previous.connection.stop().catch(() => undefined);
+        }
+        return;
+      }
 
       closed = next.closed;
       this._status = 'ready';
       if (planned) {
-        this.log.info(`socket-mode[${this.geo}]: token rotated; inbound delivery continues for this geo`);
+        if (previous && this.retiring.get(previous.gen) === previous.connection) {
+          void this.retire(previous);
+          this.log.info(
+            `socket-mode[${this.geo}]: token rotated; inbound delivery continues for this geo`
+          );
+        } else {
+          this.log.info(`socket-mode[${this.geo}]: reconnected; inbound delivery resumed for this geo`);
+          this.server.emit('reconnected', { geo: this.geo });
+        }
       } else {
         this.log.info(`socket-mode[${this.geo}]: reconnected; inbound delivery resumed for this geo`);
         this.server.emit('reconnected', { geo: this.geo });
@@ -845,8 +872,8 @@ class GeoSocket {
   }
 
   private async reconnect(
-    prevError: Error | undefined,
-    outageReported: boolean
+    options: { keepServing: boolean; outageReported: boolean },
+    prevError?: Error
   ): Promise<{ closed: Promise<CloseReason> } | undefined> {
     let attempt = 0;
     let retryAfterMs = this.server.retryAfterOf(prevError);
@@ -857,13 +884,15 @@ class GeoSocket {
       const slept = await this.server.sleep(delay);
       if (!slept || !this.server.accepting) return undefined;
 
-      this._status = 'connecting';
+      if (!options.keepServing) {
+        this._status = 'connecting';
+      }
       const gen = ++this.generation;
-      this.currentGen = gen;
       try {
         return await this.connectCycle(gen);
       } catch (err: any) {
         if (isTerminalConnectionError(err)) {
+          const outageReported = options.outageReported || this._status === 'disconnected';
           this._status = 'disconnected';
           this.log.error(
             `socket-mode[${this.geo}]: reconnect stopped after a non-retryable error`,
@@ -874,11 +903,33 @@ class GeoSocket {
           }
           return undefined;
         }
+
         retryAfterMs = this.server.retryAfterOf(err);
         this.log.warn(`socket-mode[${this.geo}]: reconnect attempt ${attempt} failed; will retry`, err);
       }
     }
     return undefined;
+  }
+
+  private reportDisconnected(error?: Error): void {
+    this._status = 'disconnected';
+    if (error) {
+      this.log.warn(
+        `socket-mode[${this.geo}]: disconnected; inbound delivery paused for this geo`,
+        error
+      );
+    } else {
+      this.log.warn(`socket-mode[${this.geo}]: disconnected; inbound delivery paused for this geo`);
+    }
+    this.server.emit('disconnected', { geo: this.geo, error });
+  }
+
+  /** Retire the superseded socket after APX's cached IDs have aged out. */
+  private async retire(previous: { gen: number; connection: ISocketConnection }): Promise<void> {
+    const slept = await this.server.sleep(CONNECTION_HANDOFF_MS);
+    if (!slept || this.retiring.get(previous.gen) !== previous.connection) return;
+    this.retiring.delete(previous.gen);
+    await previous.connection.stop().catch(() => undefined);
   }
 
   private scheduleTokenRefresh(
@@ -891,7 +942,7 @@ class GeoSocket {
 
     const delay = Math.max(expiresInSeconds * 1000 - this.server.tokenRefreshMarginMs, 1_000);
     this.refreshTimer = setTimeout(() => {
-      if (!this.server.accepting || gen !== this.currentGen) return;
+      if (!this.server.accepting || gen !== this.active?.gen) return;
       this.log.info(`socket-mode[${this.geo}]: proactively renegotiating before token expiry`);
       triggerRefresh();
     }, delay);
