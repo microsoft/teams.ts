@@ -1,7 +1,7 @@
 import { ConversationType } from '@microsoft/teams.api';
 
 import { openFileStream, type FileFetch, type GraphCredential } from './download';
-import { FileRetrievalError, FileUrlExpiredError } from './errors';
+import { FileAccessError, FileCredentialError, FileUrlExpiredError } from './errors';
 import { encodeSharingUrl } from './graph-share';
 
 const CONTENT_URL = 'https://contoso.sharepoint.com/personal/a/Documents/report.pdf';
@@ -77,25 +77,25 @@ describe('graphShare fetch path', () => {
     expect(calls[0].authorization).toBe('Bearer agent-token');
   });
 
-  it('reports noGraphCredential before making any request when no credential exists', async () => {
+  it('reports a credential failure before making any request when no credential exists', async () => {
     const { fetch, calls } = recordingFetch([{ status: 200 }]);
 
-    await expect(openFileStream(target({ contentUrl: CONTENT_URL }), { fetch })).rejects.toThrow(FileRetrievalError);
+    await expect(openFileStream(target({ contentUrl: CONTENT_URL }), { fetch })).rejects.toThrow(FileCredentialError);
     expect(calls).toHaveLength(0);
   });
 
-  it('reports noGraphCredential before making any request when the token resolves empty', async () => {
+  it('reports a credential failure before making any request when the token resolves empty', async () => {
     // The app has no consented Graph application permissions. Detectable without a round trip, so this surfaces as a named failure rather than an opaque Graph 401.
     const { fetch, calls } = recordingFetch([{ status: 200 }]);
     const empty: GraphCredential = { actor: 'app', token: async () => undefined };
 
     await expect(
       openFileStream(target({ contentUrl: CONTENT_URL }), { fetch, credential: empty })
-    ).rejects.toMatchObject({ reason: 'noGraphCredential', actor: 'app' });
+    ).rejects.toBeInstanceOf(FileCredentialError);
     expect(calls).toHaveLength(0);
   });
 
-  it('carries the acquisition failure as details when the credential throws', async () => {
+  it('carries the acquisition failure as the cause when the credential throws', async () => {
     // An acquisition that threw and an identity with no permissions both arrive here as "no token", but the fixes
     // differ: one is a transient or configuration fault, the other is a consent problem. The canned guidance names
     // consent, so without the cause a transient Entra failure reads as a permissions problem that is not there.
@@ -110,15 +110,15 @@ describe('graphShare fetch path', () => {
     await expect(
       openFileStream(target({ contentUrl: CONTENT_URL }), { fetch, credential: throws })
     ).rejects.toMatchObject({
-      reason: 'noGraphCredential',
+      name: 'FileCredentialError',
       actor: 'agenticUser',
-      details: 'AADSTS7000215: Invalid client secret provided.',
+      cause: 'AADSTS7000215: Invalid client secret provided.',
     });
     expect(calls).toHaveLength(0);
   });
 
-  it('reports noGraphCredential for a token carrying no roles and no scopes, before any request', async () => {
-    // Verified against real Graph 2026-08-26: an app-only token with an empty `roles` claim returns 401 generalException/spException, which is indistinguishable on the wire from a genuine denial but has a completely different fix. Calling it accessDenied sends the developer to check file sharing when the real problem is that the app registration has no Graph permissions at all.
+  it('reports a credential failure for a token carrying no roles and no scopes, before any request', async () => {
+    // Verified against real Graph 2026-08-26: an app-only token with an empty `roles` claim returns 401 generalException/spException, which is indistinguishable on the wire from a genuine denial but has a completely different fix. Reporting it as a refusal would send the developer to check file sharing when the real problem is that the app registration has no Graph permissions at all, so it is ruled out before the request instead.
     const { fetch, calls } = recordingFetch([{ status: 200 }]);
     const header = Buffer.from(JSON.stringify({ alg: 'RS256', typ: 'JWT' })).toString('base64url');
     const payload = Buffer.from(JSON.stringify({ aud: 'https://graph.microsoft.com', roles: [] })).toString('base64url');
@@ -129,12 +129,12 @@ describe('graphShare fetch path', () => {
         fetch,
         credential: { actor: 'app', token: async () => rolelessToken },
       })
-    ).rejects.toMatchObject({ reason: 'noGraphCredential', actor: 'app' });
+    ).rejects.toMatchObject({ name: 'FileCredentialError', actor: 'app' });
 
     expect(calls).toHaveLength(0);
   });
 
-  it('reports noGraphCredential for a token whose scopes are all non-file, before any request', async () => {
+  it('reports a credential failure for a token whose scopes are all non-file, before any request', async () => {
     // The case `.default` creates and an emptiness check misses. A blueprint consented to unrelated Graph permissions returns a POPULATED `scp` with nothing file-capable in it, so "does the token carry any permission at all" passes and the developer gets a late 403 that decision 5 established is indistinguishable from "not shared with you".
     const { fetch, calls } = recordingFetch([{ status: 200 }]);
     const header = Buffer.from(JSON.stringify({ alg: 'RS256' })).toString('base64url');
@@ -147,7 +147,7 @@ describe('graphShare fetch path', () => {
         fetch,
         credential: { actor: 'agenticUser', token: async () => `${header}.${payload}.sig` },
       })
-    ).rejects.toMatchObject({ reason: 'noGraphCredential', actor: 'agenticUser' });
+    ).rejects.toMatchObject({ name: 'FileCredentialError', actor: 'agenticUser' });
 
     expect(calls).toHaveLength(0);
   });
@@ -206,12 +206,26 @@ describe('graphShare fetch path', () => {
     expect(calls).toHaveLength(1);
   });
 
-  it('maps 403 to accessDenied naming the actor', async () => {
+  it('maps 403 to an access failure naming the actor and carrying the status', async () => {
     const { fetch } = recordingFetch([{ status: 403 }]);
 
     await expect(
       openFileStream(target({ contentUrl: CONTENT_URL }), { fetch, credential: agenticCredential })
-    ).rejects.toMatchObject({ reason: 'accessDenied', actor: 'agenticUser' });
+    ).rejects.toMatchObject({ name: 'FileAccessError', status: 403, actor: 'agenticUser' });
+  });
+
+  it('keeps 401 distinguishable from 403 rather than collapsing both into one reason', async () => {
+    const { fetch } = recordingFetch([{ status: 401 }]);
+
+    const error = await openFileStream(target({ contentUrl: CONTENT_URL }), {
+      fetch,
+      credential: agenticCredential,
+    }).catch((err: unknown) => err);
+
+    expect(error).toBeInstanceOf(FileAccessError);
+    expect((error as FileAccessError).status).toBe(401);
+    expect((error as FileAccessError).message).toContain('rejected');
+    expect((error as FileAccessError).message).not.toContain('never have been shared');
   });
 
   it('names the identity and carries the service message on a status it does not map', async () => {
@@ -285,18 +299,18 @@ describe('an expired pre-authorized URL', () => {
     expect(calls).toHaveLength(1);
   });
 
-  it('still reports noGraphCredential on a file that never had a URL', async () => {
+  it('still reports a credential failure on a file that never had a URL', async () => {
     // With no pre-authorized URL there is no expiry to report, so Graph's own failure is the only true account of what went wrong.
     const { fetch } = recordingFetch([{ status: 200 }]);
     const unconsented: GraphCredential = { actor: 'agenticUser', token: async () => undefined };
 
     await expect(
       openFileStream(target({ contentUrl: CONTENT_URL }), { fetch, credential: unconsented })
-    ).rejects.toMatchObject({ reason: 'noGraphCredential', actor: 'agenticUser' });
+    ).rejects.toMatchObject({ name: 'FileCredentialError', actor: 'agenticUser' });
   });
 
   it('keeps what the service actually said on a denial', async () => {
-    // `reason` collapses an unconsented scope and a never-shared file into one `accessDenied`, because the SDK cannot tell them apart. The service can, and says so in prose, so dropping that text would destroy the only signal that distinguishes them.
+    // A `403` covers both an unconsented scope and a never-shared file, because the SDK cannot tell them apart. The service can, and says so in prose, so dropping that text would destroy the only signal that distinguishes them.
     const { fetch } = recordingFetch([
       { status: 403, body: '{"error":{"code":"accessDenied","message":"The caller does not have permission"}}' },
     ]);
@@ -304,7 +318,7 @@ describe('an expired pre-authorized URL', () => {
     await expect(
       openFileStream(target({ contentUrl: CONTENT_URL }), { fetch, credential: agenticCredential })
     ).rejects.toMatchObject({
-      reason: 'accessDenied',
+      status: 403,
       details: 'accessDenied: The caller does not have permission',
     });
   });

@@ -62,7 +62,21 @@ describe('selectFilesCredential', () => {
       getAgenticGraphToken,
     }).token();
 
-    expect(getAgenticGraphToken).toHaveBeenCalledWith(AGENTIC);
+    expect(getAgenticGraphToken).toHaveBeenCalledWith(AGENTIC, undefined);
+  });
+
+  it('resolves the agentic token against the activity tenant', async () => {
+    // `AgenticIdentity.tenantId` is optional, and acquisition falls back to the app's *configured* tenant. Without the activity tenant, a multi-tenant app can ask for a token in the wrong tenant, so this pins that it is handed over.
+    const getAgenticGraphToken = jest.fn(async () => token('agentic-token'));
+
+    await selectFilesCredential({
+      agenticIdentity: AGENTIC,
+      tenantId: 'tenant-42',
+      getAppGraphToken: async () => null,
+      getAgenticGraphToken,
+    }).token();
+
+    expect(getAgenticGraphToken).toHaveBeenCalledWith(AGENTIC, 'tenant-42');
   });
 
   it('resolves the app token against the activity tenant', async () => {
@@ -138,7 +152,7 @@ describe('selectFilesCredential', () => {
   });
 
   it('reports no token rather than throwing when the app has no credentials', async () => {
-    // Surfaces downstream as a typed `noGraphCredential` failure before any HTTP call is made.
+    // Surfaces downstream as a typed `FileCredentialError` before any HTTP call is made.
     const credential = selectFilesCredential({
       getAppGraphToken: async () => null,
       getAgenticGraphToken: async () => null,

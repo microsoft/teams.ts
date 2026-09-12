@@ -3,7 +3,13 @@ import { Readable } from 'stream';
 import { ConversationType } from '@microsoft/teams.api';
 import { Client as HttpClient, ILogger } from '@microsoft/teams.common';
 
-import { FileActor, FileRetrievalError, FileScopeNotSupportedError, FileUrlExpiredError } from './errors';
+import {
+  FileAccessError,
+  FileActor,
+  FileCredentialError,
+  FileScopeNotSupportedError,
+  FileUrlExpiredError,
+} from './errors';
 import { buildDriveItemContentUrl } from './graph-share';
 
 /** How much of an error body to keep. Enough for a Graph error envelope, small enough to never matter. */
@@ -70,7 +76,7 @@ export type FileFetchTarget = {
 /**
  * Supplies a bearer token for Graph, and names the identity it belongs to.
  *
- * Resolved at fetch time rather than stored on the handle, so a handle stays inert. `undefined` means no credential is available, which surfaces as `noGraphCredential` before any request is made.
+ * Resolved at fetch time rather than stored on the handle, so a handle stays inert. `undefined` means no credential is available, which surfaces as a {@link FileCredentialError} before any request is made.
  */
 export type GraphCredential = {
   actor: FileActor;
@@ -204,7 +210,7 @@ async function openGraphFileStream(
   // Detectable before any HTTP call, so a missing consent names itself instead of arriving as an opaque Graph 401.
   if (!token || carriesNoGraphPermissions(token)) {
     // An acquisition that threw is not the same as an identity with no permissions, and the guidance for one is wrong for the other, so the cause is carried rather than dropped.
-    throw new FileRetrievalError('noGraphCredential', actor, failure);
+    throw new FileCredentialError(actor, failure);
   }
 
   const url = buildDriveItemContentUrl(sharingUrl, options?.credential?.baseUrlRoot);
@@ -212,8 +218,8 @@ async function openGraphFileStream(
   const response = await requestFile(url, options, token);
 
   if (response.status === 401 || response.status === 403) {
-    // An unconsented scope and a file never shared with this identity are both 403, differing only in message text. The SDK cannot branch on that, but the developer can read it, so it is carried rather than dropped.
-    throw new FileRetrievalError('accessDenied', actor, extractServiceError(await response.readText()));
+    // The status is carried rather than collapsed: a 401 means the token itself was rejected and a 403 means the identity lacks the grant, and those have different remedies. Within a 403, an unconsented scope and a file never shared are still indistinguishable, so the service's own text is carried too.
+    throw new FileAccessError(response.status, actor, extractServiceError(await response.readText()));
   }
 
   if (!response.ok || !response.stream) {
@@ -333,6 +339,14 @@ async function requestViaHttpClient(
     headers: { Authorization: bearer ? `Bearer ${bearer}` : undefined },
     // We map 401/403 onto typed errors ourselves, so keep axios from throwing first.
     validateStatus: () => true,
+    // Storage answers with a 302 to the host actually holding the bytes, so redirects have to be followed. They must not be followed *down* to plaintext: an `https` to `http` hop would put the file's bytes on the wire in the clear. Axios strips `Authorization` across hosts on its own, so this guards the payload rather than the token.
+    beforeRedirect: (redirect: Record<string, any>) => {
+      if (redirect.protocol !== 'https:') {
+        throw new Error(
+          `cannot download file: a redirect destination must use https, got "${redirect.protocol}//${redirect.host ?? redirect.hostname}". The file's bytes would cross that hop in the clear.`
+        );
+      }
+    },
   });
 
   const body: Readable | undefined = response.data;

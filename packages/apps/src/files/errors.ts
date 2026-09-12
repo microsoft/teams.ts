@@ -1,7 +1,7 @@
 import { ConversationType } from '@microsoft/teams.api';
 
 /**
- * Base class for the diagnosable failures on the inbound-file path: an expired URL, an unsupported scope, and a refused Graph read.
+ * Base class for the diagnosable failures on the inbound-file path: an expired URL, an unsupported scope, a missing Graph credential, and a refused Graph read.
  *
  * Lets a caller catch those with one `instanceof` check, so a new one can be added without callers changing. A transport or service failure the SDK cannot attribute, such as a Graph 5xx, is not one of these and surfaces as a plain `Error`.
  */
@@ -12,15 +12,8 @@ export class FileError extends Error {
   }
 }
 
-/** Why a file's bytes could not be retrieved. See {@link FileRetrievalError}. */
-export type FileRetrievalFailureReason =
-  /** No credential was available for the Graph call. Detectable before any HTTP request. */
-  | 'noGraphCredential'
-  /** The identity used was refused by the storage service. Covers an unconsented scope, a file the identity was never granted, and a drive item that does not exist, which are indistinguishable on the wire: Graph answers all three with `403`, because telling an unauthorized caller whether a resource exists would disclose it. */
-  | 'accessDenied';
-
 /**
- * The identity a file fetch was attempted as. Reported on {@link FileRetrievalError} so a failure names who was refused, not merely that something was.
+ * The identity a file fetch was attempted as. Reported on {@link FileCredentialError} and {@link FileAccessError} so a failure names who was refused, not merely that something was.
  */
 export type FileActor = 'app' | 'agenticUser';
 
@@ -65,26 +58,51 @@ export class FileScopeNotSupportedError extends FileError {
 }
 
 /**
- * Raised when a file's bytes could not be retrieved through Microsoft Graph.
+ * Raised when no credential was available for the Graph call. Detectable before any HTTP request.
  *
- * Distinct from {@link FileUrlExpiredError}, which means a pre-authorized URL lapsed and cannot be renewed. This means the Graph route was the one that failed, either refused by the service or ruled out before the request when no usable credential was available.
+ * Distinct from {@link FileUrlExpiredError}, which means a pre-authorized URL lapsed and cannot be renewed. This means the Graph route was ruled out before the request, because no usable credential was available: either a token could not be acquired, or the one acquired carries no file-capable permission.
  */
-export class FileRetrievalError extends FileError {
-  /** Lets callers branch without string-matching the message. */
-  readonly reason: FileRetrievalFailureReason;
+export class FileCredentialError extends FileError {
+  /** The identity the fetch was attempted as, when one was selected. Absent when the failure preceded credential selection. */
+  readonly actor?: FileActor;
+  /**
+   * What went wrong while acquiring the token, when the attempt failed rather than simply returning nothing.
+   *
+   * An acquisition that threw and an identity with no permissions both arrive here as "no token", but the fixes differ: one is a transient or configuration fault, the other is a consent problem. Local to this process; contrast {@link FileAccessError.details}, which is the service's own words.
+   */
+  readonly cause?: string;
+
+  constructor(actor?: FileActor, cause?: string) {
+    const base = `cannot fetch file bytes through Graph: ${noCredentialGuidance(actor)}`;
+    super(cause ? `${base} (${cause})` : base);
+    this.name = 'FileCredentialError';
+    this.actor = actor;
+    this.cause = cause;
+  }
+}
+
+/**
+ * Raised when the identity used was refused by the storage service.
+ *
+ * Distinct from {@link FileUrlExpiredError}, which means a pre-authorized URL lapsed and cannot be renewed. This means the Graph route was the one that failed, refused by the service after the request was made.
+ */
+export class FileAccessError extends FileError {
+  /** Lets callers branch without string-matching the message. `401` means the token itself was rejected; `403` means the identity lacks the grant, and the two have different remedies. */
+  readonly status: number;
   /** The identity the fetch was attempted as, when one was selected. Absent when the failure preceded credential selection. */
   readonly actor?: FileActor;
   /**
    * What the storage service itself said, verbatim and truncated, when it said anything.
    *
-   * {@link reason} deliberately collapses causes that are indistinguishable to the SDK: an unconsented scope and a file that was never shared both arrive as 403. That collapse is right for branching and wrong for diagnosis, so the original text is kept here rather than discarded.
+   * A `403` covers an unconsented scope, a file the identity was never granted, and a drive item that does not exist, which are indistinguishable on the wire: Graph answers all three with `403`, because telling an unauthorized caller whether a resource exists would disclose it. That collapse is right for branching and wrong for diagnosis, so the original text is kept here rather than discarded.
    */
   readonly details?: string;
 
-  constructor(reason: FileRetrievalFailureReason, actor?: FileActor, details?: string) {
-    super(details ? `${defaultRetrievalMessage(reason, actor)} (service said: ${details})` : defaultRetrievalMessage(reason, actor));
-    this.name = 'FileRetrievalError';
-    this.reason = reason;
+  constructor(status: number, actor?: FileActor, details?: string) {
+    const base = `cannot fetch file bytes through Graph: ${accessGuidance(status, actor)}`;
+    super(details ? `${base} (service said: ${details})` : base);
+    this.name = 'FileAccessError';
+    this.status = status;
     this.actor = actor;
     this.details = details;
   }
@@ -103,7 +121,7 @@ function describeActor(actor: FileActor): string {
 }
 
 /** Where to go to fix a missing credential, which differs per identity. Exhaustive for the same reason. */
-function noCredentialGuidance(actor: FileActor): string {
+function noCredentialGuidance(actor?: FileActor): string {
   switch (actor) {
     case 'agenticUser':
       // Linked rather than described because the agent permission model is still moving, and stale instructions in an error message are worse than none.
@@ -111,16 +129,23 @@ function noCredentialGuidance(actor: FileActor): string {
     case 'app':
       // Graph file reads happen as the agentic user. Granting the app file permissions would make this succeed, which is why the message says it may be used rather than that it cannot.
       return 'the app has no usable Graph credential for this file. Graph file retrieval is supported for Agentic Users, which read as their own identity; an app identity and/or user-delegated permissions may be used but are not supported via the SDK at this time';
+    default:
+      // No identity was selected, so neither remedy above applies and naming one would send the reader somewhere wrong.
+      return 'no Graph credential was available, and no identity had been selected when the attempt was made';
   }
 }
 
-function defaultRetrievalMessage(reason: FileRetrievalFailureReason, actor?: FileActor): string {
-  const as = describeActor(actor ?? 'app');
+/** What a refusal means, which depends on the status: a rejected token and an insufficient grant have different remedies. */
+function accessGuidance(status: number, actor?: FileActor): string {
+  const as = actor ? describeActor(actor) : 'the identity used';
 
-  switch (reason) {
-    case 'noGraphCredential':
-      return `cannot fetch file bytes through Graph: ${noCredentialGuidance(actor ?? 'app')}`;
-    case 'accessDenied':
-      return `cannot fetch file bytes through Graph: access was denied for ${as}. The required scope may not be consented, the file may never have been shared with that identity, or the drive item may not exist`;
+  if (status === 401) {
+    return `the token presented for ${as} was rejected. It may have expired, or been issued for the wrong audience or tenant`;
   }
+
+  if (status === 403) {
+    return `access was denied for ${as}. The required scope may not be consented, the file may never have been shared with that identity, or the drive item may not exist`;
+  }
+
+  return `the request for ${as} was refused with status ${status}`;
 }

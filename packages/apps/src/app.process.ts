@@ -76,7 +76,7 @@ export interface IActivityProcessorOptions<TPlugin extends IPlugin = IPlugin> {
    */
   readonly getAppGraphToken: (tenantId?: string) => Promise<IToken | null>;
   /** Acquires a Microsoft Graph token for an Agentic User, or `null` when the app has no credentials or the identity is not user-backed. */
-  readonly getAgenticGraphToken: (identity: AgenticIdentity) => Promise<IToken | null>;
+  readonly getAgenticGraphToken: (identity: AgenticIdentity, tenantId?: string) => Promise<IToken | null>;
   readonly activitySender: IActivitySender;
   readonly api: ApiClient;
   readonly client: HttpClient;
@@ -279,7 +279,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
         tenantId: extractTenantId(activity),
         graphBaseUrlRoot: this.options.graphBaseUrl,
         getAppGraphToken: (t) => this.options.getAppGraphToken(t),
-        getAgenticGraphToken: (i) => this.options.getAgenticGraphToken(i),
+        getAgenticGraphToken: (i, t) => this.options.getAgenticGraphToken(i, t),
       });
 
       const context = new ActivityContext({
