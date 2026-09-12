@@ -18,6 +18,7 @@ import {
 import { Client as HttpClient, ILogger, IStorage } from '@microsoft/teams.common';
 
 import { ApiClient, GraphClient } from '../api';
+import { GraphCredential } from '../files/download';
 import { FilesAccessor } from '../files/files-accessor';
 import { IFilesAccessor } from '../files/types';
 import { OAuthSignInOptions, startOAuthSignIn } from '../oauth';
@@ -30,6 +31,13 @@ import { IActivitySender } from '../types/plugin/sender';
  * Internal implementation details not exposed in public interface
  */
 export interface IActivityContextConstructorArgs {
+  /**
+   * Graph credential used by the file path, selected per actor and resolved at fetch time.
+   *
+   * Constructor-only, and deliberately absent from {@link IBaseActivityContextOptions}: it exists so `ctx.files` can reach bytes the pre-authorized download URL cannot, and a handler has no reason to hold it. Declaring it here keeps it off the public context type and out of the instance, rather than advertising a property that is always `undefined`.
+   */
+  filesCredential?: GraphCredential;
+
   /**
    * activity sender for sending activities and creating streams
    */
@@ -286,6 +294,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       validateOAuthConnection,
       onOAuthSignInInitiated,
       getOAuthConnectionStatus,
+      filesCredential,
       ...rest
     } = value;
 
@@ -328,7 +337,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     this.next = next;
     this.stream = activitySender.createStream(value.ref);
     this.connectionName = value.connectionName;
-    this.files = new FilesAccessor(this.activity, this.log, value.client);
+    this.files = new FilesAccessor(this.activity, this.log.child('files'), value.client, filesCredential);
   }
 
   /**

@@ -2,7 +2,7 @@ import { context, propagation, ROOT_CONTEXT } from '@opentelemetry/api';
 import type { Baggage, Context, ContextManager, Span, Tracer } from '@opentelemetry/api';
 import { AxiosError } from 'axios';
 
-import { IMessageActivity, InvokeResponse, ISignInFailureInvokeActivity, ITaskFetchInvokeActivity, IToken, MessageActivity, TaskModuleResponse, TokenStatus } from '@microsoft/teams.api';
+import { AgenticIdentity, IMessageActivity, InvokeResponse, ISignInFailureInvokeActivity, ITaskFetchInvokeActivity, IToken, MessageActivity, TaskModuleResponse, TokenStatus } from '@microsoft/teams.api';
 import { IStorage } from '@microsoft/teams.common';
 
 import { ActivitySender } from './activity-sender';
@@ -521,9 +521,7 @@ describe('App', () => {
       });
 
       it('does not let a nested send downgrade the values the activity established', async () => {
-        // ctx.send builds its ConversationReference from `activity.recipient`, so its
-        // agent id is recipient.id while the activity resolver prefers agenticAppId.
-        // The nested send scope must not overwrite the richer value.
+        // ctx.send builds its ConversationReference from `activity.recipient`, so its agent id is recipient.id while the activity resolver prefers agenticAppId. The nested send scope must not overwrite the richer value.
         const agenticInbound: IMessageActivity = new MessageActivity('hello')
           .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
           .withRecipient({
@@ -840,6 +838,106 @@ describe('App', () => {
       });
     });
 
+    it('gives ctx.files an agentic credential when the inbound activity carries an agentic user', async () => {
+      // `selectFilesCredential` and `FilesAccessor` are each covered on their own, and both stay green if nothing connects them, leaving `ctx.files` with no credential and every Graph path unreachable.
+      const incomingActivity: IMessageActivity = new MessageActivity('hello')
+        .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
+        .withRecipient({
+          id: 'bot-1',
+          name: 'Test Bot',
+          role: 'bot',
+          agenticAppId: 'agent-app',
+          agenticUserId: 'agentic-user',
+          agenticAppBlueprintId: 'blueprint-id',
+          tenantId: 'tenant-id',
+        })
+        .withConversation({ id: 'conv-123', conversationType: 'personal' })
+        .withChannelId('msteams')
+        .withServiceUrl('https://service.url/')
+        .toInterface();
+
+      let credential: any;
+      app.on('message', ({ files }) => {
+        credential = (files as any).credential;
+      });
+
+      await app.process({ token, body: incomingActivity });
+
+      expect(credential).toBeDefined();
+      expect(credential.actor).toBe('agenticUser');
+    });
+
+    it('wires the agentic credential through to a real token acquisition, not just the right actor label', async () => {
+      // The two tests above assert `credential.actor` but never invoke `credential.token()`, so they would both stay
+      // green if the token callback were wired to the wrong acquisition, or to nothing. This resolves it, which is
+      // the half that proves the seam actually reaches `getAgenticGraphToken` with the inbound identity.
+      const incomingActivity: IMessageActivity = new MessageActivity('hello')
+        .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
+        .withRecipient({
+          id: 'bot-1',
+          name: 'Test Bot',
+          role: 'bot',
+          agenticAppId: 'agent-app',
+          agenticUserId: 'agentic-user',
+          agenticAppBlueprintId: 'blueprint-id',
+          tenantId: 'tenant-id',
+        })
+        .withConversation({ id: 'conv-123', conversationType: 'personal' })
+        .withChannelId('msteams')
+        .withServiceUrl('https://service.url/')
+        .toInterface();
+
+      const seen: AgenticIdentity[] = [];
+      jest.spyOn(app as any, 'getAgenticGraphToken').mockImplementation(async (...args: any[]) => {
+        seen.push(args[0] as AgenticIdentity);
+        return 'agent-token';
+      });
+
+      let credential: any;
+      app.on('message', ({ files }) => {
+        credential = (files as any).credential;
+      });
+
+      await app.process({ token, body: incomingActivity });
+
+      expect(await credential.token()).toBe('agent-token');
+
+      // And it must have been handed the identity off the inbound activity rather than a blank or a default.
+      expect(seen).toHaveLength(1);
+      expect(seen[0]).toMatchObject({ agenticAppId: 'agent-app', agenticUserId: 'agentic-user' });
+    });
+
+    it('gives ctx.files an app credential when the inbound activity has no agentic user', async () => {
+      const incomingActivity: IMessageActivity = new MessageActivity('hello')
+        .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
+        .withRecipient({ id: 'bot-1', name: 'Test Bot', role: 'bot' })
+        .withConversation({ id: 'conv-123', conversationType: 'personal' })
+        .withChannelId('msteams')
+        .withServiceUrl('https://service.url/')
+        .toInterface();
+
+      let credential: any;
+      app.on('message', ({ files }) => {
+        credential = (files as any).credential;
+      });
+
+      await app.process({ token, body: incomingActivity });
+
+      expect(credential).toBeDefined();
+      expect(credential.actor).toBe('app');
+    });
+
+    it('keeps the files credential off the public context type', () => {
+      // Deliberately type-level. Handlers receive `toInterface()` output, which is built from an explicit field list
+      // and never carried this, so a runtime assertion passes whether or not the property is declared. What was
+      // actually wrong is that the public type advertised a property that could only ever be `undefined`.
+      // ts-jest type-checks specs, so this fails the build if the declaration comes back.
+      const ctx = {} as import('./contexts/activity').IActivityContext;
+
+      // @ts-expect-error filesCredential is constructor-only and must not appear on the public context type.
+      void ctx.filesCredential;
+    });
+
     it('should use different serviceUrls for different incoming activities', async () => {
       const serviceUrl1 = 'https://service-1.botframework.com';
       const serviceUrl2 = 'https://service-2.botframework.com';
@@ -887,9 +985,7 @@ describe('App', () => {
     });
 
     it('should expose interface methods like getQuotedMessages on message activities', async () => {
-      // Use a plain object (as would arrive from JSON deserialization over HTTP)
-      // rather than a MessageActivity instance, to verify the context constructor
-      // enriches it with bound interface methods.
+      // Use a plain object (as would arrive from JSON deserialization over HTTP) rather than a MessageActivity instance, to verify the context constructor enriches it with bound interface methods.
       const incomingActivity = {
         type: 'message',
         text: 'hello',
