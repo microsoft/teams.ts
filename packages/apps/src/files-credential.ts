@@ -16,7 +16,7 @@ export function selectFilesCredential(options: {
   /** Graph host root derived from the cloud environment, e.g. `https://graph.microsoft.com`. */
   graphBaseUrlRoot?: string;
   getAppGraphToken: (tenantId?: string) => Promise<IToken | null>;
-  getAgenticGraphToken: (identity: AgenticIdentity) => Promise<IToken | null>;
+  getAgenticGraphToken: (identity: AgenticIdentity, tenantId?: string) => Promise<IToken | null>;
 }): GraphCredential {
   const { agenticIdentity, tenantId, graphBaseUrlRoot, getAppGraphToken, getAgenticGraphToken } = options;
 
@@ -28,7 +28,8 @@ export function selectFilesCredential(options: {
   });
 
   if (agenticIdentity) {
-    return as('agenticUser', async () => (await getAgenticGraphToken(agenticIdentity))?.toString());
+    // The activity's tenant is passed alongside the identity: `AgenticIdentity.tenantId` is optional, and without this the acquisition would fall back to the app's *configured* tenant, which for a multi-tenant app is not necessarily the tenant this activity arrived from.
+    return as('agenticUser', async () => (await getAgenticGraphToken(agenticIdentity, tenantId))?.toString());
   }
 
   // `tenantId` is passed through unresolved: `getAppGraphToken` resolves activity tenant, then the bot's configured

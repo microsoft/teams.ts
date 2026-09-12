@@ -267,7 +267,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       plugins: this.pluginManager.plugins,
       eventManager: this.eventManager,
       getAppGraphToken: (tenantId) => this.getAppGraphToken(tenantId),
-      getAgenticGraphToken: (identity) => this.getAgenticGraphToken(identity),
+      getAgenticGraphToken: (identity, tenantId) => this.getAgenticGraphToken(identity, tenantId),
       activitySender: this.activitySender,
       api: this.api,
       client: this.client,
@@ -816,7 +816,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    *
    * Separate from {@link getAppGraphToken} because the identity differs, not merely the scope: this reads as the agent, so it sees what was shared with the agent rather than everything the app may read.
    */
-  protected async getAgenticGraphToken(identity: AgenticIdentity) {
+  protected async getAgenticGraphToken(identity: AgenticIdentity, tenantId?: string) {
     if (!identity.agenticAppId || !identity.agenticUserId) {
       return null;
     }
@@ -825,7 +825,9 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       this.cloud.graphScope,
       identity.agenticAppId,
       identity.agenticUserId,
-      identity.tenantId || this.credentials?.tenantId
+      // The identity's own tenant wins when the platform sends one, then the tenant the activity arrived from.
+      // The fallback to the app's configured tenant is deliberately not repeated here: `TokenManager.resolveAgenticTenantId` already applies it, and throws when neither is available, which is a better failure than silently acquiring in the wrong directory.
+      identity.tenantId || tenantId
     );
   }
 
