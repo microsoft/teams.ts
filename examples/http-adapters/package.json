@@ -15,7 +15,7 @@
     "@hono/node-server": "^2.1.1",
     "@microsoft/teams.apps": "*",
     "express": "^5.0.0",
-    "hono": "^4.13.2",
+    "hono": "^4.13.7",
     "restify": "^11.1.0"
   },
   "devDependencies": {
