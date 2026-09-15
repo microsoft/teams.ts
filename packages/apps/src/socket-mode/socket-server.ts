@@ -308,8 +308,9 @@ export class SocketModeAdapter implements IHttpServerAdapter {
     );
 
     // Every geo must establish its first connection for start to succeed; a geo
-    // that can't connect within the startup budget fails App.start(), which then
-    // tears everything down. Post-startup drops are handled per-geo by supervisors.
+    // that can't connect within the startup budget fails adapter startup, so the
+    // App boundary tears everything down and reports the error. Post-startup
+    // drops are handled per-geo by supervisors.
     try {
       await Promise.all(this.geos.map((g) => g.startInitial()));
     } catch (err) {
@@ -662,7 +663,7 @@ class GeoSocket {
   /**
    * Establish the first connection for this geo, retrying transient failures
    * with back-off until it succeeds or the startup budget is exhausted (then
-   * re-throwing so App.start() fails).
+   * re-throwing so adapter startup fails and the App boundary can tear down).
    */
   async startInitial(): Promise<void> {
     this._status = 'connecting';

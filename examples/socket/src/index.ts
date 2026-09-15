@@ -50,8 +50,9 @@ app.socketMode?.events.on('reconnected', ({ geo }) => {
 
 // --- Bot logic ---------------------------------------------------------------
 // Handlers are transport-agnostic: the exact same code works over HTTP or
-// Socket Mode. Each activity is delivered over exactly one transport (socket or
-// HTTP, never both), so no dedupe is required.
+// Socket Mode. With HTTP fallback enabled, an ambiguous socket failure can cause
+// the service to retry an activity over HTTP, so side effects should be
+// idempotent or deduplicated by a stable activity identifier.
 app.on('message', async ({ reply, activity }) => {
   await reply({ type: 'typing' });
   await reply(`you said "${activity.text}"`);

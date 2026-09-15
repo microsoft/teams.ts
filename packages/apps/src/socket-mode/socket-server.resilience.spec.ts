@@ -577,7 +577,7 @@ describe('SocketModeAdapter resilience', () => {
       ]);
     });
 
-    it('rejects App.start when the startup budget is exhausted', async () => {
+    it('rejects adapter startup when the startup budget is exhausted', async () => {
       const server = await makeServer({ startupTimeoutMs: 0 });
       connState.startErrorQueue.push(new Error('negotiate down'));
 
@@ -696,7 +696,7 @@ describe('SocketModeAdapter resilience', () => {
       await server.stop();
     });
 
-    it('rejects App.start if any single geo cannot connect within the budget', async () => {
+    it('rejects adapter startup if any single geo cannot connect within the budget', async () => {
       const server = new SocketModeAdapter({ startupTimeoutMs: 0 } as any, {
         tokenProvider: { getAppToken: async () => 'app-token' } as any,
         messagingEndpoint: MESSAGING_ENDPOINT,
