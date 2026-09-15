@@ -86,9 +86,10 @@ export type SocketModeOptions = {
    * Total time budget, in milliseconds, for establishing the *initial*
    * connection at `App.start()`. The first connect is retried with the same
    * back-off as reconnect until it succeeds or this budget is exhausted, at
-   * which point `App.start()` rejects. After the first successful connection the
-   * reconnect supervisor takes over and retries indefinitely until `App.stop()`.
-   * Set to `0` to fail on the very first attempt.
+   * which point Socket Mode startup fails. `App.start()` tears the app down and
+   * reports the failure through its `error` event. After the first successful
+   * connection the reconnect supervisor takes over and retries indefinitely
+   * until `App.stop()`. Set to `0` to fail on the very first attempt.
    *
    * @default 30000
    */

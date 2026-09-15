@@ -12,16 +12,13 @@ import { ConsoleLogger } from '@microsoft/teams.common';
 const app = new App({
   logger: new ConsoleLogger('@examples/socket', { level: 'debug' }),
 
-  // Socket-only: receive activities over the Teams backend service-negotiated
-  // WebSocket with no HTTP messaging endpoint. Drop `fallbackToHttp: false` to
-  // also stand up an HTTP endpoint alongside the socket (the experimental
-  // default), in which case you still need a public URL/tunnel for HTTP.
+  // Socket-only by default: receive activities over the Teams backend
+  // service-negotiated WebSocket with no HTTP messaging endpoint.
   //
   // By default this connects to all three geos. To target specific geos (or a
   // single custom endpoint) set e.g. `geos: ['amer']`, or override the endpoint
   // with `negotiateBaseUrl`.
   socketMode: {
-    fallbackToHttp: false,
     // geos: ['amer', 'emea', 'apac'], // the default
 
     // NOTE: Socket Mode negotiate is currently only available on the canary

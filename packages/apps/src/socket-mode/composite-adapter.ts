@@ -8,21 +8,22 @@ import { HttpMethod, HttpRouteHandler, IHttpServerAdapter, IHttpServerInitialize
  * inbound activities over more than one transport — an HTTP messaging endpoint
  * (`ExpressAdapter`) and Socket Mode (`SocketModeAdapter`) — at the same time.
  *
- * Used only during the Socket Mode rollout: the Teams backend service decides
- * which transport delivers each activity, so the SDK just needs to receive on
- * both. There's no fallback logic or health state — route registrations and
- * static-file mounts fan out to every child, and each delivers what it receives
- * into the shared {@link HttpServer} pipeline. The Teams backend service delivers
- * each activity over exactly one transport, so there is no double-processing.
+ * Used only when a production bot explicitly opts into HTTP fallback and the
+ * developer separately configures its public messaging endpoint in Teams
+ * Developer Portal (TDP). The SDK starts the local receiver but does not send
+ * the fallback setting or endpoint to APX/SignalR. There's no fallback logic
+ * or health state here — route registrations and static-file mounts fan out to
+ * every child, and each delivers what it receives into the shared
+ * {@link HttpServer} pipeline.
  *
  * Lifecycle: {@link start} starts each child in array order (HTTP first, then the
  * socket) so the messaging endpoint is listening before the socket dials out;
  * each child owns its own connect/retry behavior (the Socket Mode adapter retries
  * internally up to its startup budget), and this adapter adds none. If a child
- * fails to start the error propagates so `App.start()` fails and tears the app
- * down rather than coming up half-started. {@link stop} stops every child with
- * `allSettled` so one failing teardown never skips another's, then re-throws the
- * first failure.
+ * fails to start, the error propagates to the app boundary, which tears the app
+ * down and reports it through the app `error` event rather than coming up
+ * half-started. {@link stop} stops every child with `allSettled` so one failing
+ * teardown never skips another's, then re-throws the first failure.
  *
  * Internal, expected to be removed once Socket Mode is the sole transport. It is
  * deliberately **not** exported from the public barrel.
@@ -68,8 +69,8 @@ export class CompositeAdapter implements IHttpServerAdapter {
 
   /**
    * Start each child in array order (HTTP first, then the socket). A child's
-   * start failure propagates immediately so `App.start()` fails rather than
-   * coming up with only some transports live.
+   * start failure propagates immediately to the caller rather than leaving only
+   * some transports live.
    */
   async start(port: number | string): Promise<void> {
     this.log.debug(`socket-mode: starting ${this.adapters.length} composite transport adapter(s)`);

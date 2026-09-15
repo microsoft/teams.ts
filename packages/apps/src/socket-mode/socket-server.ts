@@ -289,8 +289,9 @@ export class SocketModeAdapter implements IHttpServerAdapter {
    * dials out rather than listening.
    *
    * The initial connect for each geo is retried up to `startupTimeoutMs` before
-   * `App.start()` rejects; once all geos are ready, each geo's supervisor keeps
-   * it alive across drops and token expiry independently until {@link stop}.
+   * adapter startup fails; the App boundary tears down and reports the error.
+   * Once all geos are ready, each geo's supervisor keeps it alive across drops
+   * and token expiry independently until {@link stop}.
    */
   async start(_port?: number | string): Promise<void> {
     this.assertCloudSupported();
