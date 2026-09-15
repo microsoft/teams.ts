@@ -50,6 +50,50 @@ function truncate(text: string): string | undefined {
 }
 
 /**
+ * Read at most one byte past {@link ERROR_BODY_LIMIT} from an error body and decode it as UTF-8.
+ *
+ * The bound has to be applied while reading rather than to the result. Appending a whole chunk and checking its size afterwards lets a single large chunk decide the buffer, and the host returning the error is not one the SDK controls. The one byte past the limit is what leaves {@link truncate} able to tell a body that merely reached the limit from one that ran past it.
+ */
+async function readBoundedUtf8(chunks: AsyncIterable<Uint8Array>): Promise<string> {
+  const kept: Uint8Array[] = [];
+  let size = 0;
+
+  for await (const chunk of chunks) {
+    const remaining = ERROR_BODY_LIMIT + 1 - size;
+
+    kept.push(chunk.length > remaining ? chunk.subarray(0, remaining) : chunk);
+    size += Math.min(chunk.length, remaining);
+
+    if (size > ERROR_BODY_LIMIT) {
+      break;
+    }
+  }
+
+  return Buffer.concat(kept).toString('utf8');
+}
+
+/** Iterate a web stream so {@link readBoundedUtf8} can stop early, which `Response.text()` gives no opportunity to do. */
+async function* streamChunks(stream: ReadableStream<Uint8Array>): AsyncGenerator<Uint8Array> {
+  const reader = stream.getReader();
+
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+
+      if (done) {
+        return;
+      }
+
+      if (value) {
+        yield value;
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+}
+
+/**
  * Pluggable fetch used to retrieve file bytes. Injectable so tests can supply a real `Response` without hitting the network; when omitted the app's {@link HttpClient} is used instead.
  */
 export type FileFetch = (
@@ -366,20 +410,10 @@ async function requestViaHttpClient(
       }
 
       try {
-        const chunks: Buffer[] = [];
-        let size = 0;
-
-        for await (const chunk of body) {
-          chunks.push(chunk as Buffer);
-          size += (chunk as Buffer).length;
-
-          if (size >= ERROR_BODY_LIMIT) {
-            break;
-          }
-        }
+        const text = await readBoundedUtf8(body);
 
         body.destroy();
-        return truncate(Buffer.concat(chunks).toString('utf8'));
+        return truncate(text);
       } catch {
         body.destroy();
         return undefined;
@@ -399,8 +433,12 @@ function fromFetchResponse(response: Response): TransportResponse {
       void response.body?.cancel().catch(() => { });
     },
     readText: async () => {
+      if (!response.body) {
+        return undefined;
+      }
+
       try {
-        return truncate(await response.text());
+        return truncate(await readBoundedUtf8(streamChunks(response.body)));
       } catch {
         return undefined;
       }

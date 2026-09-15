@@ -392,5 +392,39 @@ describe('agentic turn carrying a pre-authorized URL', () => {
 
     expect(warnings).toEqual([]);
   });
-});
+  it('stops reading an oversized error body instead of buffering it whole', async () => {
+    // The limit bounds what is retained, so trimming after the read would still let the whole body be buffered first.
+    // A stream is used rather than a string so what the reader consumed is observable: `Response.text()` would drain
+    // it regardless and prove nothing.
+    let produced = 0;
+    const oversized = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        produced += 64 * 1024;
+        controller.enqueue(new Uint8Array(64 * 1024).fill(0x61));
 
+        if (produced >= 4 * 1024 * 1024) {
+          controller.close();
+        }
+      },
+    });
+
+    const fetch: FileFetch = async () => new Response(oversized, { status: 403 });
+
+    await expect(
+      openFileStream(target({ contentUrl: CONTENT_URL }), { fetch, credential: agenticCredential })
+    ).rejects.toMatchObject({ name: 'FileAccessError', status: 403 });
+
+    // A small constant rather than the 4MB the body offers. The exact figure is the stream's own queue depth, which
+    // pre-pulls a chunk or two ahead of the reader; what matters is that it does not scale with the body.
+    expect(produced).toBeLessThanOrEqual(256 * 1024);
+  });
+
+  it('marks an error body that ran past the limit as truncated', async () => {
+    const { fetch } = recordingFetch([{ status: 403, body: 'x'.repeat(8192) }]);
+
+    await expect(
+      openFileStream(target({ contentUrl: CONTENT_URL }), { fetch, credential: agenticCredential })
+    ).rejects.toMatchObject({ details: expect.stringMatching(/\.\.\.$/) });
+  });
+
+});
