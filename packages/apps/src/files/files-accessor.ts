@@ -18,7 +18,7 @@ function isOptionalString(value: unknown): value is string | undefined {
 }
 
 /**
- * Coerce an attachment's `content` into a {@link FileDownloadInfo}. `Attachment.content` is typed `any`, so without this the wire payload would be trusted unchecked and a wrong-typed `downloadUrl` would only surface later as a confusing failure at fetch time. Returns `undefined` for anything that is not an object or that carries a non-string where a string is required; unknown extra properties are ignored, matching how the peer SDKs deserialize this payload.
+ * Coerce an attachment's `content` into a {@link FileDownloadInfo}. `Attachment.content` is typed `any`, so without this the wire payload would be trusted unchecked and a wrong-typed `downloadUrl` would only surface later as a confusing failure at fetch time. Returns `undefined` for anything that is not an object; a non-string field is dropped on its own rather than discarding the object, so a wrong-typed `fileType` cannot take a usable `downloadUrl` with it. Unknown extra properties are ignored, matching how the peer SDKs deserialize this payload.
  */
 function asFileDownloadInfo(content: unknown): FileDownloadInfo | undefined {
   if (typeof content !== 'object' || content === null) {
@@ -27,11 +27,12 @@ function asFileDownloadInfo(content: unknown): FileDownloadInfo | undefined {
 
   const { downloadUrl, uniqueId, fileType } = content as Record<string, unknown>;
 
-  if (!isOptionalString(downloadUrl) || !isOptionalString(uniqueId) || !isOptionalString(fileType)) {
-    return undefined;
-  }
-
-  return { downloadUrl, uniqueId, fileType };
+  // Narrowed per field. `uniqueId` and `fileType` are metadata, so rejecting the whole object over one of them would drop a usable `downloadUrl` and route a traditional bot's file through Graph, which then fails reporting a consent problem that was never the cause.
+  return {
+    downloadUrl: isOptionalString(downloadUrl) ? downloadUrl : undefined,
+    uniqueId: isOptionalString(uniqueId) ? uniqueId : undefined,
+    fileType: isOptionalString(fileType) ? fileType : undefined,
+  };
 }
 
 /**
@@ -102,9 +103,14 @@ export class FilesAccessor implements IFilesAccessor {
     const contentUrl = typeof attachment.contentUrl === 'string' ? attachment.contentUrl : undefined;
     const name = attachment.name;
 
+    // The Agentic User shape: `content` that parsed and declares no `downloadUrl` at all. Content that failed to parse, or that declares a `downloadUrl` too malformed to use, is a broken attachment rather than an agentic one. Both are excluded from the Graph route because both were skipped before it existed, and resolving one would spend a Graph credential on a payload the SDK has already judged untrustworthy.
+    const declaresDownloadUrl =
+      typeof attachment.content === 'object' && attachment.content !== null && 'downloadUrl' in attachment.content;
+    const isAgenticShape = content !== undefined && !declaresDownloadUrl;
+
     // `downloadUrl` is fetched directly. A `contentUrl` without one is the Agentic User case and resolves through Graph, restricted to `personal` because agentic delivery in other scopes is unvalidated: surfacing a handle there will produce a `list()` entry that then fails at `download()`. The `downloadUrl` branch keeps its existing scope behaviour.
     const hasLocator = Boolean(downloadUrl || contentUrl);
-    const canFetch = Boolean(downloadUrl) || (scope === 'personal' && Boolean(contentUrl));
+    const canFetch = Boolean(downloadUrl) || (scope === 'personal' && isAgenticShape && Boolean(contentUrl));
 
     if (!canFetch || !name) {
       // Split by cause: a malformed attachment is a real defect, while an out-of-scope file is expected noise.
