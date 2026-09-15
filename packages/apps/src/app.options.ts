@@ -159,13 +159,16 @@ export type AppOptions<TPlugin extends IPlugin> = {
      * HTTP messaging endpoint, so the bot needs no public URL or dev tunnel.
      *
      * Pass `true` for all defaults, or an object to configure it. By default a
-     * single bot opens one connection per geo (`amer`, `emea`, `apac`) and *also*
-     * stands up an HTTP messaging endpoint (`fallbackToHttp` defaults to `true`)
-     * so the service can deliver over either transport; set
-     * `socketMode.fallbackToHttp = false` for a socket-only app with no HTTP
-     * transport (browser features like `app.tab()`/`app.function()` then have no
-     * transport and are inert). Each activity is delivered over exactly one
-     * transport, so no dedupe is required.
+     * single bot opens one connection per geo (`amer`, `emea`, `apac`) and uses
+     * only Socket Mode, with no HTTP messaging endpoint. Browser features such as
+     * `app.tab()` and `app.function()` therefore have no transport and are inert
+     * unless `fallbackToHttp` is explicitly enabled.
+     *
+     * Only production bots may opt into the HTTP fallback with
+     * `socketMode.fallbackToHttp = true`, and doing so is generally not
+     * recommended. The SDK then uses the supplied `httpServerAdapter` or creates
+     * a default one, but the developer must separately enable and configure the
+     * matching public HTTP messaging endpoint in Teams Developer Portal (TDP).
      *
      * Cannot be combined with the deprecated `HttpPlugin`. Observe the socket via
      * {@link App.socketMode}.

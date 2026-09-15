@@ -870,13 +870,11 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * the app's token provider (credentials arrive later via
    * {@link SocketModeAdapter.initialize}).
    *
-   * With the experimental HTTP fallback (the default, `fallbackToHttp !== false`)
+   * Socket-only is the default. When `fallbackToHttp: true` is explicitly set,
    * the socket adapter is paired with an HTTP adapter (the supplied
    * `httpServerAdapter` or a default `ExpressAdapter`) inside a
-   * {@link CompositeAdapter}, so a single `HttpServer` receives over both
-   * transports. With `fallbackToHttp: false` the socket adapter is the server's
-   * sole adapter (socket-only, no HTTP). Returns the outward-facing server plus
-   * the socket adapter for the {@link App.socketMode} field.
+   * {@link CompositeAdapter}, with HTTP started first. Returns the outward-facing
+   * server plus the socket adapter for the {@link App.socketMode} field.
    */
   private buildSocketMode(
     dangerouslyAllowUnauthenticatedRequests: boolean
@@ -884,26 +882,27 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     const options: SocketModeOptions =
       this.options.socketMode === true ? {} : (this.options.socketMode as SocketModeOptions);
     const messagingEndpoint = this.options.messagingEndpoint ?? '/api/messages';
+    const fallbackToHttp = options.fallbackToHttp === true;
 
     const socketAdapter = new SocketModeAdapter(options, {
       tokenProvider: this.tokenProvider,
       messagingEndpoint,
-      soleTransport: options.fallbackToHttp === false,
+      soleTransport: !fallbackToHttp,
       onError: (err) => this.eventManager.onError({ error: err }),
       logger: this.log,
     });
 
     let adapter: IHttpServerAdapter;
-    if (options.fallbackToHttp === false) {
+    if (!fallbackToHttp) {
       // Socket-only: the socket adapter is the server's sole transport. Any
       // supplied httpServerAdapter is unused (browser features have no transport).
       adapter = socketAdapter;
     } else {
       this.log.warn(
-        '[EXPERIMENTAL] Socket Mode HTTP fallback is enabled: an HTTP messaging ' +
-        'endpoint runs alongside the socket so the service can deliver over either ' +
-        'transport. This is transitional and will be removed once Socket Mode is the ' +
-        'sole inbound transport. Set socketMode.fallbackToHttp = false for socket-only.'
+        '[EXPERIMENTAL] Socket Mode HTTP fallback is enabled. It is permitted only for ' +
+        'production bots and is generally not recommended. The SDK only starts the local ' +
+        `HTTP receiver at '${messagingEndpoint}'; separately enable and configure its matching ` +
+        'public messaging endpoint in Teams Developer Portal (TDP).'
       );
       const httpAdapter = this.options.httpServerAdapter ?? new ExpressAdapter(undefined, {
         logger: this.log,

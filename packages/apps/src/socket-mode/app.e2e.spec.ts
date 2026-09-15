@@ -96,6 +96,7 @@ const connState = (jest.requireMock('./socket-connection') as any).__state as {
 class CapturingAdapter implements IHttpServerAdapter {
   readonly routes = new Map<string, HttpRouteHandler>();
   readonly startedPorts: Array<number | string> = [];
+  stopCalls = 0;
 
   registerRoute(method: 'POST', path: string, handler: HttpRouteHandler): void {
     this.routes.set(`${method} ${path}`, handler);
@@ -105,7 +106,9 @@ class CapturingAdapter implements IHttpServerAdapter {
     this.startedPorts.push(port);
   }
 
-  async stop(): Promise<void> {}
+  async stop(): Promise<void> {
+    this.stopCalls++;
+  }
 }
 
 const quiet = () => new ConsoleLogger('test', { level: 'error' });
@@ -163,7 +166,7 @@ describe('Socket Mode App e2e matrix', () => {
       const app = createTestApp({
         clientId: 'bot1',
         logger: quiet(),
-        socketMode: { fallbackToHttp: false, reconnectDelaysMs: [0], geos: [''] },
+        socketMode: { reconnectDelaysMs: [0], geos: [''] },
       });
       const ready = jest.fn();
       const disconnected = jest.fn();
@@ -207,7 +210,7 @@ describe('Socket Mode App e2e matrix', () => {
       const app = createTestApp({
         clientId: 'bot1',
         logger: quiet(),
-        socketMode: { fallbackToHttp: false },
+        socketMode: {},
       });
       app.on('card.action', (async ({ activity }: any) => ({
         status: 202,
@@ -235,7 +238,7 @@ describe('Socket Mode App e2e matrix', () => {
       const app = createTestApp({
         clientId: 'bot1',
         logger: quiet(),
-        socketMode: { fallbackToHttp: false },
+        socketMode: {},
       });
       const handler = jest.fn();
       app.on('card.action', handler);
@@ -262,7 +265,7 @@ describe('Socket Mode App e2e matrix', () => {
       const app = createTestApp({
         clientId: 'bot1',
         logger: quiet(),
-        socketMode: { fallbackToHttp: false },
+        socketMode: {},
       });
       const handler = jest.fn();
       app.on('activity', handler);
@@ -282,7 +285,7 @@ describe('Socket Mode App e2e matrix', () => {
       const app = createTestApp({
         clientId: 'bot1',
         logger: quiet(),
-        socketMode: { fallbackToHttp: false },
+        socketMode: {},
       });
       app.on('message', async () => {
         throw new Error('message handler failed');
@@ -304,11 +307,11 @@ describe('Socket Mode App e2e matrix', () => {
       expect(reply?.body).toBeUndefined();
     });
 
-    it('forwards default and custom connection options to the underlying connection', async () => {
+    it('forwards only socket connection options, not HTTP fallback configuration', async () => {
       const defaultApp = createTestApp({
         clientId: 'bot1',
         logger: quiet(),
-        socketMode: { fallbackToHttp: false, geos: [''] },
+        socketMode: { geos: [''] },
       });
       await defaultApp.start();
 
@@ -322,8 +325,9 @@ describe('Socket Mode App e2e matrix', () => {
       const customApp = createTestApp({
         clientId: 'bot1',
         logger: quiet(),
+        messagingEndpoint: '/custom/messages',
         socketMode: {
-          fallbackToHttp: false,
+          fallbackToHttp: true,
           geos: [''],
           negotiateBaseUrl: 'https://apx.example/ring/',
           readinessTimeoutMs: 1234,
@@ -339,13 +343,20 @@ describe('Socket Mode App e2e matrix', () => {
         keepAliveIntervalMs: 7000,
         serverTimeoutMs: 9000,
       });
+      expect(Object.keys(connState.contexts[1]).sort()).toEqual([
+        'getBotToken',
+        'keepAliveIntervalMs',
+        'negotiateUrl',
+        'readinessTimeoutMs',
+        'serverTimeoutMs',
+      ]);
     });
 
     it('connects to all three geos by default with geo-scoped negotiate URLs', async () => {
       const app = createTestApp({
         clientId: 'bot1',
         logger: quiet(),
-        socketMode: { fallbackToHttp: false },
+        socketMode: {},
       });
       await app.start();
 
@@ -367,9 +378,10 @@ describe('Socket Mode App e2e matrix', () => {
         socketMode: true,
       });
 
-      // The `true` shorthand enables the experimental HTTP fallback by default,
-      // so the app runs the composite transport while still exposing the socket.
-      expect(app.server.adapter).toBeInstanceOf(CompositeAdapter);
+      // The `true` shorthand is socket-only by default. A supplied HTTP adapter
+      // is not constructed into the server unless fallback is explicitly true.
+      expect(app.server.adapter).not.toBeInstanceOf(CompositeAdapter);
+      expect(app.server.adapter).toBe(app.socketMode);
       expect(app.socketMode).toBeDefined();
 
       await app.start(4321);
@@ -384,13 +396,14 @@ describe('Socket Mode App e2e matrix', () => {
         keepAliveIntervalMs: 15_000,
         serverTimeoutMs: 30_000,
       });
+      expect((app.options.httpServerAdapter as CapturingAdapter).startedPorts).toEqual([]);
     });
 
     it('still reaches ready when a ready listener throws (readiness is not wedged)', async () => {
       const app = createTestApp({
         clientId: 'bot1',
         logger: quiet(),
-        socketMode: { fallbackToHttp: false },
+        socketMode: {},
       });
       // A throwing observer must not prevent the server from completing its
       // readiness transition.
@@ -413,7 +426,7 @@ describe('Socket Mode App e2e matrix', () => {
         dangerouslyAllowUnauthenticatedRequests: true,
         httpServerAdapter: adapter,
         logger: quiet(),
-        socketMode: {},
+        socketMode: { fallbackToHttp: true },
       });
       const seen: string[] = [];
       app.on('message', async ({ activity }) => {
@@ -450,6 +463,27 @@ describe('Socket Mode App e2e matrix', () => {
         body: { transport: 'socket' },
       });
     });
+
+    it('tears down both transports and reports a socket startup failure', async () => {
+      const startupError = new Error('socket startup failed');
+      connState.startError = startupError;
+      const adapter = new CapturingAdapter();
+      const app = createTestApp({
+        clientId: 'bot1',
+        httpServerAdapter: adapter,
+        logger: quiet(),
+        socketMode: { fallbackToHttp: true, geos: [''], startupTimeoutMs: 0 },
+      });
+      const onError = jest.fn();
+      app.event('error', onError);
+
+      await expect(app.start(4321)).resolves.toBeUndefined();
+
+      expect(adapter.startedPorts).toEqual([4321]);
+      expect(adapter.stopCalls).toBe(1);
+      expect(app.socketMode!.status).toBe('stopped');
+      expect(onError).toHaveBeenCalledWith({ error: startupError });
+    });
   });
 
   describe('App wiring guards', () => {
@@ -469,14 +503,14 @@ describe('Socket Mode App e2e matrix', () => {
         clientId: 'bot1',
         httpServerAdapter: adapter,
         logger: quiet(),
-        socketMode: {},
+        socketMode: { fallbackToHttp: true },
       })).not.toThrow();
 
       expect(() => createTestApp({
         clientId: 'bot1',
         httpServerAdapter: adapter,
         logger: quiet(),
-        socketMode: { fallbackToHttp: false },
+        socketMode: {},
       })).not.toThrow();
     });
   });

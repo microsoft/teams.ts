@@ -105,12 +105,14 @@ export type SocketModeOptions = {
   readonly reconnectDelaysMs?: readonly number[];
 
   /**
-   * **Experimental.** Also stand up an HTTP messaging endpoint alongside the
-   * socket so Teams backend service can deliver inbound activities over either transport (it
-   * decides per activity). The HTTP adapter is created implicitly. This is
-   * inbound-only and a messaging sink: browser features Socket Mode disables
-   * (`app.tab()`, `app.function()`, OAuth callbacks) stay unavailable. Set
-   * `false` for a socket-only app.
+   * **Experimental.** Explicitly opt a production bot into an HTTP messaging
+   * fallback alongside Socket Mode. This is generally not recommended and is
+   * permitted only for production bots. The SDK uses the app's supplied HTTP
+   * server adapter or creates a default one, but the developer must separately
+   * enable and configure the matching public HTTP messaging endpoint in Teams
+   * Developer Portal (TDP).
+   *
+   * The SDK only starts the local HTTP receiver.
    *
    * Delivery contract: each activity is delivered over **exactly one** transport
    * — the socket when it can deliver, otherwise HTTP — never both. There is no
@@ -118,7 +120,7 @@ export type SocketModeOptions = {
    *
    * @experimental Transitional for the Socket Mode rollout; may change or be
    * removed without a major-version bump.
-   * @default true
+   * @default false
    */
   readonly fallbackToHttp?: boolean;
 

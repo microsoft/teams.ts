@@ -247,7 +247,7 @@ export class SocketModeAdapter implements IHttpServerAdapter {
     const message =
       `socket-mode: ignoring ${method} ${path} — Socket Mode serves only the messaging endpoint. ` +
       'Browser features (app.function()/app.tab()) need the HTTP transport; enable it with ' +
-      'socketMode.fallbackToHttp (the default).';
+      'socketMode.fallbackToHttp = true.';
     if (this.deps.soleTransport) {
       this.log.warn(message);
     } else {
@@ -264,7 +264,7 @@ export class SocketModeAdapter implements IHttpServerAdapter {
   serveStatic(path: string, _directory: string): void {
     const message =
       `socket-mode: ignoring serveStatic(${path}) — Socket Mode has no HTTP transport for static ` +
-      'files (app.tab()). Enable the HTTP transport with socketMode.fallbackToHttp (the default).';
+      'files (app.tab()). Enable the HTTP transport with socketMode.fallbackToHttp = true.';
     if (this.deps.soleTransport) {
       this.log.warn(message);
     } else {

@@ -58,14 +58,14 @@ describe('Socket Mode HTTP fallback (composite, through App)', () => {
     connState.stopped = 0;
   });
 
-  it('runs a single HttpServer over a CompositeAdapter by default (fallbackToHttp defaults to true)', async () => {
+  it('runs a single HttpServer over a CompositeAdapter when fallbackToHttp is true', async () => {
     const app = createTestApp({
       logger: quiet(),
       clientId: 'bot1',
-      socketMode: {},
+      socketMode: { fallbackToHttp: true },
     });
 
-    // Default Socket Mode runs both transports inside one HttpServer: its adapter
+    // Explicit fallback runs both transports inside one HttpServer: its adapter
     // is the composite, while app.socketMode exposes the inner socket adapter.
     expect(app.server).toBeInstanceOf(HttpServer);
     expect(app.server.adapter).toBeInstanceOf(CompositeAdapter);
@@ -81,7 +81,7 @@ describe('Socket Mode HTTP fallback (composite, through App)', () => {
     const app = createTestApp({
       logger: quiet(),
       clientId: 'bot1',
-      socketMode: {},
+      socketMode: { fallbackToHttp: true },
     });
 
     // this.server is a real HttpServer, so these no longer throw; they fan out to
@@ -90,12 +90,13 @@ describe('Socket Mode HTTP fallback (composite, through App)', () => {
     expect(() => app.function('demo', async () => ({}))).not.toThrow();
   });
 
-  it('is socket-only (adapter is the socket itself) when fallbackToHttp is false', () => {
-    const app = createTestApp({
-      logger: quiet(),
-      clientId: 'bot1',
-      socketMode: { fallbackToHttp: false },
-    });
+  it.each([
+    ['the boolean shorthand', true],
+    ['empty options', {}],
+    ['explicit fallbackToHttp undefined', { fallbackToHttp: undefined }],
+    ['explicit fallbackToHttp false', { fallbackToHttp: false }],
+  ])('is socket-only with %s', (_label, socketMode) => {
+    const app = createTestApp({ logger: quiet(), clientId: 'bot1', socketMode });
 
     expect(app.server).toBeInstanceOf(HttpServer);
     expect(app.server.adapter).not.toBeInstanceOf(CompositeAdapter);
@@ -121,8 +122,8 @@ describe('Socket Mode HTTP fallback (composite, through App)', () => {
     };
 
     // The socket adapter retries internally up to its startup budget (0 here), then
-    // gives up; the composite does not swallow the failure — it propagates so
-    // App.start() fails and tears the app down rather than coming up half-started.
+    // gives up; the composite does not swallow the failure, so the App boundary
+    // can tear every transport down and report the startup error.
     const composite = new CompositeAdapter([http, app.socketMode!], quiet());
     await expect(composite.start(3978)).rejects.toThrow();
 

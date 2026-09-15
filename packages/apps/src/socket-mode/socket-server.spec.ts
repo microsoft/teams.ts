@@ -67,7 +67,7 @@ describe('SocketModeAdapter (through App)', () => {
     const app = createTestApp({
       logger: new ConsoleLogger('test', { level: 'error' }),
       clientId: 'bot1',
-      socketMode: { fallbackToHttp: false },
+      socketMode: {},
     });
 
     // The socket adapter IS the app HttpServer's transport adapter, and the same
@@ -84,7 +84,7 @@ describe('SocketModeAdapter (through App)', () => {
     const app = createTestApp({
       logger: new ConsoleLogger('test', { level: 'error' }),
       clientId: 'bot1',
-      socketMode: { fallbackToHttp: false },
+      socketMode: {},
     });
 
     const seen: string[] = [];
@@ -116,7 +116,7 @@ describe('SocketModeAdapter (through App)', () => {
     const app = createTestApp({
       logger: new ConsoleLogger('test', { level: 'error' }),
       clientId: 'bot1',
-      socketMode: { fallbackToHttp: false },
+      socketMode: {},
     });
 
     let handled = false;
@@ -148,7 +148,7 @@ describe('SocketModeAdapter (through App)', () => {
     const app = createTestApp({
       logger: new ConsoleLogger('test', { level: 'error' }),
       clientId: 'bot1',
-      socketMode: { fallbackToHttp: false },
+      socketMode: {},
     });
     await app.start();
 
@@ -160,7 +160,7 @@ describe('SocketModeAdapter (through App)', () => {
     const app = createTestApp({
       logger: new ConsoleLogger('test', { level: 'error' }),
       clientId: 'bot1',
-      socketMode: { fallbackToHttp: false },
+      socketMode: true,
     });
 
     app.on('card.action', (async () => {
@@ -182,7 +182,7 @@ describe('SocketModeAdapter (through App)', () => {
     const app = createTestApp({
       logger: new ConsoleLogger('test', { level: 'error' }),
       clientId: 'bot1',
-      socketMode: { fallbackToHttp: false },
+      socketMode: {},
     });
 
     let handled = false;
@@ -213,7 +213,7 @@ describe('SocketModeAdapter (through App)', () => {
     const app = createTestApp({
       logger: new ConsoleLogger('test', { level: 'error' }),
       clientId: 'bot1',
-      socketMode: { fallbackToHttp: false },
+      socketMode: true,
     });
 
     let handled = false;
@@ -237,7 +237,7 @@ describe('SocketModeAdapter (through App)', () => {
     const app = createTestApp({
       logger: new ConsoleLogger('test', { level: 'error' }),
       clientId: 'bot1',
-      socketMode: { fallbackToHttp: false },
+      socketMode: true,
     });
 
     // Socket-only mode runs a single HttpServer whose adapter is the socket
@@ -248,4 +248,3 @@ describe('SocketModeAdapter (through App)', () => {
     expect(() => app.function('demo', async () => ({}))).not.toThrow();
   });
 });
-
