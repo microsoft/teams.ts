@@ -8,7 +8,7 @@ export type TeamInfo = {
   /**
    * @member {string} [id] Unique identifier representing a team
    */
-  id: string;
+  id?: string;
 
   /**
    * @member {string} [name] Name of team.

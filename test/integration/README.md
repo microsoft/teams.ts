@@ -4,7 +4,7 @@ Outbound API integration tests that run against live Teams service endpoints.
 
 ## Prerequisites
 
-- Node.js >= 20
+- Node.js >= 22.12
 - A configured bot app registration (see the [integration test runbook](https://dev.azure.com/DomoreexpGithub/Github_Pipelines/_wiki/wikis/Github%20Pipelines%20Wiki/1/Teams-SDK-Integration-Test-Runbook) (internal only))
 
 ## Setup

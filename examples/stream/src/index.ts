@@ -40,6 +40,14 @@ const SECOND_STREAM_MESSAGES = [
   '[stream 2] The app processor will close this stream when the handler returns.',
 ];
 
+const EXTENDED_MARKDOWN_MESSAGES = [
+  '**Extended markdown stream** — rendering features plain markdown can\'t:\n\n',
+  '- [x] Sent with `textFormat: \'extendedmarkdown\'`\n',
+  '- [x] Task list items render as real checkboxes\n',
+  '- [ ] ~~Under plain markdown these would be literal `[ ]` text~~\n',
+  '- [x] Strikethrough renders too\n',
+];
+
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 function normalize(text?: string): string {
@@ -48,6 +56,10 @@ function normalize(text?: string): string {
 
 function shouldRunMultiStream(text?: string): boolean {
   return normalize(text).includes('multi stream');
+}
+
+function shouldRunExtendedMarkdown(text?: string): boolean {
+  return normalize(text).includes('extended markdown') || normalize(text).includes('extendedmarkdown');
 }
 
 function shouldSendSimpleCard(text?: string): boolean {
@@ -100,6 +112,17 @@ app.on('message', async ({ activity, stream, send, log }) => {
     for (const message of SECOND_STREAM_MESSAGES) {
       await sleep(500);
       stream.emit(message);
+    }
+    return;
+  }
+
+  if (shouldRunExtendedMarkdown(activity.text)) {
+    stream.update('Starting the *extended* markdown stream...', 'markdown');
+    await sleep(1000);
+
+    for (const message of EXTENDED_MARKDOWN_MESSAGES) {
+      await sleep(500);
+      stream.emit(new MessageActivityInput(message).withTextFormat('extendedmarkdown'));
     }
     return;
   }

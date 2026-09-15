@@ -1,3 +1,5 @@
+import { TextFormat } from '../models';
+
 import { IActivity, Activity, ActivityInput, IActivityInput } from './activity';
 
 export interface ITypingActivity extends IActivity<'typing'> {
@@ -5,6 +7,11 @@ export interface ITypingActivity extends IActivity<'typing'> {
    * The text content of the message.
    */
   text?: string;
+
+  /**
+   * Format of the `text` field (ex. `'extendedmarkdown'`). Default: `'markdown'`.
+   */
+  textFormat?: TextFormat;
 }
 
 /**
@@ -22,6 +29,11 @@ export interface ITypingActivityInput extends IActivityInput<'typing'> {
    * Text used by streaming updates. Ordinary typing indicators can omit this.
    */
   text?: string;
+
+  /**
+   * Format of the `text` field (ex. `'extendedmarkdown'`). Default: `'markdown'`.
+   */
+  textFormat?: TextFormat;
 }
 
 /**
@@ -43,6 +55,11 @@ export class TypingActivityInput extends ActivityInput<'typing'> implements ITyp
    * Text used by streaming updates. Ordinary typing indicators can omit this.
    */
   text?: string;
+
+  /**
+   * Format of the `text` field (ex. `'extendedmarkdown'`). Default: `'markdown'`.
+   */
+  textFormat?: TextFormat;
 
   /**
    * Create an outbound typing activity input.
@@ -102,6 +119,15 @@ export class TypingActivityInput extends ActivityInput<'typing'> implements ITyp
   }
 
   /**
+   * Set the format of the `text` field.
+   * @param value - Text format.
+   */
+  withTextFormat(value: TextFormat) {
+    this.textFormat = value;
+    return this;
+  }
+
+  /**
    * Add stream metadata to this typing update.
    * @param sequence - Sequence number of the stream chunk.
    */
@@ -135,6 +161,11 @@ export class TypingActivity extends Activity<'typing'> implements ITypingActivit
    * The text content of the message.
    */
   text?: string;
+
+  /**
+   * Format of the `text` field.
+   */
+  textFormat?: TextFormat;
 
   constructor(value: Omit<Partial<ITypingActivity>, 'type'> = {}) {
     super({
@@ -186,6 +217,14 @@ export class TypingActivity extends Activity<'typing'> implements ITypingActivit
     }
 
     this.text += text;
+    return this;
+  }
+
+  /**
+   * Set the format of the `text` field.
+   */
+  withTextFormat(value: TextFormat) {
+    this.textFormat = value;
     return this;
   }
 

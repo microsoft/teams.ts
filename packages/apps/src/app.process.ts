@@ -12,6 +12,7 @@ import {
   InvokeResponse,
   isInvokeResponse,
   IToken,
+  TokenStatus,
 } from '@microsoft/teams.api';
 import { Client as HttpClient, ILogger, IStorage } from '@microsoft/teams.common';
 
@@ -36,11 +37,14 @@ import {
   recordTeamsBotActivityProcessDuration
 } from './diagnostics/helpers';
 import { IActivityEvent } from './events';
+import { selectFilesCredential } from './files-credential';
 import { Router } from './router';
 import type { Route } from './router/route';
 import { IRoutes } from './routes';
+import { TurnStateLoader } from './state';
 import { IActivitySender, IPlugin, RouteHandler, StreamCancelledError } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
+import { extractTenantId } from './utils';
 
 function getAgenticIdentity(account?: Account): AgenticIdentity | undefined {
   if (!account?.agenticAppBlueprintId) {
@@ -71,19 +75,55 @@ export interface IActivityProcessorOptions<TPlugin extends IPlugin = IPlugin> {
    * app has no credentials configured.
    */
   readonly getAppGraphToken: (tenantId?: string) => Promise<IToken | null>;
+  /** Acquires a Microsoft Graph token for an Agentic User, or `null` when the app has no credentials or the identity is not user-backed. */
+  readonly getAgenticGraphToken: (identity: AgenticIdentity, tenantId?: string) => Promise<IToken | null>;
   readonly activitySender: IActivitySender;
   readonly api: ApiClient;
   readonly client: HttpClient;
   readonly storage: IStorage;
+  /**
+   * Gets the loader used to attach and persist state for each activity turn.
+   * The loader can become available after an OAuth flow is registered.
+   */
+  readonly getStateLoader: () => TurnStateLoader | undefined;
   readonly log: ILogger;
   readonly getId: () => string | undefined;
+  /**
+   * Gets the connection name used by deprecated context OAuth fields.
+   *
+   * @deprecated Registered OAuth flows own their connection names.
+   */
   readonly getConnectionName: () => string;
   /**
-   * whether to eagerly look up the user's OAuth token on the inbound activity.
-   * the token is used to compute `ctx.isSignedIn` and `ctx.userToken`, and to authenticate
-   * `ctx.userGraph` (which is always constructed regardless of this setting).
+   * Whether to proactively fetch the legacy default-flow token for each inbound
+   * activity. The result populates deprecated context OAuth fields.
+   *
+   * @deprecated Registered flows fetch tokens only when their methods are called.
    */
   readonly shouldFetchUserToken: () => boolean;
+  /**
+   * Validates a connection selected through the deprecated activity-context
+   * OAuth helpers before any token service request is made.
+   */
+  readonly validateOAuthConnection?: (
+    connectionName: string,
+    connectionNameProvided: boolean
+  ) => void;
+  /**
+   * Records which registered OAuth flow emitted a card through the deprecated
+   * activity-context sign-in helper.
+   */
+  readonly onOAuthSignInInitiated?: (
+    context: IActivityContext,
+    connectionName: string,
+    supportsSso: boolean
+  ) => void | Promise<void>;
+  /**
+   * Gets corrected status for all OAuth connections registered on the app.
+   */
+  readonly getOAuthConnectionStatus?: (
+    context: IActivityContext
+  ) => Promise<TokenStatus[]>;
   readonly apiClientSettings?: ApiClientSettings;
   readonly graphBaseUrl?: string;
   /**
@@ -140,8 +180,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
       });
 
       let userToken: string | undefined;
-      // Skipped unless configured (see OAuthSettings.fetchUserToken / auto-detection) to avoid
-      // a wasted user-token request on every activity when the app never reads ctx.userGraph.
+      // Legacy context OAuth fields opt into this eager lookup.
       if (this.options.shouldFetchUserToken()) {
         try {
           userToken = await this.getUserToken(apiClient, activity.channelId, activity.from.id);
@@ -161,12 +200,8 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
       );
       const appGraph = new GraphClient(
         client.clone({
-          // The token provider returns null when the app has no credentials, but
-          // the HTTP token contract treats only undefined as "no token"; coerce
-          // so null is never forwarded as an auth header.
-          token: async () =>
-            (await this.options.getAppGraphToken(activity.conversation.tenantId ?? 'common')) ??
-            undefined,
+          // The token provider returns null when the app has no credentials, but the HTTP token contract treats only undefined as "no token"; coerce so null is never forwarded as an auth header.
+          token: async () => (await this.options.getAppGraphToken(extractTenantId(activity))) ?? undefined,
         }),
         { baseUrlRoot: this.options.graphBaseUrl }
       );
@@ -236,10 +271,22 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
 
       const activitySender = new ActivitySender(this.options.log, apiClientFactory);
 
+      // Resolved at fetch time rather than eagerly, so a turn that never touches files pays nothing for it.
+      //
+      // An Agentic User reads as itself. An app-only token sees what the app may read tenant-wide, a different set from what was shared with the agent, so it would 403 on exactly the files the agent was given.
+      const filesCredential = selectFilesCredential({
+        agenticIdentity,
+        tenantId: extractTenantId(activity),
+        graphBaseUrlRoot: this.options.graphBaseUrl,
+        getAppGraphToken: (t) => this.options.getAppGraphToken(t),
+        getAgenticGraphToken: (i, t) => this.options.getAgenticGraphToken(i, t),
+      });
+
       const context = new ActivityContext({
         activity,
         next,
         api: apiClient,
+        client: this.options.client,
         userGraph,
         appGraph,
         appId: this.options.getId() || '',
@@ -249,9 +296,17 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
         storage: this.options.storage,
         isSignedIn: !!userToken,
         connectionName: this.options.getConnectionName(),
+        validateOAuthConnection: this.options.validateOAuthConnection,
+        onOAuthSignInInitiated: this.options.onOAuthSignInInitiated,
+        getOAuthConnectionStatus: this.options.getOAuthConnectionStatus,
+        filesCredential,
         activitySender,
         ...pluginContexts
       });
+
+      const conversationId = activity.conversation?.id;
+      const userId = activity.from?.id;
+      const stateLoader = this.options.getStateLoader();
 
       const send = context.send.bind(context);
       context.send = async (activity: ActivityLike | DeprecatedInputActivity, conversationRef?: ConversationReference) => {
@@ -279,43 +334,105 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
         });
       });
 
-      let response: InvokeResponse;
-      try {
-        const res = await next();
+      const response = await this.executeTurnLifecycle(
+        context,
+        activity,
+        activityProcessSpan,
+        conversationId,
+        userId,
+        stateLoader,
+        async () => {
+          try {
+            const res = await next();
+            await context.stream.close();
+            return isInvokeResponse(res)
+              ? res
+              : { status: 200, body: res };
+          } catch (error: any) {
+            if (!isStreamCancelledError(error)) {
+              throw error;
+            }
 
-        await context.stream.close();
-
-        if (isInvokeResponse(res)) {
-          response = res;
-        } else {
-          response = { status: 200, body: res };
+            this.options.log.debug('stream canceled, returning 200');
+            await context.stream.close();
+            return { status: 200 };
+          }
         }
+      );
 
-        this.options.eventManager.onActivityResponse({
-          ...ref,
-          activity,
-          response: res,
-        });
-      } catch (error: any) {
-        if (isStreamCancelledError(error)) {
-          this.options.log.debug('stream canceled, returning 200');
-          await context.stream.close();
-          response = { status: 200 };
-        } else {
-          response = { status: 500 };
-          recordTeamsBotApplicationException(activityProcessSpan, error);
-          this.options.eventManager.onError({ error, activity });
-        }
-
-        this.options.eventManager.onActivityResponse({
-          ...ref,
-          activity,
-          response: response,
-        });
-      }
+      this.options.eventManager.onActivityResponse({
+        ...ref,
+        activity,
+        response,
+      });
 
       return response;
     }));
+  }
+
+  private async executeTurnLifecycle(
+    context: ActivityContext,
+    activity: Activity,
+    activityProcessSpan: Span,
+    conversationId: string | undefined,
+    userId: string | undefined,
+    stateLoader: TurnStateLoader | undefined,
+    dispatch: () => Promise<InvokeResponse>
+  ): Promise<InvokeResponse> {
+    let response: InvokeResponse = { status: 500 };
+    let dispatchError: unknown;
+    let saveError: unknown;
+
+    try {
+      if (stateLoader && conversationId) {
+        context.state = await stateLoader.load(
+          conversationId,
+          userId
+        );
+      }
+      response = await dispatch();
+    } catch (error) {
+      dispatchError = error;
+    } finally {
+      if (context.state && stateLoader && conversationId) {
+        try {
+        await stateLoader.save(context.state);
+        } catch (error) {
+          saveError = error;
+        } finally {
+          context.state.seal();
+        }
+      }
+    }
+
+    if (dispatchError) {
+      await this.reportTurnError(
+        dispatchError,
+        activity,
+        activityProcessSpan
+      );
+    }
+    if (saveError) {
+      await this.reportTurnError(saveError, activity, activityProcessSpan);
+    }
+
+    if (dispatchError || saveError) {
+      return { status: 500 };
+    }
+
+    return response;
+  }
+
+  private async reportTurnError(
+    error: unknown,
+    activity: Activity,
+    activityProcessSpan: Span
+  ): Promise<void> {
+    recordTeamsBotApplicationException(activityProcessSpan, error);
+    await this.options.eventManager.onError({
+      error: error instanceof Error ? error : new Error(String(error)),
+      activity,
+    });
   }
 
   /**

@@ -1,4 +1,6 @@
-import { HttpMethod, IHttpServerAdapter, HttpRouteHandler } from './adapter';
+import { IToken } from '@microsoft/teams.api';
+
+import { HttpMethod, IHttpServerAdapter, IHttpServerInitializeDeps, HttpRouteHandler } from './adapter';
 import { HttpServer } from './http-server';
 
 jest.mock('../middleware/auth/inbound-activity-token-validator');
@@ -7,6 +9,11 @@ class MockAdapter implements IHttpServerAdapter {
   routes: Array<{ method: HttpMethod; path: string; handler: HttpRouteHandler }> = [];
   started = false;
   stopped = false;
+  initializedWith?: IHttpServerInitializeDeps;
+
+  async initialize(deps: IHttpServerInitializeDeps): Promise<void> {
+    this.initializedWith = deps;
+  }
 
   registerRoute(method: HttpMethod, path: string, handler: HttpRouteHandler): void {
     this.routes.push({ method, path, handler });
@@ -21,10 +28,15 @@ class MockAdapter implements IHttpServerAdapter {
   }
 
   /** Simulate a request to a registered route */
-  async simulateRequest(path: string, body: unknown, headers: Record<string, string | string[]> = {}) {
+  async simulateRequest(
+    path: string,
+    body: unknown,
+    headers: Record<string, string | string[]> = {},
+    token?: IToken
+  ) {
     const route = this.routes.find(r => r.path === path);
     if (!route) throw new Error(`No route registered for ${path}`);
-    return route.handler({ body, headers });
+    return route.handler({ body, headers, token });
   }
 }
 
@@ -46,6 +58,14 @@ describe('HttpServer', () => {
       expect(adapter.routes).toHaveLength(1);
       expect(adapter.routes[0].method).toBe('POST');
       expect(adapter.routes[0].path).toBe('/api/messages');
+    });
+
+    it('should forward app-level deps to the adapter initialize()', async () => {
+      const credentials = { clientId: 'app', tenantId: 'tenant' } as any;
+
+      await server.initialize({ credentials, cloud: undefined });
+
+      expect(adapter.initializedWith).toEqual({ credentials, cloud: undefined });
     });
 
     it('should register route with custom messaging endpoint', async () => {
@@ -233,6 +253,35 @@ describe('HttpServer', () => {
       expect(result.status).toBe(401);
       expect(result.body).toEqual({ error: 'Authentication not configured' });
       expect(noCredServer.onRequest).not.toHaveBeenCalled();
+    });
+
+    it('should trust a pre-authenticated request token and skip validation', async () => {
+      noCredServer.onRequest = jest.fn().mockResolvedValue({ status: 200, body: { text: 'ok' } });
+
+      // A transport that authenticates at the connection level (e.g. Socket Mode)
+      // delivers the resolved identity on the request. Even with no credentials
+      // configured and unauthenticated HTTP requests disallowed, this must be
+      // trusted rather than rejected — the JWT path is bypassed entirely.
+      const preAuthToken = {
+        appId: 'socket-app',
+        from: 'azure',
+        fromId: '',
+        serviceUrl: 'https://smba.trafficmanager.net/teams',
+        isExpired: () => false,
+      } as IToken;
+
+      const result = await adapter.simulateRequest(
+        '/api/messages',
+        { type: 'message', serviceUrl: 'https://smba.trafficmanager.net/teams' },
+        {},
+        preAuthToken
+      );
+
+      expect(result.status).toBe(200);
+      expect(result.body).toEqual({ text: 'ok' });
+      expect(noCredServer.onRequest).toHaveBeenCalledWith(
+        expect.objectContaining({ token: preAuthToken })
+      );
     });
   });
 

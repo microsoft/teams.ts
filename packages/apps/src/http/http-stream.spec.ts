@@ -268,6 +268,127 @@ describe('HttpStream', () => {
     );
   });
 
+  test('retains the last emitted textFormat on intermediate typing chunks and the final message', async () => {
+    const stream = new HttpStream(client, ref, logger);
+    mockCreate();
+
+    // First message carries no textFormat.
+    stream.emit({ type: 'message', text: 'hello ' });
+    await jest.runAllTimersAsync();
+
+    // A later message sets textFormat; last-message-wins semantics apply (matches
+    // finalActivity's attachments / entities / suggestedActions behavior).
+    stream.emit({ type: 'message', text: 'world', textFormat: 'extendedmarkdown' });
+    await jest.runAllTimersAsync();
+
+    const closePromise = stream.close();
+    await jest.runAllTimersAsync();
+    await closePromise;
+
+    const calls = client.conversations.createActivity.mock.calls;
+
+    // First intermediate chunk (sent before textFormat was ever emitted) has none.
+    expect(calls[0][1].type).toBe('typing');
+    expect(calls[0][1].textFormat).toBeUndefined();
+
+    // Second intermediate chunk, sent after the textFormat-carrying message, retains it.
+    expect(calls[1][1].type).toBe('typing');
+    expect(calls[1][1].textFormat).toBe('extendedmarkdown');
+
+    // Final message also carries the last emitted textFormat.
+    const finalCall = calls[calls.length - 1];
+    expect(finalCall[1].type).toBe('message');
+    expect(finalCall[1].textFormat).toBe('extendedmarkdown');
+  });
+
+  test('informative update carries its own textFormat, independent of finalActivity', async () => {
+    const stream = new HttpStream(client, ref, logger);
+    mockCreate();
+
+    // An informative update with its own textFormat, sent before any message is emitted
+    // (so finalActivity is still undefined). Its format must come from the update itself.
+    stream.emit({
+      type: 'typing',
+      text: 'Checking the release status...',
+      channelData: { streamType: 'informative' },
+      textFormat: 'extendedmarkdown',
+    });
+    await jest.runAllTimersAsync();
+
+    const calls = client.conversations.createActivity.mock.calls;
+    expect(calls[0][1].type).toBe('typing');
+    expect(calls[0][1].channelData?.streamType).toBe('informative');
+    expect(calls[0][1].textFormat).toBe('extendedmarkdown');
+  });
+
+  test('update(text, textFormat) sends an informative chunk with that format', async () => {
+    const stream = new HttpStream(client, ref, logger);
+    mockCreate();
+
+    stream.update('Thinking...', 'extendedmarkdown');
+    await jest.runAllTimersAsync();
+
+    const calls = client.conversations.createActivity.mock.calls;
+    expect(calls[0][1].type).toBe('typing');
+    expect(calls[0][1].channelData?.streamType).toBe('informative');
+    expect(calls[0][1].textFormat).toBe('extendedmarkdown');
+  });
+
+  test('update(text) and update(text, null) omit textFormat (Teams default)', async () => {
+    const stream = new HttpStream(client, ref, logger);
+    mockCreate();
+
+    stream.update('no format');
+    await jest.runAllTimersAsync();
+    stream.update('explicit null', null);
+    await jest.runAllTimersAsync();
+
+    const calls = client.conversations.createActivity.mock.calls;
+    expect(calls[0][1].type).toBe('typing');
+    expect(calls[0][1].textFormat).toBeUndefined();
+    expect(calls[1][1].textFormat).toBeUndefined();
+  });
+
+  test('sendFinal (timeout fallback) retains the last emitted textFormat', async () => {
+    const stream = new HttpStream(client, ref, logger);
+    let createCalls = 0;
+    const updates: any[] = [];
+
+    const timeoutError = new AxiosError('Forbidden', '403', undefined, undefined, {
+      status: 403,
+      data: { error: { message: 'Content stream finished due to exceeded streaming time.' } },
+      headers: {},
+      statusText: 'Forbidden',
+      config: {} as any,
+    });
+
+    client.conversations.createActivity.mockImplementation(
+      async (_conversationId: any, activity: any) => {
+        createCalls++;
+        if (createCalls === 2) {
+          throw timeoutError;
+        }
+        return { ...activity, id: 'stream-1' };
+      }
+    );
+    client.conversations.updateActivity.mockImplementation(
+      async (_conversationId: any, id: any, activity: any) => {
+        updates.push({ id, text: activity.text, textFormat: activity.textFormat });
+        return { ...activity, id };
+      }
+    );
+
+    stream.emit({ type: 'message', text: 'Final answer', textFormat: 'extendedmarkdown' });
+    const closePromise = stream.close();
+    await jest.runAllTimersAsync();
+    await closePromise;
+
+    expect(stream.timedOut).toBe(true);
+    expect(updates).toHaveLength(1);
+    expect(updates[0].text).toBe('Final answer');
+    expect(updates[0].textFormat).toBe('extendedmarkdown');
+  });
+
   test('close waits for flush to complete before sending final message', async () => {
     mockCreate();
 

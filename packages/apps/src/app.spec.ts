@@ -1,7 +1,8 @@
 import { ConfidentialClientApplication } from '@azure/msal-node';
 import jwt from 'jsonwebtoken';
 
-import { CHINA, JsonWebToken, PUBLIC, US_GOV, US_GOV_DOD, withOverrides } from '@microsoft/teams.api';
+import { CHINA, JsonWebToken, MessageActivity, PUBLIC, US_GOV, US_GOV_DOD, withOverrides } from '@microsoft/teams.api';
+import { ConsoleLogger } from '@microsoft/teams.common';
 
 import { App } from './app';
 import { TestAdapter } from './test-utils';
@@ -9,8 +10,7 @@ import { TestAdapter } from './test-utils';
 jest.mock('@azure/msal-node');
 
 /**
- * Stubs the MSAL client `TokenManager` builds internally. `App` no longer holds
- * the manager, so the seam is the auth library rather than the app's internals.
+ * Stubs the MSAL client `TokenManager` builds internally. `App` no longer holds the manager, so the seam is the auth library rather than the app's internals.
  */
 const mockMsalToken = (acquireTokenByClientCredential: jest.Mock) => {
   (ConfidentialClientApplication as unknown as jest.Mock).mockImplementation(
@@ -26,6 +26,10 @@ class TestApp extends App {
 
   public async testGetAppGraphToken(tenantId?: string) {
     return this.getAppGraphToken(tenantId);
+  }
+
+  public async testGetAgenticGraphToken(identity: any) {
+    return this.getAgenticGraphToken(identity);
   }
 
   public async testSend(conversationId: string, activity: any, options?: any) {
@@ -48,6 +52,121 @@ class TestApp extends App {
 }
 
 describe('App', () => {
+  describe('OAuth flow registration', () => {
+    it('returns the implicit default flow without enabling public turn state', () => {
+      const app = new App({ httpServerAdapter: new TestAdapter() });
+
+      expect(app.getOAuthFlow('graph').connectionName).toBe('graph');
+      expect(app.options.state).toBeUndefined();
+      expect(app.options.oauth).toBeUndefined();
+    });
+
+    it('registers flows through the app and resolves normalized names', () => {
+      const app = new App({ httpServerAdapter: new TestAdapter() });
+      const github = app.addOAuthFlow('GitHub');
+
+      expect(app.getOAuthFlow(' github ')).toBe(github);
+      expect(() => app.getOAuthFlow('graph')).toThrow(
+        'Registered connections: GitHub.'
+      );
+    });
+
+    it('registers flows declaratively through app options', () => {
+      const app = new App({
+        httpServerAdapter: new TestAdapter(),
+        oauthFlows: ['graph', 'github'],
+      });
+
+      expect(app.getOAuthFlow('GRAPH').connectionName).toBe('graph');
+      expect(app.getOAuthFlow('GitHub').connectionName).toBe('github');
+    });
+
+    it.each([
+      ['declaratively', (logger: ConsoleLogger) => new App({
+        httpServerAdapter: new TestAdapter(),
+        logger,
+        oauthFlows: ['graph'],
+      })],
+      ['imperatively', (logger: ConsoleLogger) => {
+        const app = new App({
+          httpServerAdapter: new TestAdapter(),
+          logger,
+        });
+        app.addOAuthFlow('graph');
+        return app;
+      }],
+    ])(
+      'warns about the OAuth consequence when state is enabled %s',
+      (_registration, createApp) => {
+        const logger = new ConsoleLogger('test');
+        const warn = jest.spyOn(logger, 'warn').mockImplementation();
+
+        createApp(logger);
+
+        expect(warn).toHaveBeenCalledWith(
+          expect.stringContaining(
+            'OAuth sign-in may fail in multi-instance deployments'
+          )
+        );
+        expect(warn).toHaveBeenCalledWith(
+          expect.stringContaining('Configure state.storage with shared storage')
+        );
+      }
+    );
+
+    it('registers the former default explicitly without retaining a placeholder', () => {
+      const app = new App({ httpServerAdapter: new TestAdapter() });
+      const graph = app.addOAuthFlow('GRAPH');
+
+      expect(app.getOAuthFlow('graph')).toBe(graph);
+    });
+
+    it('rejects duplicate flows and lists registered connections on lookup failure', () => {
+      const app = new App({ httpServerAdapter: new TestAdapter() });
+      app.addOAuthFlow('github');
+
+      expect(() => app.addOAuthFlow('GITHUB')).toThrow(
+        'An OAuth flow is already registered for connection "GITHUB".'
+      );
+      expect(() => app.getOAuthFlow('missing')).toThrow(
+        'Registered connections: github.'
+      );
+    });
+
+    it('rejects combining a configured legacy default with registered flows', () => {
+      expect(() => new App({
+        httpServerAdapter: new TestAdapter(),
+        oauth: { defaultConnectionName: 'graph' },
+        oauthFlows: ['graph', 'github'],
+      })).toThrow(
+        'oauth.defaultConnectionName cannot be combined with registered OAuth flows.'
+      );
+
+      const app = new App({
+        httpServerAdapter: new TestAdapter(),
+        oauth: { defaultConnectionName: 'github' },
+      });
+      expect(() => app.addOAuthFlow('github')).toThrow(
+        'oauth.defaultConnectionName cannot be combined with registered OAuth flows.'
+      );
+    });
+
+    it('allows registered OAuth flows to use process-local tracking when state is disabled', () => {
+      const declarative = new App({
+        httpServerAdapter: new TestAdapter(),
+        oauthFlows: ['graph'],
+        state: false,
+      });
+      expect(declarative.getOAuthFlow('graph').connectionName).toBe('graph');
+
+      const app = new App({
+        httpServerAdapter: new TestAdapter(),
+        state: false,
+      });
+      expect(app.addOAuthFlow('github').connectionName).toBe('github');
+    });
+  });
+
   describe('token acquisition', () => {
     let app: TestApp;
     const mockBotToken = jwt.sign(
@@ -141,14 +260,12 @@ describe('App', () => {
     });
 
     it('should return the same provider on every access', () => {
-      // The getter must return a stable object, since callers hand it to
-      // long-lived collaborators such as an OTel exporter.
+      // The getter must return a stable object, since callers hand it to long-lived collaborators such as an OTel exporter.
       expect(app.tokenProvider).toBe(app.tokenProvider);
     });
 
     it('should expose each agentic capability as its own method', () => {
-      // A provider that omits a capability fails loudly instead of returning an
-      // app-only token under the wrong identity.
+      // A provider that omits a capability fails loudly instead of returning an app-only token under the wrong identity.
       expect(typeof app.tokenProvider.getAppToken).toBe('function');
       expect(typeof app.tokenProvider.getAgenticUserToken).toBe('function');
       expect(typeof app.tokenProvider.getAgenticAppToken).toBe('function');
@@ -160,8 +277,7 @@ describe('App', () => {
     const originalClientId = process.env.CLIENT_ID;
 
     afterEach(() => {
-      // Assigning `undefined` would set the literal string, which later tests
-      // read as a configured client id.
+      // Assigning `undefined` would set the literal string, which later tests read as a configured client id.
       const restore = (key: string, value?: string) => {
         if (value === undefined) delete process.env[key];
         else process.env[key] = value;
@@ -171,8 +287,7 @@ describe('App', () => {
     });
 
     it('should resolve the tenant and blueprint from the environment when no option is given', () => {
-      // The IDs come from resolved credentials, not the raw options, so an app
-      // configured entirely through env vars can still build an identity.
+      // The IDs come from resolved credentials, not the raw options, so an app configured entirely through env vars can still build an identity.
       process.env.TENANT_ID = 'env-tenant';
       process.env.CLIENT_ID = 'env-client';
       const app = new App();
@@ -745,6 +860,50 @@ describe('App', () => {
       } finally {
         await app.stop();
       }
+    });
+  });
+
+  describe('hasMatchingRoute', () => {
+    it('returns true when a registered route matches the activity', () => {
+      const app = new App({ clientId: 'client-id' });
+      app.message(/help/, jest.fn());
+
+      expect(app.hasMatchingRoute(new MessageActivity('please help'))).toBe(true);
+    });
+
+    it('returns false when no registered route matches the activity', () => {
+      const app = new App({ clientId: 'client-id' });
+      app.message(/help/, jest.fn());
+
+      expect(app.hasMatchingRoute(new MessageActivity('unrelated text'))).toBe(false);
+    });
+  });
+  describe('getAgenticGraphToken', () => {
+    it('returns null for a blueprint-level identity that names no agentic app', async () => {
+      // `getAgenticIdentity` legitimately produces this shape: a blueprint-level identity carries `agenticAppId: null`. There is no agentic user to mint a token for, so the file path must report no credential rather than silently reading as the app.
+      const app = new TestApp({ clientId: 'client-id', tenantId: 'tenant-id' });
+
+      const token = await app.testGetAgenticGraphToken({
+        agenticAppBlueprintId: 'blueprint-1',
+        agenticAppId: null,
+        agenticUserId: null,
+        tenantId: 'tenant-id',
+      });
+
+      expect(token).toBeNull();
+    });
+
+    it('returns null when the identity names an app but no user', async () => {
+      const app = new TestApp({ clientId: 'client-id', tenantId: 'tenant-id' });
+
+      const token = await app.testGetAgenticGraphToken({
+        agenticAppBlueprintId: 'blueprint-1',
+        agenticAppId: 'agentic-app-1',
+        agenticUserId: null,
+        tenantId: 'tenant-id',
+      });
+
+      expect(token).toBeNull();
     });
   });
 });

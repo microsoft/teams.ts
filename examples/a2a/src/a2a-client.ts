@@ -79,6 +79,6 @@ export class A2APeerClient {
 }
 
 function cryptoRandomId(): string {
-  // Node 20+ exposes crypto.randomUUID globally.
+  // Node 22+ exposes crypto.randomUUID globally.
   return globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }

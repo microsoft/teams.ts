@@ -11,6 +11,9 @@ export interface IStorage<TKey = any, TValue = any> {
 /**
  * a list storage container that can
  * store/query iterable data
+ *
+ * @deprecated Use `IStorage` for persistence and keep ordered collection
+ * semantics in an application-specific abstraction.
  */
 export interface IListStorage<TValue = any> extends IStorage<number, TValue> {
   push(value: TValue): void | Promise<void>;

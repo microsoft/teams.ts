@@ -1,6 +1,7 @@
 export type Attachment = {
   /**
    * @member {string} [id] The id of the attachment.
+   * @deprecated This is a legacy Bot Framework field and will be removed in a future version of the SDK.
    */
   id?: string;
 
@@ -25,7 +26,8 @@ export type Attachment = {
   name?: string;
 
   /**
-   * (OPTIONAL) Thumbnail associated with attachment
+   * (OPTIONAL) Thumbnail associated with attachment.
+   * Not set by Teams when a bot receives an upload.
    */
   thumbnailUrl?: string;
 };

@@ -6,7 +6,7 @@
   "bugs": "https://github.com/microsoft/teams.ts/issues",
   "packageManager": "npm@11.12.1",
   "engines": {
-    "node": ">=20"
+    "node": ">=22.12.0"
   },
   "repository": {
     "type": "git",
@@ -29,6 +29,7 @@
     "bots"
   ],
   "scripts": {
+    "check:lockfile-registry": "node scripts/check-lockfile-registry.js",
     "version:stamp": "node scripts/version.js",
     "version:get": "nbgv get-version -v NpmPackageVersion",
     "clean": "npx turbo clean",
@@ -44,12 +45,12 @@
   },
   "devDependencies": {
     "@turbo/gen": "^2.5.7",
-    "nerdbank-gitversioning": "^3.9.50",
-    "turbo": "^2.9.14",
+    "nerdbank-gitversioning": "^3.10.91",
+    "turbo": "^2.10.12",
     "typescript": "^5.4.5"
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "4.40.1"
+    "@rollup/rollup-linux-x64-gnu": "4.62.3"
   },
   "overrides": {
     "restify": {
@@ -59,6 +60,11 @@
     "follow-redirects": "^1.16.0",
     "router": {
       "path-to-regexp": "^8.4.0"
-    }
+    },
+    "rollup": "4.62.3",
+    "tsup": {
+      "esbuild": "^0.28.1"
+    },
+    "uuid": "^11.1.1"
   }
 }

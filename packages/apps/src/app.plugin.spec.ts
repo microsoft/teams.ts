@@ -201,6 +201,12 @@ describe('app.plugin', () => {
       plugins: [new MyPlugin()]
     });
 
+    app.addOAuthFlow('graph').onSignInComplete((context) => {
+      const foo: number = context.foo;
+      const bar: string = context.bar;
+      void foo;
+      void bar;
+    });
 
     let receivedFoo: number = -1;
     let receivedBar: string = '';
