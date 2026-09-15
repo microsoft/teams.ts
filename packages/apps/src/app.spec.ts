@@ -10,8 +10,7 @@ import { TestAdapter } from './test-utils';
 jest.mock('@azure/msal-node');
 
 /**
- * Stubs the MSAL client `TokenManager` builds internally. `App` no longer holds
- * the manager, so the seam is the auth library rather than the app's internals.
+ * Stubs the MSAL client `TokenManager` builds internally. `App` no longer holds the manager, so the seam is the auth library rather than the app's internals.
  */
 const mockMsalToken = (acquireTokenByClientCredential: jest.Mock) => {
   (ConfidentialClientApplication as unknown as jest.Mock).mockImplementation(
@@ -27,6 +26,10 @@ class TestApp extends App {
 
   public async testGetAppGraphToken(tenantId?: string) {
     return this.getAppGraphToken(tenantId);
+  }
+
+  public async testGetAgenticGraphToken(identity: any) {
+    return this.getAgenticGraphToken(identity);
   }
 
   public async testSend(conversationId: string, activity: any, options?: any) {
@@ -257,14 +260,12 @@ describe('App', () => {
     });
 
     it('should return the same provider on every access', () => {
-      // The getter must return a stable object, since callers hand it to
-      // long-lived collaborators such as an OTel exporter.
+      // The getter must return a stable object, since callers hand it to long-lived collaborators such as an OTel exporter.
       expect(app.tokenProvider).toBe(app.tokenProvider);
     });
 
     it('should expose each agentic capability as its own method', () => {
-      // A provider that omits a capability fails loudly instead of returning an
-      // app-only token under the wrong identity.
+      // A provider that omits a capability fails loudly instead of returning an app-only token under the wrong identity.
       expect(typeof app.tokenProvider.getAppToken).toBe('function');
       expect(typeof app.tokenProvider.getAgenticUserToken).toBe('function');
       expect(typeof app.tokenProvider.getAgenticAppToken).toBe('function');
@@ -276,8 +277,7 @@ describe('App', () => {
     const originalClientId = process.env.CLIENT_ID;
 
     afterEach(() => {
-      // Assigning `undefined` would set the literal string, which later tests
-      // read as a configured client id.
+      // Assigning `undefined` would set the literal string, which later tests read as a configured client id.
       const restore = (key: string, value?: string) => {
         if (value === undefined) delete process.env[key];
         else process.env[key] = value;
@@ -287,8 +287,7 @@ describe('App', () => {
     });
 
     it('should resolve the tenant and blueprint from the environment when no option is given', () => {
-      // The IDs come from resolved credentials, not the raw options, so an app
-      // configured entirely through env vars can still build an identity.
+      // The IDs come from resolved credentials, not the raw options, so an app configured entirely through env vars can still build an identity.
       process.env.TENANT_ID = 'env-tenant';
       process.env.CLIENT_ID = 'env-client';
       const app = new App();
@@ -877,6 +876,34 @@ describe('App', () => {
       app.message(/help/, jest.fn());
 
       expect(app.hasMatchingRoute(new MessageActivity('unrelated text'))).toBe(false);
+    });
+  });
+  describe('getAgenticGraphToken', () => {
+    it('returns null for a blueprint-level identity that names no agentic app', async () => {
+      // `getAgenticIdentity` legitimately produces this shape: a blueprint-level identity carries `agenticAppId: null`. There is no agentic user to mint a token for, so the file path must report no credential rather than silently reading as the app.
+      const app = new TestApp({ clientId: 'client-id', tenantId: 'tenant-id' });
+
+      const token = await app.testGetAgenticGraphToken({
+        agenticAppBlueprintId: 'blueprint-1',
+        agenticAppId: null,
+        agenticUserId: null,
+        tenantId: 'tenant-id',
+      });
+
+      expect(token).toBeNull();
+    });
+
+    it('returns null when the identity names an app but no user', async () => {
+      const app = new TestApp({ clientId: 'client-id', tenantId: 'tenant-id' });
+
+      const token = await app.testGetAgenticGraphToken({
+        agenticAppBlueprintId: 'blueprint-1',
+        agenticAppId: 'agentic-app-1',
+        agenticUserId: null,
+        tenantId: 'tenant-id',
+      });
+
+      expect(token).toBeNull();
     });
   });
 });

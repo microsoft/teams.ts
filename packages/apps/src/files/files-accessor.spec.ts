@@ -98,7 +98,41 @@ describe('FilesAccessor', () => {
     expect(files).toHaveLength(0);
   });
 
-  it('skips a file.download.info carrying a non-string uniqueId alongside a valid downloadUrl', async () => {
+  it('skips an attachment whose contentUrl is not a string', async () => {
+    // The wire is untrusted, so `contentUrl` gets the same shape check `content` gets. Without it a truthy non-string
+    // passes the locator test, is surfaced, and then throws inside the sharing-url encoder instead of being skipped.
+    const attachment = {
+      contentType: FILE_DOWNLOAD_INFO_CONTENT_TYPE,
+      name: 'weird.pdf',
+      contentUrl: { href: 'https://contoso.sharepoint.com/nested' },
+    } as unknown as Attachment;
+
+    const files = await new FilesAccessor(activityWith([attachment]), log).list();
+
+    expect(files).toHaveLength(0);
+  });
+
+  it('skips a malformed-content file even when a contentUrl survives', async () => {
+    // `content` and `contentUrl` are sibling fields read independently, so content that fails the shape check zeroes
+    // `downloadUrl` while `contentUrl` survives. That alone must not open the Graph route: the route exists for the
+    // agentic shape, which is content that parsed and declares no `downloadUrl`. Routing a payload the SDK has
+    // already judged malformed would spend a Graph credential on bad data, and before the route existed this
+    // attachment was skipped.
+    const attachment: Attachment = {
+      contentType: FILE_DOWNLOAD_INFO_CONTENT_TYPE,
+      name: 'weird.pdf',
+      content: { downloadUrl: { href: 'https://download.example/nested' } },
+      contentUrl: 'https://contoso.sharepoint.com/personal/a/Documents/weird.pdf',
+    };
+
+    const files = await new FilesAccessor(activityWith([attachment]), log).list();
+
+    expect(files).toHaveLength(0);
+  });
+
+  it('surfaces a file.download.info carrying a non-string uniqueId alongside a valid downloadUrl', async () => {
+    // The `downloadUrl` is usable, and with no `contentUrl` to fall back on, rejecting the whole `content` over the
+    // metadata beside it drops a fetchable file out of `list()` entirely rather than merely changing its route.
     const attachment: Attachment = {
       contentType: FILE_DOWNLOAD_INFO_CONTENT_TYPE,
       name: 'weird.pdf',
@@ -107,7 +141,8 @@ describe('FilesAccessor', () => {
 
     const files = await new FilesAccessor(activityWith([attachment]), log).list();
 
-    expect(files).toHaveLength(0);
+    expect(files).toHaveLength(1);
+    expect(files[0].uniqueId).toBeUndefined();
   });
 
   it('ignores unknown extra properties on the content payload', async () => {

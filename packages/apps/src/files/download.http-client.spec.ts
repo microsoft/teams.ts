@@ -184,4 +184,38 @@ describe('file download via HttpClient', () => {
     expect(transport.requests).toHaveLength(1);
     expect(transport.lastRequest.url).toBe('https://download.example/report.pdf?tempauth=abc');
   });
+
+  describe('redirect safety', () => {
+    /**
+     * Storage answers with a 302 to the host actually holding the bytes, so redirects must be followed.
+     * The guard is on the *scheme*: axios already drops `Authorization` across hosts, so what is left to protect is the payload, which an `https` to `http` hop would put on the wire in the clear.
+     *
+     * The hook is exercised directly rather than through a real redirect, because the adapter that keeps these tests off the network is the same layer that would perform one.
+     */
+    async function capturedBeforeRedirect(): Promise<(redirect: Record<string, any>) => void> {
+      const transport = new CapturingTransport(200, 'bytes', { 'content-type': 'text/plain' });
+      const client = new HttpClient({ middlewares: [transport] });
+
+      await fileWith(client).download();
+
+      const hook = (transport.lastRequest as unknown as { beforeRedirect?: (r: Record<string, any>) => void })
+        .beforeRedirect;
+
+      expect(hook).toBeDefined();
+      return hook!;
+    }
+
+    it('refuses a redirect that downgrades to plaintext HTTP', async () => {
+      const beforeRedirect = await capturedBeforeRedirect();
+
+      expect(() => beforeRedirect({ protocol: 'http:', host: 'storage.example' })).toThrow(/must use https/);
+    });
+
+    it('allows a redirect that stays on HTTPS', async () => {
+      // A storage 302 to another HTTPS host is the ordinary case and must keep working, so the guard cannot simply refuse every redirect.
+      const beforeRedirect = await capturedBeforeRedirect();
+
+      expect(() => beforeRedirect({ protocol: 'https:', host: 'storage.example' })).not.toThrow();
+    });
+  });
 });
