@@ -28,7 +28,9 @@ RELEASE_BRANCH=release/v2.0
 
 4. **Bump the version on main** for the next release cycle:
    - Edit `version.json` on main
-   - Increment the patch version (e.g. `"2.0.7-preview.{height}"` → `"2.0.8-preview.{height}"`)
+   - Set the next planned development version:
+     - For a patch cycle, increment the patch version (e.g. `"2.0.7-preview.{height}"` → `"2.0.8-preview.{height}"`)
+     - For a minor cycle, increment the minor version and reset the patch to zero (e.g. `"2.1.0-preview.{height}"` → `"2.2.0-preview.{height}"`)
    - Commit and push (or PR)
 
 5. **Create the git tag and GitHub Release page** after packages land on npm:
