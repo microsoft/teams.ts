@@ -50,7 +50,7 @@ const ThumbDislikeIcon = bundleIcon(
 );
 
 const CustomFeedbackForm: FC<{
-  cancelButtonRef: React.RefObject<HTMLButtonElement>;
+  cancelButtonRef: React.RefObject<HTMLButtonElement | null>;
   classes: ReturnType<typeof useMessageClasses>;
   handleDialogClose: () => void;
 }> = ({ cancelButtonRef, classes, handleDialogClose }) => {

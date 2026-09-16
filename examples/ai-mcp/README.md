@@ -18,7 +18,7 @@ This is the TypeScript counterpart to the .NET [`ExtAIBot`](https://github.com/m
 
 ## Prerequisites
 
-- Node.js 20+
+- Node.js 22.12+
 - An **Azure OpenAI resource** with a deployed model (e.g. `gpt-4o`) and an API key. No Foundry project required.
 - A Teams bot registration (App ID + secret).
 

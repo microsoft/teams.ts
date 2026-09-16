@@ -10,7 +10,7 @@ import { ConsoleLogger, ILogger } from '@microsoft/teams.common';
 import { IActivityEvent, ICoreActivity } from '../events';
 import { InboundActivityTokenValidator } from '../middleware/auth/inbound-activity-token-validator';
 
-import { HttpMethod, IHttpServerAdapter, IHttpServerRequest, IHttpServerResponse, HttpRouteHandler } from './adapter';
+import { HttpMethod, IHttpServerAdapter, IHttpServerInitializeDeps, IHttpServerRequest, IHttpServerResponse, HttpRouteHandler } from './adapter';
 
 type AuthResult =
   | { success: true; token: IToken }
@@ -94,10 +94,7 @@ export class HttpServer implements IHttpServer {
    * Can be called multiple times - only initializes once
    * Called by App.initialize()
    */
-  async initialize(deps: {
-    credentials?: Credentials;
-    cloud?: CloudEnvironment;
-  }) {
+  async initialize(deps: IHttpServerInitializeDeps) {
     if (this.initialized) {
       this.logger.debug('HttpServer already initialized, skipping');
       return;
@@ -140,6 +137,10 @@ export class HttpServer implements IHttpServer {
     this._adapter.registerRoute('POST', this._messagingEndpoint, async (request) => {
       return this.handleRequest(request);
     });
+
+    // Forward app-level deps to the adapter so connection-authenticated
+    // transports (e.g. Socket Mode) can initialize through the seam.
+    await this._adapter.initialize?.(deps);
 
     this.initialized = true;
   }
@@ -190,14 +191,19 @@ export class HttpServer implements IHttpServer {
 
   /**
    * Handle incoming activity request
-   * Validates JWT, dispatches to app, returns response
+   * Validates the inbound JWT (unless the transport delivered a pre-authenticated
+   * {@link IHttpServerRequest.token}), dispatches to the app, returns the response.
    */
   async handleRequest(request: IHttpServerRequest): Promise<IHttpServerResponse> {
     try {
       const body = request.body as ICoreActivity;
       this.logger.debug('Handling activity', body);
 
-      const auth = await this.authorize(request.headers, body);
+      // Transports that authenticate at the connection level (e.g. Socket Mode)
+      // deliver a pre-resolved token and carry no per-request JWT to validate.
+      const auth = request.token
+        ? { success: true as const, token: request.token }
+        : await this.authorize(request.headers, body);
       if (!auth.success) {
         return { status: 401, body: { error: auth.error } };
       }

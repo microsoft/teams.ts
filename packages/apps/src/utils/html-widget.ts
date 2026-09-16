@@ -263,7 +263,7 @@ export function injectWidgetProtocol(
   // Assemble the protocol script (minified for payload size):
   // - (opt-in) Listen for CSP violations and log them
   // - Generate a unique request ID for the init handshake
-  // - Define notifySize to report body height to the host
+  // - Define notifySize to report content height to the host
   // - Listen for messages: on init response, send initialized + size;
   //   on known notifications, dispatch to window.onX callbacks
   // - Send ui/initialize request with app info and capabilities
@@ -271,7 +271,7 @@ export function injectWidgetProtocol(
   const script = '<script>(function(){'
     + cspDebug
     + 'var id=\'init-\'+Math.random().toString(36).slice(2);'
-    + 'function notifySize(){window.parent.postMessage({jsonrpc:\'2.0\',method:\'ui/notifications/size-changed\',params:{height:document.body.scrollHeight}},\'*\');}'
+    + 'function notifySize(){window.parent.postMessage({jsonrpc:\'2.0\',method:\'ui/notifications/size-changed\',params:{height:Math.ceil(Math.max(document.documentElement.scrollHeight,document.body.scrollHeight))}},\'*\');}'
     + 'window.addEventListener(\'message\',function(e){var d=e.data;if(!d||d.jsonrpc!==\'2.0\')return;'
     + 'if(d.id===id&&d.result){window.parent.postMessage({jsonrpc:\'2.0\',method:\'ui/notifications/initialized\'},\'*\');setTimeout(notifySize,100);}'
     + hookLines

@@ -134,7 +134,11 @@ describe('ActivitySender', () => {
       const conversations = (mockClient as any).conversations;
       expect(conversations.createTargetedActivity).toHaveBeenCalledWith(
         'conv-123',
-        expect.objectContaining({ type: 'message', text: 'targeted' })
+        expect.objectContaining({
+          type: 'message',
+          text: 'targeted',
+          recipient: expect.objectContaining({ isTargeted: true }),
+        })
       );
     });
 
@@ -150,15 +154,21 @@ describe('ActivitySender', () => {
         recipient: { id: 'user-1', name: 'User', role: 'user', isTargeted: true },
       } as ActivityParams;
 
-      await sender.send(activity, groupRef);
+      const result = await sender.send(activity, groupRef);
 
       const conversations = (mockClient as any).conversations;
       expect(conversations.updateTargetedActivity).toHaveBeenCalledWith(
         'conv-123',
         'existing-id',
-        expect.objectContaining({ recipient: expect.objectContaining({ isTargeted: true }) })
+        expect.objectContaining({
+          type: 'message',
+          text: 'targeted update',
+          id: 'existing-id',
+        })
       );
+      expect(conversations.updateTargetedActivity.mock.calls[0][2]).not.toHaveProperty('recipient');
       expect(conversations.createActivity).not.toHaveBeenCalled();
+      expect(result.recipient).toEqual(expect.objectContaining({ isTargeted: true }));
     });
 
     it('should merge bot and conversation from ref into activity', async () => {
@@ -232,16 +242,27 @@ describe('ActivitySender', () => {
       expect(createClient).toHaveBeenCalledWith(ref.serviceUrl, agenticIdentity);
     });
 
-    it('should throw when sending targeted message in personal chat', async () => {
+    it('should send a targeted message in a personal conversation', async () => {
       const activity: ActivityParams = {
         type: 'message',
         text: 'hello',
         recipient: { id: 'user-1', name: 'User', role: 'user', isTargeted: true },
       };
 
-      await expect(sender.send(activity, ref)).rejects.toThrow(
-        'Targeted messages are not supported in 1:1 (personal) chats.'
+      const result = await sender.send(activity, ref);
+
+      expect(mockClient.conversations.createTargetedActivity).toHaveBeenCalledWith(
+        'conv-123',
+        expect.objectContaining({
+          type: 'message',
+          text: 'hello',
+          recipient: expect.objectContaining({
+            id: 'user-1',
+            isTargeted: true,
+          }),
+        })
       );
+      expect(result).toEqual(expect.objectContaining({ id: 'activity-1' }));
     });
 
     it('should allow targeted message in group chat', async () => {
@@ -257,6 +278,7 @@ describe('ActivitySender', () => {
 
       const result = await sender.send(activity, groupRef);
       expect(result).toEqual(expect.objectContaining({ id: 'activity-1' }));
+      expect(result.recipient).toEqual(expect.objectContaining({ isTargeted: true }));
     });
   });
 

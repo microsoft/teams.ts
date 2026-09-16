@@ -257,6 +257,17 @@ describe('injectWidgetProtocol', () => {
     expect(result).toContain('version:\'1.0.0\'');
   });
 
+  it('should report a robust content height (documentElement + body, ceil) to avoid clipping', () => {
+    const result = injectWidgetProtocol(BARE_HTML);
+    // The size reporter must measure the taller of documentElement/body and round
+    // up, so trailing margins and sub-pixel content are never clipped by the host.
+    expect(result).toContain(
+      'height:Math.ceil(Math.max(document.documentElement.scrollHeight,document.body.scrollHeight))'
+    );
+    // Guard against regressing to the old body-only measurement.
+    expect(result).not.toContain('height:document.body.scrollHeight}');
+  });
+
   it('should not modify HTML that already performs the ui/initialize handshake', () => {
     const htmlWithInit =
       '<body><script>window.parent.postMessage({method:\'ui/initialize\'},\'*\')</script></body>';

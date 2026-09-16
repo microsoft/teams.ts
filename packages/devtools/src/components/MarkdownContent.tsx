@@ -1,4 +1,4 @@
-import { FC, HTMLProps, memo, useMemo } from 'react';
+import { FC, memo, useMemo } from 'react';
 import { Link, makeStyles } from '@fluentui/react-components';
 import Markdown from 'react-markdown';
 import remarkBreaks from 'remark-breaks';
@@ -13,18 +13,6 @@ const useStyles = makeStyles({
     whiteSpace: 'pre-wrap',
   },
 });
-
-const MarkdownLink: FC<React.AnchorHTMLAttributes<HTMLAnchorElement>> = (props) => (
-  <Link {...props} target="_blank" rel="noopener noreferrer" />
-);
-
-const MarkdownCode: FC<HTMLProps<HTMLElement>> = ({ children, className, ...props }) => {
-  return (
-    <code className={className} {...props}>
-      {children}
-    </code>
-  );
-};
 
 interface ChatMessageMarkdownProps {
   content: string;
@@ -49,8 +37,19 @@ export const MarkdownContent: FC<ChatMessageMarkdownProps> = memo(({ content }) 
       <Markdown
         remarkPlugins={[remarkGfm, remarkBreaks]}
         components={{
-          a: MarkdownLink,
-          code: MarkdownCode,
+          a: ({ children, className, href, title }) => (
+            <Link
+              as="a"
+              className={className}
+              href={href}
+              title={title}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {children}
+            </Link>
+          ),
+          code: ({ children, className }) => <code className={className}>{children}</code>,
           p: ({ children }) => <p className={classes.preserveLineBreaks}>{children}</p>,
         }}
       >
