@@ -49,9 +49,6 @@
     "turbo": "^2.10.12",
     "typescript": "^5.4.5"
   },
-  "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "4.62.3"
-  },
   "overrides": {
     "restify": {
       "send": "^1.2.0",
