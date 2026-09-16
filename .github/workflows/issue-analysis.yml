@@ -41,44 +41,12 @@ jobs:
       - name: Install Copilot CLI
         run: npm install -g @github/copilot
 
-      - name: Resolve issue details
-        id: issue
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Pass event data through env vars to avoid shell injection
-          EVENT_ISSUE_NUMBER: ${{ github.event.issue.number }}
-          EVENT_ISSUE_TITLE: ${{ github.event.issue.title }}
-          EVENT_ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
-          EVENT_ISSUE_URL: ${{ github.event.issue.html_url }}
-          EVENT_ISSUE_LABELS: ${{ toJSON(github.event.issue.labels) }}
-          EVENT_ISSUE_BODY: ${{ github.event.issue.body }}
-        run: |
-          # Use heredoc form for all fields to prevent output injection
-          # (issue titles/authors could contain newlines or %)
-          write_output() {
-            local name="$1"
-            local value="$2"
-            local delimiter="EOF_${name}_$$"
-            {
-              printf '%s<<%s\n' "$name" "$delimiter"
-              printf '%s\n' "$value"
-              printf '%s\n' "$delimiter"
-            } >> "$GITHUB_OUTPUT"
-          }
-
-          write_output "number" "$EVENT_ISSUE_NUMBER"
-          write_output "title" "$EVENT_ISSUE_TITLE"
-          write_output "author" "$EVENT_ISSUE_AUTHOR"
-          write_output "html_url" "$EVENT_ISSUE_URL"
-          write_output "labels" "$(echo "$EVENT_ISSUE_LABELS" | jq -r '[.[].name] | join(",")')"
-          write_output "body" "$EVENT_ISSUE_BODY"
-
       - name: Analyze issue with Copilot CLI
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_PAT }}
           GITHUB_UPSTREAM_REPO: microsoft/teams.ts
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
-          ISSUE_NUMBER="${{ steps.issue.outputs.number }}"
           ISSUE_URL="https://github.com/${GITHUB_UPSTREAM_REPO}/issues/${ISSUE_NUMBER}"
 
           copilot -p "You are analyzing GitHub issue #${ISSUE_NUMBER} for the Microsoft Teams TypeScript SDK.
@@ -125,10 +93,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_UPSTREAM_REPO: microsoft/teams.ts
           COPILOT_ANALYSIS_FILE: /tmp/analysis.txt
-          ISSUE_NUMBER: ${{ steps.issue.outputs.number }}
-          ISSUE_TITLE: ${{ steps.issue.outputs.title }}
-          ISSUE_AUTHOR: ${{ steps.issue.outputs.author }}
-          ISSUE_HTML_URL: ${{ steps.issue.outputs.html_url }}
-          ISSUE_LABELS: ${{ steps.issue.outputs.labels }}
-          ISSUE_BODY: ${{ steps.issue.outputs.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+          ISSUE_HTML_URL: ${{ github.event.issue.html_url }}
+          ISSUE_LABELS: ${{ join(github.event.issue.labels.*.name, ',') }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
         run: npx --prefix .github/scripts/issue-analysis tsx .github/scripts/issue-analysis/analyze-issue.ts
