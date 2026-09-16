@@ -3,4 +3,3 @@ export * from './negotiate';
 export * from './envelope';
 export * from './socket-connection';
 export * from './socket-server';
-export * from './composite-adapter';

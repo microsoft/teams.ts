@@ -1,6 +1,6 @@
 /**
  * The Socket Mode protocol version teams.ts speaks. Every reply frame must carry
- * it so Teams backend service can detect a mismatch and fall back to HTTP. Bump only in lockstep
+ * it so Teams backend service can detect a mismatch. Bump only in lockstep
  * with Teams backend service's `SocketProtocol.CurrentVersion`.
  */
 export const SOCKET_MODE_PROTOCOL_VERSION = 1;
@@ -41,6 +41,7 @@ export type SocketModeStatus =
  * Options controlling the inbound Socket Mode transport, passed as
  * `new App({ socketMode: { ... } })`. Passing `socketMode: true` uses all
  * defaults.
+ * WebSocket is only recommended for use when developing agents.
  *
  * @experimental This API is in preview and may change in the future.
  */
@@ -103,24 +104,6 @@ export type SocketModeOptions = {
    * retrying — with a fresh negotiate/token each attempt — until `App.stop()`.
    */
   readonly reconnectDelaysMs?: readonly number[];
-
-  /**
-   * **Experimental.** Also stand up an HTTP messaging endpoint alongside the
-   * socket so Teams backend service can deliver inbound activities over either transport (it
-   * decides per activity). The HTTP adapter is created implicitly. This is
-   * inbound-only and a messaging sink: browser features Socket Mode disables
-   * (`app.tab()`, `app.function()`, OAuth callbacks) stay unavailable. Set
-   * `false` for a socket-only app.
-   *
-   * Delivery contract: each activity is delivered over **exactly one** transport
-   * — the socket when it can deliver, otherwise HTTP — never both. There is no
-   * duplicate delivery to guard against.
-   *
-   * @experimental Transitional for the Socket Mode rollout; may change or be
-   * removed without a major-version bump.
-   * @default true
-   */
-  readonly fallbackToHttp?: boolean;
 
   /**
    * SignalR keep-alive ping interval in milliseconds — how often the client

@@ -103,15 +103,6 @@ export type SocketModeAdapterDeps = {
    */
   readonly messagingEndpoint: string;
   /**
-   * Whether Socket Mode is the app's sole inbound transport (no HTTP fallback).
-   * When `true`, browser-oriented calls (`app.function()`/`app.tab()`) have no
-   * transport at all, so {@link SocketModeAdapter.registerRoute} for a
-   * non-messaging path and {@link SocketModeAdapter.serveStatic} warn (they are
-   * still no-ops). When `false` the sibling HTTP adapter in the composite serves
-   * those, so they are logged only at debug.
-   */
-  readonly soleTransport: boolean;
-  /**
    * Surface an unexpected inbound-processing error to the app pipeline. May be
    * async — the transport awaits it (behind an error boundary) so an
    * `App.onError` that performs async work (logging, telemetry flush) completes
@@ -133,16 +124,16 @@ export type SocketModeAdapterDeps = {
  * shares the exact same Teams pipeline as HTTP. Only inbound delivery moves to
  * the socket; outbound sends stay on HTTP and handlers stay transport-agnostic.
  *
- * No HTTP is used outside the negotiate handshake — no routes served or
- * per-request JWT. The socket is authenticated once at negotiate, so the adapter
- * synthesizes the {@link IToken} the pipeline expects and delivers it as the
- * request's pre-authenticated {@link IHttpServerRequest.token} (HttpServer then
- * skips JWT validation). Invoke activities return a real invoke response over
- * SignalR client results; one-way activities return a post-handler ack. Not
- * usable until Teams backend service's `SocketReady` frame arrives.
+ * No inbound HTTP adapter, listener, route, or public endpoint is started. The
+ * socket is authenticated once at negotiate, so the adapter synthesizes the
+ * {@link IToken} the pipeline expects and supplies it as a pre-authenticated
+ * {@link IHttpServerRequest.token}. Invoke activities return a real invoke
+ * response over SignalR client results; one-way activities return a post-handler
+ * ack. Not usable until Teams backend service's `SocketReady` frame arrives.
  *
- * Browser-oriented calls are no-ops: {@link serveStatic} and non-messaging
- * {@link registerRoute} paths (e.g. `app.function()`) require an HTTP transport.
+ * Browser-oriented calls are no-ops: tabs, remote functions, OAuth callbacks,
+ * and other non-messaging routes require an HTTP transport.
+ * WebSocket is only recommended for use when developing agents.
  *
  * @experimental This API is in preview and may change in the future.
  */
@@ -220,10 +211,9 @@ export class SocketModeAdapter implements IHttpServerAdapter {
   /**
    * {@link IHttpServerAdapter} seam initialization: receive the app-level
    * credentials/cloud. Called by {@link HttpServer.initialize}, which forwards
-   * the deps it gets from {@link App.initialize} (directly in socket-only mode,
-   * or via the {@link CompositeAdapter} when the HTTP fallback is on). Stores
-   * credentials (the bot id echoed on reply frames derives from them); the
-   * negotiate token is acquired lazily in {@link start}.
+   * the deps it gets from {@link App.initialize}. Stores credentials (the bot id
+   * echoed on reply frames derives from them); the negotiate token is acquired
+   * lazily in {@link start}.
    */
   async initialize(deps: IHttpServerInitializeDeps): Promise<void> {
     this.credentials = deps.credentials;
@@ -235,9 +225,8 @@ export class SocketModeAdapter implements IHttpServerAdapter {
    * registers its inbound-activity route here; the adapter captures the handler
    * for its configured messaging endpoint and dispatches inbound socket frames
    * into it. Any other path (e.g. `app.function()` POST routes) is a no-op —
-   * a socket transport serves only messaging. When Socket Mode is the sole
-   * transport this is warned (the feature has no transport); with the HTTP
-   * fallback on, the sibling HTTP adapter serves it, so it's only debug-logged.
+   * a socket transport serves only messaging. The ignored route is warned
+   * because the corresponding HTTP-only feature is unavailable.
    */
   registerRoute(method: HttpMethod, path: string, handler: HttpRouteHandler): void {
     if (method === 'POST' && path === this.deps.messagingEndpoint) {
@@ -246,30 +235,20 @@ export class SocketModeAdapter implements IHttpServerAdapter {
     }
     const message =
       `socket-mode: ignoring ${method} ${path} — Socket Mode serves only the messaging endpoint. ` +
-      'Browser features (app.function()/app.tab()) need the HTTP transport; enable it with ' +
-      'socketMode.fallbackToHttp (the default).';
-    if (this.deps.soleTransport) {
-      this.log.warn(message);
-    } else {
-      this.log.debug(message);
-    }
+      'Browser features (app.function()/app.tab()/OAuth routes) are unavailable.';
+    this.log.warn(message);
   }
 
   /**
    * {@link IHttpServerAdapter} static-file serving. No-op for Socket Mode — tabs
-   * and other static assets require an HTTP transport. Warned when Socket Mode is
-   * the sole transport (the feature has no transport), else debug-logged (the
-   * sibling HTTP adapter serves it).
+   * and other static assets require an HTTP transport, so the ignored mount is
+   * warned.
    */
   serveStatic(path: string, _directory: string): void {
     const message =
       `socket-mode: ignoring serveStatic(${path}) — Socket Mode has no HTTP transport for static ` +
-      'files (app.tab()). Enable the HTTP transport with socketMode.fallbackToHttp (the default).';
-    if (this.deps.soleTransport) {
-      this.log.warn(message);
-    } else {
-      this.log.debug(message);
-    }
+      'files; app.tab() is unavailable.';
+    this.log.warn(message);
   }
 
   /**
@@ -457,10 +436,9 @@ export class SocketModeAdapter implements IHttpServerAdapter {
   /**
    * Handle one inbound envelope: feed the embedded activity into the app
    * pipeline via the captured messaging {@link HttpRouteHandler} and return the
-   * reply frame to send back over client results. The activity is delivered as a
-   * pre-authenticated request ({@link IHttpServerRequest.token} set to the
-   * synthesized socket token), so the HTTP server skips per-request JWT
-   * validation.
+   * reply frame to send back over client results. The adapter supplies a
+   * synthesized, pre-authenticated request token so the HTTP server skips
+   * per-message JWT validation.
    *
    * Invoke activities return the pipeline's status/body; one-way activities
    * return a post-handler acknowledgement once the pipeline has run.
@@ -572,35 +550,21 @@ export class SocketModeAdapter implements IHttpServerAdapter {
   }
 
   /**
-   * Build the normalized {@link IToken} the activity pipeline reads (primarily
-   * `serviceUrl`, plus bot identity). This is the socket transport's equivalent
-   * of what {@link HttpServer} yields after it validates the inbound JWT: the
-   * pipeline consumes an `IToken`, not a raw credential. It mirrors the exact
-   * shape produced by `InboundActivityTokenValidator` and the HTTP transport.
-   *
-   * There is no per-activity token to validate here — the socket itself is
-   * authenticated once during the Teams backend service negotiate handshake, so authenticity is
-   * established at the transport layer rather than per message. `fromId` is left
-   * empty because the socket carries no per-message verified caller subject.
-   *
-   * Note the differences from the HTTP transport, which matter if a handler
-   * forwards `ctx.token` outbound: `serviceUrl` comes from the activity (the
-   * pipeline reads `activity.serviceUrl || token.serviceUrl`, and inbound socket
-   * activities always carry it); `toString()` is empty (there is no bearer to
-   * forward — outbound sends mint their own token via the app credentials); and
-   * `isExpired()` is always `false` since there is no per-message token to expire.
+   * Build the normalized token expected by the shared activity pipeline. Socket
+   * authentication is established at negotiation, so there is no per-activity
+   * bearer token to validate or forward.
    */
   private inboundToken(activity: Activity): IToken {
-    const serviceUrl = activity.serviceUrl ?? '';
     return {
       appId: this.botId ?? '',
       from: 'azure',
       fromId: '',
-      serviceUrl,
+      serviceUrl: activity.serviceUrl ?? '',
       toString: () => '',
       isExpired: () => false,
     };
   }
+
 }
 
 /**

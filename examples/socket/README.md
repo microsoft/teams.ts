@@ -8,10 +8,12 @@ WebSocket instead of an HTTP messaging endpoint — so there's no public URL or 
 tunnel to expose for inbound delivery. Only inbound delivery changes; your
 handlers and outbound sends are unaffected.
 
+WebSocket is only recommended for use when developing agents.
+Socket Mode bots should not be submitted to Marketplace for publishing.
+
 ## What this sample shows
 
-- **Enabling Socket Mode** — `new App({ socketMode: { fallbackToHttp: false } })`
-  for a socket-only app (no HTTP endpoint).
+- **Enabling Socket Mode** — `new App({ socketMode: true })` for WebSocket inbound delivery with no HTTP endpoint.
 - **Multi-geo by default** — a single bot opens one connection per geo
   (`amer`, `emea`, `apac`) so it has inbound coverage across regions. Override
   with `geos: [...]` or point at a custom ring with `negotiateBaseUrl`.
@@ -39,8 +41,11 @@ You should see per-geo `ready` logs as each connection comes up, then `you said
 
 ## Notes
 
-- **Single-transport delivery** — with the HTTP fallback enabled, each activity
-  is delivered over exactly one transport (socket or HTTP, never both), so no
-  dedupe is required.
+- **No HTTP surface** — tabs, remote functions, OAuth callbacks, and other
+  browser routes are unavailable in Socket Mode.
+- **Canary endpoint** — the sample currently overrides `negotiateBaseUrl`
+  because Socket Mode negotiate is available on the canary ring while the
+  production default returns 503. Remove the override when production is
+  enabled.
 - **Classic bot identity only** — Socket Mode connects with the bot's MSA App Id.
   Agentic identities are not supported today.

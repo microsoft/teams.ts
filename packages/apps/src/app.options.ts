@@ -149,26 +149,25 @@ export type AppOptions<TPlugin extends IPlugin> = {
   readonly plugins?: Array<TPlugin>;
 
   /**
-   * HTTP server adapter for handling bot requests
+   * HTTP server adapter for handling bot requests. Ignored when
+   * {@link socketMode} is enabled because Socket Mode has no HTTP transport.
    */
   readonly httpServerAdapter?: IHttpServerAdapter;
 
     /**
      * **Experimental.** Receive inbound activities over Socket Mode — a Teams
-     * backend service-negotiated outbound WebSocket — instead of (or alongside) an
+     * backend service-negotiated outbound WebSocket — instead of an
      * HTTP messaging endpoint, so the bot needs no public URL or dev tunnel.
      *
-     * Pass `true` for all defaults, or an object to configure it. By default a
-     * single bot opens one connection per geo (`amer`, `emea`, `apac`) and *also*
-     * stands up an HTTP messaging endpoint (`fallbackToHttp` defaults to `true`)
-     * so the service can deliver over either transport; set
-     * `socketMode.fallbackToHttp = false` for a socket-only app with no HTTP
-     * transport (browser features like `app.tab()`/`app.function()` then have no
-     * transport and are inert). Each activity is delivered over exactly one
-     * transport, so no dedupe is required.
+     * Pass `true` for all defaults, or an object to configure it. A single bot
+     * opens one connection per geo (`amer`, `emea`, `apac`) by default. Socket
+     * Mode starts no HTTP listener or public endpoint; tabs, remote functions,
+     * OAuth callbacks, and other browser routes are unavailable. A supplied
+     * `httpServerAdapter` is unused.
      *
      * Cannot be combined with the deprecated `HttpPlugin`. Observe the socket via
      * {@link App.socketMode}.
+     * WebSocket is only recommended for use when developing agents.
      *
      * @experimental This API is in preview and may change in the future.
      */

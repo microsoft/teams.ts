@@ -47,7 +47,7 @@ import { ActivityProcessor } from './app.process';
 import { Container } from './container';
 import { IActivityContext, FunctionContext, IFunctionContext } from './contexts';
 import { IActivityEvent } from './events';
-import { ExpressAdapter, IHttpServerAdapter } from './http';
+import { ExpressAdapter } from './http';
 import { HttpServer } from './http/http-server';
 import * as middleware from './middleware';
 import { RemoteFunctionValidator } from './middleware/auth/remote-function-validator';
@@ -57,7 +57,7 @@ import { OAuthFlowRegistry } from './oauth/registry';
 import { HttpPlugin } from './plugins';
 import { Router } from './router';
 import { IRoutes } from './routes';
-import { CompositeAdapter, SocketModeAdapter, SocketModeOptions } from './socket-mode';
+import { SocketModeAdapter, SocketModeOptions } from './socket-mode';
 import { createStateLoader, TurnStateLoader } from './state';
 import { createOAuthStateLoader } from './state/loader';
 import { DEFAULT_TENANT_FOR_GRAPH_TOKEN, TokenManager } from './token-manager';
@@ -85,10 +85,10 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   /**
    * **Experimental.** The Socket Mode inbound transport, present only when the
    * app was constructed with `socketMode` enabled. It is the same
-   * {@link IHttpServerAdapter} instance {@link App.server} runs on (directly in
-   * socket-only mode, or as one child of the composite adapter when the HTTP
-   * fallback is on). Use it to observe the socket lifecycle
+   * {@link IHttpServerAdapter} instance {@link App.server} runs on. Use it to
+   * observe the socket lifecycle
    * (`app.socketMode.status`, `app.socketMode.geoStatuses`, `app.socketMode.events`).
+   * WebSocket is only recommended for use when developing agents.
    *
    * @experimental This API is in preview and may change in the future.
    */
@@ -327,33 +327,14 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     }
 
     // The deprecated HttpPlugin is a full HTTP server and can't coexist with
-    // Socket Mode (which manages its own inbound transport, including the
-    // experimental HTTP fallback).
+    // Socket Mode, which is the app's exclusive inbound transport when enabled.
     if (this.options.socketMode && httpPlugin) {
       throw new Error(
         'Cannot provide both socketMode and an HttpPlugin: Socket Mode manages its own ' +
-        'inbound transport (including the experimental HTTP fallback). Enable one or the other.'
+        'inbound transport. Enable one or the other.'
       );
     }
     let server: HttpServer;
-    let dangerouslyAllowUnauthenticatedRequests = this.options.dangerouslyAllowUnauthenticatedRequests;
-    if (dangerouslyAllowUnauthenticatedRequests === undefined && this.options.skipAuth !== undefined) {
-      this.log.warn(
-        '[DEPRECATED] skipAuth is deprecated. Use dangerouslyAllowUnauthenticatedRequests instead.'
-      );
-      dangerouslyAllowUnauthenticatedRequests = this.options.skipAuth;
-    }
-    if (dangerouslyAllowUnauthenticatedRequests === undefined) {
-      const unauthenticatedRequestsEnvValue = getBooleanEnvValue('DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS');
-      if (unauthenticatedRequestsEnvValue !== undefined) {
-        this.log.warn(
-          'DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS is set. ' +
-          'Unauthenticated request behavior is configured by the environment.'
-        );
-        dangerouslyAllowUnauthenticatedRequests = unauthenticatedRequestsEnvValue;
-      }
-    }
-    dangerouslyAllowUnauthenticatedRequests ??= false;
 
     // HttpPlugin in plugins array (backwards compatibility)
     if (httpPlugin) {
@@ -366,10 +347,28 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         throw new Error('HttpPlugin.asServer() returned undefined');
       }
     } else if (this.options.socketMode) {
-      const built = this.buildSocketMode(dangerouslyAllowUnauthenticatedRequests);
+      const built = this.buildSocketMode();
       server = built.server;
       this.socketMode = built.socketMode;
     } else {
+      let dangerouslyAllowUnauthenticatedRequests = this.options.dangerouslyAllowUnauthenticatedRequests;
+      if (dangerouslyAllowUnauthenticatedRequests === undefined && this.options.skipAuth !== undefined) {
+        this.log.warn(
+          '[DEPRECATED] skipAuth is deprecated. Use dangerouslyAllowUnauthenticatedRequests instead.'
+        );
+        dangerouslyAllowUnauthenticatedRequests = this.options.skipAuth;
+      }
+      if (dangerouslyAllowUnauthenticatedRequests === undefined) {
+        const unauthenticatedRequestsEnvValue = getBooleanEnvValue('DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS');
+        if (unauthenticatedRequestsEnvValue !== undefined) {
+          this.log.warn(
+            'DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS is set. ' +
+            'Unauthenticated request behavior is configured by the environment.'
+          );
+          dangerouslyAllowUnauthenticatedRequests = unauthenticatedRequestsEnvValue;
+        }
+      }
+      dangerouslyAllowUnauthenticatedRequests ??= false;
       server = new HttpServer(this.options.httpServerAdapter ?? new ExpressAdapter(undefined, {
         logger: this.log,
         onError: (err) => this.eventManager.onError({ error: err })
@@ -870,17 +869,10 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * the app's token provider (credentials arrive later via
    * {@link SocketModeAdapter.initialize}).
    *
-   * With the experimental HTTP fallback (the default, `fallbackToHttp !== false`)
-   * the socket adapter is paired with an HTTP adapter (the supplied
-   * `httpServerAdapter` or a default `ExpressAdapter`) inside a
-   * {@link CompositeAdapter}, so a single `HttpServer` receives over both
-   * transports. With `fallbackToHttp: false` the socket adapter is the server's
-   * sole adapter (socket-only, no HTTP). Returns the outward-facing server plus
-   * the socket adapter for the {@link App.socketMode} field.
+   * Socket Mode is the server's only adapter. A supplied `httpServerAdapter` is
+   * intentionally unused, and no HTTP listener or route is created.
    */
-  private buildSocketMode(
-    dangerouslyAllowUnauthenticatedRequests: boolean
-  ): { server: HttpServer; socketMode: SocketModeAdapter } {
+  private buildSocketMode(): { server: HttpServer; socketMode: SocketModeAdapter } {
     const options: SocketModeOptions =
       this.options.socketMode === true ? {} : (this.options.socketMode as SocketModeOptions);
     const messagingEndpoint = this.options.messagingEndpoint ?? '/api/messages';
@@ -888,33 +880,11 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     const socketAdapter = new SocketModeAdapter(options, {
       tokenProvider: this.tokenProvider,
       messagingEndpoint,
-      soleTransport: options.fallbackToHttp === false,
       onError: (err) => this.eventManager.onError({ error: err }),
       logger: this.log,
     });
 
-    let adapter: IHttpServerAdapter;
-    if (options.fallbackToHttp === false) {
-      // Socket-only: the socket adapter is the server's sole transport. Any
-      // supplied httpServerAdapter is unused (browser features have no transport).
-      adapter = socketAdapter;
-    } else {
-      this.log.warn(
-        '[EXPERIMENTAL] Socket Mode HTTP fallback is enabled: an HTTP messaging ' +
-        'endpoint runs alongside the socket so the service can deliver over either ' +
-        'transport. This is transitional and will be removed once Socket Mode is the ' +
-        'sole inbound transport. Set socketMode.fallbackToHttp = false for socket-only.'
-      );
-      const httpAdapter = this.options.httpServerAdapter ?? new ExpressAdapter(undefined, {
-        logger: this.log,
-        onError: (err) => this.eventManager.onError({ error: err }),
-      });
-      // HTTP first so the messaging endpoint is listening before the socket dials out.
-      adapter = new CompositeAdapter([httpAdapter, socketAdapter], this.log);
-    }
-
-    const server = new HttpServer(adapter, {
-      dangerouslyAllowUnauthenticatedRequests,
+    const server = new HttpServer(socketAdapter, {
       logger: this.log,
       messagingEndpoint,
     });

@@ -8,20 +8,19 @@ import { ConsoleLogger } from '@microsoft/teams.common';
  * public HTTP endpoint or dev tunnel required — and how to observe the socket
  * lifecycle. By default a single bot opens one connection per geo
  * (`amer`, `emea`, `apac`), so lifecycle events are reported per geo.
+ * WebSocket is only recommended for use when developing agents.
  */
 const app = new App({
   logger: new ConsoleLogger('@examples/socket', { level: 'debug' }),
 
-  // Socket-only: receive activities over the Teams backend service-negotiated
-  // WebSocket with no HTTP messaging endpoint. Drop `fallbackToHttp: false` to
-  // also stand up an HTTP endpoint alongside the socket (the experimental
-  // default), in which case you still need a public URL/tunnel for HTTP.
+  // Receive activities over the Teams backend service-negotiated WebSocket.
+  // Socket Mode starts no HTTP listener or public endpoint, so tabs, remote
+  // functions, OAuth callbacks, and other browser routes are unavailable.
   //
   // By default this connects to all three geos. To target specific geos (or a
   // single custom endpoint) set e.g. `geos: ['amer']`, or override the endpoint
   // with `negotiateBaseUrl`.
   socketMode: {
-    fallbackToHttp: false,
     // geos: ['amer', 'emea', 'apac'], // the default
 
     // NOTE: Socket Mode negotiate is currently only available on the canary
@@ -53,8 +52,7 @@ app.socketMode?.events.on('reconnected', ({ geo }) => {
 
 // --- Bot logic ---------------------------------------------------------------
 // Handlers are transport-agnostic: the exact same code works over HTTP or
-// Socket Mode. Each activity is delivered over exactly one transport (socket or
-// HTTP, never both), so no dedupe is required.
+// Socket Mode.
 app.on('message', async ({ reply, activity }) => {
   await reply({ type: 'typing' });
   await reply(`you said "${activity.text}"`);

@@ -93,7 +93,6 @@ async function makeServer(options: Record<string, unknown> = {}): Promise<Socket
   const server = new SocketModeAdapter({ geos: [''], ...options } as any, {
     tokenProvider: { getAppToken: async () => 'app-token' } as any,
     messagingEndpoint: MESSAGING_ENDPOINT,
-    soleTransport: true,
     logger: new ConsoleLogger('test', { level: 'error' }),
   });
   await server.initialize({ credentials: { clientId: 'bot1' } as any });
@@ -281,7 +280,6 @@ describe('SocketModeAdapter resilience', () => {
         const server = new SocketModeAdapter({ geos: [''], reconnectDelaysMs: [0] } as any, {
           tokenProvider: { getAppToken: async () => 'app-token' } as any,
           messagingEndpoint: MESSAGING_ENDPOINT,
-          soleTransport: true,
           logger: recording,
         });
         await server.initialize({ credentials: { clientId: 'bot1' } as any });
@@ -367,7 +365,6 @@ describe('SocketModeAdapter resilience', () => {
       return new SocketModeAdapter(options as any, {
         tokenProvider: { getAppToken: async () => 'app-token' } as any,
         messagingEndpoint: MESSAGING_ENDPOINT,
-        soleTransport: true,
         logger: new ConsoleLogger('test', { level: 'error' }),
       });
     }
@@ -392,7 +389,6 @@ describe('SocketModeAdapter resilience', () => {
       const server = new SocketModeAdapter({ reconnectDelaysMs: [0] } as any, {
         tokenProvider: { getAppToken: async () => 'app-token' } as any,
         messagingEndpoint: MESSAGING_ENDPOINT,
-        soleTransport: true,
         logger: new ConsoleLogger('test', { level: 'error' }),
       });
       await server.initialize({ credentials: { clientId: 'bot1' } as any });
@@ -417,7 +413,6 @@ describe('SocketModeAdapter resilience', () => {
       const server = new SocketModeAdapter({ reconnectDelaysMs: [0] } as any, {
         tokenProvider: { getAppToken: async () => 'app-token' } as any,
         messagingEndpoint: MESSAGING_ENDPOINT,
-        soleTransport: true,
         logger: new ConsoleLogger('test', { level: 'error' }),
       });
       await server.initialize({ credentials: { clientId: 'bot1' } as any });
@@ -450,7 +445,6 @@ describe('SocketModeAdapter resilience', () => {
       const server = new SocketModeAdapter({ reconnectDelaysMs: [0] } as any, {
         tokenProvider: { getAppToken: async () => 'app-token' } as any,
         messagingEndpoint: MESSAGING_ENDPOINT,
-        soleTransport: true,
         logger: new ConsoleLogger('test', { level: 'error' }),
       });
       await server.initialize({ credentials: { clientId: 'bot1' } as any });
@@ -474,7 +468,6 @@ describe('SocketModeAdapter resilience', () => {
       const server = new SocketModeAdapter({ startupTimeoutMs: 0 } as any, {
         tokenProvider: { getAppToken: async () => 'app-token' } as any,
         messagingEndpoint: MESSAGING_ENDPOINT,
-        soleTransport: true,
         logger: new ConsoleLogger('test', { level: 'error' }),
       });
       await server.initialize({ credentials: { clientId: 'bot1' } as any });
@@ -494,7 +487,6 @@ describe('SocketModeAdapter resilience', () => {
       const server = new SocketModeAdapter({ geos: [''] } as any, {
         tokenProvider: { getAppToken: async () => 'app-token' } as any,
         messagingEndpoint: MESSAGING_ENDPOINT,
-        soleTransport: true,
         onError,
         logger: new ConsoleLogger('test', { level: 'error' }),
       });
