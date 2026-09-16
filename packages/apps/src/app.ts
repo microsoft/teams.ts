@@ -453,6 +453,9 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   /**
    * start the server after initialization
    * @param port port to listen on
+   *
+   * Startup failures tear the app down and are reported through the `error`
+   * event rather than being re-thrown to the caller.
    */
   async start(port?: number | string) {
     this.port = port || process.env.PORT || 3978;

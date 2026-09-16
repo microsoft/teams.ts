@@ -10,8 +10,8 @@ handlers and outbound sends are unaffected.
 
 ## What this sample shows
 
-- **Enabling Socket Mode** — `new App({ socketMode: { fallbackToHttp: false } })`
-  for a socket-only app (no HTTP endpoint).
+- **Enabling Socket Mode** — `new App({ socketMode: true })` for a socket-only
+  app by default (no HTTP endpoint).
 - **Multi-geo by default** — a single bot opens one connection per geo
   (`amer`, `emea`, `apac`) so it has inbound coverage across regions. Override
   with `geos: [...]` or point at a custom ring with `negotiateBaseUrl`.
@@ -39,8 +39,9 @@ You should see per-geo `ready` logs as each connection comes up, then `you said
 
 ## Notes
 
-- **Single-transport delivery** — with the HTTP fallback enabled, each activity
-  is delivered over exactly one transport (socket or HTTP, never both), so no
-  dedupe is required.
+- **HTTP fallback is opt-in** — `fallbackToHttp: true` is permitted only for
+  production bots and is generally not recommended. It starts a local HTTP
+  receiver, but you must separately enable and configure the matching public
+  messaging endpoint in Teams Developer Portal (TDP).
 - **Classic bot identity only** — Socket Mode connects with the bot's MSA App Id.
   Agentic identities are not supported today.
