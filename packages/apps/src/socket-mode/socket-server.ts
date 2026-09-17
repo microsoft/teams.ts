@@ -1,7 +1,8 @@
-import { Activity, CloudEnvironment, Credentials, IToken, PUBLIC } from '@microsoft/teams.api';
+import { Activity, Credentials, InvokeResponse, IToken } from '@microsoft/teams.api';
 import { ConsoleLogger, EventEmitter, IEventEmitter, ILogger } from '@microsoft/teams.common';
 
-import { HttpMethod, HttpRouteHandler, IHttpServerAdapter, IHttpServerInitializeDeps, IHttpServerRequest } from '../http/adapter';
+import { IActivityEvent } from '../events';
+import { HttpMethod, HttpRouteHandler, IHttpServerAdapter } from '../http/adapter';
 import { IAppTokenProvider } from '../token-provider';
 
 import {
@@ -84,16 +85,21 @@ export type SocketModeEvents = {
 
 /**
  * Dependencies the owning {@link App} supplies to the socket adapter, wired
- * internally rather than by the developer. Like {@link HttpServer}, credentials
- * arrive via {@link SocketModeAdapter.initialize} and token acquisition goes
- * through the app's {@link IAppTokenProvider} — no per-value function callbacks.
+ * internally rather than by the developer.
  */
 export type SocketModeAdapterDeps = {
+  /** App credentials used to identify the bot on reply frames. */
+  readonly credentials?: Credentials;
   /**
    * Token source for the Bot Framework token that authenticates the Teams backend service
    * negotiate call, reusing the app's credentials.
    */
   readonly tokenProvider: IAppTokenProvider;
+  /**
+   * Dispatches a connection-authenticated activity into the owning app's shared
+   * activity pipeline. Socket Mode creates the normalized token internally.
+   */
+  readonly processActivity: (event: IActivityEvent) => Promise<InvokeResponse>;
   /**
    * The messaging endpoint path the owning {@link HttpServer} registers its
    * inbound-activity route on. Inbound socket frames are dispatched to the
@@ -118,16 +124,16 @@ export type SocketModeAdapterDeps = {
  *
  * With `new App({ socketMode: true })` the app receives activities over a
  * Teams backend service-negotiated Azure SignalR socket. Rather than being a
- * separate server, Socket Mode plugs in as an adapter *inside* the app's single
- * {@link HttpServer}: {@link registerRoute} captures the messaging-endpoint
- * handler and every inbound socket frame is dispatched into it, so the socket
- * shares the exact same Teams pipeline as HTTP. Only inbound delivery moves to
- * the socket; outbound sends stay on HTTP and handlers stay transport-agnostic.
+ * separate server, Socket Mode plugs in as the adapter *inside* the app's single
+ * {@link HttpServer}. Inbound frames enter the same app activity pipeline as
+ * HTTP after the connection-authenticated transport creates their normalized
+ * token. Only inbound delivery moves to the socket; outbound sends stay on HTTP
+ * and handlers stay transport-agnostic.
  *
  * No inbound HTTP adapter, listener, route, or public endpoint is started. The
  * socket is authenticated once at negotiate, so the adapter synthesizes the
- * {@link IToken} the pipeline expects and supplies it as a pre-authenticated
- * {@link IHttpServerRequest.token}. Invoke activities return a real invoke
+ * {@link IToken} the pipeline expects without exposing transport trust through
+ * the public HTTP request interface. Invoke activities return a real invoke
  * response over SignalR client results; one-way activities return a post-handler
  * ack. Not usable until Teams backend service's `SocketReady` frame arrives.
  *
@@ -146,15 +152,6 @@ export class SocketModeAdapter implements IHttpServerAdapter {
 
   private readonly log: ILogger;
   private _lifecycle: 'idle' | 'starting' | 'started' | 'stopped' = 'idle';
-  private credentials?: Credentials;
-  private cloud?: CloudEnvironment;
-
-  /**
-   * Handler registered for the messaging endpoint; inbound socket frames are
-   * dispatched into it. Set by {@link registerRoute} (called by the owning
-   * {@link HttpServer} when it registers its inbound-activity route).
-   */
-  private messagingHandler?: HttpRouteHandler;
 
   /** One independent supervised connection per geo. */
   private geos: GeoSocket[] = [];
@@ -209,28 +206,15 @@ export class SocketModeAdapter implements IHttpServerAdapter {
   }
 
   /**
-   * {@link IHttpServerAdapter} seam initialization: receive the app-level
-   * credentials/cloud. Called by {@link HttpServer.initialize}, which forwards
-   * the deps it gets from {@link App.initialize}. Stores credentials (the bot id
-   * echoed on reply frames derives from them); the negotiate token is acquired
-   * lazily in {@link start}.
-   */
-  async initialize(deps: IHttpServerInitializeDeps): Promise<void> {
-    this.credentials = deps.credentials;
-    this.cloud = deps.cloud;
-  }
-
-  /**
    * {@link IHttpServerAdapter} route registration. The owning {@link HttpServer}
-   * registers its inbound-activity route here; the adapter captures the handler
-   * for its configured messaging endpoint and dispatches inbound socket frames
-   * into it. Any other path (e.g. `app.function()` POST routes) is a no-op —
-   * a socket transport serves only messaging. The ignored route is warned
-   * because the corresponding HTTP-only feature is unavailable.
+   * registers its inbound-activity route here as part of normal server
+   * initialization. Socket Mode dispatches through its internal app callback, so
+   * the messaging route is accepted as a no-op. Any other path (e.g.
+   * `app.function()` POST routes) is also a no-op, but is warned because the
+   * corresponding HTTP-only feature is unavailable.
    */
-  registerRoute(method: HttpMethod, path: string, handler: HttpRouteHandler): void {
+  registerRoute(method: HttpMethod, path: string, _handler: HttpRouteHandler): void {
     if (method === 'POST' && path === this.deps.messagingEndpoint) {
-      this.messagingHandler = handler;
       return;
     }
     const message =
@@ -262,7 +246,6 @@ export class SocketModeAdapter implements IHttpServerAdapter {
    * it alive across drops and token expiry independently until {@link stop}.
    */
   async start(_port?: number | string): Promise<void> {
-    this.assertCloudSupported();
     this.stopped = false;
     this._lifecycle = 'starting';
     this.abort = new AbortController();
@@ -403,24 +386,6 @@ export class SocketModeAdapter implements IHttpServerAdapter {
     return await this.handleEnvelope(envelope);
   }
 
-  /**
-   * Reject Socket Mode in a sovereign cloud unless the caller supplied an
-   * explicit negotiate endpoint. The default negotiate host targets the public
-   * commercial cloud, so silently using it from a sovereign cloud would cross a
-   * data boundary and present a token with the wrong audience.
-   */
-  private assertCloudSupported(): void {
-    if (this.options.negotiateBaseUrl) return; // explicit endpoint overrides the gate
-    const cloud = this.cloud;
-    if (!cloud || cloud.tokenIssuer === PUBLIC.tokenIssuer) return;
-    throw new Error(
-      `Socket Mode is not supported in this cloud environment (tokenIssuer=${cloud.tokenIssuer}). ` +
-      'The default negotiate endpoint targets the public commercial cloud; using it from a ' +
-      'sovereign cloud would cross a data boundary. Set socketMode.negotiateBaseUrl to your ' +
-      'cloud\'s Socket Mode endpoint, or use the HTTP inbound transport instead.'
-    );
-  }
-
   /** The configured geos, defaulting to amer/emea/apac. */
   private resolveGeos(): readonly string[] {
     const geos = this.options.geos ?? DEFAULT_GEOS;
@@ -434,11 +399,9 @@ export class SocketModeAdapter implements IHttpServerAdapter {
   }
 
   /**
-   * Handle one inbound envelope: feed the embedded activity into the app
-   * pipeline via the captured messaging {@link HttpRouteHandler} and return the
-   * reply frame to send back over client results. The adapter supplies a
-   * synthesized, pre-authenticated request token so the HTTP server skips
-   * per-message JWT validation.
+   * Handle one inbound envelope: feed the embedded activity and an internally
+   * synthesized token into the app pipeline, then return the reply frame to send
+   * back over client results.
    *
    * Invoke activities return the pipeline's status/body; one-way activities
    * return a post-handler acknowledgement once the pipeline has run.
@@ -474,23 +437,16 @@ export class SocketModeAdapter implements IHttpServerAdapter {
       return undefined;
     }
 
-    if (!this.messagingHandler) {
-      this.log.warn('socket-mode: messaging handler not registered yet; dropping inbound envelope');
-      return undefined;
-    }
-
     const invoke = isInvokeEnvelope(envelope);
     this.log.debug(
       `socket-mode: recv kind=${invoke ? 'invoke' : 'activity'} type=${activity.type} envelopeId=${base.envelopeId ?? ''}`
     );
 
     try {
-      const request: IHttpServerRequest = {
+      const response = await this.deps.processActivity({
         body: activity,
-        headers: {},
         token: this.inboundToken(activity),
-      };
-      const response = await this.messagingHandler(request);
+      });
       const reply = invoke
         ? buildInvokeReplyFrame(base, response)
         : buildAckReplyFrame(base, response.status);
@@ -532,7 +488,7 @@ export class SocketModeAdapter implements IHttpServerAdapter {
 
   /** The bot's client id, echoed on reply frames for Teams backend service routing. */
   private get botId(): string | undefined {
-    return this.credentials?.clientId;
+    return this.deps.credentials?.clientId;
   }
 
   /**

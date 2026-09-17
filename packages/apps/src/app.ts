@@ -866,19 +866,27 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   /**
    * Build the Socket Mode inbound transport and the {@link HttpServer} that runs
    * it. The {@link SocketModeAdapter} is constructed internally so it can reuse
-   * the app's token provider (credentials arrive later via
-   * {@link SocketModeAdapter.initialize}).
+   * the app's credentials, and token provider.
    *
    * Socket Mode is the server's only adapter. A supplied `httpServerAdapter` is
    * intentionally unused, and no HTTP listener or route is created.
    */
   private buildSocketMode(): { server: HttpServer; socketMode: SocketModeAdapter } {
+    if (this.cloud.tokenIssuer !== PUBLIC.tokenIssuer) {
+      throw new Error(
+        `Socket Mode is not supported in this cloud environment (tokenIssuer=${this.cloud.tokenIssuer}). ` +
+        'Socket Mode currently supports only regular production clouds. ' +
+        'Use the HTTP inbound transport instead.'
+      );
+    }
     const options: SocketModeOptions =
       this.options.socketMode === true ? {} : (this.options.socketMode as SocketModeOptions);
     const messagingEndpoint = this.options.messagingEndpoint ?? '/api/messages';
 
     const socketAdapter = new SocketModeAdapter(options, {
+      credentials: this.credentials,
       tokenProvider: this.tokenProvider,
+      processActivity: (event) => this.onActivity(event),
       messagingEndpoint,
       onError: (err) => this.eventManager.onError({ error: err }),
       logger: this.log,

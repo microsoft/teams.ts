@@ -1,3 +1,4 @@
+import { US_GOV } from '@microsoft/teams.api';
 import { ConsoleLogger } from '@microsoft/teams.common';
 
 import { HttpServer } from '../http/http-server';
@@ -80,6 +81,18 @@ describe('SocketModeAdapter (through App)', () => {
     expect(app.socketMode?.status).toBe('ready');
   });
 
+  it('rejects sovereign clouds even when a custom negotiate endpoint is supplied', () => {
+    expect(() =>
+      createTestApp({
+        cloud: US_GOV,
+        clientId: 'bot1',
+        socketMode: {
+          negotiateBaseUrl: 'https://socket.example',
+        },
+      })
+    ).toThrow(/supports only regular production clouds/i);
+  });
+
   it('returns a real invoke response over client results', async () => {
     const app = createTestApp({
       logger: new ConsoleLogger('test', { level: 'error' }),
@@ -142,6 +155,33 @@ describe('SocketModeAdapter (through App)', () => {
       status: 200,
     });
     expect(reply?.body).toBeUndefined();
+  });
+
+  it('supplies the synthesized token to the shared activity pipeline', async () => {
+    const app = createTestApp({
+      logger: new ConsoleLogger('test', { level: 'error' }),
+      clientId: 'bot1',
+      socketMode: true,
+    });
+    const activityEvent = jest.fn();
+    app.event('activity', activityEvent);
+    await app.start();
+
+    await connState.handlers!.onActivity({
+      type: 'message',
+      envelopeId: 'env-token',
+      payload: messageActivity(),
+    });
+
+    const token = activityEvent.mock.calls[0][0].token;
+    expect(token).toMatchObject({
+      appId: 'bot1',
+      from: 'azure',
+      fromId: '',
+      serviceUrl,
+    });
+    expect(token.toString()).toBe('');
+    expect(token.isExpired()).toBe(false);
   });
 
   it('drops an envelope with no activity payload', async () => {
@@ -248,4 +288,3 @@ describe('SocketModeAdapter (through App)', () => {
     expect(() => app.function('demo', async () => ({}))).not.toThrow();
   });
 });
-

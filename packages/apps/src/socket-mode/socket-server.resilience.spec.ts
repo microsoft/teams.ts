@@ -1,6 +1,6 @@
 import { ConsoleLogger } from '@microsoft/teams.common';
 
-import { SocketModeAdapter } from './socket-server';
+import { SocketModeAdapter, SocketModeAdapterDeps } from './socket-server';
 import { SocketActivityEnvelope } from './types';
 
 // A controllable fake for the single-generation connection so the adapter's
@@ -69,33 +69,53 @@ const connState = (jest.requireMock('./socket-connection') as any).__state as {
 };
 
 const MESSAGING_ENDPOINT = '/api/messages';
+type ActivityHandler = (event: any) => Promise<{ status: number; body?: unknown }>;
+const setActivityHandler = new WeakMap<
+  SocketModeAdapter,
+  (handler: ActivityHandler) => void
+>();
+
+function createSocketModeAdapter(
+  options: Record<string, unknown>,
+  deps: Omit<SocketModeAdapterDeps, 'processActivity'>
+): SocketModeAdapter {
+  let handler: ActivityHandler = async () => ({ status: 200 });
+  const server = new SocketModeAdapter(options as any, {
+    credentials: { clientId: 'bot1' } as any,
+    ...deps,
+    processActivity: (event) => handler(event),
+  });
+  setActivityHandler.set(server, (next) => {
+    handler = next;
+  });
+  return server;
+}
 
 const ticks = async (n = 8) => {
   for (let i = 0; i < n; i++) await new Promise((r) => setTimeout(r, 0));
 };
 
 /**
- * Register a messaging handler on the adapter, mirroring what the owning
- * HttpServer does via `registerRoute('POST', messagingEndpoint, ...)`. Inbound
- * socket frames are dispatched into it.
+ * Replace the internal app-pipeline callback used by an adapter under test.
  */
 function onMessaging(
   server: SocketModeAdapter,
   handler: (req: any) => Promise<{ status: number; body?: unknown }>
 ): void {
-  server.registerRoute('POST', MESSAGING_ENDPOINT, handler as any);
+  const setHandler = setActivityHandler.get(server);
+  if (!setHandler) throw new Error('Socket Mode test adapter was not created by the test factory');
+  setHandler(handler);
 }
 
 async function makeServer(options: Record<string, unknown> = {}): Promise<SocketModeAdapter> {
   // Default to a single geo ([''] = no geo segment) so the per-connection
   // supervisor tests operate on exactly one connection; multi-geo behavior has
   // its own describe block below.
-  const server = new SocketModeAdapter({ geos: [''], ...options } as any, {
+  const server = createSocketModeAdapter({ geos: [''], ...options }, {
     tokenProvider: { getAppToken: async () => 'app-token' } as any,
     messagingEndpoint: MESSAGING_ENDPOINT,
     logger: new ConsoleLogger('test', { level: 'error' }),
   });
-  await server.initialize({ credentials: { clientId: 'bot1' } as any });
   return server;
 }
 
@@ -277,12 +297,11 @@ describe('SocketModeAdapter resilience', () => {
         const recording = new ConsoleLogger('test', { level: 'error' });
         (recording as any).warn = (...args: any[]) => warnings.push(args);
 
-        const server = new SocketModeAdapter({ geos: [''], reconnectDelaysMs: [0] } as any, {
+        const server = createSocketModeAdapter({ geos: [''], reconnectDelaysMs: [0] }, {
           tokenProvider: { getAppToken: async () => 'app-token' } as any,
           messagingEndpoint: MESSAGING_ENDPOINT,
           logger: recording,
         });
-        await server.initialize({ credentials: { clientId: 'bot1' } as any });
         onMessaging(server, jest.fn(async () => ({ status: 200 })));
 
         const disconnected = jest.fn();
@@ -358,40 +377,13 @@ describe('SocketModeAdapter resilience', () => {
     });
   });
 
-  describe('cloud gating', () => {
-    const sovereign = { tokenIssuer: 'https://api.botframework.us' } as any;
-
-    function cloudServer(options: Record<string, unknown> = {}): SocketModeAdapter {
-      return new SocketModeAdapter(options as any, {
-        tokenProvider: { getAppToken: async () => 'app-token' } as any,
-        messagingEndpoint: MESSAGING_ENDPOINT,
-        logger: new ConsoleLogger('test', { level: 'error' }),
-      });
-    }
-
-    it('rejects Socket Mode in a sovereign cloud without an explicit endpoint', async () => {
-      const server = cloudServer();
-      await server.initialize({ cloud: sovereign });
-      await expect(server.start()).rejects.toThrow(/not supported in this cloud/i);
-    });
-
-    it('allows a sovereign cloud when an explicit negotiateBaseUrl is provided', async () => {
-      const server = cloudServer({ negotiateBaseUrl: 'https://apx.gov.example', geos: [''] });
-      await server.initialize({ cloud: sovereign });
-      await server.start();
-      expect(server.status).toBe('ready');
-      await server.stop();
-    });
-  });
-
   describe('multi-geo', () => {
     it('opens one connection per default geo (amer/emea/apac) with geo-scoped URLs', async () => {
-      const server = new SocketModeAdapter({ reconnectDelaysMs: [0] } as any, {
+      const server = createSocketModeAdapter({ reconnectDelaysMs: [0] }, {
         tokenProvider: { getAppToken: async () => 'app-token' } as any,
         messagingEndpoint: MESSAGING_ENDPOINT,
         logger: new ConsoleLogger('test', { level: 'error' }),
       });
-      await server.initialize({ credentials: { clientId: 'bot1' } as any });
       onMessaging(server, jest.fn(async () => ({ status: 200 })));
 
       await server.start();
@@ -410,12 +402,11 @@ describe('SocketModeAdapter resilience', () => {
     });
 
     it('reconnects one geo independently without disturbing the others', async () => {
-      const server = new SocketModeAdapter({ reconnectDelaysMs: [0] } as any, {
+      const server = createSocketModeAdapter({ reconnectDelaysMs: [0] }, {
         tokenProvider: { getAppToken: async () => 'app-token' } as any,
         messagingEndpoint: MESSAGING_ENDPOINT,
         logger: new ConsoleLogger('test', { level: 'error' }),
       });
-      await server.initialize({ credentials: { clientId: 'bot1' } as any });
       onMessaging(server, jest.fn(async () => ({ status: 200 })));
       await server.start();
       expect(connState.connections).toHaveLength(3);
@@ -442,12 +433,11 @@ describe('SocketModeAdapter resilience', () => {
       // even for the final geo, because geo status flipped to ready only AFTER
       // the ready event fired. Assert the aggregate status is consistent by the
       // time each ready observer runs, so the final one sees 'ready'.
-      const server = new SocketModeAdapter({ reconnectDelaysMs: [0] } as any, {
+      const server = createSocketModeAdapter({ reconnectDelaysMs: [0] }, {
         tokenProvider: { getAppToken: async () => 'app-token' } as any,
         messagingEndpoint: MESSAGING_ENDPOINT,
         logger: new ConsoleLogger('test', { level: 'error' }),
       });
-      await server.initialize({ credentials: { clientId: 'bot1' } as any });
       onMessaging(server, jest.fn(async () => ({ status: 200 })));
 
       const statusesAtReady: string[] = [];
@@ -465,12 +455,11 @@ describe('SocketModeAdapter resilience', () => {
     });
 
     it('rejects App.start if any single geo cannot connect within the budget', async () => {
-      const server = new SocketModeAdapter({ startupTimeoutMs: 0 } as any, {
+      const server = createSocketModeAdapter({ startupTimeoutMs: 0 }, {
         tokenProvider: { getAppToken: async () => 'app-token' } as any,
         messagingEndpoint: MESSAGING_ENDPOINT,
         logger: new ConsoleLogger('test', { level: 'error' }),
       });
-      await server.initialize({ credentials: { clientId: 'bot1' } as any });
       // Exactly one geo's first connect fails; every geo must connect for start.
       connState.startErrorQueue.push(new Error('emea down'));
 
@@ -484,13 +473,12 @@ describe('SocketModeAdapter resilience', () => {
     async function makeServerWithOnError(
       onError: (error: Error) => void | Promise<void>
     ): Promise<SocketModeAdapter> {
-      const server = new SocketModeAdapter({ geos: [''] } as any, {
+      const server = createSocketModeAdapter({ geos: [''] }, {
         tokenProvider: { getAppToken: async () => 'app-token' } as any,
         messagingEndpoint: MESSAGING_ENDPOINT,
         onError,
         logger: new ConsoleLogger('test', { level: 'error' }),
       });
-      await server.initialize({ credentials: { clientId: 'bot1' } as any });
       return server;
     }
 
