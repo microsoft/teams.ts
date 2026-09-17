@@ -10,12 +10,13 @@ import { SocketActivityEnvelope, SocketConnectionHandlers } from './types';
 // server's protocol behavior can be exercised end-to-end through the App's real
 // activity pipeline — without a live socket and without a public test seam.
 jest.mock('./socket-connection', () => {
-  const state: { handlers?: SocketConnectionHandlers } = {};
+  const state: { handlers?: SocketConnectionHandlers; startError?: Error } = {};
   class SignalRSocketConnection {
     constructor(_context: unknown, handlers: SocketConnectionHandlers) {
       state.handlers = handlers;
     }
     async start() {
+      if (state.startError) throw state.startError;
       // Simulate Teams backend service confirming readiness right after the socket opens.
       state.handlers?.onReady({ botKey: 'bot1', connectionId: 'c1' });
     }
@@ -26,6 +27,7 @@ jest.mock('./socket-connection', () => {
 
 const connState = (jest.requireMock('./socket-connection') as any).__state as {
   handlers?: SocketConnectionHandlers;
+  startError?: Error;
 };
 
 const serviceUrl = 'https://smba.example/teams';
@@ -62,6 +64,7 @@ function invokeActivity(overrides: Record<string, unknown> = {}) {
 describe('SocketModeAdapter (through App)', () => {
   beforeEach(() => {
     connState.handlers = undefined;
+    connState.startError = undefined;
   });
 
   it('is wired as the app inbound transport and reaches ready status', async () => {
@@ -79,6 +82,18 @@ describe('SocketModeAdapter (through App)', () => {
     expect(app.socketMode?.status).toBe('idle');
     await app.start();
     expect(app.socketMode?.status).toBe('ready');
+  });
+
+  it('rejects App.start when the initial socket connection fails', async () => {
+    connState.startError = new Error('negotiate down');
+    const app = createTestApp({
+      logger: new ConsoleLogger('test', { level: 'error' }),
+      clientId: 'bot1',
+      socketMode: { geos: [''], startupTimeoutMs: 0 },
+    });
+
+    await expect(app.start()).rejects.toThrow('negotiate down');
+    expect(app.socketMode?.status).toBe('stopped');
   });
 
   it('rejects sovereign clouds even when a custom negotiate endpoint is supplied', () => {

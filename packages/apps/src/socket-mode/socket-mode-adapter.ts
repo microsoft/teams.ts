@@ -13,6 +13,7 @@ import {
   readField,
   replyFrameBase,
 } from './envelope';
+import { GeoSocket } from './geo-socket';
 import { NegotiateError } from './negotiate';
 import { SignalRSocketConnection } from './socket-connection';
 import {
@@ -154,7 +155,7 @@ export class SocketModeAdapter implements IHttpServerAdapter {
   private _lifecycle: 'idle' | 'starting' | 'started' | 'stopped' = 'idle';
 
   /** One independent supervised connection per geo. */
-  private geos: GeoSocket[] = [];
+  private geoSockets: GeoSocket[] = [];
 
   /** Aborts all in-flight negotiate/connect/back-off waits when stopping. */
   private abort?: AbortController;
@@ -175,7 +176,7 @@ export class SocketModeAdapter implements IHttpServerAdapter {
   get status(): SocketModeStatus {
     if (this._lifecycle === 'idle') return 'idle';
     if (this._lifecycle === 'stopped') return 'stopped';
-    const states = this.geos.map((g) => g.status);
+    const states = this.geoSockets.map((g) => g.status);
     if (states.length > 0 && states.every((s) => s === 'ready')) return 'ready';
     if (states.some((s) => s === 'disconnected')) return 'disconnected';
     return 'connecting';
@@ -183,7 +184,7 @@ export class SocketModeAdapter implements IHttpServerAdapter {
 
   /** Per-geo status snapshot, for diagnostics/observability. */
   get geoStatuses(): ReadonlyArray<{ geo: string; status: SocketModeStatus }> {
-    return this.geos.map((g) => ({ geo: g.geo, status: g.status }));
+    return this.geoSockets.map((g) => ({ geo: g.geo, status: g.status }));
   }
 
   /** The geos this server connects to (resolved from options/defaults). */
@@ -251,7 +252,7 @@ export class SocketModeAdapter implements IHttpServerAdapter {
     this.abort = new AbortController();
 
     const geos = this.resolveGeos();
-    this.geos = geos.map(
+    this.geoSockets = geos.map(
       (geo) => new GeoSocket(this, geo, buildNegotiateUrl(this.negotiateBase, geo), this.log)
     );
     this.log.info(
@@ -262,7 +263,7 @@ export class SocketModeAdapter implements IHttpServerAdapter {
     // that can't connect within the startup budget fails App.start(), which then
     // tears everything down. Post-startup drops are handled per-geo by supervisors.
     try {
-      await Promise.all(this.geos.map((g) => g.startInitial()));
+      await Promise.all(this.geoSockets.map((g) => g.startInitial()));
     } catch (err) {
       await this.stop();
       throw err;
@@ -270,7 +271,7 @@ export class SocketModeAdapter implements IHttpServerAdapter {
 
     this._lifecycle = 'started';
     this.log.info('socket-mode: Socket Mode ready (inbound activities over WebSocket)');
-    for (const g of this.geos) g.superviseInBackground();
+    for (const geoSocket of this.geoSockets) geoSocket.superviseInBackground();
   }
 
   /**
@@ -287,7 +288,13 @@ export class SocketModeAdapter implements IHttpServerAdapter {
 
     this.abort?.abort();
 
-    await Promise.all(this.geos.map((g) => g.stop().catch(() => undefined)));
+    await Promise.all(
+      this.geoSockets.map((geoSocket) =>
+        geoSocket.stop().catch((err) => {
+          this.log.debug(`socket-mode[${geoSocket.geo}]: failed to stop geo socket`, err);
+        })
+      )
+    );
   }
 
   /** True while the server is up and admitting (used by geo dispatch fences). */
@@ -519,283 +526,5 @@ export class SocketModeAdapter implements IHttpServerAdapter {
       toString: () => '',
       isExpired: () => false,
     };
-  }
-
-}
-
-/**
- * Why a connection generation terminated, so the supervisor can distinguish a
- * planned token rotation (expected, non-warning) from an unexpected drop.
- *
- * - `{ planned: true }` — the proactive token-refresh timer deliberately tore
- *   down the connection to renegotiate with a fresh token before expiry.
- * - `{ planned: false, error? }` — the socket closed unexpectedly (network drop,
- *   server close, transport error). `error` carries the cause when known.
- */
-type CloseReason = { planned: true } | { planned: false; error?: Error };
-
-/**
- * One supervised socket connection for a single geo. Owns its own connection
- * generation, readiness gate, reconnect supervisor, and proactive token refresh,
- * and delegates shared concerns (envelope handling, events, back-off policy, the
- * abort signal) back to the owning {@link SocketModeAdapter}. Multiple
- * `GeoSocket`s run independently so one geo dropping never affects delivery on
- * the others.
- */
-class GeoSocket {
-  /** Monotonic connection generation; fences out frames from superseded connections. */
-  private generation = 0;
-  private currentGen = 0;
-  /** The generation that has satisfied `SocketReady`; `-1` when none is ready. */
-  private readyGen = -1;
-  private connection?: ISocketConnection;
-  private supervisorLoop?: Promise<void>;
-  private refreshTimer?: ReturnType<typeof setTimeout>;
-  private _status: SocketModeStatus = 'idle';
-  /** Settles when the current connection terminates; drives the supervisor. */
-  private closed: Promise<CloseReason> = Promise.resolve({ planned: false });
-
-  constructor(
-    private readonly server: SocketModeAdapter,
-    readonly geo: string,
-    private readonly negotiateUrl: string,
-    private readonly log: ILogger
-  ) {}
-
-  get status(): SocketModeStatus {
-    return this._status;
-  }
-
-  /** The dispatch fence: current generation, ready, and the server is accepting. */
-  canDispatch(gen: number): boolean {
-    return this.server.accepting && gen === this.currentGen && this.readyGen === gen;
-  }
-
-  /**
-   * Establish the first connection for this geo, retrying transient failures
-   * with back-off until it succeeds or the startup budget is exhausted (then
-   * re-throwing so App.start() fails).
-   */
-  async startInitial(): Promise<void> {
-    this._status = 'connecting';
-    const deadline = Date.now() + this.server.startupTimeoutMs;
-    let attempt = 0;
-    let lastError: Error | undefined;
-
-    while (this.server.accepting) {
-      const gen = ++this.generation;
-      this.currentGen = gen;
-      try {
-        this.closed = (await this.connectCycle(gen)).closed;
-        this._status = 'ready';
-        return;
-      } catch (err: any) {
-        lastError = err;
-        if (!this.server.accepting) break;
-        const delay = this.server.retryAfterOf(err) ?? this.server.backoffDelay(attempt);
-        attempt++;
-        if (Date.now() + delay >= deadline) break; // no budget for another attempt
-        this.log.warn(
-          `socket-mode[${this.geo}]: initial connect attempt ${attempt} failed; retrying in ${delay}ms`,
-          err
-        );
-        const slept = await this.server.sleep(delay);
-        if (!slept) break;
-      }
-    }
-    throw lastError ?? new Error(`Socket Mode failed to establish the initial connection for geo '${this.geo}'.`);
-  }
-
-  /** Launch the reconnect supervisor in the background (after the first ready). */
-  superviseInBackground(): void {
-    this.supervisorLoop = this.supervise().catch((err) => {
-      this.log.error(`socket-mode[${this.geo}]: reconnect supervisor stopped unexpectedly`, err);
-    });
-  }
-
-  /** Drain-agnostic close of this geo: abort refresh, close the connection. */
-  async stop(): Promise<void> {
-    this.clearRefreshTimer();
-    const connection = this.connection;
-    this.connection = undefined;
-    if (connection) {
-      await connection.stop().catch(() => undefined);
-    }
-    await this.supervisorLoop?.catch(() => undefined);
-    this._status = 'stopped';
-  }
-
-  /**
-   * Build one connection generation for this geo, wire its callbacks, open it,
-   * and — once ready — schedule proactive token refresh. Returns a promise that
-   * settles when this connection terminates.
-   */
-  private async connectCycle(gen: number): Promise<{ closed: Promise<CloseReason> }> {
-    let settled = false;
-    let settle!: (reason: CloseReason) => void;
-    const closed = new Promise<CloseReason>((resolve) => {
-      settle = (reason) => {
-        if (!settled) {
-          settled = true;
-          resolve(reason);
-        }
-      };
-    });
-
-    const handlers: SocketConnectionHandlers = {
-      onActivity: (envelope) => this.server.dispatch(this, gen, envelope),
-      onReady: (frame) => {
-        this.readyGen = gen;
-        // Set status before emitting so an observer reading `status` from the
-        // `ready` handler (including the final geo, which flips the aggregate to
-        // `ready`) sees the settled value rather than a stale `connecting`.
-        this._status = 'ready';
-        this.server.emit('ready', { geo: this.geo, frame });
-      },
-      onClosed: (error) => {
-        this.clearRefreshTimer();
-        settle({ planned: false, error });
-      },
-    };
-
-    const connection = this.server.createConnection(this.negotiateUrl, handlers);
-    this.connection = connection;
-
-    await connection.start(this.server.abortSignal);
-    this.scheduleTokenRefresh(gen, connection.expiresInSeconds, () =>
-      settle({ planned: true })
-    );
-    return { closed };
-  }
-
-  /**
-   * Reconnect supervisor for this geo: wait for the current connection to drop
-   * (or for stop), then renegotiate a fresh connection — new token, new
-   * `SocketReady` gate — retrying with back-off until stop.
-   */
-  private async supervise(): Promise<void> {
-    let closed = this.closed;
-    while (this.server.accepting) {
-      const aborted = this.whenAborted();
-      let reason: CloseReason;
-      try {
-        reason = (await Promise.race([closed, aborted.promise])) ?? { planned: false };
-      } finally {
-        // Remove the abort listener registered for this iteration; without this
-        // a listener accumulates on every reconnect for the process lifetime
-        // when `closed` (not the abort) wins the race.
-        aborted.dispose();
-      }
-      if (!this.server.accepting) return;
-
-      const planned = reason.planned === true;
-      const error = reason.planned ? undefined : reason.error;
-
-      this.readyGen = -1;
-      if (planned) {
-        // Expected token rotation: renegotiate with a fresh token, but don't
-        // surface it as an outage. Keep the status as (re)connecting and skip
-        // the `disconnected` warning/event so observers don't see a false drop.
-        this._status = 'connecting';
-        this.log.info(
-          `socket-mode[${this.geo}]: proactively rotating token; renegotiating a fresh connection`
-        );
-      } else {
-        this._status = 'disconnected';
-        // Only pass `error` when we actually have one, so the logger never
-        // renders an `undefined` payload for an errorless close.
-        if (error) {
-          this.log.warn(
-            `socket-mode[${this.geo}]: disconnected; inbound delivery paused for this geo`,
-            error
-          );
-        } else {
-          this.log.warn(
-            `socket-mode[${this.geo}]: disconnected; inbound delivery paused for this geo`
-          );
-        }
-        this.server.emit('disconnected', { geo: this.geo, error });
-      }
-
-      await this.connection?.stop().catch(() => undefined);
-
-      const next = await this.reconnect(error);
-      if (!next) return; // stopped while backing off
-
-      closed = next.closed;
-      this._status = 'ready';
-      if (planned) {
-        this.log.info(`socket-mode[${this.geo}]: token rotated; inbound delivery continues for this geo`);
-      } else {
-        this.log.info(`socket-mode[${this.geo}]: reconnected; inbound delivery resumed for this geo`);
-        this.server.emit('reconnected', { geo: this.geo });
-      }
-    }
-  }
-
-  /**
-   * A promise that resolves when the server's abort signal fires, paired with a
-   * `dispose()` that removes the listener. The caller MUST call `dispose()` once
-   * the race it participates in settles, otherwise the listener leaks across
-   * reconnects.
-   */
-  private whenAborted(): { promise: Promise<undefined>; dispose: () => void } {
-    const signal = this.server.abortSignal;
-    if (!signal || signal.aborted) {
-      return { promise: Promise.resolve(undefined), dispose: () => undefined };
-    }
-    let onAbort!: () => void;
-    const promise = new Promise<undefined>((resolve) => {
-      onAbort = () => resolve(undefined);
-      signal.addEventListener('abort', onAbort, { once: true });
-    });
-    return { promise, dispose: () => signal.removeEventListener('abort', onAbort) };
-  }
-
-  private async reconnect(prevError?: Error): Promise<{ closed: Promise<CloseReason> } | undefined> {
-    let attempt = 0;
-    let retryAfterMs = this.server.retryAfterOf(prevError);
-
-    while (this.server.accepting) {
-      const delay = retryAfterMs ?? this.server.backoffDelay(attempt);
-      attempt++;
-      const slept = await this.server.sleep(delay);
-      if (!slept || !this.server.accepting) return undefined;
-
-      this._status = 'connecting';
-      const gen = ++this.generation;
-      this.currentGen = gen;
-      try {
-        return await this.connectCycle(gen);
-      } catch (err: any) {
-        retryAfterMs = this.server.retryAfterOf(err);
-        this.log.warn(`socket-mode[${this.geo}]: reconnect attempt ${attempt} failed; will retry`, err);
-      }
-    }
-    return undefined;
-  }
-
-  private scheduleTokenRefresh(
-    gen: number,
-    expiresInSeconds: number | undefined,
-    triggerRefresh: () => void
-  ): void {
-    this.clearRefreshTimer();
-    if (!expiresInSeconds || expiresInSeconds <= 0) return;
-
-    const delay = Math.max(expiresInSeconds * 1000 - this.server.tokenRefreshMarginMs, 1_000);
-    this.refreshTimer = setTimeout(() => {
-      if (!this.server.accepting || gen !== this.currentGen) return;
-      this.log.info(`socket-mode[${this.geo}]: proactively renegotiating before token expiry`);
-      triggerRefresh();
-    }, delay);
-    this.refreshTimer.unref?.();
-  }
-
-  private clearRefreshTimer(): void {
-    if (this.refreshTimer) {
-      clearTimeout(this.refreshTimer);
-      this.refreshTimer = undefined;
-    }
   }
 }

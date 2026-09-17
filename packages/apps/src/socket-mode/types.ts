@@ -52,7 +52,7 @@ export type SocketModeOptions = {
    *
    * Defaults to {@link DEFAULT_SOCKET_MODE_NEGOTIATE_BASE_URL}. Override this to
    * target a regional or Canary Teams backend service ring
-   * (e.g. `https://canary.botapi.skype.com/amer`).
+   * (e.g. `https://canary.botapi.skype.com/`).
    */
   readonly negotiateBaseUrl?: string;
 

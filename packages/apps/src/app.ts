@@ -468,7 +468,11 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       await this.server.start(this.port);
     } catch (error: any) {
       await this.stop();
-      this.eventManager.onError({ error });
+      const reportError = this.eventManager.onError({ error });
+      if (this.socketMode) {
+        await reportError;
+        throw error;
+      }
     }
   }
 

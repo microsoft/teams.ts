@@ -1,6 +1,6 @@
 import { ConsoleLogger } from '@microsoft/teams.common';
 
-import { SocketModeAdapter, SocketModeAdapterDeps } from './socket-server';
+import { SocketModeAdapter, SocketModeAdapterDeps } from './socket-mode-adapter';
 import { SocketActivityEnvelope } from './types';
 
 // A controllable fake for the single-generation connection so the adapter's
