@@ -1,5 +1,11 @@
 import { Activity, Credentials, InvokeResponse, IToken } from '@microsoft/teams.api';
-import { ConsoleLogger, EventEmitter, IEventEmitter, ILogger } from '@microsoft/teams.common';
+import {
+  Client as HttpClient,
+  ConsoleLogger,
+  EventEmitter,
+  IEventEmitter,
+  ILogger,
+} from '@microsoft/teams.common';
 
 import { IActivityEvent } from '../events';
 import { HttpMethod, HttpRouteHandler, IHttpServerAdapter } from '../http/adapter';
@@ -91,6 +97,8 @@ export type SocketModeEvents = {
 export type SocketModeAdapterDeps = {
   /** App credentials used to identify the bot on reply frames. */
   readonly credentials?: Credentials;
+  /** The app's shared HTTP client used for Socket Mode negotiation. */
+  readonly client: HttpClient;
   /**
    * Token source for the Bot Framework token that authenticates the Teams backend service
    * negotiate call, reusing the app's credentials.
@@ -312,6 +320,7 @@ export class SocketModeAdapter implements IHttpServerAdapter {
     return new SignalRSocketConnection(
       {
         negotiateUrl,
+        client: this.deps.client,
         getBotToken: () => this.acquireBotToken(),
         readinessTimeoutMs: this.options.readinessTimeoutMs ?? DEFAULT_READINESS_TIMEOUT_MS,
         keepAliveIntervalMs: this.options.keepAliveIntervalMs ?? DEFAULT_KEEPALIVE_INTERVAL_MS,

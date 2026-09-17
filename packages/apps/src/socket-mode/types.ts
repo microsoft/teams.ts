@@ -1,3 +1,5 @@
+import { Client as HttpClient } from '@microsoft/teams.common';
+
 /**
  * The Socket Mode protocol version teams.ts speaks. Every reply frame must carry
  * it so Teams backend service can detect a mismatch. Bump only in lockstep
@@ -256,6 +258,8 @@ export type SocketConnectionHandlers = {
 export type SocketConnectionContext = {
   /** Resolved negotiate URL (`{negotiateBaseUrl}/v3/websockets/connect`). */
   readonly negotiateUrl: string;
+  /** The app's shared HTTP client used for the negotiate request. */
+  readonly client: HttpClient;
   /**
    * Acquire the Bot Framework access token used to authenticate the negotiate
    * request. Reuses the app's existing credentials.

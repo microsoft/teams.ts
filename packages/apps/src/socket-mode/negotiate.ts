@@ -1,4 +1,4 @@
-import { ILogger } from '@microsoft/teams.common';
+import { Client as HttpClient, ILogger } from '@microsoft/teams.common';
 
 import { NegotiateResult } from './types';
 
@@ -9,6 +9,8 @@ import { NegotiateResult } from './types';
 export type NegotiateDeps = {
   /** Fully-resolved negotiate URL (`{base}/v3/websockets/connect`). */
   readonly negotiateUrl: string;
+  /** The app's shared HTTP client. */
+  readonly client: HttpClient;
   /** Acquire the Bot Framework access token, reusing the app's credentials. */
   readonly getBotToken: () => Promise<string>;
   /**
@@ -63,12 +65,16 @@ export class NegotiateError extends Error {
  * Parse an HTTP `Retry-After` header (delta-seconds or an HTTP date) into
  * milliseconds, returning `undefined` when absent or unparseable.
  */
-function parseRetryAfterMs(res: { headers?: { get?: (name: string) => string | null } }): number | undefined {
-  const raw = res.headers?.get?.('retry-after');
+function parseRetryAfterMs(res: { headers?: unknown }): number | undefined {
+  const headers = res.headers as
+    | { get?: (name: string) => unknown; [name: string]: unknown }
+    | undefined;
+  const raw = headers?.get?.('retry-after') ?? headers?.['retry-after'];
   if (!raw) return undefined;
-  const seconds = Number(raw);
+  const value = String(raw);
+  const seconds = Number(value);
   if (Number.isFinite(seconds)) return Math.max(0, seconds * 1000);
-  const date = Date.parse(raw);
+  const date = Date.parse(value);
   if (Number.isFinite(date)) return Math.max(0, date - Date.now());
   return undefined;
 }
@@ -82,11 +88,6 @@ function parseRetryAfterMs(res: { headers?: { get?: (name: string) => string | n
  * @throws if the bot token is missing (the app has no credentials configured).
  */
 export async function negotiate(deps: NegotiateDeps): Promise<NegotiateResult> {
-  const fetchFn = globalThis.fetch;
-  if (typeof fetchFn !== 'function') {
-    throw new Error('Socket Mode negotiate requires a global `fetch` (Node 20+).');
-  }
-
   const token = await deps.getBotToken();
   if (!token) {
     throw new Error(
@@ -99,18 +100,22 @@ export async function negotiate(deps: NegotiateDeps): Promise<NegotiateResult> {
 
   deps.log?.debug(`socket-mode: negotiate POST ${deps.negotiateUrl}`);
 
-  const res = await fetchFn(deps.negotiateUrl, {
-    method: 'POST',
+  const res = await deps.client.post<Partial<NegotiateResult>>(
+    deps.negotiateUrl,
+    undefined,
+    {
     headers: {
-      authorization: `Bearer ${token}`,
+        authorization: `Bearer ${token}`,
     },
-    // `content-length` is a forbidden/managed header the runtime sets itself;
-    // this POST has no body, so we omit it. A timeout bounds a hung endpoint.
-    signal: AbortSignal.timeout(deps.timeoutMs ?? DEFAULT_NEGOTIATE_TIMEOUT_MS),
-  });
+      timeout: deps.timeoutMs ?? DEFAULT_NEGOTIATE_TIMEOUT_MS,
+      validateStatus: () => true,
+    }
+  );
 
-  if (!res.ok) {
-    const body = (await res.text().catch(() => '')).slice(0, 500);
+  if (res.status < 200 || res.status >= 300) {
+    const body = (
+      typeof res.data === 'string' ? res.data : JSON.stringify(res.data ?? '')
+    ).slice(0, 500);
     // Logged at debug because this failure is thrown and reported by the caller
     // (App.onError); logging it here as error too would double-report it.
     deps.log?.debug(
@@ -122,7 +127,7 @@ export async function negotiate(deps: NegotiateDeps): Promise<NegotiateResult> {
     );
   }
 
-  const json = (await res.json()) as Partial<NegotiateResult>;
+  const json = res.data;
   if (!json.url || !json.accessToken) {
     throw new Error('Socket Mode negotiate response missing url/accessToken');
   }

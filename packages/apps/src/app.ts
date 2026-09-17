@@ -910,6 +910,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
     const socketAdapter = new SocketModeAdapter(options, {
       credentials: this.credentials,
+      client: this.client,
       tokenProvider: this.tokenProvider,
       processActivity: (event) => this.onActivity(event),
       messagingEndpoint,

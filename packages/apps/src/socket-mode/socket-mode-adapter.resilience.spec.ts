@@ -1,4 +1,4 @@
-import { ConsoleLogger } from '@microsoft/teams.common';
+import { Client as HttpClient, ConsoleLogger } from '@microsoft/teams.common';
 
 import { SocketModeAdapter, SocketModeAdapterDeps } from './socket-mode-adapter';
 import { SocketActivityEnvelope } from './types';
@@ -77,11 +77,12 @@ const setActivityHandler = new WeakMap<
 
 function createSocketModeAdapter(
   options: Record<string, unknown>,
-  deps: Omit<SocketModeAdapterDeps, 'processActivity'>
+  deps: Omit<SocketModeAdapterDeps, 'processActivity' | 'client'>
 ): SocketModeAdapter {
   let handler: ActivityHandler = async () => ({ status: 200 });
   const server = new SocketModeAdapter(options as any, {
     credentials: { clientId: 'bot1' } as any,
+    client: new HttpClient(),
     ...deps,
     processActivity: (event) => handler(event),
   });

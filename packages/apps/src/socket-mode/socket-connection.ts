@@ -46,6 +46,7 @@ export class SignalRSocketConnection implements ISocketConnection {
 
     const neg = await negotiate({
       negotiateUrl: this.context.negotiateUrl,
+      client: this.context.client,
       getBotToken: this.context.getBotToken,
       log: this.log,
     });

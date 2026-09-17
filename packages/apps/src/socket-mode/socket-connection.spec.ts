@@ -1,3 +1,5 @@
+import { Client as HttpClient } from '@microsoft/teams.common';
+
 import { SignalRSocketConnection } from './socket-connection';
 import { SocketConnectionContext, SocketConnectionHandlers } from './types';
 
@@ -61,9 +63,13 @@ const state = signalr.__state as {
   logger?: { log: (level: number, message: string) => void };
 };
 
+const post = jest.fn();
+const client = { post } as unknown as HttpClient;
+
 function makeContext(overrides: Partial<SocketConnectionContext> = {}): SocketConnectionContext {
   return {
     negotiateUrl: 'https://apx.example/v3/websockets/connect',
+    client,
     getBotToken: async () => 'bot-jwt',
     readinessTimeoutMs: 50,
     keepAliveIntervalMs: 15000,
@@ -90,12 +96,12 @@ describe('SignalRSocketConnection', () => {
     state.startError = undefined;
     state.startGate = undefined;
     state.logger = undefined;
-    globalThis.fetch = jest.fn(async () => ({
-      ok: true,
+    post.mockReset();
+    post.mockResolvedValue({
       status: 200,
-      json: async () => ({ url: 'wss://sr/hub', accessToken: 'sr-token', expiresIn: 3600 }),
-      text: async () => '',
-    })) as unknown as typeof fetch;
+      data: { url: 'wss://sr/hub', accessToken: 'sr-token', expiresIn: 3600 },
+      headers: {},
+    });
   });
 
   it('negotiates, connects, and resolves once SocketReady satisfies readiness', async () => {
@@ -104,7 +110,7 @@ describe('SignalRSocketConnection', () => {
 
     await conn.start();
 
-    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+    expect(post).toHaveBeenCalledTimes(1);
     expect(state.started).toBe(1);
     expect(handlers.onReady).toHaveBeenCalledWith({ botKey: 'bot', connectionId: 'c1' });
   });
@@ -183,7 +189,7 @@ describe('SignalRSocketConnection', () => {
     const ac = new AbortController();
     ac.abort();
     await expect(conn.start(ac.signal)).rejects.toThrow(/aborted/i);
-    expect(globalThis.fetch).not.toHaveBeenCalled();
+    expect(post).not.toHaveBeenCalled();
   });
 
   it('still reaches readiness even when an onReady observer throws', async () => {
