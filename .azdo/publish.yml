@@ -2,6 +2,10 @@
 # This pipeline publishes npm packages. Manually triggered only.
 # - Internal: publishes unsigned packages to the internal TeamsSDKPreviews feed.
 # - Public: publishes signed packages to npm via ESRP (requires approval).
+# - promoteView: Internal only. Feed view to promote the published packages to
+#   (for example Prerelease). Blank skips promotion. Promotion is one-way:
+#   Azure Artifacts has no demotion, so a view can only be cleaned up by
+#   deleting the package version or the view itself.
 # =============================================================================
 
 trigger: none
@@ -17,8 +21,15 @@ parameters:
   - Internal
   - Public
 
+- name: promoteView
+  displayName: 'Promote to feed view (Internal only, blank to skip)'
+  type: string
+  default: ''
+
 variables:
 - group: TeamsSDK-Release
+- name: internalFeedName
+  value: 'TeamsSDKPreviews'
 
 resources:
   repositories:
@@ -244,6 +255,85 @@ extends:
           displayName: 'Publish packages to internal npm feed'
           target:
             container: host
+
+        # Promotion is one-way. Azure Artifacts has no demotion, so a version can
+        # only leave a view by deleting the version or the view itself. Views are
+        # for browsing and downstream consumption only; dependency resolution must
+        # keep pointing at the feed itself, which is where cached upstream
+        # packages live.
+        - ${{ if ne(parameters.promoteView, '') }}:
+          - pwsh: |
+              $ErrorActionPreference = 'Stop'
+
+              # The view name arrives through the environment rather than being
+              # interpolated into this script, so a crafted value cannot close
+              # the string and run as code in a job that holds SYSTEM_ACCESSTOKEN.
+              $view = $env:PROMOTE_VIEW
+              if ($view -notmatch '^[A-Za-z0-9._-]+$') { throw 'promoteView must be a feed view name matching ^[A-Za-z0-9._-]+$.' }
+              $org = "$(System.CollectionUri)".TrimEnd('/').Split('/')[-1]
+              $project = '$(System.TeamProject)'
+              $feed = '$(internalFeedName)'
+              $headers = @{ Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN" }
+
+              $tarballs = @(Get-ChildItem -Path '$(Pipeline.Workspace)/npm-packages' -Filter '*.tgz')
+              if ($tarballs.Count -eq 0) { throw 'No .tgz files found to promote.' }
+
+              $promoted = 0
+              $failed = @()
+              foreach ($file in $tarballs) {
+                # npm mangles the scope into the file name (@microsoft/teams.apps
+                # packs as microsoft-teams.apps-2.0.14.tgz), so the file name does
+                # not round-trip back to a package name. Read the manifest instead.
+                $extractDir = Join-Path '$(Agent.TempDirectory)' ([System.Guid]::NewGuid().ToString())
+                New-Item -ItemType Directory -Path $extractDir -Force | Out-Null
+                try {
+                  tar -xf $file.FullName -C $extractDir 'package/package.json'
+                  if ($LASTEXITCODE -ne 0) { throw "Failed to extract package.json from $($file.Name)." }
+                  $manifest = Get-Content (Join-Path $extractDir 'package/package.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+                } finally {
+                  Remove-Item $extractDir -Recurse -Force -ErrorAction SilentlyContinue
+                }
+
+                $name = $manifest.name
+                $version = $manifest.version
+
+                # The feed is shared with other products, so only promote the
+                # packages this SDK owns. @microsoft/teams-js in particular is a
+                # different product that also lives in this feed.
+                if (-not $name.StartsWith('@microsoft/teams.', [StringComparison]::OrdinalIgnoreCase)) {
+                  Write-Host "Skipping $name (not owned by this SDK)"
+                  continue
+                }
+
+                # The scope is percent-encoded, the separating slash is not.
+                $encodedName = $name -replace '^@', '%40'
+                $uri = "https://pkgs.dev.azure.com/$org/$project/_apis/packaging/feeds/$feed/npm/$encodedName/versions/$version" + '?api-version=7.2-preview.1'
+                $body = @{ views = @{ op = 'add'; path = '/views/-'; value = $view } } | ConvertTo-Json -Compress
+
+                Write-Host "Promoting $name $version to @$view"
+                try {
+                  Invoke-RestMethod -Method Patch -Uri $uri -Headers $headers -ContentType 'application/json' -Body $body | Out-Null
+                  $promoted++
+                } catch {
+                  $reason = $_.Exception.Message
+                  Write-Host "##vso[task.logissue type=error]Failed to promote $name $version : $reason"
+                  $failed += "$name $version"
+                }
+              }
+
+              if ($failed.Count -gt 0) {
+                $failedList = $failed -join ', '
+                throw "Promotion failed for: $failedList"
+              }
+              if ($promoted -eq 0) { throw 'No @microsoft/teams.* packages found to promote.' }
+
+              Write-Host "Promoted $promoted package(s) to @$view"
+            displayName: 'Promote packages to @${{ parameters.promoteView }}'
+            env:
+              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+              PROMOTE_VIEW: ${{ parameters.promoteView }}
+            target:
+              container: host
 
       # Publish to npm via ESRP
       - job: publish_public

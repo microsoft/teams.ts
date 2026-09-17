@@ -37,12 +37,14 @@ import {
   recordTeamsBotActivityProcessDuration
 } from './diagnostics/helpers';
 import { IActivityEvent } from './events';
+import { selectFilesCredential } from './files-credential';
 import { Router } from './router';
 import type { Route } from './router/route';
 import { IRoutes } from './routes';
 import { TurnStateLoader } from './state';
 import { IActivitySender, IPlugin, RouteHandler, StreamCancelledError } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
+import { extractTenantId } from './utils';
 
 function getAgenticIdentity(account?: Account): AgenticIdentity | undefined {
   if (!account?.agenticAppBlueprintId) {
@@ -73,6 +75,8 @@ export interface IActivityProcessorOptions<TPlugin extends IPlugin = IPlugin> {
    * app has no credentials configured.
    */
   readonly getAppGraphToken: (tenantId?: string) => Promise<IToken | null>;
+  /** Acquires a Microsoft Graph token for an Agentic User, or `null` when the app has no credentials or the identity is not user-backed. */
+  readonly getAgenticGraphToken: (identity: AgenticIdentity, tenantId?: string) => Promise<IToken | null>;
   readonly activitySender: IActivitySender;
   readonly api: ApiClient;
   readonly client: HttpClient;
@@ -196,12 +200,8 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
       );
       const appGraph = new GraphClient(
         client.clone({
-          // The token provider returns null when the app has no credentials, but
-          // the HTTP token contract treats only undefined as "no token"; coerce
-          // so null is never forwarded as an auth header.
-          token: async () =>
-            (await this.options.getAppGraphToken(activity.conversation.tenantId ?? 'common')) ??
-            undefined,
+          // The token provider returns null when the app has no credentials, but the HTTP token contract treats only undefined as "no token"; coerce so null is never forwarded as an auth header.
+          token: async () => (await this.options.getAppGraphToken(extractTenantId(activity))) ?? undefined,
         }),
         { baseUrlRoot: this.options.graphBaseUrl }
       );
@@ -271,6 +271,17 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
 
       const activitySender = new ActivitySender(this.options.log, apiClientFactory);
 
+      // Resolved at fetch time rather than eagerly, so a turn that never touches files pays nothing for it.
+      //
+      // An Agentic User reads as itself. An app-only token sees what the app may read tenant-wide, a different set from what was shared with the agent, so it would 403 on exactly the files the agent was given.
+      const filesCredential = selectFilesCredential({
+        agenticIdentity,
+        tenantId: extractTenantId(activity),
+        graphBaseUrlRoot: this.options.graphBaseUrl,
+        getAppGraphToken: (t) => this.options.getAppGraphToken(t),
+        getAgenticGraphToken: (i, t) => this.options.getAgenticGraphToken(i, t),
+      });
+
       const context = new ActivityContext({
         activity,
         next,
@@ -288,6 +299,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
         validateOAuthConnection: this.options.validateOAuthConnection,
         onOAuthSignInInitiated: this.options.onOAuthSignInInitiated,
         getOAuthConnectionStatus: this.options.getOAuthConnectionStatus,
+        filesCredential,
         activitySender,
         ...pluginContexts
       });

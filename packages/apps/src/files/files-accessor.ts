@@ -8,6 +8,7 @@ import {
 } from '@microsoft/teams.api';
 import { Client as HttpClient, ILogger } from '@microsoft/teams.common';
 
+import { GraphCredential } from './download';
 import { IncomingFile } from './incoming-file';
 import { IFilesAccessor, IIncomingFile } from './types';
 
@@ -17,7 +18,7 @@ function isOptionalString(value: unknown): value is string | undefined {
 }
 
 /**
- * Coerce an attachment's `content` into a {@link FileDownloadInfo}. `Attachment.content` is typed `any`, so without this the wire payload would be trusted unchecked and a wrong-typed `downloadUrl` would only surface later as a confusing failure at fetch time. Returns `undefined` for anything that is not an object or that carries a non-string where a string is required; unknown extra properties are ignored, matching how the peer SDKs deserialize this payload.
+ * Coerce an attachment's `content` into a {@link FileDownloadInfo}. `Attachment.content` is typed `any`, so without this the wire payload would be trusted unchecked and a wrong-typed `downloadUrl` would only surface later as a confusing failure at fetch time. Returns `undefined` for anything that is not an object; a non-string field is dropped on its own rather than discarding the object, so a wrong-typed `fileType` cannot take a usable `downloadUrl` with it. Unknown extra properties are ignored, matching how the peer SDKs deserialize this payload.
  */
 function asFileDownloadInfo(content: unknown): FileDownloadInfo | undefined {
   if (typeof content !== 'object' || content === null) {
@@ -26,11 +27,12 @@ function asFileDownloadInfo(content: unknown): FileDownloadInfo | undefined {
 
   const { downloadUrl, uniqueId, fileType } = content as Record<string, unknown>;
 
-  if (!isOptionalString(downloadUrl) || !isOptionalString(uniqueId) || !isOptionalString(fileType)) {
-    return undefined;
-  }
-
-  return { downloadUrl, uniqueId, fileType };
+  // Narrowed per field. `uniqueId` and `fileType` are metadata, so rejecting the whole object over one of them would drop a usable `downloadUrl` and route a traditional bot's file through Graph, which then fails reporting a consent problem that was never the cause.
+  return {
+    downloadUrl: isOptionalString(downloadUrl) ? downloadUrl : undefined,
+    uniqueId: isOptionalString(uniqueId) ? uniqueId : undefined,
+    fileType: isOptionalString(fileType) ? fileType : undefined,
+  };
 }
 
 /**
@@ -43,7 +45,9 @@ export class FilesAccessor implements IFilesAccessor {
     private readonly activity: Activity,
     private readonly log: ILogger,
     /** The app's HTTP client, threaded into every {@link IncomingFile} so downloads go through the SDK's outbound pipeline rather than a bare `fetch`. */
-    private readonly httpClient?: HttpClient
+    private readonly httpClient?: HttpClient,
+    /** Graph credential for the current actor, resolved at fetch time. Absent when the app has no Graph route, in which case an expired URL cannot be recovered. */
+    private readonly credential?: GraphCredential
   ) {}
 
   async list(): Promise<IIncomingFile[]> {
@@ -95,13 +99,31 @@ export class FilesAccessor implements IFilesAccessor {
 
     const content = asFileDownloadInfo(attachment.content);
     const downloadUrl = content?.downloadUrl;
+    // Narrowed for the same reason `content` is shape-checked above: the wire is untrusted, and a truthy non-string here would pass the locator test and then throw inside the sharing-url encoder rather than being skipped.
+    const contentUrl = typeof attachment.contentUrl === 'string' ? attachment.contentUrl : undefined;
     const name = attachment.name;
 
-    // A `file.download.info` without fetchable URL or name cannot be turned into a usable handle. Skip it and leave a breadcrumb rather than throwing.
-    if (!downloadUrl || !name) {
-      this.log.debug(
-        `files: skipping file.download.info attachment at index ${index}; missing ${!name ? 'name' : 'downloadUrl'}`
-      );
+    // The Agentic User shape: `content` that parsed and declares no `downloadUrl` at all. Content that failed to parse, or that declares a `downloadUrl` too malformed to use, is a broken attachment rather than an agentic one. Both are excluded from the Graph route because both were skipped before it existed, and resolving one would spend a Graph credential on a payload the SDK has already judged untrustworthy.
+    const declaresDownloadUrl =
+      typeof attachment.content === 'object' && attachment.content !== null && 'downloadUrl' in attachment.content;
+    const isAgenticShape = content !== undefined && !declaresDownloadUrl;
+
+    // `downloadUrl` is fetched directly. A `contentUrl` without one is the Agentic User case and resolves through Graph, restricted to `personal` because agentic delivery in other scopes is unvalidated: surfacing a handle there will produce a `list()` entry that then fails at `download()`. The `downloadUrl` branch keeps its existing scope behaviour.
+    const hasLocator = Boolean(downloadUrl || contentUrl);
+    const canFetch = Boolean(downloadUrl) || (scope === 'personal' && isAgenticShape && Boolean(contentUrl));
+
+    if (!canFetch || !name) {
+      // Split by cause: a malformed attachment is a real defect, while an out-of-scope file is expected noise.
+      if (!name || !hasLocator) {
+        this.log.warn(
+          `skipping file.download.info attachment at index ${index}; missing ${!name ? 'name' : 'a download or content URL'}`
+        );
+      } else {
+        this.log.debug(
+          `skipping file.download.info attachment at index ${index}; '${scope}' scope files are not fetchable yet`
+        );
+      }
+
       return undefined;
     }
 
@@ -114,11 +136,13 @@ export class FilesAccessor implements IFilesAccessor {
       extension: content?.fileType,
       scope,
       source: 'botActivity',
-      // Browsable link to the file in OneDrive/SharePoint; not fetchable like `downloadUrl`.
-      contentUrl: attachment.contentUrl,
+      // Browsable link to the file in OneDrive/SharePoint. Not directly fetchable like `downloadUrl`, but it is the locator a Graph `/shares` resolution keys off.
+      contentUrl,
       raw: attachment,
       downloadUrl,
       httpClient: this.httpClient,
+      credential: this.credential,
+      log: this.log,
     });
   }
 }
