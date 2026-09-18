@@ -57,6 +57,7 @@ import { OAuthFlowRegistry } from './oauth/registry';
 import { HttpPlugin } from './plugins';
 import { Router } from './router';
 import { IRoutes } from './routes';
+import { SocketModeAdapter, SocketModeOptions } from './socket-mode';
 import { createStateLoader, TurnStateLoader } from './state';
 import { createOAuthStateLoader } from './state/loader';
 import { DEFAULT_TENANT_FOR_GRAPH_TOKEN, TokenManager } from './token-manager';
@@ -80,6 +81,18 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   readonly graph: GraphClient;
   readonly log: ILogger;
   readonly server: HttpServer;
+
+  /**
+   * **Experimental.** The Socket Mode inbound transport, present only when the
+   * app was constructed with `socketMode` enabled. It is the same
+   * {@link IHttpServerAdapter} instance {@link App.server} runs on. Use it to
+   * observe the socket lifecycle
+   * (`app.socketMode.status`, `app.socketMode.geoStatuses`, `app.socketMode.events`).
+   * WebSocket is only recommended for use when developing agents.
+   *
+   * @experimental This API is in preview and may change in the future.
+   */
+  readonly socketMode?: SocketModeAdapter;
   readonly http?: HttpPlugin;
   readonly client: HttpClient;
   /**
@@ -313,25 +326,16 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         '  - new App({ plugins: [new HttpPlugin()] }) (deprecated)'
       );
     }
-    let server: HttpServer;
-    let dangerouslyAllowUnauthenticatedRequests = this.options.dangerouslyAllowUnauthenticatedRequests;
-    if (dangerouslyAllowUnauthenticatedRequests === undefined && this.options.skipAuth !== undefined) {
-      this.log.warn(
-        '[DEPRECATED] skipAuth is deprecated. Use dangerouslyAllowUnauthenticatedRequests instead.'
+
+    // The deprecated HttpPlugin is a full HTTP server and can't coexist with
+    // Socket Mode, which is the app's exclusive inbound transport when enabled.
+    if (this.options.socketMode && httpPlugin) {
+      throw new Error(
+        'Cannot provide both socketMode and an HttpPlugin: Socket Mode manages its own ' +
+        'inbound transport. Enable one or the other.'
       );
-      dangerouslyAllowUnauthenticatedRequests = this.options.skipAuth;
     }
-    if (dangerouslyAllowUnauthenticatedRequests === undefined) {
-      const unauthenticatedRequestsEnvValue = getBooleanEnvValue('DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS');
-      if (unauthenticatedRequestsEnvValue !== undefined) {
-        this.log.warn(
-          'DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS is set. ' +
-          'Unauthenticated request behavior is configured by the environment.'
-        );
-        dangerouslyAllowUnauthenticatedRequests = unauthenticatedRequestsEnvValue;
-      }
-    }
-    dangerouslyAllowUnauthenticatedRequests ??= false;
+    let server: HttpServer;
 
     // HttpPlugin in plugins array (backwards compatibility)
     if (httpPlugin) {
@@ -343,7 +347,29 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       if (!server) {
         throw new Error('HttpPlugin.asServer() returned undefined');
       }
+    } else if (this.options.socketMode) {
+      const built = this.buildSocketMode();
+      server = built.server;
+      this.socketMode = built.socketMode;
     } else {
+      let dangerouslyAllowUnauthenticatedRequests = this.options.dangerouslyAllowUnauthenticatedRequests;
+      if (dangerouslyAllowUnauthenticatedRequests === undefined && this.options.skipAuth !== undefined) {
+        this.log.warn(
+          '[DEPRECATED] skipAuth is deprecated. Use dangerouslyAllowUnauthenticatedRequests instead.'
+        );
+        dangerouslyAllowUnauthenticatedRequests = this.options.skipAuth;
+      }
+      if (dangerouslyAllowUnauthenticatedRequests === undefined) {
+        const unauthenticatedRequestsEnvValue = getBooleanEnvValue('DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS');
+        if (unauthenticatedRequestsEnvValue !== undefined) {
+          this.log.warn(
+            'DANGEROUSLY_ALLOW_UNAUTHENTICATED_REQUESTS is set. ' +
+            'Unauthenticated request behavior is configured by the environment.'
+          );
+          dangerouslyAllowUnauthenticatedRequests = unauthenticatedRequestsEnvValue;
+        }
+      }
+      dangerouslyAllowUnauthenticatedRequests ??= false;
       server = new HttpServer(this.options.httpServerAdapter ?? new ExpressAdapter(undefined, {
         logger: this.log,
         onError: (err) => this.eventManager.onError({ error: err })
@@ -442,7 +468,11 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       await this.server.start(this.port);
     } catch (error: any) {
       await this.stop();
-      this.eventManager.onError({ error });
+      const reportError = this.eventManager.onError({ error });
+      if (this.socketMode) {
+        await reportError;
+        throw error;
+      }
     }
   }
 
@@ -858,6 +888,42 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     return this.options.oauth?.defaultConnectionName !== undefined;
   }
 
+  /**
+   * Build the Socket Mode inbound transport and the {@link HttpServer} that runs
+   * it. The {@link SocketModeAdapter} is constructed internally so it can reuse
+   * the app's credentials, and token provider.
+   *
+   * Socket Mode is the server's only adapter. A supplied `httpServerAdapter` is
+   * intentionally unused, and no HTTP listener or route is created.
+   */
+  private buildSocketMode(): { server: HttpServer; socketMode: SocketModeAdapter } {
+    if (this.cloud.tokenIssuer !== PUBLIC.tokenIssuer) {
+      throw new Error(
+        `Socket Mode is not supported in this cloud environment (tokenIssuer=${this.cloud.tokenIssuer}). ` +
+        'Socket Mode currently supports only regular production clouds. ' +
+        'Use the HTTP inbound transport instead.'
+      );
+    }
+    const options: SocketModeOptions =
+      this.options.socketMode === true ? {} : (this.options.socketMode as SocketModeOptions);
+    const messagingEndpoint = this.options.messagingEndpoint ?? '/api/messages';
+
+    const socketAdapter = new SocketModeAdapter(options, {
+      credentials: this.credentials,
+      client: this.client,
+      tokenProvider: this.tokenProvider,
+      processActivity: (event) => this.onActivity(event),
+      messagingEndpoint,
+      onError: (err) => this.eventManager.onError({ error: err }),
+      logger: this.log,
+    });
+
+    const server = new HttpServer(socketAdapter, {
+      logger: this.log,
+      messagingEndpoint,
+    });
+    return { server, socketMode: socketAdapter };
+  }
   private enableOAuthState(): void {
     if (this.options.state === false || this.stateLoader) {
       return;

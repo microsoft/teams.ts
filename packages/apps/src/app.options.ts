@@ -15,6 +15,7 @@ import type {
 import type { IAgent365BaggageOptions } from './diagnostics/agent365-baggage';
 import type { IHttpServerAdapter } from './http/adapter';
 import type { OAuthSettings } from './oauth';
+import type { SocketModeOptions } from './socket-mode';
 import type { StateOptions } from './state';
 import type { IPlugin } from './types';
 
@@ -148,9 +149,29 @@ export type AppOptions<TPlugin extends IPlugin> = {
   readonly plugins?: Array<TPlugin>;
 
   /**
-   * HTTP server adapter for handling bot requests
+   * HTTP server adapter for handling bot requests. Ignored when
+   * {@link socketMode} is enabled because Socket Mode has no HTTP transport.
    */
   readonly httpServerAdapter?: IHttpServerAdapter;
+
+    /**
+     * **Experimental.** Receive inbound activities over Socket Mode — a Teams
+     * backend service-negotiated outbound WebSocket — instead of an
+     * HTTP messaging endpoint, so the bot needs no public URL or dev tunnel.
+     *
+     * Pass `true` for all defaults, or an object to configure it. A single bot
+     * opens one connection per geo (`amer`, `emea`, `apac`) by default. Socket
+     * Mode starts no HTTP listener or public endpoint; tabs, remote functions,
+     * OAuth callbacks, and other browser routes are unavailable. A supplied
+     * `httpServerAdapter` is unused.
+     *
+     * Cannot be combined with the deprecated `HttpPlugin`. Observe the socket via
+     * {@link App.socketMode}.
+     * WebSocket is only recommended for use when developing agents.
+     *
+     * @experimental This API is in preview and may change in the future.
+     */
+    readonly socketMode?: boolean | SocketModeOptions;
 
   /**
    * Legacy app-wide OAuth settings.
