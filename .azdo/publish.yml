@@ -2,8 +2,8 @@
 # This pipeline publishes npm packages. Manually triggered only.
 # - Internal: publishes unsigned packages to the internal TeamsSDKPreviews feed.
 # - Public: publishes signed packages to npm via ESRP (requires approval).
-# - promoteView: Internal only. Feed view to promote the published packages to
-#   (for example Prerelease). Blank skips promotion. Promotion is one-way:
+# - promoteView: Internal only. Feed view to promote the published packages to.
+#   None skips promotion. Promotion is one-way:
 #   Azure Artifacts has no demotion, so a view can only be cleaned up by
 #   deleting the package version or the view itself.
 # =============================================================================
@@ -22,9 +22,13 @@ parameters:
   - Public
 
 - name: promoteView
-  displayName: 'Promote to feed view (Internal only, blank to skip)'
+  displayName: 'Promote to feed view (Internal only, None to skip)'
   type: string
-  default: ''
+  default: 'None'
+  values:
+  - 'None'
+  - 'Prerelease'
+  - 'Release'
 
 variables:
 - group: TeamsSDK-Release
@@ -261,13 +265,14 @@ extends:
         # for browsing and downstream consumption only; dependency resolution must
         # keep pointing at the feed itself, which is where cached upstream
         # packages live.
-        - ${{ if ne(parameters.promoteView, '') }}:
+        - ${{ if ne(parameters.promoteView, 'None') }}:
           - pwsh: |
               $ErrorActionPreference = 'Stop'
 
-              # The view name arrives through the environment rather than being
-              # interpolated into this script, so a crafted value cannot close
-              # the string and run as code in a job that holds SYSTEM_ACCESSTOKEN.
+              # The parameter's values list constrains this to a known view, and it
+              # arrives through the environment rather than being interpolated into
+              # this script, so a value cannot close the string and run as code in a
+              # job that holds SYSTEM_ACCESSTOKEN.
               $view = $env:PROMOTE_VIEW
               if ($view -notmatch '^[A-Za-z0-9._-]+$') { throw 'promoteView must be a feed view name matching ^[A-Za-z0-9._-]+$.' }
               $org = "$(System.CollectionUri)".TrimEnd('/').Split('/')[-1]
