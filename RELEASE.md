@@ -2,10 +2,14 @@
 
 This project uses [Nerdbank.GitVersioning](https://github.com/dotnet/Nerdbank.GitVersioning) for automatic version management.
 
-Each maintained release line uses a versioned branch named `release/v<major>.<minor>` (for example, `release/v2.0`). Set `RELEASE_BRANCH` to the line you are releasing before running the commands below:
+Exactly one stable line is maintained at a time. It lives on a versioned branch named `release/v<major>.<minor>`, currently `release/v2.1`. `release/v2.0` is closed at `2.0.16` — it receives no further releases, and fixes for it ship forward as new patches on the current stable line.
+
+This constraint exists because npm dist-tags are functional: `npm install @microsoft/teams.apps` resolves through `latest`, so publishing a stable `2.0.17` would repoint `latest` at it and silently downgrade every consumer off 2.1.x. The publish pipeline enforces this — `.azdo/publish.yml` declares a `currentStableBranch` variable, and a stable build from any other branch fails rather than moving `latest`.
+
+Set `RELEASE_BRANCH` to the current stable line before running the commands below:
 
 ```bash
-RELEASE_BRANCH=release/v2.0
+RELEASE_BRANCH=release/v2.1
 ```
 
 ## Creating a Release
@@ -16,7 +20,7 @@ RELEASE_BRANCH=release/v2.0
    git checkout -b prep-release/<next-version> "origin/$RELEASE_BRANCH"
    ```
    - If `main` is still on the same major/minor development line, merge `origin/main`
-   - For an older maintained line, include only the intended backports; do not merge a newer development line
+   - If `main` has already moved on to a newer development line, do not merge it — take only the intended changes (see [Hotfixes](#hotfixes))
    - Set `version.json` to the stable version being released (e.g. remove the `-preview.{height}` suffix)
    - Commit and push
 
@@ -49,11 +53,13 @@ RELEASE_BRANCH=release/v2.0
 
 ## Hotfixes
 
-To fix a bug in a released version without including new preview changes:
+Hotfixes apply to the current stable line only. A bug reported against a closed line is fixed forward as a new patch on the current stable line — it is not backported, and the closed line is not re-released.
+
+To fix a bug in the current stable line without including new preview changes:
 
 1. **Consider if a normal release would work instead** - when `main` is on the same development line, merging it into the matching release branch includes all updates and is simpler. Only use a hotfix if you need to exclude newer changes from main.
 
-2. **Create a branch from the matching versioned release branch**:
+2. **Create a branch from the current stable release branch**:
    ```bash
    git fetch origin
    git checkout -b hotfix/fix-description "origin/$RELEASE_BRANCH"
@@ -95,16 +101,19 @@ To publish experimental versions from a feature branch:
 
 To bump from `2.0.x` to `2.1.x` or `3.0.x`:
 
-1. Ensure the current line is preserved in its versioned release branch (for example, `release/v2.0`)
-2. Edit `version.json` on main branch
-3. Update the version (e.g. `"2.0.x-preview.{height}"` → `"2.1.0-preview.{height}"` or `"3.0.0-preview.{height}"`)
-4. Commit and push
+1. Ensure the outgoing line is preserved in its versioned release branch (for example, `release/v2.0`). That branch is then closed — it receives no further releases.
+2. Create the versioned release branch for the incoming line (for example, `release/v2.1`)
+3. Update `currentStableBranch` in `.azdo/publish.yml` to the new branch. Until this lands, a stable build from it fails instead of publishing `latest`.
+4. Edit `version.json` on main branch
+5. Update the version (e.g. `"2.0.x-preview.{height}"` → `"2.1.0-preview.{height}"` or `"3.0.0-preview.{height}"`)
+6. Commit and push
 
 ## How Versioning Works
 
 - Versions are computed automatically from git history based on `version.json`
 - **Main branch**: `X.Y.Z-preview.1`, `X.Y.Z-preview.2`, etc. (prerelease, published with `next` npm tag)
-- **Versioned release branches** (`release/v<major>.<minor>`): `X.Y.Z`, etc. (stable, published with `latest` npm tag)
+- **Current stable release branch** (`currentStableBranch` in `.azdo/publish.yml`, currently `release/v2.1`): `X.Y.Z`, etc. (stable, published with `latest` npm tag)
+- **Closed release branches** (for example, `release/v2.0`): no further releases. A stable build from one fails the publish pipeline, so `latest` can never be downgraded to an older line.
 
 ## Publishing
 

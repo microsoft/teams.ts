@@ -30,6 +30,10 @@ variables:
 - group: TeamsSDK-Release
 - name: internalFeedName
   value: 'TeamsSDKPreviews'
+# The only branch allowed to publish the 'latest' npm dist-tag. Bump this when a
+# new stable line is cut; see "Bumping Major/Minor Version" in RELEASE.md.
+- name: currentStableBranch
+  value: 'release/v2.1'
 
 resources:
   repositories:
@@ -162,18 +166,27 @@ extends:
             Write-Host "Version from nbgv: $version"
             Write-Host "##vso[task.setvariable variable=VersionNumber;isOutput=true]$version"
 
-            # If version contains '-' it's a prerelease, use 'next' tag; otherwise 'latest'
+            # npm dist-tags are functional - 'npm install @microsoft/teams.apps' resolves
+            # through 'latest' - so a stable build from a closed release line would silently
+            # downgrade every consumer. Only the current stable line may publish 'latest'.
             if ($version -match '-') {
               Write-Host "Prerelease version detected - using 'next' npm tag"
               Write-Host "##vso[task.setvariable variable=NpmTag;isOutput=true]next"
             } else {
-              Write-Host "Stable version detected - using 'latest' npm tag"
+              $stableBranch = "refs/heads/$env:CURRENT_STABLE_BRANCH"
+              $sourceBranch = $env:BUILD_SOURCEBRANCH
+              Write-Host "Stable version detected on $sourceBranch (current stable line: $stableBranch)"
+              if ($sourceBranch -ne $stableBranch) {
+                throw "Refusing to publish stable $version from '$sourceBranch': only '$stableBranch' may move the 'latest' npm dist-tag. If this is the new stable line, update the 'currentStableBranch' pipeline variable. Otherwise this line is closed - ship the fix forward on the current stable line (see RELEASE.md)."
+              }
+              Write-Host "Using 'latest' npm tag"
               Write-Host "##vso[task.setvariable variable=NpmTag;isOutput=true]latest"
             }
           displayName: 'Stamp package versions (nbgv)'
           name: versionStep
           env:
             PublicRelease: 'true'
+            CURRENT_STABLE_BRANCH: $(currentStableBranch)
           target:
             container: host
 
