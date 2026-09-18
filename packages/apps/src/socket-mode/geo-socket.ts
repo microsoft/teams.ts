@@ -1,16 +1,39 @@
 import { ILogger } from '@microsoft/teams.common';
 
-import type { SocketModeAdapter } from './socket-mode-adapter';
 import {
   ISocketConnection,
+  ReplyFrame,
+  SocketActivityEnvelope,
   SocketConnectionHandlers,
   SocketModeStatus,
+  SocketReadyFrame,
 } from './types';
 
 /**
  * Distinguishes expected token rotation from an unexpected connection drop.
  */
 type CloseReason = { planned: true } | { planned: false; error?: Error };
+
+/** Internal callbacks and settings required by one geo supervisor. */
+export type GeoSocketDeps = {
+  readonly isAccepting: () => boolean;
+  readonly getAbortSignal: () => AbortSignal | undefined;
+  readonly createConnection: (
+    negotiateUrl: string,
+    handlers: SocketConnectionHandlers
+  ) => ISocketConnection;
+  readonly dispatch: (
+    envelope: SocketActivityEnvelope
+  ) => Promise<ReplyFrame | undefined>;
+  readonly retryAfterOf: (error: unknown) => number | undefined;
+  readonly backoffDelay: (attempt: number) => number;
+  readonly sleep: (ms: number) => Promise<boolean>;
+  readonly onReady: (frame: SocketReadyFrame) => void;
+  readonly onDisconnected: (error?: Error) => void;
+  readonly onReconnected: () => void;
+  readonly startupTimeoutMs: number;
+  readonly tokenRefreshMarginMs: number;
+};
 
 /**
  * Supervises one Socket Mode connection for a single geo, including readiness,
@@ -30,7 +53,7 @@ export class GeoSocket {
   private closed: Promise<CloseReason> = Promise.resolve({ planned: false });
 
   constructor(
-    private readonly adapter: SocketModeAdapter,
+    private readonly deps: GeoSocketDeps,
     readonly geo: string,
     private readonly negotiateUrl: string,
     private readonly log: ILogger
@@ -42,7 +65,7 @@ export class GeoSocket {
 
   /** The dispatch fence: current generation, ready, and the adapter is accepting. */
   canDispatch(gen: number): boolean {
-    return this.adapter.accepting && gen === this.currentGen && this.readyGen === gen;
+    return this.deps.isAccepting() && gen === this.currentGen && this.readyGen === gen;
   }
 
   /**
@@ -50,14 +73,14 @@ export class GeoSocket {
    */
   async startInitial(): Promise<void> {
     this._status = 'connecting';
-    const deadline = Date.now() + this.adapter.startupTimeoutMs;
+    const deadline = Date.now() + this.deps.startupTimeoutMs;
     let attempt = 0;
     let lastError: Error | undefined;
 
     this.log.debug(
-      `socket-mode[${this.geo}]: starting initial connection with a ${this.adapter.startupTimeoutMs}ms startup budget`
+      `socket-mode[${this.geo}]: starting initial connection with a ${this.deps.startupTimeoutMs}ms startup budget`
     );
-    while (this.adapter.accepting) {
+    while (this.deps.isAccepting()) {
       const gen = ++this.generation;
       this.currentGen = gen;
       try {
@@ -67,15 +90,15 @@ export class GeoSocket {
         return;
       } catch (err: any) {
         lastError = err;
-        if (!this.adapter.accepting) break;
-        const delay = this.adapter.retryAfterOf(err) ?? this.adapter.backoffDelay(attempt);
+        if (!this.deps.isAccepting()) break;
+        const delay = this.deps.retryAfterOf(err) ?? this.deps.backoffDelay(attempt);
         attempt++;
         if (Date.now() + delay >= deadline) break;
         this.log.warn(
           `socket-mode[${this.geo}]: initial connect attempt ${attempt} failed; retrying in ${delay}ms`,
           err
         );
-        const slept = await this.adapter.sleep(delay);
+        const slept = await this.deps.sleep(delay);
         if (!slept) break;
       }
     }
@@ -117,13 +140,21 @@ export class GeoSocket {
     });
 
     const handlers: SocketConnectionHandlers = {
-      onActivity: (envelope) => this.adapter.dispatch(this, gen, envelope),
+      onActivity: (envelope) => {
+        if (!this.canDispatch(gen)) {
+          this.log.debug(
+            'socket-mode: dropping activity received outside the active connection state'
+          );
+          return Promise.resolve(undefined);
+        }
+        return this.deps.dispatch(envelope);
+      },
       onReady: (frame) => {
         this.readyGen = gen;
         // Observers reading aggregate status from the ready event must see the
         // settled value rather than the previous connecting state.
         this._status = 'ready';
-        this.adapter.emit('ready', { geo: this.geo, frame });
+        this.deps.onReady(frame);
       },
       onClosed: (error) => {
         this.clearRefreshTimer();
@@ -131,10 +162,10 @@ export class GeoSocket {
       },
     };
 
-    const connection = this.adapter.createConnection(this.negotiateUrl, handlers);
+    const connection = this.deps.createConnection(this.negotiateUrl, handlers);
     this.connection = connection;
 
-    await connection.start(this.adapter.abortSignal);
+    await connection.start(this.deps.getAbortSignal());
     this.scheduleTokenRefresh(gen, connection.expiresInSeconds, () =>
       settle({ planned: true })
     );
@@ -143,7 +174,7 @@ export class GeoSocket {
 
   private async supervise(): Promise<void> {
     let closed = this.closed;
-    while (this.adapter.accepting) {
+    while (this.deps.isAccepting()) {
       const aborted = this.whenAborted();
       let reason: CloseReason;
       try {
@@ -152,7 +183,7 @@ export class GeoSocket {
         // Avoid accumulating one abort listener per reconnect generation.
         aborted.dispose();
       }
-      if (!this.adapter.accepting) return;
+      if (!this.deps.isAccepting()) return;
 
       const planned = reason.planned === true;
       const error = reason.planned ? undefined : reason.error;
@@ -176,7 +207,7 @@ export class GeoSocket {
             `socket-mode[${this.geo}]: disconnected; inbound delivery paused for this geo`
           );
         }
-        this.adapter.emit('disconnected', { geo: this.geo, error });
+        this.deps.onDisconnected(error);
       }
 
       await this.connection?.stop().catch(() => undefined);
@@ -190,13 +221,13 @@ export class GeoSocket {
         this.log.info(`socket-mode[${this.geo}]: token rotated; inbound delivery continues for this geo`);
       } else {
         this.log.info(`socket-mode[${this.geo}]: reconnected; inbound delivery resumed for this geo`);
-        this.adapter.emit('reconnected', { geo: this.geo });
+        this.deps.onReconnected();
       }
     }
   }
 
   private whenAborted(): { promise: Promise<undefined>; dispose: () => void } {
-    const signal = this.adapter.abortSignal;
+    const signal = this.deps.getAbortSignal();
     if (!signal || signal.aborted) {
       return { promise: Promise.resolve(undefined), dispose: () => undefined };
     }
@@ -210,13 +241,13 @@ export class GeoSocket {
 
   private async reconnect(prevError?: Error): Promise<{ closed: Promise<CloseReason> } | undefined> {
     let attempt = 0;
-    let retryAfterMs = this.adapter.retryAfterOf(prevError);
+    let retryAfterMs = this.deps.retryAfterOf(prevError);
 
-    while (this.adapter.accepting) {
-      const delay = retryAfterMs ?? this.adapter.backoffDelay(attempt);
+    while (this.deps.isAccepting()) {
+      const delay = retryAfterMs ?? this.deps.backoffDelay(attempt);
       attempt++;
-      const slept = await this.adapter.sleep(delay);
-      if (!slept || !this.adapter.accepting) return undefined;
+      const slept = await this.deps.sleep(delay);
+      if (!slept || !this.deps.isAccepting()) return undefined;
 
       this._status = 'connecting';
       const gen = ++this.generation;
@@ -224,7 +255,7 @@ export class GeoSocket {
       try {
         return await this.connectCycle(gen);
       } catch (err: any) {
-        retryAfterMs = this.adapter.retryAfterOf(err);
+        retryAfterMs = this.deps.retryAfterOf(err);
         this.log.warn(`socket-mode[${this.geo}]: reconnect attempt ${attempt} failed; will retry`, err);
       }
     }
@@ -239,9 +270,9 @@ export class GeoSocket {
     this.clearRefreshTimer();
     if (!expiresInSeconds || expiresInSeconds <= 0) return;
 
-    const delay = Math.max(expiresInSeconds * 1000 - this.adapter.tokenRefreshMarginMs, 1_000);
+    const delay = Math.max(expiresInSeconds * 1000 - this.deps.tokenRefreshMarginMs, 1_000);
     this.refreshTimer = setTimeout(() => {
-      if (!this.adapter.accepting || gen !== this.currentGen) return;
+      if (!this.deps.isAccepting() || gen !== this.currentGen) return;
       this.log.info(`socket-mode[${this.geo}]: proactively renegotiating before token expiry`);
       triggerRefresh();
     }, delay);

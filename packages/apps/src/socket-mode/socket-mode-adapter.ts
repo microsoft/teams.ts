@@ -260,9 +260,7 @@ export class SocketModeAdapter implements IHttpServerAdapter {
     this.abort = new AbortController();
 
     const geos = this.resolveGeos();
-    this.geoSockets = geos.map(
-      (geo) => new GeoSocket(this, geo, buildNegotiateUrl(this.negotiateBase, geo), this.log)
-    );
+    this.geoSockets = geos.map((geo) => this.createGeoSocket(geo));
     this.log.info(
       `socket-mode: connecting to Socket Mode across ${geos.length} geo(s): ${geos.join(', ')}`
     );
@@ -305,18 +303,36 @@ export class SocketModeAdapter implements IHttpServerAdapter {
     );
   }
 
-  /** True while the server is up and admitting (used by geo dispatch fences). */
-  get accepting(): boolean {
-    return !this.stopped;
+  /** Build one geo supervisor from the adapter's narrow internal callbacks. */
+  private createGeoSocket(geo: string): GeoSocket {
+    return new GeoSocket(
+      {
+        isAccepting: () => !this.stopped,
+        getAbortSignal: () => this.abort?.signal,
+        createConnection: (negotiateUrl, handlers) =>
+          this.createConnection(negotiateUrl, handlers),
+        dispatch: (envelope) => this.dispatch(envelope),
+        retryAfterOf: (error) => this.retryAfterOf(error),
+        backoffDelay: (attempt) => this.backoffDelay(attempt),
+        sleep: (ms) => this.sleep(ms),
+        onReady: (frame) => this.emit('ready', { geo, frame }),
+        onDisconnected: (error) => this.emit('disconnected', { geo, error }),
+        onReconnected: () => this.emit('reconnected', { geo }),
+        startupTimeoutMs:
+          this.options.startupTimeoutMs ?? DEFAULT_STARTUP_TIMEOUT_MS,
+        tokenRefreshMarginMs: TOKEN_REFRESH_MARGIN_MS,
+      },
+      geo,
+      buildNegotiateUrl(this.negotiateBase, geo),
+      this.log
+    );
   }
 
-  /** Shared abort signal for all geo supervisors. */
-  get abortSignal(): AbortSignal | undefined {
-    return this.abort?.signal;
-  }
-
-  /** Build a connection for a geo (used by {@link GeoSocket}). */
-  createConnection(negotiateUrl: string, handlers: SocketConnectionHandlers): ISocketConnection {
+  /** Build a connection for a geo. */
+  private createConnection(
+    negotiateUrl: string,
+    handlers: SocketConnectionHandlers
+  ): ISocketConnection {
     return new SignalRSocketConnection(
       {
         negotiateUrl,
@@ -332,7 +348,7 @@ export class SocketModeAdapter implements IHttpServerAdapter {
   }
 
   /** Back-off delay (ms) for a reconnect attempt (shared policy across geos). */
-  backoffDelay(attempt: number): number {
+  private backoffDelay(attempt: number): number {
     const schedule = this.options.reconnectDelaysMs;
     if (schedule && schedule.length > 0) {
       return schedule[Math.min(attempt, schedule.length - 1)];
@@ -342,7 +358,7 @@ export class SocketModeAdapter implements IHttpServerAdapter {
   }
 
   /** Abortable delay; resolves `true` when it completed, `false` if aborted. */
-  sleep(ms: number): Promise<boolean> {
+  private sleep(ms: number): Promise<boolean> {
     if (ms <= 0) return Promise.resolve(true);
     return new Promise<boolean>((resolve) => {
       const signal = this.abort?.signal;
@@ -362,22 +378,15 @@ export class SocketModeAdapter implements IHttpServerAdapter {
     });
   }
 
-  /** The startup budget deadline helper for a geo's initial connect. */
-  get startupTimeoutMs(): number {
-    return this.options.startupTimeoutMs ?? DEFAULT_STARTUP_TIMEOUT_MS;
-  }
-
-  /** Token-refresh margin/timeout accessor for geo supervisors. */
-  get tokenRefreshMarginMs(): number {
-    return TOKEN_REFRESH_MARGIN_MS;
-  }
-
-  retryAfterOf(error: unknown): number | undefined {
+  private retryAfterOf(error: unknown): number | undefined {
     return retryAfterFrom(error);
   }
 
   /** Emit a lifecycle event without letting a throwing listener break state. */
-  emit<K extends keyof SocketModeEvents>(event: K, payload: SocketModeEvents[K]): void {
+  private emit<K extends keyof SocketModeEvents>(
+    event: K,
+    payload: SocketModeEvents[K]
+  ): void {
     try {
       this.events.emit(event, payload);
     } catch (err) {
@@ -386,19 +395,16 @@ export class SocketModeAdapter implements IHttpServerAdapter {
   }
 
   /**
-   * Dispatch one inbound envelope behind the per-geo state fence (only the
-   * current, ready generation of that geo may run, never once stopped). There is
-   * no concurrency cap or admission queue: SignalR already invokes the handler
-   * per activity, the Teams backend load-balances delivery across
-   * connections/instances, and each activity carries a reply deadline, so an
-   * in-SDK cap would mostly produce work whose reply is discarded.
+   * Dispatch one inbound envelope after the geo supervisor applies its
+   * generation/readiness/admission fence. There is no concurrency cap or
+   * admission queue: SignalR already invokes the handler per activity, the Teams
+   * backend load-balances delivery across connections/instances, and each
+   * activity carries a reply deadline, so an in-SDK cap would mostly produce
+   * work whose reply is discarded.
    */
-  async dispatch(geo: GeoSocket, gen: number, envelope: SocketActivityEnvelope): Promise<ReplyFrame | undefined> {
-    if (!geo.canDispatch(gen)) {
-      this.log.debug('socket-mode: dropping activity received outside the active connection state');
-      return undefined;
-    }
-
+  private async dispatch(
+    envelope: SocketActivityEnvelope
+  ): Promise<ReplyFrame | undefined> {
     return await this.handleEnvelope(envelope);
   }
 
