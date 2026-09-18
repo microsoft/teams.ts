@@ -265,6 +265,20 @@ export type AppTelemetryOptions = {
 };
 
 /**
+ * Options for stripping `<at>...</at>` mentions from inbound activity text.
+ */
+export type AppStripMentionsTextOptions = StripMentionsTextOptions & {
+  /**
+   * when `true`, only mentions of the activity recipient
+   * (the bot) are removed; mentions of other accounts are preserved.
+   * Takes precedence over `accountId`.
+   * Eg. input: <at>my-bot</at> help <at>Alice</at>
+   *     output: help <at>Alice</at>
+   */
+  readonly recipient?: boolean;
+};
+
+/**
  * Options controlling inbound activity normalization.
  */
 export type AppActivityOptions = {
@@ -275,7 +289,10 @@ export type AppActivityOptions = {
     /**
      * Automatically remove `<at>...</at>` mention
      * from inbound activity `text`
+     *
+     * Use `{ recipient: true, leadingOnly: true }` to strip only the
+     * bot's own leading mention while preserving mentions of other users.
      */
-    readonly stripText?: boolean | StripMentionsTextOptions;
+    readonly stripText?: boolean | AppStripMentionsTextOptions;
   };
 };
