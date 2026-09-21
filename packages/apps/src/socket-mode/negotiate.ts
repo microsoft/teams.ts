@@ -1,5 +1,6 @@
 import { Client as HttpClient, ILogger } from '@microsoft/teams.common';
 
+import { redactSocketModeSecrets } from './redact';
 import { NegotiateResult } from './types';
 
 /**
@@ -113,9 +114,9 @@ export async function negotiate(deps: NegotiateDeps): Promise<NegotiateResult> {
   );
 
   if (res.status < 200 || res.status >= 300) {
-    const body = (
+    const body = redactSocketModeSecrets((
       typeof res.data === 'string' ? res.data : JSON.stringify(res.data ?? '')
-    ).slice(0, 500);
+    ).slice(0, 500), [token]);
     // Logged at debug because this failure is thrown and reported by the caller
     // (App.onError); logging it here as error too would double-report it.
     deps.log?.debug(

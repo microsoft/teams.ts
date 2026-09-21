@@ -1,3 +1,4 @@
+import { ActivitySender } from '../activity-sender';
 import { HttpPlugin } from '../plugins';
 
 import {
@@ -11,6 +12,7 @@ import {
   resetConnectionState,
   ticks,
 } from './app.e2e.test-harness';
+import { NegotiateError } from './negotiate';
 
 describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery', () => {
   beforeEach(resetConnectionState);
@@ -106,6 +108,40 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
     expect(reconnected).toHaveBeenCalledWith({ geo: '' });
     expect(app.socketMode!.status).toBe('ready');
     await app.stop();
+  });
+
+  it('honors Retry-After while retrying startup and waits for every geo', async () => {
+    jest.useFakeTimers();
+    try {
+      connectionState.startErrorQueue.push(
+        new NegotiateError('negotiate throttled', 1_000)
+      );
+      const app = createSocketTestApp({
+        socketMode: {
+          geos: ['amer', 'emea'],
+          reconnectDelaysMs: [10],
+          startupTimeoutMs: 5_000,
+        },
+      });
+
+      let started = false;
+      const start = app.start().then(() => {
+        started = true;
+      });
+      await jest.advanceTimersByTimeAsync(999);
+
+      expect(connectionState.connections).toHaveLength(2);
+      expect(started).toBe(false);
+
+      await jest.advanceTimersByTimeAsync(1);
+      await start;
+
+      expect(connectionState.connections).toHaveLength(3);
+      expect(app.socketMode!.status).toBe('ready');
+      await app.stop();
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   describe('make-before-break token refresh', () => {
@@ -369,39 +405,221 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
     ).toThrow(/both socketMode and an HttpPlugin/);
   });
 
-  it('keeps concurrent activity results correlated', async () => {
+  it('correlates multiple concurrent invoke results exactly once', async () => {
     const app = createSocketTestApp();
-    const messageHandler = jest.fn();
     const invokeHandler = jest.fn(async ({ activity }: any) => ({
       status: 200,
       body: { id: activity.id },
     }));
-    app.on('message', messageHandler);
     app.on('card.action', invokeHandler as any);
     await app.start();
 
+    const replies = await Promise.all(
+      Array.from({ length: 12 }, (_, index) =>
+        dispatch(
+          envelope(
+            {
+              ...messageActivity({ id: `invoke-${index}` }),
+              type: 'invoke',
+              name: 'adaptiveCard/action',
+              value: { action: { verb: `run-${index}` } },
+            },
+            `envelope-${index}`
+          )
+        )
+      )
+    );
+
+    expect(invokeHandler).toHaveBeenCalledTimes(12);
+    expect(replies).toEqual(
+      Array.from({ length: 12 }, (_, index) =>
+        expect.objectContaining({
+          envelopeId: `envelope-${index}`,
+          status: 200,
+          body: { id: `invoke-${index}` },
+        })
+      )
+    );
+    await app.stop();
+  });
+
+  it('keeps mixed concurrent activity routes and results isolated', async () => {
+    const app = createSocketTestApp();
+    const messageHandler = jest.fn(async () => undefined);
+    const reactionHandler = jest.fn(async () => undefined);
+    const cardHandler = jest.fn(async ({ activity }: any) => ({
+      status: 201,
+      body: { route: 'card', id: activity.id },
+    }));
+    const taskHandler = jest.fn(async ({ activity }: any) => ({
+      status: 202,
+      body: { route: 'task', id: activity.id },
+    }));
+    app.on('message', messageHandler);
+    (app as any).on('messageReaction', reactionHandler);
+    app.on('card.action', cardHandler as any);
+    (app as any).on('dialog.submit', taskHandler);
+    await app.start();
+
     const replies = await Promise.all([
-      dispatch(envelope(messageActivity({ id: 'message-a' }), 'envelope-a')),
+      dispatch(envelope(messageActivity({ id: 'message-1' }), 'message-envelope')),
+      dispatch(
+        envelope(
+          messageActivity({
+            id: 'reaction-1',
+            type: 'messageReaction',
+            reactionsAdded: [{ type: 'like' }],
+          }),
+          'reaction-envelope'
+        )
+      ),
       dispatch(
         envelope(
           {
-            ...messageActivity({ id: 'invoke-b' }),
+            ...messageActivity({ id: 'card-1' }),
             type: 'invoke',
             name: 'adaptiveCard/action',
             value: { action: { verb: 'run' } },
           },
-          'envelope-b'
+          'card-envelope'
+        )
+      ),
+      dispatch(
+        envelope(
+          {
+            ...messageActivity({ id: 'task-1' }),
+            type: 'invoke',
+            name: 'task/submit',
+            value: { data: { action: 'save' } },
+          },
+          'task-envelope'
         )
       ),
     ]);
 
     expect(messageHandler).toHaveBeenCalledTimes(1);
-    expect(invokeHandler).toHaveBeenCalledTimes(1);
-    expect(replies[0]).toMatchObject({ envelopeId: 'envelope-a' });
-    expect(replies[1]).toMatchObject({
-      envelopeId: 'envelope-b',
-      body: { id: 'invoke-b' },
-    });
+    expect(reactionHandler).toHaveBeenCalledTimes(1);
+    expect(cardHandler).toHaveBeenCalledTimes(1);
+    expect(taskHandler).toHaveBeenCalledTimes(1);
+    expect(replies).toEqual([
+      expect.objectContaining({ envelopeId: 'message-envelope', status: 200 }),
+      expect.objectContaining({ envelopeId: 'reaction-envelope', status: 200 }),
+      expect.objectContaining({
+        envelopeId: 'card-envelope',
+        status: 201,
+        body: { route: 'card', id: 'card-1' },
+      }),
+      expect.objectContaining({
+        envelopeId: 'task-envelope',
+        status: 202,
+        body: { route: 'task', id: 'task-1' },
+      }),
+    ]);
     await app.stop();
+  });
+
+  it('does not drain an in-flight handler during shutdown', async () => {
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    let entered!: () => void;
+    const handlerEntered = new Promise<void>((resolve) => {
+      entered = resolve;
+    });
+    const app = createSocketTestApp();
+    app.on('message', async () => {
+      entered();
+      await gate;
+    });
+    await app.start();
+
+    const reply = dispatch(
+      envelope(messageActivity({ id: 'slow-shutdown' }), 'slow-shutdown-envelope')
+    );
+    await handlerEntered;
+
+    let stopped = false;
+    const stop = app.stop().then(() => {
+      stopped = true;
+    });
+    await ticks(2);
+    const stoppedBeforeHandlerCompleted = stopped;
+
+    release();
+    await Promise.all([stop, reply]);
+
+    expect(stoppedBeforeHandlerCompleted).toBe(true);
+  });
+
+  it('sends a reply through the outbound conversation API after socket ingress', async () => {
+    const send = jest
+      .spyOn(ActivitySender.prototype, 'send')
+      .mockResolvedValue({ id: 'reply-1' } as any);
+    const app = createSocketTestApp();
+    app.on('message', async ({ reply }) => {
+      await reply('socket reply');
+    });
+    await app.start();
+
+    try {
+      const result = await dispatch(
+        envelope(messageActivity({ id: 'reply-source' }), 'reply-source-envelope')
+      );
+
+      expect(result).toMatchObject({
+        envelopeId: 'reply-source-envelope',
+        status: 200,
+      });
+      expect(send).toHaveBeenCalledTimes(1);
+      expect(send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'message',
+          text: expect.stringContaining('socket reply'),
+        }),
+        expect.objectContaining({
+          serviceUrl: 'https://smba.example/teams',
+          conversation: expect.objectContaining({ id: 'conversation-1' }),
+        })
+      );
+    } finally {
+      await app.stop();
+      send.mockRestore();
+    }
+  });
+
+  it('sends proactively through the conversation API while inbound remains socket-based', async () => {
+    const send = jest
+      .spyOn(ActivitySender.prototype, 'send')
+      .mockResolvedValue({ id: 'proactive-1' } as any);
+    const inbound = jest.fn();
+    const app = createSocketTestApp();
+    app.on('message', inbound);
+    await app.start();
+
+    try {
+      await app.send('proactive-conversation', 'proactive message');
+      const result = await dispatch(
+        envelope(messageActivity({ id: 'socket-inbound' }), 'socket-inbound-envelope')
+      );
+
+      expect(send).toHaveBeenCalledTimes(1);
+      expect(send).toHaveBeenCalledWith(
+        expect.objectContaining({ type: 'message', text: 'proactive message' }),
+        expect.objectContaining({
+          conversation: expect.objectContaining({ id: 'proactive-conversation' }),
+        }),
+        undefined
+      );
+      expect(inbound).toHaveBeenCalledTimes(1);
+      expect(result).toMatchObject({
+        envelopeId: 'socket-inbound-envelope',
+        status: 200,
+      });
+      expect(app.server.adapter).toBe(app.socketMode);
+    } finally {
+      await app.stop();
+      send.mockRestore();
+    }
   });
 });

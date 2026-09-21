@@ -190,6 +190,48 @@ describe('Socket Mode E2E: protocol and observability', () => {
     await app.stop();
   });
 
+  it('preserves activity type and envelope correlation for handler failures', async () => {
+    const app = createSocketTestApp();
+    app.on('card.action', async () => {
+      throw new Error('controlled invoke failure');
+    });
+    app.on('message', async () => {
+      throw new Error('controlled message failure');
+    });
+    await app.start();
+
+    const [invokeReply, messageReply] = await Promise.all([
+      dispatch(
+        envelope(
+          invokeActivity(
+            'adaptiveCard/action',
+            { action: { verb: 'fail' } },
+            { id: 'failed-card' }
+          ),
+          'failed-card-envelope'
+        )
+      ),
+      dispatch(
+        envelope(
+          messageActivity({ id: 'failed-message' }),
+          'failed-message-envelope'
+        )
+      ),
+    ]);
+
+    expect(invokeReply).toMatchObject({
+      envelopeId: 'failed-card-envelope',
+      status: 500,
+    });
+    expect(invokeReply?.body).toBeUndefined();
+    expect(messageReply).toMatchObject({
+      envelopeId: 'failed-message-envelope',
+      status: 500,
+    });
+    expect(messageReply?.body).toBeUndefined();
+    await app.stop();
+  });
+
   it('returns a correlated bodyless 500 for a one-way handler failure', async () => {
     const app = createSocketTestApp();
     app.on('message', async () => {
@@ -235,6 +277,47 @@ describe('Socket Mode E2E: protocol and observability', () => {
     await expect(reply).resolves.toMatchObject({
       envelopeId: 'slow-envelope',
       status: 200,
+    });
+    await app.stop();
+  });
+
+  it('waits for a slow invoke before returning its correlated result', async () => {
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const app = createSocketTestApp();
+    app.on('card.action', (async ({ activity }: any) => {
+      await gate;
+      return {
+        status: 202,
+        body: { id: activity.id },
+      };
+    }) as any);
+    await app.start();
+
+    let settled = false;
+    const reply = dispatch(
+      envelope(
+        invokeActivity(
+          'adaptiveCard/action',
+          { action: { verb: 'slow' } },
+          { id: 'slow-invoke' }
+        ),
+        'slow-invoke-envelope'
+      )
+    ).then((result) => {
+      settled = true;
+      return result;
+    });
+    await Promise.resolve();
+    expect(settled).toBe(false);
+
+    release();
+    await expect(reply).resolves.toMatchObject({
+      envelopeId: 'slow-invoke-envelope',
+      status: 202,
+      body: { id: 'slow-invoke' },
     });
     await app.stop();
   });

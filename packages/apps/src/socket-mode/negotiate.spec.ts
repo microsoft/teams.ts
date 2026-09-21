@@ -62,6 +62,39 @@ describe('socket-mode negotiate', () => {
     await expect(negotiate(deps())).rejects.toThrow(/HTTP 503/);
   });
 
+  it('redacts credentials from negotiate logs and errors', async () => {
+    const log = {
+      debug: jest.fn(),
+    };
+    post.mockResolvedValue(
+      httpResponse(
+        {
+          accessToken: 'signalr-secret',
+          clientSecret: 'client-secret',
+          detail: 'Bearer bot-jwt',
+        },
+        503
+      )
+    );
+
+    let error: Error | undefined;
+    try {
+      await negotiate({ ...deps(), log: log as any });
+    } catch (caught) {
+      error = caught as Error;
+    }
+
+    expect(error).toBeDefined();
+    const diagnostics = [
+      error?.message,
+      ...log.debug.mock.calls.flat(),
+    ].join(' ');
+    expect(diagnostics).not.toContain('signalr-secret');
+    expect(diagnostics).not.toContain('client-secret');
+    expect(diagnostics).not.toContain('bot-jwt');
+    expect(diagnostics).toContain('[REDACTED]');
+  });
+
   it('parses Retry-After (delta-seconds) into NegotiateError.retryAfterMs on a 429', async () => {
     post.mockResolvedValue(
       httpResponse('slow down', 429, {
