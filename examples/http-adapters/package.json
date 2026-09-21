@@ -21,7 +21,7 @@
   "devDependencies": {
     "@microsoft/teams.config": "*",
     "@types/express": "^5.0.0",
-    "@types/node": "^22.5.4",
+    "@types/node": "^26.5.1",
     "@types/restify": "^8.5.12",
     "dotenv": "^17.4.2",
     "tsx": "^4.23.13",

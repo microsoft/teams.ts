@@ -35,7 +35,7 @@
     "@microsoft/teams.config": "*",
     "@modelcontextprotocol/inspector": "^2.5.0",
     "@types/express": "^5.0.0",
-    "@types/node": "^22.5.4",
+    "@types/node": "^26.5.1",
     "dotenv": "^17.4.2",
     "env-cmd": "latest",
     "rimraf": "^6.0.1",
