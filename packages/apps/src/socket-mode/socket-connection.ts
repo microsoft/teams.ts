@@ -2,6 +2,7 @@ import { HubConnection, HubConnectionBuilder, LogLevel, ILogger as ISignalRLogge
 import { ILogger } from '@microsoft/teams.common';
 
 import { negotiate } from './negotiate';
+import { redactSocketModeSecrets } from './redact';
 import {
   ISocketConnection,
   SocketActivityEnvelope,
@@ -58,7 +59,7 @@ export class SignalRSocketConnection implements ISocketConnection {
     // OFF here. Explicit heartbeats make a dead connection surface promptly.
     const connection = new HubConnectionBuilder()
       .withUrl(neg.url, { accessTokenFactory: () => neg.accessToken })
-      .configureLogging(this.signalRLogger())
+      .configureLogging(this.signalRLogger([neg.accessToken]))
       .build();
     connection.keepAliveIntervalInMilliseconds = this.context.keepAliveIntervalMs;
     connection.serverTimeoutInMilliseconds = this.context.serverTimeoutMs;
@@ -185,11 +186,14 @@ export class SignalRSocketConnection implements ISocketConnection {
    * {@link ILogger} so they surface through the SDK's logging pipeline (and
    * respect its configured level) instead of SignalR's default console logger.
    */
-  private signalRLogger(): ISignalRLogger {
+  private signalRLogger(secrets: readonly string[] = []): ISignalRLogger {
     const log = this.log;
     return {
       log: (level, message) => {
-        const line = `socket-mode signalr: ${message}`;
+        const line = redactSocketModeSecrets(
+          `socket-mode signalr: ${message}`,
+          secrets
+        );
         switch (level) {
           case LogLevel.Critical:
           case LogLevel.Error:

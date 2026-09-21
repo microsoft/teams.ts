@@ -299,4 +299,24 @@ describe('SignalRSocketConnection', () => {
     expect(log.info).toHaveBeenCalledWith(expect.stringContaining('connected'));
     expect(log.debug).toHaveBeenCalledWith(expect.stringContaining('noisy'));
   });
+
+  it('redacts the SignalR access token from internal diagnostics', async () => {
+    const log = {
+      debug: jest.fn(),
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+    };
+    const conn = new SignalRSocketConnection(makeContext(), makeHandlers(), log as any);
+    await conn.start();
+
+    state.logger!.log(
+      signalr.LogLevel.Debug,
+      'connecting to wss://sr/hub?access_token=sr-token'
+    );
+
+    const diagnostics = log.debug.mock.calls.flat().join(' ');
+    expect(diagnostics).not.toContain('sr-token');
+    expect(diagnostics).toContain('access_token=[REDACTED]');
+  });
 });
