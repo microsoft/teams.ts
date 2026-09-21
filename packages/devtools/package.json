@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@fluentui/react-components": "^9.74.7",
-    "@fluentui/react-icons": "^2.0.274",
+    "@fluentui/react-icons": "^2.0.341",
     "@microsoft/teams.api": "*",
     "@microsoft/teams.cards": "*",
     "@microsoft/teams.common": "*",
