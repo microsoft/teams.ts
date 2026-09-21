@@ -108,6 +108,192 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
     await app.stop();
   });
 
+  describe('make-before-break token refresh', () => {
+    it('keeps the old socket through replacement readiness and the APX handoff window', async () => {
+      jest.useFakeTimers();
+      try {
+        connectionState.expiresInSeconds = 120;
+        connectionState.autoReadyQueue = [true, false];
+        const handler = jest.fn();
+        const app = createSocketTestApp({
+          socketMode: { geos: [''], reconnectDelaysMs: [0] },
+        });
+        app.on('message', handler);
+        await app.start();
+        const oldConnection = connectionState.connections[0];
+
+        await jest.advanceTimersByTimeAsync(61_000);
+        expect(connectionState.connections).toHaveLength(2);
+        const replacement = connectionState.connections[1];
+
+        expect(oldConnection.stopped).toBe(0);
+        await oldConnection.handlers.onActivity(
+          envelope(messageActivity({ id: 'before-ready' }), 'before-ready')
+        );
+        expect(handler).toHaveBeenCalledTimes(1);
+
+        replacement.fireReady();
+        await jest.advanceTimersByTimeAsync(0);
+
+        expect(oldConnection.stopped).toBe(0);
+        await oldConnection.handlers.onActivity(
+          envelope(messageActivity({ id: 'cached-old-id' }), 'cached-old-id')
+        );
+        expect(handler).toHaveBeenCalledTimes(2);
+
+        await jest.advanceTimersByTimeAsync(4_999);
+        expect(oldConnection.stopped).toBe(0);
+        await jest.advanceTimersByTimeAsync(1);
+        expect(oldConnection.stopped).toBe(1);
+
+        await app.stop();
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    it('closes active and retiring sockets when stopped during handoff', async () => {
+      jest.useFakeTimers();
+      try {
+        connectionState.expiresInSeconds = 120;
+        const app = createSocketTestApp({
+          socketMode: { geos: [''], reconnectDelaysMs: [0] },
+        });
+        await app.start();
+
+        await jest.advanceTimersByTimeAsync(61_000);
+        expect(connectionState.connections).toHaveLength(2);
+
+        const [oldConnection, replacement] = connectionState.connections;
+        expect(oldConnection.stopped).toBe(0);
+        expect(replacement.stopped).toBe(0);
+
+        await app.stop();
+
+        expect(oldConnection.stopped).toBe(1);
+        expect(replacement.stopped).toBe(1);
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    it('retires overlapping predecessor generations independently', async () => {
+      jest.useFakeTimers();
+      try {
+        connectionState.expiresInSeconds = 61;
+        const app = createSocketTestApp({
+          socketMode: { geos: [''], reconnectDelaysMs: [0] },
+        });
+        await app.start();
+        const first = connectionState.connections[0];
+
+        await jest.advanceTimersByTimeAsync(1_000);
+        expect(connectionState.connections).toHaveLength(2);
+        const second = connectionState.connections[1];
+
+        connectionState.expiresInSeconds = undefined;
+        await jest.advanceTimersByTimeAsync(1_000);
+        expect(connectionState.connections).toHaveLength(3);
+
+        await jest.advanceTimersByTimeAsync(3_999);
+        expect(first.stopped).toBe(0);
+        expect(second.stopped).toBe(0);
+
+        await jest.advanceTimersByTimeAsync(1);
+        expect(first.stopped).toBe(1);
+        expect(second.stopped).toBe(0);
+
+        await jest.advanceTimersByTimeAsync(1_000);
+        expect(second.stopped).toBe(1);
+
+        await app.stop();
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    it('keeps the old socket serving while replacement attempts fail', async () => {
+      jest.useFakeTimers();
+      try {
+        connectionState.expiresInSeconds = 120;
+        const handler = jest.fn();
+        const app = createSocketTestApp({
+          socketMode: { geos: [''], reconnectDelaysMs: [100] },
+        });
+        app.on('message', handler);
+        await app.start();
+        const oldConnection = connectionState.connections[0];
+
+        connectionState.startErrorQueue.push(
+          new Error('replacement negotiate failed')
+        );
+        await jest.advanceTimersByTimeAsync(60_000);
+        await oldConnection.handlers.onActivity(
+          envelope(
+            messageActivity({ id: 'during-first-backoff' }),
+            'during-first-backoff'
+          )
+        );
+        expect(handler).toHaveBeenCalledTimes(1);
+
+        await jest.advanceTimersByTimeAsync(100);
+        expect(connectionState.connections).toHaveLength(2);
+        expect(oldConnection.stopped).toBe(0);
+        await oldConnection.handlers.onActivity(
+          envelope(
+            messageActivity({ id: 'after-failed-replacement' }),
+            'after-failed-replacement'
+          )
+        );
+        expect(handler).toHaveBeenCalledTimes(2);
+
+        connectionState.expiresInSeconds = undefined;
+        await jest.advanceTimersByTimeAsync(100);
+        expect(connectionState.connections).toHaveLength(3);
+        expect(app.socketMode!.status).toBe('ready');
+
+        await app.stop();
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    it('reports an outage if the old socket dies before its replacement is ready', async () => {
+      jest.useFakeTimers();
+      try {
+        connectionState.expiresInSeconds = 120;
+        connectionState.autoReadyQueue = [true, false];
+        const app = createSocketTestApp({
+          socketMode: { geos: [''], reconnectDelaysMs: [0] },
+        });
+        const disconnected = jest.fn();
+        const reconnected = jest.fn();
+        app.socketMode!.events.on('disconnected', disconnected);
+        app.socketMode!.events.on('reconnected', reconnected);
+        await app.start();
+
+        await jest.advanceTimersByTimeAsync(61_000);
+        const oldConnection = connectionState.connections[0];
+        const replacement = connectionState.connections[1];
+        const error = new Error('old socket dropped during rotation');
+
+        oldConnection.drop(error);
+
+        expect(app.socketMode!.status).toBe('disconnected');
+        expect(disconnected).toHaveBeenCalledWith({ geo: '', error });
+
+        replacement.fireReady();
+        await jest.advanceTimersByTimeAsync(0);
+
+        expect(app.socketMode!.status).toBe('ready');
+        expect(reconnected).toHaveBeenCalledWith({ geo: '' });
+        await app.stop();
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+  });
+
   it('starts a fresh generation when the app restarts', async () => {
     const app = createSocketTestApp();
 

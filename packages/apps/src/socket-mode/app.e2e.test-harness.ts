@@ -36,6 +36,8 @@ jest.mock('./socket-connection', () => {
     readonly handlers: SocketConnectionHandlers;
     readonly expiresInSeconds?: number;
     readonly autoReady: boolean;
+    started = 0;
+    stopped = 0;
     private resolveReady?: () => void;
 
     constructor(
@@ -50,6 +52,7 @@ jest.mock('./socket-connection', () => {
     }
 
     async start(signal?: AbortSignal): Promise<void> {
+      this.started++;
       state.startCalls++;
       const error = state.startErrorQueue.shift();
       if (error) throw error;
@@ -82,6 +85,7 @@ jest.mock('./socket-connection', () => {
     }
 
     async stop(): Promise<void> {
+      this.stopped++;
       state.stopCalls++;
     }
 
@@ -101,6 +105,8 @@ export type FakeConnection = {
   readonly handlers: SocketConnectionHandlers;
   readonly expiresInSeconds?: number;
   readonly autoReady: boolean;
+  readonly started: number;
+  readonly stopped: number;
   fireReady(): void;
   drop(error?: Error): void;
 };
