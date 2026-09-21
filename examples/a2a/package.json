@@ -25,7 +25,7 @@
     "@microsoft/teams.apps": "*",
     "@microsoft/teams.common": "*",
     "express": "^5.1.0",
-    "openai": "^6.37.0"
+    "openai": "^7.15.0"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",

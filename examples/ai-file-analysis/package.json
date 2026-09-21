@@ -22,7 +22,7 @@
     "@microsoft/teams.apps": "*",
     "@microsoft/teams.cards": "*",
     "@microsoft/teams.common": "*",
-    "openai": "^4.104.0"
+    "openai": "^7.15.0"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
