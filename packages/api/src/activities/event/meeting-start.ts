@@ -22,8 +22,9 @@ export interface IMeetingStartEventActivity extends IActivity<'event'> {
 
     /**
      * @member {string} [JoinUrl] The URL used to join the meeting.
+     * Meetings held inside a channel have no join URL, and the platform sends the field as `null` on the wire.
      */
-    JoinUrl: string;
+    JoinUrl?: string | null;
 
     /**
      * @member {string} [Title] The title of the meeting.

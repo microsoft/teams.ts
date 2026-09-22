@@ -334,6 +334,54 @@ describe('App', () => {
       expect(response.body).toBeUndefined();
     });
 
+    it('dispatches channel meeting events, which carry a null JoinUrl', async () => {
+      // Captured from a live meeting held inside a channel on 2026-09-17.
+      // A channel meeting has no join link, so the platform sends JoinUrl as null on both the start and the end event.
+      const channelMeetingEvent = (name: string, value: string) => JSON.parse(`{
+        "type": "event",
+        "id": "activity-id",
+        "name": "${name}",
+        "channelId": "msteams",
+        "serviceUrl": "https://service.url",
+        "from": { "id": "user-1", "name": "Test User", "role": "user" },
+        "recipient": { "id": "bot-1", "name": "Test Bot", "role": "bot" },
+        "conversation": { "id": "conv-1", "conversationType": "channel" },
+        "value": ${value}
+      }`);
+      const meetingId = 'MCMxOTpPOThDcWI2UHJIVExzMUB0aHJlYWQudGFjdjIjMTc4OTY2NjYwODA4MA==';
+      const startEvent = channelMeetingEvent(
+        'application/vnd.microsoft.meetingStart',
+        `{ "MeetingType": "", "Title": "Meeting in \\"General\\" ", "Id": "${meetingId}", "JoinUrl": null, "StartTime": "2026-09-17T17:10:02.000000Z" }`
+      );
+      const endEvent = channelMeetingEvent(
+        'application/vnd.microsoft.meetingEnd',
+        `{ "MeetingType": "", "Title": "Meeting in \\"General\\" ", "Id": "${meetingId}", "JoinUrl": null, "StartTime": null, "EndTime": "2026-09-17T17:40:13.081877Z" }`
+      );
+      const errors: IErrorEvent[] = [];
+      const handled: unknown[] = [];
+      app.event('error', (event) => {
+        errors.push(event);
+      });
+      app.on('meetingStart', ({ activity: incoming }) => {
+        handled.push({ route: 'meetingStart', title: incoming.value.Title, joinUrl: incoming.value.JoinUrl });
+      });
+      app.on('meetingEnd', ({ activity: incoming }) => {
+        handled.push({ route: 'meetingEnd', title: incoming.value.Title, joinUrl: incoming.value.JoinUrl });
+      });
+
+      const startResponse = await app.process({ token, body: startEvent });
+      const endResponse = await app.process({ token, body: endEvent });
+
+      expect(startResponse.status).toBe(200);
+      expect(endResponse.status).toBe(200);
+      expect(errors).toEqual([]);
+      // Inbound activities are cast rather than normalized, so the wire null reaches the handler as null rather than undefined.
+      expect(handled).toEqual([
+        { route: 'meetingStart', title: 'Meeting in "General" ', joinUrl: null },
+        { route: 'meetingEnd', title: 'Meeting in "General" ', joinUrl: null },
+      ]);
+    });
+
     it('emits activity process telemetry and unmatched metrics without recording payload text', async () => {
       const incomingActivity: IMessageActivity = new MessageActivity('do not record this')
         .withId('activity-id')
