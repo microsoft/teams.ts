@@ -145,7 +145,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   protected pluginManager: PluginManager<TPlugin>;
   protected router = new Router<PluginAdditionalContext<TPlugin>>();
   protected tenantTokens = new LocalStorage<string>({}, { max: 20000 });
-  protected events = new EventEmitter<AppEvents<TPlugin>>();
+  protected events: EventEmitter<AppEvents<TPlugin>>;
   protected isInitialized = false;
   protected port?: number | string;
   protected activitySender: ActivitySender;
@@ -168,6 +168,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
   constructor(readonly options: AppOptions<TPlugin> = {}) {
     this.log = this.options.logger || new ConsoleLogger('@teams/app');
+    this.events = new EventEmitter<AppEvents<TPlugin>>(this.log.child('events'));
     this.storage = this.options.storage || new LocalStorage();
     const hasConfiguredOAuthFlows = (this.options.oauthFlows?.length ?? 0) > 0;
     if (

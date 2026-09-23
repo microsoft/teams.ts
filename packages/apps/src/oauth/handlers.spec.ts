@@ -32,11 +32,13 @@ describe('OauthHandlers', () => {
   let mockGetFlows: jest.Mock;
   let mockClient: jest.Mocked<HttpClient>;
   let mockEvents: EventEmitter<any>;
+  let mockLogger: { error: jest.Mock };
   
   beforeEach(() => {
     mockGetFlows = jest.fn().mockReturnValue([new OAuthFlow('test-connection')]);
     mockClient = { clone: jest.fn().mockReturnThis() } as any;
-    mockEvents = new EventEmitter<any>();
+    mockLogger = { error: jest.fn() };
+    mockEvents = new EventEmitter<any>(mockLogger as any);
     handlers = new OauthHandlers(mockGetFlows, mockClient, mockEvents);
 
     (getTeamsBotApplicationTracer as jest.Mock).mockReturnValue({
@@ -258,7 +260,7 @@ describe('OauthHandlers', () => {
         next
       };
       
-      const emitSpy = jest.spyOn(mockEvents, 'emit');
+      const emitSpy = jest.spyOn(mockEvents, 'emitAsync');
 
       const results = await Promise.all([
         handlers.onTokenExchange(ctx),
@@ -301,7 +303,7 @@ describe('OauthHandlers', () => {
         next: jest.fn()
       };
       
-      const emitSpy = jest.spyOn(mockEvents, 'emit');
+      const emitSpy = jest.spyOn(mockEvents, 'emitAsync');
 
       const results = await Promise.allSettled([
         handlers.onTokenExchange(ctx),
@@ -315,6 +317,85 @@ describe('OauthHandlers', () => {
       expect(mockApi.users.exchangeToken).toHaveBeenCalledTimes(1);
       expect(emitSpy).not.toHaveBeenCalled();
       expect(ctx.next).not.toHaveBeenCalled();
+    });
+
+    it('waits for async signin listeners before continuing the turn', async () => {
+      const ctx: any = {
+        api: {
+          users: {
+            exchangeToken: jest.fn().mockResolvedValue({ token: 'test-token' }),
+          },
+        },
+        activity: {
+          channelId: 'msteams',
+          from: { id: 'user-id' },
+          conversation: { id: 'conversation-id' },
+          value: {
+            id: 'exchange-async-listener',
+            connectionName: 'test-connection',
+            token: 'some-token',
+          },
+        },
+        log: { warn: jest.fn() },
+        next: jest.fn(),
+        state: new TurnStateContainer(new TurnState(), new TurnState()),
+      };
+
+      const order: string[] = [];
+      ctx.next.mockImplementation(() => {
+        order.push('next');
+      });
+      mockEvents.on('signin', async (event: any) => {
+        await new Promise((resolve) => setTimeout(resolve, 5));
+        // Sealing happens once the turn returns, so this only succeeds while
+        // the emitter is still awaiting the listener.
+        event.state.conversation.set('signedIn', true);
+        order.push('listener');
+      });
+
+      await expect(handlers.onTokenExchange(ctx)).resolves.toEqual({ status: 200 });
+
+      expect(order).toEqual(['listener', 'next']);
+      expect(ctx.state.conversation.get('signedIn')).toBe(true);
+    });
+
+    it('logs a failing signin listener instead of failing the turn', async () => {
+      const ctx: any = {
+        api: {
+          users: {
+            exchangeToken: jest.fn().mockResolvedValue({ token: 'test-token' }),
+          },
+        },
+        activity: {
+          channelId: 'msteams',
+          from: { id: 'user-id' },
+          conversation: { id: 'conversation-id' },
+          value: {
+            id: 'exchange-failing-listener',
+            connectionName: 'test-connection',
+            token: 'some-token',
+          },
+        },
+        log: { warn: jest.fn() },
+        next: jest.fn(),
+      };
+
+      const error = new Error('listener blew up');
+      const healthy = jest.fn();
+      mockEvents.on('signin', async () => {
+        await Promise.resolve();
+        throw error;
+      });
+      mockEvents.on('signin', healthy);
+
+      await expect(handlers.onTokenExchange(ctx)).resolves.toEqual({ status: 200 });
+
+      expect(healthy).toHaveBeenCalled();
+      expect(ctx.next).toHaveBeenCalledTimes(1);
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'event handler failed for "signin"',
+        error
+      );
     });
   });
 });
@@ -748,6 +829,7 @@ describe('OauthHandlers diagnostics', () => {
   };
   const events = {
     emit: jest.fn(),
+    emitAsync: jest.fn(async () => { }),
   };
   let spans: SpanRecord[];
   let handlers: OauthHandlers;

@@ -193,7 +193,9 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
   ): Promise<void> {
     this.applyUserToken(ctx, token);
     await flow.complete(ctx, token);
-    this.events.emit('signin', {
+    // Awaited so async `signin` listeners run inside the turn, while
+    // `ctx.state` is still live and its writes are still persisted.
+    await this.events.emitAsync('signin', {
       ...ctx,
       connectionName,
       token,
