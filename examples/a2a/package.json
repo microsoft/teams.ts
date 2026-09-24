@@ -20,7 +20,7 @@
     "dev:bob": "env-cmd --silent -f .env.bob tsx watch src/index.ts"
   },
   "dependencies": {
-    "@a2a-js/sdk": "^0.3.13",
+    "@a2a-js/sdk": "^1.1.0",
     "@microsoft/teams.api": "*",
     "@microsoft/teams.apps": "*",
     "@microsoft/teams.common": "*",
