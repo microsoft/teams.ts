@@ -193,7 +193,7 @@ export class OauthHandlers<TPlugin extends IPlugin = IPlugin> {
   ): Promise<void> {
     this.applyUserToken(ctx, token);
     await flow.complete(ctx, token);
-    this.events.emit('signin', {
+    await this.events.emitAsync('signin', {
       ...ctx,
       connectionName,
       token,
