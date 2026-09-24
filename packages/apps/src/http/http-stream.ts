@@ -34,10 +34,10 @@ import { promises } from '../utils';
  *
  * Flow:
  * 1. `emit()` adds activities to the queue and starts a flush if none scheduled.
- * 2. `_flush()` starts by cancelling any pending flush, then processes up to 10 queued activities under a lock.
- * 3. Informative typing updates are sent immediately.
+ * 2. `flush()` starts by cancelling any pending flush, then drains the entire queue under a lock.
+ * 3. Informative typing updates are sent immediately, but only while no message text has accumulated.
  * 4. Message text is combined and sent as a typing activity.
- * 5. `_flush()` schedules another flush if more items remain in queue.
+ * 5. `flush()` schedules another flush 500ms later if more items remain in queue.
  * 6. `close()` waits for the queue to empty and sends the final message activity.
  */
 export class HttpStream implements IStreamer {
@@ -333,7 +333,7 @@ export class HttpStream implements IStreamer {
 
   /**
    * Flush queued activities.
-   * Processes up to 10 items at a time.
+   * Drains the entire queue in a single pass.
    */
   protected async flush() {
     // if locked or no queue, return early
