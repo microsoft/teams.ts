@@ -9,11 +9,6 @@ import { IErrorEvent } from './error';
 
 export interface IEvents {
   start: ILogger;
-  /**
-   * Emitted when a sign-in completes. Listeners are awaited within the
-   * sign-in turn, so `ctx.state` stays live across `await`s and any writes are
-   * persisted. A listener that throws is logged and does not fail the turn.
-   */
   signin: IActivitySignInContext;
   error: IErrorEvent;
   activity: IActivityEvent;
