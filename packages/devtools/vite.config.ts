@@ -1,4 +1,3 @@
-import { nodeResolve } from '@rollup/plugin-node-resolve';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
@@ -10,8 +9,5 @@ export default defineConfig({
     outDir: '../dev/dist/devtools-web',
     minify: process.env.NODE_ENV === 'production',
     sourcemap: process.env.NODE_ENV !== 'production',
-    rollupOptions: {
-      plugins: [nodeResolve()],
-    },
   },
 });
