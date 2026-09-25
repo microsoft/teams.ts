@@ -34,6 +34,8 @@ export type GeoSocketDeps = {
     envelope: SocketActivityEnvelope
   ) => Promise<ReplyFrame | undefined>;
   readonly retryAfterOf: (error: unknown) => number | undefined;
+  /** `true` for errors (negotiate 401/403) that retrying cannot fix. */
+  readonly isNonRetryable: (error: unknown) => boolean;
   readonly backoffDelay: (attempt: number) => number;
   readonly sleep: (ms: number) => Promise<boolean>;
   readonly onReady: (frame: SocketReadyFrame) => void;
@@ -101,6 +103,13 @@ export class GeoSocket {
       } catch (err: any) {
         lastError = err;
         if (!this.deps.isAccepting()) break;
+        if (this.deps.isNonRetryable(err)) {
+          // Thrown to App.start(), which reports it through the app `error` event.
+          this.log.debug(
+            `socket-mode[${this.geo}]: initial connection rejected with a non-retryable error; not retrying`
+          );
+          throw err;
+        }
         const delay = this.deps.retryAfterOf(err) ?? this.deps.backoffDelay(attempt);
         attempt++;
         if (Date.now() + delay >= deadline) break;
@@ -293,11 +302,43 @@ export class GeoSocket {
       try {
         return await this.connectCycle(gen);
       } catch (err: any) {
+        if (this.deps.isNonRetryable(err)) {
+          await this.stopAfterNonRetryable(err);
+          return undefined;
+        }
         retryAfterMs = this.deps.retryAfterOf(err);
         this.log.warn(`socket-mode[${this.geo}]: reconnect attempt ${attempt} failed; will retry`, err);
       }
     }
     return undefined;
+  }
+
+  /**
+   * Stop reconnecting after a 401/403: close every connection this geo owns
+   * (including a predecessor still serving during a planned rotation and any
+   * sockets in their handoff window), then report the outage with the auth
+   * error so listeners can see why delivery stopped.
+   */
+  private async stopAfterNonRetryable(error: Error): Promise<void> {
+    this.log.error(
+      `socket-mode[${this.geo}]: reconnect rejected with a non-retryable error; ` +
+      'inbound delivery for this geo has stopped until the app is restarted',
+      error
+    );
+    this.clearRefreshTimer();
+    // Clear before stopping so their onClosed callbacks do not report again.
+    const connections = [
+      this.active?.connection,
+      ...this.retiring.values(),
+    ].filter(
+      (connection): connection is ISocketConnection => connection !== undefined
+    );
+    this.active = undefined;
+    this.retiring.clear();
+    await Promise.all(
+      connections.map((connection) => connection.stop().catch(() => undefined))
+    );
+    this.reportDisconnected(error);
   }
 
   private reportDisconnected(error?: Error): void {

@@ -59,6 +59,11 @@ function retryAfterFrom(error: unknown): number | undefined {
   return error instanceof NegotiateError ? error.retryAfterMs : undefined;
 }
 
+/** A 401/403 from negotiate cannot succeed on retry until credentials or access change. */
+function isNonRetryableError(error: unknown): boolean {
+  return error instanceof NegotiateError && error.isAuthError;
+}
+
 /** Join a base URL, an optional geo segment, and the negotiate path. */
 function buildNegotiateUrl(base: string, geo: string): string {
   const trimmedBase = base.replace(/\/+$/, '');
@@ -79,8 +84,12 @@ export type SocketModeEvents = {
   ready: { geo: string; frame: SocketReadyFrame };
   /**
    * A geo's socket dropped unexpectedly; a reconnect for that geo may be in
-   * progress. Not emitted for a planned proactive token rotation, which
-   * renegotiates transparently without surfacing a drop.
+   * progress. Not emitted for a successful planned proactive token rotation,
+   * which renegotiates transparently without surfacing a drop. When a
+   * reconnect or planned rotation is rejected with HTTP 401/403, this is
+   * emitted with that {@link NegotiateError} and the geo stops reconnecting —
+   * so after a network drop, listeners see one event for the drop and a second
+   * for the auth rejection.
    */
   disconnected: { geo: string; error?: Error };
   /**
@@ -179,7 +188,8 @@ export class SocketModeAdapter implements IHttpServerAdapter {
   /**
    * Aggregate lifecycle status across all geo connections. `ready` means every
    * geo is ready; `connecting` while any geo is still (re)connecting and none is
-   * mid-drop; `disconnected` when at least one geo has dropped and is recovering.
+   * mid-drop; `disconnected` when at least one geo has dropped and is recovering,
+   * or has stopped reconnecting after a 401/403 negotiate rejection.
    */
   get status(): SocketModeStatus {
     if (this._lifecycle === 'idle') return 'idle';
@@ -313,6 +323,7 @@ export class SocketModeAdapter implements IHttpServerAdapter {
           this.createConnection(negotiateUrl, handlers),
         dispatch: (envelope) => this.dispatch(envelope),
         retryAfterOf: (error) => this.retryAfterOf(error),
+        isNonRetryable: (error) => isNonRetryableError(error),
         backoffDelay: (attempt) => this.backoffDelay(attempt),
         sleep: (ms) => this.sleep(ms),
         onReady: (frame) => this.emit('ready', { geo, frame }),

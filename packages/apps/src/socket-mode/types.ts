@@ -27,7 +27,9 @@ export const SOCKET_MODE_NEGOTIATE_PATH = '/v3/websockets/connect';
  * - `connecting` — negotiating and opening the socket, or reconnecting.
  * - `ready` — socket is open AND the Teams backend service `SocketReady` readiness contract has
  *   been satisfied; inbound activities can be delivered.
- * - `disconnected` — the socket closed (a reconnect may be in progress).
+ * - `disconnected` — the socket closed. A reconnect may be in progress, unless
+ *   negotiate was rejected with HTTP 401/403, in which case reconnecting stops
+ *   until the app is restarted with corrected credentials or access.
  * - `stopped` — the server was stopped and will not reconnect.
  *
  * @experimental This API is in preview and may change in the future.

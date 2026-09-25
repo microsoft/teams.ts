@@ -51,14 +51,53 @@ export function assertSecureNegotiateUrl(negotiateUrl: string): void {
 
 /**
  * Error thrown by {@link negotiate} when the service returns a non-2xx status.
- * Carries the parsed `Retry-After` (in milliseconds) when the service asked the
- * caller to back off — typically on `429` or `503` — so the reconnect
- * supervisor can honor it instead of using its own back-off.
+ * Carries the HTTP status and the parsed `Retry-After` (in milliseconds) when
+ * the service asked the caller to back off — typically on `429` or `503` — so
+ * the reconnect supervisor can honor it instead of using its own back-off.
+ * Authentication and authorization failures (`401`/`403`) are not retried;
+ * see {@link NegotiateError.isAuthError}.
  */
 export class NegotiateError extends Error {
-  constructor(message: string, readonly retryAfterMs?: number) {
+  constructor(
+    message: string,
+    /** Service-requested delay before retrying, when supplied. */
+    readonly retryAfterMs?: number,
+    /**
+     * HTTP status returned by the Socket Mode negotiate endpoint. `undefined`
+     * when the error was constructed without a status.
+     */
+    readonly statusCode?: number
+  ) {
     super(message);
     this.name = 'NegotiateError';
+  }
+
+  /**
+   * `true` when negotiate was rejected with HTTP `401` or `403`. Retrying
+   * cannot fix these until the bot's credentials or Socket Mode access are
+   * corrected, so the SDK stops retrying on startup and reconnect.
+   */
+  get isAuthError(): boolean {
+    return this.statusCode === 401 || this.statusCode === 403;
+  }
+}
+
+/** Build an actionable error message for a failed negotiate request. */
+function negotiateErrorMessage(status: number, body: string): string {
+  const serviceError = `Socket Mode negotiate failed: HTTP ${status}${body ? ` ${body}` : ''}`;
+  switch (status) {
+    case 401:
+      return (
+        `${serviceError}. The bot could not be authenticated: verify the bot credentials ` +
+        '(clientId/clientSecret, managed identity, or token provider) and restart the app after correcting them.'
+      );
+    case 403:
+      return (
+        `${serviceError}. The credentials are valid, but this bot is not authorized to use ` +
+        'Socket Mode: verify the bot registration and Socket Mode access for this environment, then restart the app.'
+      );
+    default:
+      return serviceError;
   }
 }
 
@@ -123,8 +162,9 @@ export async function negotiate(deps: NegotiateDeps): Promise<NegotiateResult> {
       `socket-mode: negotiate failed status=${res.status} body=${body || '(empty)'}`
     );
     throw new NegotiateError(
-      `Socket Mode negotiate failed: HTTP ${res.status} ${body}`,
-      parseRetryAfterMs(res)
+      negotiateErrorMessage(res.status, body),
+      parseRetryAfterMs(res),
+      res.status
     );
   }
 

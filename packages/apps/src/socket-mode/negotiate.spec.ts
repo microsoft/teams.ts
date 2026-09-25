@@ -2,7 +2,7 @@ import type { AxiosResponse } from 'axios';
 
 import { Client as HttpClient } from '@microsoft/teams.common';
 
-import { negotiate } from './negotiate';
+import { negotiate, NegotiateError } from './negotiate';
 
 function httpResponse(
   data: unknown,
@@ -106,6 +106,33 @@ describe('socket-mode negotiate', () => {
       name: 'NegotiateError',
       retryAfterMs: 5000,
     });
+  });
+
+  it('explains how to fix bot credentials after a 401 response', async () => {
+    post.mockResolvedValue(httpResponse('invalid token', 401));
+
+    const error = await negotiate(deps()).catch((e) => e);
+    expect(error).toBeInstanceOf(NegotiateError);
+    expect(error).toMatchObject({ statusCode: 401, isAuthError: true });
+    expect(error.message).toMatch(
+      /HTTP 401 invalid token.*could not be authenticated.*clientId\/clientSecret/
+    );
+  });
+
+  it('explains the authorization problem after a 403 response', async () => {
+    post.mockResolvedValue(httpResponse('forbidden', 403));
+
+    const error = await negotiate(deps()).catch((e) => e);
+    expect(error).toMatchObject({ statusCode: 403, isAuthError: true });
+    expect(error.message).toMatch(/HTTP 403 forbidden.*not authorized to use Socket Mode/);
+  });
+
+  it('keeps other failures retryable with the plain service error', async () => {
+    post.mockResolvedValue(httpResponse('unavailable', 503));
+
+    const error = await negotiate(deps()).catch((e) => e);
+    expect(error).toMatchObject({ statusCode: 503, isAuthError: false });
+    expect(error.message).toBe('Socket Mode negotiate failed: HTTP 503 unavailable');
   });
 
   it('throws when the response is missing url/accessToken', async () => {

@@ -1,5 +1,6 @@
 import { Client as HttpClient, ConsoleLogger } from '@microsoft/teams.common';
 
+import { NegotiateError } from './negotiate';
 import { SocketModeAdapter, SocketModeAdapterDeps } from './socket-mode-adapter';
 import { SocketActivityEnvelope } from './types';
 
@@ -13,6 +14,8 @@ jest.mock('./socket-connection', () => {
     startErrorQueue: Error[];
     autoReadyQueue: boolean[];
     expiresInSeconds?: number;
+    /** Per-geo token lifetime, keyed by a negotiate URL substring. */
+    expiresInByUrl?: Record<string, number>;
   } = { connections: [], startErrorQueue: [], autoReadyQueue: [] };
 
   class FakeConnection {
@@ -27,7 +30,10 @@ jest.mock('./socket-connection', () => {
     constructor(context: any, handlers: any) {
       this.context = context;
       this.handlers = handlers;
-      this.expiresInSeconds = state.expiresInSeconds;
+      const byUrl = Object.entries(state.expiresInByUrl ?? {}).find(([part]) =>
+        String(context.negotiateUrl).includes(part)
+      );
+      this.expiresInSeconds = byUrl ? byUrl[1] : state.expiresInSeconds;
       this.autoReady = state.autoReadyQueue.shift() ?? true;
       state.connections.push(this);
     }
@@ -94,6 +100,7 @@ const connState = (jest.requireMock('./socket-connection') as any).__state as {
   startErrorQueue: Error[];
   autoReadyQueue: boolean[];
   expiresInSeconds?: number;
+  expiresInByUrl?: Record<string, number>;
 };
 
 const MESSAGING_ENDPOINT = '/api/messages';
@@ -170,6 +177,7 @@ describe('SocketModeAdapter resilience', () => {
     connState.startErrorQueue = [];
     connState.autoReadyQueue = [];
     connState.expiresInSeconds = undefined;
+    connState.expiresInByUrl = undefined;
   });
 
   describe('reconnect supervisor', () => {
@@ -386,6 +394,120 @@ describe('SocketModeAdapter resilience', () => {
 
       await expect(server.start()).rejects.toThrow(/negotiate down/);
       expect(server.status).not.toBe('ready');
+    });
+  });
+
+  describe('non-retryable negotiate errors (401/403)', () => {
+    const authError = (status: 401 | 403) =>
+      new NegotiateError(`Socket Mode negotiate failed: HTTP ${status}`, undefined, status);
+
+    it.each([401, 403] as const)(
+      'fails startup on HTTP %i without retrying inside the startup budget',
+      async (status) => {
+        const server = await makeServer({ reconnectDelaysMs: [0], startupTimeoutMs: 60_000 });
+        const error = authError(status);
+        connState.startErrorQueue.push(error);
+
+        await expect(server.start()).rejects.toBe(error);
+
+        expect(connState.connections).toHaveLength(1);
+        expect(server.status).toBe('stopped');
+      }
+    );
+
+    it.each([401, 403] as const)(
+      'stops reconnecting after HTTP %i and reports disconnected with the auth error',
+      async (status) => {
+        const server = await makeServer({ reconnectDelaysMs: [0] });
+        await server.start();
+
+        const disconnected = jest.fn();
+        const reconnected = jest.fn();
+        server.events.on('disconnected', disconnected);
+        server.events.on('reconnected', reconnected);
+
+        const drop = new Error('network drop');
+        const error = authError(status);
+        connState.startErrorQueue.push(error);
+        connState.connections[0].drop(drop);
+        await ticks(20);
+
+        // conn[0] dropped, conn[1] rejected; no further attempts.
+        expect(connState.connections).toHaveLength(2);
+        expect(connState.connections[0].stopped).toBeGreaterThanOrEqual(1);
+        expect(server.status).toBe('disconnected');
+        expect(reconnected).not.toHaveBeenCalled();
+        // One event for the drop, a second carrying the auth rejection.
+        expect(disconnected.mock.calls.map(([e]) => e.error)).toEqual([drop, error]);
+
+        await ticks(20);
+        expect(connState.connections).toHaveLength(2);
+        await server.stop();
+      }
+    );
+
+    it('closes only the affected geo when a planned refresh is rejected with 403', async () => {
+      jest.useFakeTimers();
+      try {
+        connState.expiresInByUrl = { '/amer/': 120 };
+        const server = await makeServer({ geos: ['amer', 'emea'], reconnectDelaysMs: [0] });
+        const handler = jest.fn(async () => ({ status: 200 }));
+        onMessaging(server, handler);
+        await server.start();
+        const byGeo = (geo: string) =>
+          connState.connections.find((c: any) => c.context.negotiateUrl.includes(`/${geo}/`))!;
+        const affected = byGeo('amer');
+        const healthy = byGeo('emea');
+
+        const disconnected = jest.fn();
+        server.events.on('disconnected', disconnected);
+
+        const error = authError(403);
+        connState.startErrorQueue.push(error);
+        await jest.advanceTimersByTimeAsync(61_000);
+
+        expect(connState.connections).toHaveLength(3);
+        expect(affected.stopped).toBe(1);
+        expect(healthy.stopped).toBe(0);
+        expect(server.geoStatuses).toEqual([
+          { geo: 'amer', status: 'disconnected' },
+          { geo: 'emea', status: 'ready' },
+        ]);
+        expect(disconnected).toHaveBeenCalledTimes(1);
+        expect(disconnected).toHaveBeenCalledWith({ geo: 'amer', error });
+
+        // The stopped predecessor no longer dispatches; the healthy geo still does.
+        await expect(affected.handlers.onActivity(env('after-rejection'))).resolves.toBeUndefined();
+        await expect(healthy.handlers.onActivity(env('still-serving'))).resolves.toBeDefined();
+        expect(handler).toHaveBeenCalledTimes(1);
+
+        // Nothing retries later, and a late close from the stopped socket is ignored.
+        await jest.advanceTimersByTimeAsync(10 * 60_000);
+        expect(connState.connections).toHaveLength(3);
+        affected.drop();
+        await jest.advanceTimersByTimeAsync(0);
+        expect(disconnected).toHaveBeenCalledTimes(1);
+
+        await server.stop();
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    it('keeps retrying other negotiate failures such as HTTP 503', async () => {
+      const server = await makeServer({ reconnectDelaysMs: [0] });
+      await server.start();
+
+      connState.startErrorQueue.push(
+        new NegotiateError('Socket Mode negotiate failed: HTTP 503', undefined, 503)
+      );
+      connState.connections[0].drop(new Error('network drop'));
+      await ticks(20);
+
+      expect(connState.connections).toHaveLength(3);
+      expect(server.status).toBe('ready');
+
+      await server.stop();
     });
   });
 
