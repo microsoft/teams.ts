@@ -23,7 +23,7 @@
     "@types/express": "^5.0.0",
     "@types/node": "^26.6.1",
     "@types/restify": "^8.5.12",
-    "dotenv": "^17.4.2",
+    "dotenv": "^18.0.0",
     "tsx": "^4.23.13",
     "typescript": "^5.4.5"
   }
