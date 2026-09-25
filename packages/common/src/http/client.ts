@@ -365,19 +365,23 @@ export class Client {
     return id;
   }
 
+  /**
+   * axios >= 1.19 types its verb methods as `AxiosResponseResult<T, R, D, P>`, a conditional keyed on an unexported marker symbol.
+   * For any concrete `R` that conditional collapses to `R`, but TypeScript cannot prove that for an unconstrained generic, so each dispatch is asserted back to `Promise<R>`.
+   */
   private async send<T, R, D>(
     config: RequestConfig<D>,
     dispatch: 'method' | 'request',
   ): Promise<R> {
     const resolvedConfig = await this.withConfig(config);
     if (dispatch === 'request') {
-      return this.http.request<T, R, D>(resolvedConfig);
+      return this.http.request<T, R, D>(resolvedConfig) as Promise<R>;
     }
 
     const method = resolvedConfig.method?.toLowerCase();
     const url = resolvedConfig.url;
     if (url === undefined) {
-      return this.http.request<T, R, D>(resolvedConfig);
+      return this.http.request<T, R, D>(resolvedConfig) as Promise<R>;
     }
 
     const transportConfig: RequestConfig<D> = { ...resolvedConfig };
@@ -389,25 +393,25 @@ export class Client {
       // config is forwarded as-is. (Stripping `data` here previously dropped
       // GET/DELETE request bodies that callers passed through `config`.)
       case 'get':
-        return this.http.get<T, R, D>(url, transportConfig);
+        return this.http.get<T, R, D>(url, transportConfig) as Promise<R>;
       case 'delete':
-        return this.http.delete<T, R, D>(url, transportConfig);
+        return this.http.delete<T, R, D>(url, transportConfig) as Promise<R>;
       // post/put/patch take the body as a positional argument, so remove it
       // from the forwarded config to avoid sending it in two places.
       case 'post': {
         const { data, ...rest } = transportConfig;
-        return this.http.post<T, R, D>(url, data, rest);
+        return this.http.post<T, R, D>(url, data, rest) as Promise<R>;
       }
       case 'put': {
         const { data, ...rest } = transportConfig;
-        return this.http.put<T, R, D>(url, data, rest);
+        return this.http.put<T, R, D>(url, data, rest) as Promise<R>;
       }
       case 'patch': {
         const { data, ...rest } = transportConfig;
-        return this.http.patch<T, R, D>(url, data, rest);
+        return this.http.patch<T, R, D>(url, data, rest) as Promise<R>;
       }
       default:
-        return this.http.request<T, R, D>(resolvedConfig);
+        return this.http.request<T, R, D>(resolvedConfig) as Promise<R>;
     }
   }
 
