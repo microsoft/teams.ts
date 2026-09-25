@@ -20,6 +20,44 @@ export function readField<T = unknown>(obj: unknown, name: string): T | undefine
 }
 
 /**
+ * Thrown by {@link assertEnvelopeMetadata} when an inbound envelope's delivery
+ * metadata does not match the Socket Mode envelope contract.
+ *
+ * @experimental This API is in preview and may change in the future.
+ */
+export class EnvelopeError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'EnvelopeError';
+  }
+}
+
+/**
+ * Validate the typed delivery metadata on an inbound envelope, accepting
+ * camelCase or PascalCase. `botKey` must be a string and `deadlineMs` an
+ * integer when present (`null`/absent are allowed); `headers` is not validated.
+ * The activity itself is shape-checked separately by
+ * {@link readEnvelopeActivity}.
+ *
+ * @throws {EnvelopeError} when the envelope is not an object or a field is malformed.
+ */
+export function assertEnvelopeMetadata(
+  value: unknown
+): asserts value is SocketActivityEnvelope {
+  if (value == null || typeof value !== 'object' || Array.isArray(value)) {
+    throw new EnvelopeError('Socket Mode activity envelope must be an object');
+  }
+  const botKey = readField(value, 'botKey');
+  if (botKey != null && typeof botKey !== 'string') {
+    throw new EnvelopeError('Socket Mode activity envelope botKey must be a string');
+  }
+  const deadlineMs = readField(value, 'deadlineMs');
+  if (deadlineMs != null && !Number.isInteger(deadlineMs)) {
+    throw new EnvelopeError('Socket Mode activity envelope deadlineMs must be an integer');
+  }
+}
+
+/**
  * Whether a value is shaped like a Bot Framework {@link Activity}: a non-null,
  * non-array object carrying a string `type`. Used to reject a malformed
  * `payload` so it can't be returned as a bogus activity or suppress a valid
