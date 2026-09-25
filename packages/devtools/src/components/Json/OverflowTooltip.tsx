@@ -1,4 +1,4 @@
-import { FC, memo } from 'react';
+import { FC, JSX, memo } from 'react';
 import { Tooltip } from '@fluentui/react-components';
 
 import { useIsOverflowing } from '../../hooks/useIsOverflowing';
