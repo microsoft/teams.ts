@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, JSX } from 'react';
 import { mergeClasses } from '@fluentui/react-components';
 import {
   Chat20Regular,
