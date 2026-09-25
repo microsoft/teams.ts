@@ -1,7 +1,9 @@
 import { InvokeResponse } from '@microsoft/teams.api';
 
 import {
+  assertEnvelopeMetadata,
   buildAckReplyFrame,
+  EnvelopeError,
   buildInvokeReplyFrame,
   isInvokeEnvelope,
   readEnvelopeActivity,
@@ -65,6 +67,58 @@ describe('socket-mode envelope', () => {
     });
   });
 
+  describe('assertEnvelopeMetadata', () => {
+    it.each([false, true])('reads delivery metadata from the wire (PascalCase: %s)', (pascalCase) => {
+      let fields: Record<string, unknown> = {
+        envelopeId: 'env-1',
+        botKey: 'bot-key-1',
+        deadlineMs: 25000,
+        headers: { 'User-Agent': 'test' },
+        payload: { type: 'message' },
+      };
+      if (pascalCase) {
+        fields = Object.fromEntries(
+          Object.entries(fields).map(([k, v]) => [k.charAt(0).toUpperCase() + k.slice(1), v])
+        );
+      }
+
+      expect(() => assertEnvelopeMetadata(fields)).not.toThrow();
+      expect(readField(fields, 'botKey')).toBe('bot-key-1');
+      expect(readField(fields, 'deadlineMs')).toBe(25000);
+      expect(readField(fields, 'headers')).toEqual({ 'User-Agent': 'test' });
+    });
+
+    it('allows null or absent metadata', () => {
+      expect(() =>
+        assertEnvelopeMetadata({ envelopeId: 'env-1', botKey: null, deadlineMs: null })
+      ).not.toThrow();
+      expect(() => assertEnvelopeMetadata({ envelopeId: 'env-1' })).not.toThrow();
+    });
+
+    it.each([25000.5, '25000', Number.NaN, true])('rejects a non-integer deadlineMs (%p)', (deadlineMs) => {
+      expect(() =>
+        assertEnvelopeMetadata({ envelopeId: 'env-1', DeadlineMs: deadlineMs, payload: { type: 'message' } })
+      ).toThrow(EnvelopeError);
+    });
+
+    it('rejects a non-string botKey', () => {
+      expect(() => assertEnvelopeMetadata({ envelopeId: 'env-1', botKey: 42 })).toThrow(
+        /botKey must be a string/
+      );
+    });
+
+    it.each([null, 'junk', [], 42])('rejects an envelope that is not an object (%p)', (value) => {
+      expect(() => assertEnvelopeMetadata(value)).toThrow(/must be an object/);
+    });
+
+    it('does not reject the envelope for malformed headers', () => {
+      const envelope = { envelopeId: 'env-1', headers: 'junk', payload: { type: 'message' } };
+
+      expect(() => assertEnvelopeMetadata(envelope)).not.toThrow();
+      expect(readEnvelopeActivity(envelope)).toEqual({ type: 'message' });
+    });
+  });
+
   describe('reply frames', () => {
     const env: SocketActivityEnvelope = { envelopeId: 'env-1', type: 'invoke' };
 
@@ -84,6 +138,11 @@ describe('socket-mode envelope', () => {
       const base = replyFrameBase(env, 'bot-123');
       const frame = buildInvokeReplyFrame(base, { body: { ok: true } } as InvokeResponse);
       expect(frame.status).toBe(200);
+    });
+
+    it('takes the reply botKey from the configured bot, not the envelope', () => {
+      const addressed: SocketActivityEnvelope = { envelopeId: 'env-1', botKey: 'addressed' };
+      expect(replyFrameBase(addressed, 'local').botKey).toBe('local');
     });
 
     it('builds a bodyless 200 acknowledgement for one-way activities', () => {
