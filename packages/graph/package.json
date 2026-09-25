@@ -40,7 +40,7 @@
   "devDependencies": {
     "@microsoft/teams.config": "*",
     "@types/jest": "^30.0.0",
-    "@types/node": "^22.0.2",
+    "@types/node": "^26.6.1",
     "@types/qs": "^6.15.1",
     "cross-env": "^10.1.0",
     "jest": "^30.5.1",
