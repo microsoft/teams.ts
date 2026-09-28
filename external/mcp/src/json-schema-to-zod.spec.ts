@@ -139,7 +139,7 @@ describe('jsonSchemaToZod', () => {
         required: ['name'],
       });
       expect(zod).toBeInstanceOf(z.ZodObject);
-      expect((zod as z.AnyZodObject).shape.name).toBeDefined();
+      expect((zod as z.ZodObject).shape.name).toBeDefined();
     });
   });
 
