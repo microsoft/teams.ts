@@ -1,11 +1,11 @@
 import { HubConnection, HubConnectionBuilder, LogLevel, ILogger as ISignalRLogger } from '@microsoft/signalr';
 import { ILogger } from '@microsoft/teams.common';
 
-import { assertEnvelopeMetadata } from './envelope';
 import { negotiate } from './negotiate';
 import { redactSocketModeSecrets } from './redact';
 import {
   ISocketConnection,
+  SocketActivityEnvelope,
   SocketConnectionContext,
   SocketConnectionHandlers,
   SocketReadyFrame,
@@ -33,8 +33,6 @@ export class SignalRSocketConnection implements ISocketConnection {
    * act on an already-settled connection.
    */
   private settled = false;
-  /** Protocol violation that closed this connection; reported through `onClosed`. */
-  private closeError?: Error;
 
   constructor(
     private readonly context: SocketConnectionContext,
@@ -45,7 +43,6 @@ export class SignalRSocketConnection implements ISocketConnection {
   async start(signal?: AbortSignal): Promise<void> {
     this.stopped = false;
     this.settled = false;
-    this.closeError = undefined;
     this.throwIfAborted(signal);
 
     const neg = await negotiate({
@@ -88,18 +85,9 @@ export class SignalRSocketConnection implements ISocketConnection {
       };
     });
 
-    connection.on('Activity', (envelope: unknown) => {
-      try {
-        assertEnvelopeMetadata(envelope);
-      } catch (err) {
-        // A malformed envelope is a protocol violation: close this connection so
-        // the supervisor reconnects, and never acknowledge the delivery.
-        return this.failConnection(err as Error).then(() => {
-          throw err;
-        });
-      }
-      return this.handlers.onActivity(envelope);
-    });
+    connection.on('Activity', (envelope: SocketActivityEnvelope) =>
+      this.handlers.onActivity(envelope)
+    );
 
     connection.on('SocketReady', (frame: SocketReadyFrame) => {
       // Ignore a late/duplicate readiness frame once the gate has settled (e.g.
@@ -118,8 +106,7 @@ export class SignalRSocketConnection implements ISocketConnection {
       }
     });
 
-    connection.onclose((signalRError) => {
-      const error = signalRError ?? this.closeError;
+    connection.onclose((error) => {
       if (!this.stopped) {
         this.log?.warn('socket-mode: socket closed', error);
       }
@@ -186,19 +173,6 @@ export class SignalRSocketConnection implements ISocketConnection {
     if (connection) {
       await connection.stop();
     }
-  }
-
-  /**
-   * Close the connection because of a protocol violation. Unlike {@link stop},
-   * the close is reported through `onClosed` with `error` so the supervisor
-   * treats it as an unexpected drop and reconnects.
-   */
-  private async failConnection(error: Error): Promise<void> {
-    const connection = this.connection;
-    if (this.stopped || !connection) return;
-    this.closeError ??= error;
-    this.log?.warn('socket-mode: closing connection after a malformed activity envelope', error);
-    await connection.stop().catch(() => undefined);
   }
 
   private throwIfAborted(signal?: AbortSignal): void {

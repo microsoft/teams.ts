@@ -179,21 +179,11 @@ export type SocketActivityEnvelope = {
   /**
    * Bot key the backend service addressed this delivery to. Informational only:
    * reply frames always carry the locally configured bot's client id instead.
-   * Must be a string when present; see {@link deadlineMs} for how malformed
-   * values are handled.
    */
   readonly botKey?: string;
-  /**
-   * Backend service-provided reply budget, in milliseconds. Must be an integer
-   * when present: an envelope with any other value (for example `25000.5` or a
-   * string) is treated as a protocol violation, and the connection is closed so
-   * the supervisor reconnects.
-   */
+  /** Backend service-provided reply budget, in milliseconds. */
   readonly deadlineMs?: number;
-  /**
-   * Delivery headers forwarded by the backend service. Kept as-is and not
-   * validated, so a malformed value never rejects the envelope.
-   */
+  /** Delivery headers forwarded by the backend service. */
   readonly headers?: unknown;
 };
 

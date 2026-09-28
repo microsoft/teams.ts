@@ -157,25 +157,6 @@ describe('SignalRSocketConnection', () => {
     expect(result).toBe(reply);
   });
 
-  it('closes the connection without dispatching when an envelope has a fractional deadlineMs', async () => {
-    const handlers = makeHandlers();
-    const conn = new SignalRSocketConnection(makeContext(), handlers);
-    await conn.start();
-
-    await expect(
-      state.handlers.Activity({ envelopeId: 'e1', deadlineMs: 25000.5, payload: { type: 'message' } })
-    ).rejects.toThrow(/deadlineMs must be an integer/);
-    expect(handlers.onActivity).not.toHaveBeenCalled();
-    expect(state.stopped).toBe(1);
-
-    // SignalR reports its own stop with no error; the envelope error is surfaced instead.
-    state.handlers.__close(undefined);
-    expect(handlers.onClosed).toHaveBeenCalledTimes(1);
-    expect(handlers.onClosed).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'EnvelopeError' })
-    );
-  });
-
   it('dispatches envelopes with delivery metadata and malformed headers', async () => {
     const handlers = makeHandlers();
     const conn = new SignalRSocketConnection(makeContext(), handlers);
