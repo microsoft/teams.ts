@@ -40,7 +40,14 @@ app.socketMode?.events.on('ready', ({ geo, frame }) => {
   app.log.info(`[socket] aggregate status: ${app.socketMode?.status}`);
 });
 
-app.socketMode?.events.on('disconnected', ({ geo, error }) => {
+app.socketMode?.events.on('disconnected', ({ geo, error, terminal }) => {
+  if (terminal) {
+    // Negotiate rejected the bot with HTTP 401/403 (a `NegotiateError`). This geo
+    // will not reconnect until the credentials or Socket Mode access are fixed
+    // and the app is restarted.
+    app.log.error(`[socket] geo '${geo}' stopped: ${error?.message}`);
+    return;
+  }
   // Inbound delivery for this geo is paused while it reconnects; the other geos
   // keep serving. No action needed — the supervisor reconnects automatically.
   app.log.warn(`[socket] geo '${geo}' disconnected${error ? `: ${error.message}` : ''}; reconnecting…`);

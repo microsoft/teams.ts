@@ -157,6 +157,24 @@ describe('SignalRSocketConnection', () => {
     expect(result).toBe(reply);
   });
 
+  it('dispatches envelopes with delivery metadata and malformed headers', async () => {
+    const handlers = makeHandlers();
+    const conn = new SignalRSocketConnection(makeContext(), handlers);
+    await conn.start();
+
+    const envelope = {
+      envelopeId: 'e1',
+      BotKey: 'bot-key-1',
+      DeadlineMs: 25000,
+      headers: 'junk',
+      payload: { type: 'message' },
+    };
+    await state.handlers.Activity(envelope);
+
+    expect(handlers.onActivity).toHaveBeenCalledWith(envelope);
+    expect(state.stopped).toBe(0);
+  });
+
   it('reports a terminal close through onClosed so the supervisor can reconnect', async () => {
     const handlers = makeHandlers();
     const conn = new SignalRSocketConnection(makeContext(), handlers);

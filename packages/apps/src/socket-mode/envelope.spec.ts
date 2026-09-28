@@ -86,6 +86,11 @@ describe('socket-mode envelope', () => {
       expect(frame.status).toBe(200);
     });
 
+    it('takes the reply botKey from the configured bot, not the envelope', () => {
+      const addressed: SocketActivityEnvelope = { envelopeId: 'env-1', botKey: 'addressed' };
+      expect(replyFrameBase(addressed, 'local').botKey).toBe('local');
+    });
+
     it('builds a bodyless 200 acknowledgement for one-way activities', () => {
       const base = replyFrameBase(env, 'bot-123');
       const frame = buildAckReplyFrame(base);

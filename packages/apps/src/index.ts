@@ -23,8 +23,10 @@ export * from './http';
 // Socket Mode (inbound WebSocket transport). Only the developer-facing surface
 // is public; the wire protocol (envelopes, reply frames, negotiate, connection
 // internals) stays module-private to avoid leaking unvalidated types and risking
-// naming collisions.
+// naming collisions. `NegotiateError` is public so `disconnected` listeners can
+// inspect why a geo stopped.
 export type { SocketModeAdapter, SocketModeOptions, SocketModeStatus, SocketModeEvents } from './socket-mode';
+export { NegotiateError } from './socket-mode';
 
 // Threading utilities
 export { toThreadedConversationId } from './utils/thread';

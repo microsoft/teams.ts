@@ -20,7 +20,9 @@ Socket Mode bots should not be submitted to Marketplace for publishing.
 - **Lifecycle events** — subscribing to `app.socketMode.events` for `ready`,
   `disconnected`, and `reconnected`. Each event carries the `geo` it relates to,
   since connections are per geo. Reconnects are automatic; the events are purely
-  observational.
+  observational. A `disconnected` event with `terminal: true` means negotiate
+  rejected the bot with HTTP 401/403 and that geo will not reconnect until the
+  app is restarted with corrected credentials or access.
 - **Status introspection** — `app.socketMode.status` (aggregate) and
   `app.socketMode.geoStatuses` / `geoList` (per geo).
 

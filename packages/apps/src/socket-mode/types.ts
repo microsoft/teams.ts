@@ -27,7 +27,9 @@ export const SOCKET_MODE_NEGOTIATE_PATH = '/v3/websockets/connect';
  * - `connecting` — negotiating and opening the socket, or reconnecting.
  * - `ready` — socket is open AND the Teams backend service `SocketReady` readiness contract has
  *   been satisfied; inbound activities can be delivered.
- * - `disconnected` — the socket closed (a reconnect may be in progress).
+ * - `disconnected` — the socket closed. A reconnect may be in progress, unless
+ *   negotiate was rejected with HTTP 401/403, in which case reconnecting stops
+ *   until the app is restarted with corrected credentials or access.
  * - `stopped` — the server was stopped and will not reconnect.
  *
  * @experimental This API is in preview and may change in the future.
@@ -174,6 +176,15 @@ export type SocketActivityEnvelope = {
   readonly activity?: unknown;
   /** MS-CV correlation vector for log stitching. */
   readonly cv?: string;
+  /**
+   * Bot key the backend service addressed this delivery to. Informational only:
+   * reply frames always carry the locally configured bot's client id instead.
+   */
+  readonly botKey?: string;
+  /** Backend service-provided reply budget, in milliseconds. */
+  readonly deadlineMs?: number;
+  /** Delivery headers forwarded by the backend service. */
+  readonly headers?: unknown;
 };
 
 /**

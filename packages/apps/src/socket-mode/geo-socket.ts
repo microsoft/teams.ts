@@ -34,10 +34,12 @@ export type GeoSocketDeps = {
     envelope: SocketActivityEnvelope
   ) => Promise<ReplyFrame | undefined>;
   readonly retryAfterOf: (error: unknown) => number | undefined;
+  /** `true` for errors (negotiate 401/403) that retrying cannot fix. */
+  readonly isNonRetryable: (error: unknown) => boolean;
   readonly backoffDelay: (attempt: number) => number;
   readonly sleep: (ms: number) => Promise<boolean>;
   readonly onReady: (frame: SocketReadyFrame) => void;
-  readonly onDisconnected: (error?: Error) => void;
+  readonly onDisconnected: (error: Error | undefined, terminal: boolean) => void;
   readonly onReconnected: () => void;
   readonly startupTimeoutMs: number;
   readonly tokenRefreshMarginMs: number;
@@ -101,6 +103,13 @@ export class GeoSocket {
       } catch (err: any) {
         lastError = err;
         if (!this.deps.isAccepting()) break;
+        if (this.deps.isNonRetryable(err)) {
+          // Thrown to App.start(), which reports it through the app `error` event.
+          this.log.debug(
+            `socket-mode[${this.geo}]: initial connection rejected with a non-retryable error; not retrying`
+          );
+          throw err;
+        }
         const delay = this.deps.retryAfterOf(err) ?? this.deps.backoffDelay(attempt);
         attempt++;
         if (Date.now() + delay >= deadline) break;
@@ -293,6 +302,12 @@ export class GeoSocket {
       try {
         return await this.connectCycle(gen);
       } catch (err: any) {
+        // Negotiate isn't abortable, so a rejection can land after stop().
+        if (!this.deps.isAccepting()) return undefined;
+        if (this.deps.isNonRetryable(err)) {
+          await this.stopAfterNonRetryable(err);
+          return undefined;
+        }
         retryAfterMs = this.deps.retryAfterOf(err);
         this.log.warn(`socket-mode[${this.geo}]: reconnect attempt ${attempt} failed; will retry`, err);
       }
@@ -300,19 +315,57 @@ export class GeoSocket {
     return undefined;
   }
 
+  /**
+   * Stop reconnecting after a 401/403: close every connection this geo owns
+   * (including a predecessor still serving during a planned rotation and any
+   * sockets in their handoff window), then report the outage with the auth
+   * error so listeners can see why delivery stopped.
+   */
+  private async stopAfterNonRetryable(error: Error): Promise<void> {
+    this.log.error(
+      `socket-mode[${this.geo}]: reconnect rejected with a non-retryable error; ` +
+      'inbound delivery for this geo has stopped until the app is restarted',
+      error
+    );
+    this.clearRefreshTimer();
+    // Clear before stopping so their onClosed callbacks do not report again.
+    const connections = [
+      this.active?.connection,
+      ...this.retiring.values(),
+    ].filter(
+      (connection): connection is ISocketConnection => connection !== undefined
+    );
+    this.active = undefined;
+    this.retiring.clear();
+    await Promise.all(
+      connections.map((connection) => connection.stop().catch(() => undefined))
+    );
+    // stop() may have landed while the connections were closing.
+    if (!this.deps.isAccepting()) return;
+    this.reportDisconnected(error);
+  }
+
+  /**
+   * Mark this geo disconnected and emit the event. A non-retryable error means
+   * the geo has stopped for good; it skips the "paused" warning because
+   * {@link stopAfterNonRetryable} already logged the permanent stop.
+   */
   private reportDisconnected(error?: Error): void {
     this._status = 'disconnected';
-    if (error) {
-      this.log.warn(
-        `socket-mode[${this.geo}]: disconnected; inbound delivery paused for this geo`,
-        error
-      );
-    } else {
-      this.log.warn(
-        `socket-mode[${this.geo}]: disconnected; inbound delivery paused for this geo`
-      );
+    const terminal = error !== undefined && this.deps.isNonRetryable(error);
+    if (!terminal) {
+      if (error) {
+        this.log.warn(
+          `socket-mode[${this.geo}]: disconnected; inbound delivery paused for this geo`,
+          error
+        );
+      } else {
+        this.log.warn(
+          `socket-mode[${this.geo}]: disconnected; inbound delivery paused for this geo`
+        );
+      }
     }
-    this.deps.onDisconnected(error);
+    this.deps.onDisconnected(error, terminal);
   }
 
   /** Retire a superseded socket after APX's cached IDs have aged out. */
