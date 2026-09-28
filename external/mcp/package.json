@@ -37,7 +37,7 @@
   "dependencies": {
     "@microsoft/teams.ai": "*",
     "@microsoft/teams.common": "*",
-    "zod": "^3.24.2"
+    "zod": "^4.6.5"
   },
   "peerDependencies": {
     "@microsoft/teams.apps": "*",
