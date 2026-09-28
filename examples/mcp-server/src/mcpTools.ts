@@ -49,7 +49,8 @@ export function createMcpServer(): McpServer {
     },
     handler: (args: z.output<z.ZodObject<In>>) => Promise<z.output<Out>>
   ) {
-    mcpServer.registerTool(name, config as any, (async (args: z.output<z.ZodObject<In>>) => {
+    // The SDK's schema types resolve against the root Zod version, not this example's Zod 4.
+    mcpServer.registerTool(name, config as unknown as Parameters<McpServer['registerTool']>[1], (async (args: z.output<z.ZodObject<In>>) => {
       const value = await handler(args);
       return {
         structuredContent: value as Record<string, unknown>,
