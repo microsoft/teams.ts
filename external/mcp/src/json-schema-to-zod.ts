@@ -104,7 +104,7 @@ function buildAny(_schema: AnySchema): z.ZodTypeAny {
 }
 
 function buildObject(schema: ObjectSchema): z.ZodObject<z.ZodRawShape> {
-  const shape: z.ZodRawShape = {};
+  const shape: Record<string, z.ZodTypeAny> = {};
   const properties = schema.properties ?? {};
 
   const requiredAll = schema.required === true;
