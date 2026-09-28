@@ -16,7 +16,7 @@
     "@microsoft/teams.apps": "*",
     "express": "^5.0.0",
     "hono": "^4.13.8",
-    "restify": "^11.1.0"
+    "restify": "^12.0.0"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
