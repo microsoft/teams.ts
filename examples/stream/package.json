@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
-    "@types/node": "^26.6.1",
+    "@types/node": "^26.6.2",
     "dotenv": "^18.0.0",
     "env-cmd": "latest",
     "rimraf": "^6.0.1",
