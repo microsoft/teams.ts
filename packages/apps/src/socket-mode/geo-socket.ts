@@ -340,6 +340,8 @@ export class GeoSocket {
     await Promise.all(
       connections.map((connection) => connection.stop().catch(() => undefined))
     );
+    // stop() may have landed while the connections were closing.
+    if (!this.deps.isAccepting()) return;
     this.reportDisconnected(error);
   }
 

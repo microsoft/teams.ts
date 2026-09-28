@@ -18,6 +18,8 @@ jest.mock('./socket-connection', () => {
     expiresInByUrl?: Record<string, number>;
     /** When set, a queued start error is thrown only after this settles. */
     startErrorGate?: Promise<void>;
+    /** When set, `stop()` resolves only after this settles. */
+    stopGate?: Promise<void>;
   } = { connections: [], startErrorQueue: [], autoReadyQueue: [] };
 
   class FakeConnection {
@@ -71,6 +73,7 @@ jest.mock('./socket-connection', () => {
 
     async stop() {
       this.stopped++;
+      await state.stopGate;
     }
 
     fireReady() {
@@ -107,6 +110,7 @@ const connState = (jest.requireMock('./socket-connection') as any).__state as {
   expiresInSeconds?: number;
   expiresInByUrl?: Record<string, number>;
   startErrorGate?: Promise<void>;
+  stopGate?: Promise<void>;
 };
 
 const MESSAGING_ENDPOINT = '/api/messages';
@@ -198,6 +202,7 @@ describe('SocketModeAdapter resilience', () => {
     connState.expiresInSeconds = undefined;
     connState.expiresInByUrl = undefined;
     connState.startErrorGate = undefined;
+    connState.stopGate = undefined;
   });
 
   describe('reconnect supervisor', () => {
@@ -552,6 +557,43 @@ describe('SocketModeAdapter resilience', () => {
       expect(disconnected).toHaveBeenCalledTimes(1);
       expect(errors).toEqual([]);
       expect(server.status).toBe('stopped');
+    });
+
+    it('does not report a terminal outage when stop() lands during auth-failure cleanup', async () => {
+      jest.useFakeTimers();
+      try {
+        connState.expiresInSeconds = 120;
+        const { logger, errors } = recordingLogger();
+        const server = await makeServer({ reconnectDelaysMs: [0] }, logger);
+        await server.start();
+        const predecessor = connState.connections[0];
+
+        const disconnected = jest.fn();
+        server.events.on('disconnected', disconnected);
+
+        // Hold the predecessor's close so stop() lands mid-cleanup.
+        let releaseStop!: () => void;
+        connState.stopGate = new Promise<void>((resolve) => {
+          releaseStop = resolve;
+        });
+        connState.startErrorQueue.push(authError(403));
+        await jest.advanceTimersByTimeAsync(61_000);
+
+        // The rejection was logged while the app was running; cleanup is pending.
+        expect(errors).toHaveLength(1);
+        expect(predecessor.stopped).toBe(1);
+        expect(disconnected).not.toHaveBeenCalled();
+
+        const stopping = server.stop();
+        releaseStop();
+        await jest.advanceTimersByTimeAsync(0);
+        await stopping;
+
+        expect(disconnected).not.toHaveBeenCalled();
+        expect(server.status).toBe('stopped');
+      } finally {
+        jest.useRealTimers();
+      }
     });
 
     it('keeps retrying other negotiate failures such as HTTP 503', async () => {
