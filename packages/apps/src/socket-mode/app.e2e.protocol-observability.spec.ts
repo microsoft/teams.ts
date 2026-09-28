@@ -342,7 +342,7 @@ describe('Socket Mode E2E: protocol and observability', () => {
       geo: '',
       frame: expect.objectContaining({ botKey: 'bot1' }),
     });
-    expect(disconnected).toHaveBeenCalledWith({ geo: '', error });
+    expect(disconnected).toHaveBeenCalledWith({ geo: '', error, terminal: false });
     expect(reconnected).toHaveBeenCalledWith({ geo: '' });
     await app.stop();
   });

@@ -39,7 +39,7 @@ export type GeoSocketDeps = {
   readonly backoffDelay: (attempt: number) => number;
   readonly sleep: (ms: number) => Promise<boolean>;
   readonly onReady: (frame: SocketReadyFrame) => void;
-  readonly onDisconnected: (error?: Error) => void;
+  readonly onDisconnected: (error: Error | undefined, terminal: boolean) => void;
   readonly onReconnected: () => void;
   readonly startupTimeoutMs: number;
   readonly tokenRefreshMarginMs: number;
@@ -302,6 +302,8 @@ export class GeoSocket {
       try {
         return await this.connectCycle(gen);
       } catch (err: any) {
+        // Negotiate isn't abortable, so a rejection can land after stop().
+        if (!this.deps.isAccepting()) return undefined;
         if (this.deps.isNonRetryable(err)) {
           await this.stopAfterNonRetryable(err);
           return undefined;
@@ -341,19 +343,27 @@ export class GeoSocket {
     this.reportDisconnected(error);
   }
 
+  /**
+   * Mark this geo disconnected and emit the event. A non-retryable error means
+   * the geo has stopped for good; it skips the "paused" warning because
+   * {@link stopAfterNonRetryable} already logged the permanent stop.
+   */
   private reportDisconnected(error?: Error): void {
     this._status = 'disconnected';
-    if (error) {
-      this.log.warn(
-        `socket-mode[${this.geo}]: disconnected; inbound delivery paused for this geo`,
-        error
-      );
-    } else {
-      this.log.warn(
-        `socket-mode[${this.geo}]: disconnected; inbound delivery paused for this geo`
-      );
+    const terminal = error !== undefined && this.deps.isNonRetryable(error);
+    if (!terminal) {
+      if (error) {
+        this.log.warn(
+          `socket-mode[${this.geo}]: disconnected; inbound delivery paused for this geo`,
+          error
+        );
+      } else {
+        this.log.warn(
+          `socket-mode[${this.geo}]: disconnected; inbound delivery paused for this geo`
+        );
+      }
     }
-    this.deps.onDisconnected(error);
+    this.deps.onDisconnected(error, terminal);
   }
 
   /** Retire a superseded socket after APX's cached IDs have aged out. */

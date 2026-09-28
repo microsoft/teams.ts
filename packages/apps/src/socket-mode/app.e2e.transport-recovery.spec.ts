@@ -104,7 +104,7 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
     await ticks();
 
     expect(connectionState.connections).toHaveLength(2);
-    expect(disconnected).toHaveBeenCalledWith({ geo: '', error: dropped });
+    expect(disconnected).toHaveBeenCalledWith({ geo: '', error: dropped, terminal: false });
     expect(reconnected).toHaveBeenCalledWith({ geo: '' });
     expect(app.socketMode!.status).toBe('ready');
     await app.stop();
@@ -316,7 +316,7 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
         oldConnection.drop(error);
 
         expect(app.socketMode!.status).toBe('disconnected');
-        expect(disconnected).toHaveBeenCalledWith({ geo: '', error });
+        expect(disconnected).toHaveBeenCalledWith({ geo: '', error, terminal: false });
 
         replacement.fireReady();
         await jest.advanceTimersByTimeAsync(0);

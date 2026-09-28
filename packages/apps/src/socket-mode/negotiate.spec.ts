@@ -2,6 +2,8 @@ import type { AxiosResponse } from 'axios';
 
 import { Client as HttpClient } from '@microsoft/teams.common';
 
+import * as pkg from '../index';
+
 import { negotiate, NegotiateError } from './negotiate';
 
 function httpResponse(
@@ -189,5 +191,9 @@ describe('socket-mode negotiate', () => {
     ).resolves.toMatchObject({ accessToken: 'sr-token' });
 
     expect(post).toHaveBeenCalledTimes(1);
+  });
+
+  it('exports NegotiateError from the package root for disconnected listeners', () => {
+    expect(pkg.NegotiateError).toBe(NegotiateError);
   });
 });

@@ -16,6 +16,8 @@ jest.mock('./socket-connection', () => {
     expiresInSeconds?: number;
     /** Per-geo token lifetime, keyed by a negotiate URL substring. */
     expiresInByUrl?: Record<string, number>;
+    /** When set, a queued start error is thrown only after this settles. */
+    startErrorGate?: Promise<void>;
   } = { connections: [], startErrorQueue: [], autoReadyQueue: [] };
 
   class FakeConnection {
@@ -41,7 +43,10 @@ jest.mock('./socket-connection', () => {
     async start(signal?: AbortSignal) {
       this.started++;
       const err = state.startErrorQueue.shift();
-      if (err) throw err;
+      if (err) {
+        await state.startErrorGate;
+        throw err;
+      }
       if (this.autoReady) {
         this.handlers.onReady({ botKey: 'bot' });
         return;
@@ -101,6 +106,7 @@ const connState = (jest.requireMock('./socket-connection') as any).__state as {
   autoReadyQueue: boolean[];
   expiresInSeconds?: number;
   expiresInByUrl?: Record<string, number>;
+  startErrorGate?: Promise<void>;
 };
 
 const MESSAGING_ENDPOINT = '/api/messages';
@@ -143,16 +149,29 @@ function onMessaging(
   setHandler(handler);
 }
 
-async function makeServer(options: Record<string, unknown> = {}): Promise<SocketModeAdapter> {
+async function makeServer(
+  options: Record<string, unknown> = {},
+  logger: ConsoleLogger = new ConsoleLogger('test', { level: 'error' })
+): Promise<SocketModeAdapter> {
   // Default to a single geo ([''] = no geo segment) so the per-connection
   // supervisor tests operate on exactly one connection; multi-geo behavior has
   // its own describe block below.
   const server = createSocketModeAdapter({ geos: [''], ...options }, {
     tokenProvider: { getAppToken: async () => 'app-token' } as any,
     messagingEndpoint: MESSAGING_ENDPOINT,
-    logger: new ConsoleLogger('test', { level: 'error' }),
+    logger,
   });
   return server;
+}
+
+/** A logger that records error/warn calls instead of printing them. */
+function recordingLogger() {
+  const logger = new ConsoleLogger('test', { level: 'error' });
+  const errors: unknown[][] = [];
+  const warns: unknown[][] = [];
+  (logger as any).error = (...args: unknown[]) => errors.push(args);
+  (logger as any).warn = (...args: unknown[]) => warns.push(args);
+  return { logger, errors, warns };
 }
 
 function env(id: string, type = 'message'): SocketActivityEnvelope {
@@ -178,6 +197,7 @@ describe('SocketModeAdapter resilience', () => {
     connState.autoReadyQueue = [];
     connState.expiresInSeconds = undefined;
     connState.expiresInByUrl = undefined;
+    connState.startErrorGate = undefined;
   });
 
   describe('reconnect supervisor', () => {
@@ -418,7 +438,8 @@ describe('SocketModeAdapter resilience', () => {
     it.each([401, 403] as const)(
       'stops reconnecting after HTTP %i and reports disconnected with the auth error',
       async (status) => {
-        const server = await makeServer({ reconnectDelaysMs: [0] });
+        const { logger, errors, warns } = recordingLogger();
+        const server = await makeServer({ reconnectDelaysMs: [0] }, logger);
         await server.start();
 
         const disconnected = jest.fn();
@@ -438,7 +459,17 @@ describe('SocketModeAdapter resilience', () => {
         expect(server.status).toBe('disconnected');
         expect(reconnected).not.toHaveBeenCalled();
         // One event for the drop, a second carrying the auth rejection.
-        expect(disconnected.mock.calls.map(([e]) => e.error)).toEqual([drop, error]);
+        expect(disconnected.mock.calls.map(([e]) => [e.error, e.terminal])).toEqual([
+          [drop, false],
+          [error, true],
+        ]);
+        // The terminal stop is logged once as an error, not also as a "paused" warning.
+        expect(errors.map(([msg]) => msg)).toEqual([
+          expect.stringContaining('until the app is restarted'),
+        ]);
+        expect(warns.filter(([msg]) => String(msg).includes('paused'))).toEqual([
+          [expect.stringContaining('paused'), drop],
+        ]);
 
         await ticks(20);
         expect(connState.connections).toHaveLength(2);
@@ -474,7 +505,7 @@ describe('SocketModeAdapter resilience', () => {
           { geo: 'emea', status: 'ready' },
         ]);
         expect(disconnected).toHaveBeenCalledTimes(1);
-        expect(disconnected).toHaveBeenCalledWith({ geo: 'amer', error });
+        expect(disconnected).toHaveBeenCalledWith({ geo: 'amer', error, terminal: true });
 
         // The stopped predecessor no longer dispatches; the healthy geo still does.
         await expect(affected.handlers.onActivity(env('after-rejection'))).resolves.toBeUndefined();
@@ -492,6 +523,35 @@ describe('SocketModeAdapter resilience', () => {
       } finally {
         jest.useRealTimers();
       }
+    });
+
+    it('ignores a 401 that arrives after stop() without reporting an outage', async () => {
+      const { logger, errors } = recordingLogger();
+      const server = await makeServer({ reconnectDelaysMs: [0] }, logger);
+      await server.start();
+
+      const disconnected = jest.fn();
+      server.events.on('disconnected', disconnected);
+
+      // Negotiate is not abortable, so hold the 401 until after stop() begins.
+      let releaseRejection!: () => void;
+      connState.startErrorGate = new Promise<void>((resolve) => {
+        releaseRejection = resolve;
+      });
+      connState.startErrorQueue.push(authError(401));
+      connState.connections[0].drop(new Error('network drop'));
+      await ticks();
+      expect(connState.connections).toHaveLength(2);
+      expect(disconnected).toHaveBeenCalledTimes(1);
+
+      const stopping = server.stop();
+      releaseRejection();
+      await stopping;
+
+      // Only the pre-stop drop was reported; shutdown is not an auth outage.
+      expect(disconnected).toHaveBeenCalledTimes(1);
+      expect(errors).toEqual([]);
+      expect(server.status).toBe('stopped');
     });
 
     it('keeps retrying other negotiate failures such as HTTP 503', async () => {

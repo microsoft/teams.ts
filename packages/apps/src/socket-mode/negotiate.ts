@@ -93,7 +93,7 @@ function negotiateErrorMessage(status: number, body: string): string {
       );
     case 403:
       return (
-        `${serviceError}. The credentials are valid, but this bot is not authorized to use ` +
+        `${serviceError}. This bot is not authorized to use ` +
         'Socket Mode: verify the bot registration and Socket Mode access for this environment, then restart the app.'
       );
     default:

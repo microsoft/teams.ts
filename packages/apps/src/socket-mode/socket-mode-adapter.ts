@@ -87,11 +87,20 @@ export type SocketModeEvents = {
    * progress. Not emitted for a successful planned proactive token rotation,
    * which renegotiates transparently without surfacing a drop. When a
    * reconnect or planned rotation is rejected with HTTP 401/403, this is
-   * emitted with that {@link NegotiateError} and the geo stops reconnecting —
-   * so after a network drop, listeners see one event for the drop and a second
-   * for the auth rejection.
+   * emitted with `terminal: true` and that {@link NegotiateError}, and the geo
+   * stops reconnecting — so after a network drop, listeners see one event for
+   * the drop and a second for the auth rejection.
    */
-  disconnected: { geo: string; error?: Error };
+  disconnected: {
+    geo: string;
+    error?: Error;
+    /**
+     * `true` when this geo has stopped for good and will not reconnect until the
+     * app is restarted (negotiate was rejected with HTTP 401/403). `false` for
+     * an ordinary drop, after which the SDK keeps reconnecting.
+     */
+    terminal: boolean;
+  };
   /**
    * A geo's socket reconnected after an unexpected drop and re-established its
    * Teams backend service group. Not emitted for a planned token rotation.
@@ -327,7 +336,8 @@ export class SocketModeAdapter implements IHttpServerAdapter {
         backoffDelay: (attempt) => this.backoffDelay(attempt),
         sleep: (ms) => this.sleep(ms),
         onReady: (frame) => this.emit('ready', { geo, frame }),
-        onDisconnected: (error) => this.emit('disconnected', { geo, error }),
+        onDisconnected: (error, terminal) =>
+          this.emit('disconnected', { geo, error, terminal }),
         onReconnected: () => this.emit('reconnected', { geo }),
         startupTimeoutMs:
           this.options.startupTimeoutMs ?? DEFAULT_STARTUP_TIMEOUT_MS,
