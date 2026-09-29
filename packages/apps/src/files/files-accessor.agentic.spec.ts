@@ -6,6 +6,7 @@ import {
 } from '@microsoft/teams.api';
 import { ConsoleLogger } from '@microsoft/teams.common';
 
+import { GraphCredential } from './download';
 import { FilesAccessor } from './files-accessor';
 
 /**
@@ -29,6 +30,9 @@ function activityWith(attachments: Attachment[], conversationType = 'personal'):
   } as unknown as IMessageActivity);
 }
 
+const appCredential: GraphCredential = { actor: 'app', token: async () => 'app-token' };
+const agenticCredential: GraphCredential = { actor: 'agenticUser', token: async () => 'agent-token' };
+
 describe('FilesAccessor with no downloadUrl', () => {
   const log = new ConsoleLogger('FilesAccessor.agentic.spec');
 
@@ -43,16 +47,44 @@ describe('FilesAccessor with no downloadUrl', () => {
     expect(files[0].extension).toBe('pdf');
   });
 
-  it('skips a contentUrl-only attachment outside personal scope', async () => {
-    // The platform's agentic path applies no scope filter, so an agent in a group chat does receive these. Admitting them would put a handle in `list()` that then fails at `download()` with the scope error, which is worse than not surfacing it.
+  it('skips a contentUrl-only attachment outside personal scope on a turn with no credential', async () => {
+    // The platform's agentic path applies no scope filter, so an agent in a group chat does receive these. Without an agentic user credential the dispatcher refuses them outside `personal`, so surfacing one would put a handle in `list()` that then fails at `download()` with the scope error.
     for (const scope of ['groupChat', 'channel']) {
       const files = await new FilesAccessor(activityWith([agenticAttachment()], scope), log).list();
       expect(files).toHaveLength(0);
     }
   });
 
+  it('surfaces a contentUrl-only attachment in group chat and channel on an Agentic User turn', async () => {
+    // An @mentioned agent receives these outside `personal`, and Graph reads them as the agent's own identity.
+    for (const scope of ['groupChat', 'channel']) {
+      const accessor = new FilesAccessor(activityWith([agenticAttachment()], scope), log, undefined, agenticCredential);
+      const files = await accessor.list();
+
+      expect(files).toHaveLength(1);
+      expect(files[0].scope).toBe(scope);
+      expect(files[0].contentUrl).toBe('https://contoso.sharepoint.com/personal/a/Documents/report.pdf');
+    }
+  });
+
+  it('skips a contentUrl-only attachment in group chat and channel on an app turn', async () => {
+    // The platform delivers files outside `personal` only to an agentic user, so an app identity keeps the scope gate.
+    for (const scope of ['groupChat', 'channel']) {
+      const accessor = new FilesAccessor(activityWith([agenticAttachment()], scope), log, undefined, appCredential);
+
+      expect(await accessor.list()).toHaveLength(0);
+    }
+  });
+
+  it('skips a contentUrl-only attachment in a scope it does not recognize, even on an Agentic User turn', async () => {
+    // A conversation type the SDK has not seen stays closed, whoever the actor is.
+    const accessor = new FilesAccessor(activityWith([agenticAttachment()], 'meeting'), log, undefined, agenticCredential);
+
+    expect(await accessor.list()).toHaveLength(0);
+  });
+
   it('still surfaces a downloadUrl attachment outside personal scope', async () => {
-    // The scope condition rides on the contentUrl branch only, so traditional-bot behaviour is unchanged: these are surfaced by `list()` and throw the scope error at download time.
+    // The scope condition rides on the contentUrl branch only, so `list()` still surfaces a pre-authorized `downloadUrl` outside `personal`, and `download()` throws the scope error. The platform delivers no `downloadUrl` there today, so this pins a defensive path.
     const attachment = agenticAttachment({
       content: { downloadUrl: 'https://download.example/r.pdf?tempauth=abc', fileType: 'pdf' },
     });
@@ -88,8 +120,7 @@ describe('FilesAccessor with no downloadUrl', () => {
     // `uniqueId` and `fileType` are metadata. Rejecting the whole `content` over one of them drops the `downloadUrl`
     // beside it, and the file then routes through Graph and fails on a bot holding no Graph credential, reporting a
     // consent problem for what is really bad data.
-    // Asserted outside personal scope because the Graph route is personal-only: a file surfaced here can only have
-    // reached the list on its `downloadUrl`, which `downloadUrl` being private on the handle makes hard to show directly.
+    // Asserted in a group chat on a turn with no credential, where the Graph route is closed: a file surfaced here can only have reached the list on its `downloadUrl`, which `downloadUrl` being private on the handle makes hard to show directly.
     const wrongTypedMetadata = agenticAttachment({
       content: { downloadUrl: 'https://download.example/tempauth=abc', uniqueId: 42, fileType: 7 },
     } as unknown as Partial<Attachment>);

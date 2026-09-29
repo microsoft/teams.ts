@@ -12,8 +12,10 @@ import {
   type RequestConfig,
 } from '@microsoft/teams.common';
 
+import { type GraphCredential } from './download';
 import { FileUrlExpiredError } from './errors';
 import { FilesAccessor } from './files-accessor';
+import { encodeSharingUrl } from './graph-share';
 import { IncomingFile } from './incoming-file';
 
 /**
@@ -183,6 +185,37 @@ describe('file download via HttpClient', () => {
     expect((await file!.download()).text()).toBe('threaded');
     expect(transport.requests).toHaveLength(1);
     expect(transport.lastRequest.url).toBe('https://download.example/report.pdf?tempauth=abc');
+  });
+
+  // The accessor and the dispatcher share one scope check. This walks both, so a group chat file an agentic user's `list()` surfaces is shown to also download, through Graph and as the agent.
+  it('downloads a group chat file the accessor surfaced for an Agentic User, through Graph as the agent', async () => {
+    const transport = new CapturingTransport(200, 'agentic bytes', { 'content-type': 'text/plain' });
+    const client = new HttpClient({ middlewares: [transport] });
+    // Unencoded, spaces included, the way the platform delivers it.
+    const contentUrl = 'https://contoso.sharepoint.com/personal/a/Documents/Microsoft Teams Chat Files/report.txt';
+
+    const activity = MessageActivity.from({
+      type: 'message',
+      conversation: { conversationType: 'groupChat' },
+      attachments: [
+        {
+          contentType: FILE_DOWNLOAD_INFO_CONTENT_TYPE,
+          contentUrl,
+          name: 'report.txt',
+          content: { uniqueId: 'odsp-unique-id', fileType: 'txt' },
+        },
+      ],
+    } as unknown as IMessageActivity);
+
+    const credential: GraphCredential = { actor: 'agenticUser', token: async () => 'agent-token' };
+    const accessor = new FilesAccessor(activity, new ConsoleLogger('threading.spec'), client, credential);
+    const file = await accessor.first();
+
+    expect(file).toBeDefined();
+    expect((await file!.download()).text()).toBe('agentic bytes');
+    expect(transport.requests).toHaveLength(1);
+    expect(transport.lastRequest.url).toContain(`/shares/${encodeSharingUrl(contentUrl)}/driveItem/content`);
+    expect(String(transport.header('Authorization'))).toContain('agent-token');
   });
 
   describe('redirect safety', () => {
