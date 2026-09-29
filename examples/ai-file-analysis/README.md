@@ -68,7 +68,7 @@ Image bytes are sent inline as a data URI rather than as a link, so the pre-auth
 
 ## Where the bytes come from
 
-A file arrives as metadata, not as bytes. Which route turns that metadata into bytes depends on the shape of the attachment, not on who is reading it.
+A file arrives as metadata, not as bytes. Which route turns that metadata into bytes depends on the shape of the attachment and, outside 1:1 chats, on who is reading it.
 
 - **A bot reads through the pre-authorized download URL.** Teams provides a URL on the attachment and the SDK fetches it directly, with no tokens attached, shown in this example.
 - **An agentic user reads through Microsoft Graph.** Agentic users never receive a pre-authorized URL, so the SDK resolves the file through Graph's `/shares` endpoint using the agent's own credential.
