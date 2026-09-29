@@ -2,12 +2,6 @@ import { randomUUID } from 'crypto';
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 
-import type {
-  AnySchema,
-  SchemaOutput,
-  ShapeOutput,
-  ZodRawShapeCompat,
-} from '@modelcontextprotocol/sdk/server/zod-compat.js';
 import type { ToolAnnotations } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
 
@@ -45,7 +39,7 @@ export function createMcpServer(): McpServer {
 
   // Wrapper for tools whose return is a typed, structured payload.
   // The handler returns a plain value; we wrap it for MCP automatically.
-  function structuredTool<In extends ZodRawShapeCompat, Out extends AnySchema>(
+  function structuredTool<In extends z.ZodRawShape, Out extends z.ZodType>(
     name: string,
     config: {
       description: string;
@@ -53,9 +47,10 @@ export function createMcpServer(): McpServer {
       outputSchema: Out;
       annotations?: ToolAnnotations;
     },
-    handler: (args: ShapeOutput<In>) => Promise<SchemaOutput<Out>>
+    handler: (args: z.output<z.ZodObject<In>>) => Promise<z.output<Out>>
   ) {
-    mcpServer.registerTool(name, config, (async (args: ShapeOutput<In>) => {
+    // The SDK's schema types resolve against the root Zod version, not this example's Zod 4.
+    mcpServer.registerTool(name, config as unknown as Parameters<McpServer['registerTool']>[1], (async (args: z.output<z.ZodObject<In>>) => {
       const value = await handler(args);
       return {
         structuredContent: value as Record<string, unknown>,
