@@ -104,7 +104,7 @@ function buildAny(_schema: AnySchema): z.ZodTypeAny {
 }
 
 function buildObject(schema: ObjectSchema): z.ZodObject<z.ZodRawShape> {
-  const shape: z.ZodRawShape = {};
+  const shape: Record<string, z.ZodTypeAny> = {};
   const properties = schema.properties ?? {};
 
   const requiredAll = schema.required === true;
@@ -142,9 +142,9 @@ function buildEnum(values: readonly unknown[]): z.ZodTypeAny {
     }
   }
 
-  const literals = values.map((v) => z.literal(v as z.Primitive));
+  const literals = values.map((v) => z.literal(v as z.util.Literal));
   if (literals.length === 1) return literals[0];
-  return z.union(literals as [z.ZodLiteral<z.Primitive>, z.ZodLiteral<z.Primitive>, ...z.ZodLiteral<z.Primitive>[]]);
+  return z.union(literals as [z.ZodLiteral<z.util.Literal>, z.ZodLiteral<z.util.Literal>, ...z.ZodLiteral<z.util.Literal>[]]);
 }
 
 function describe<T extends z.ZodTypeAny>(zodType: T, schema: Schema): T {

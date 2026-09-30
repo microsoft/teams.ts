@@ -171,7 +171,7 @@ export class McpPlugin implements IPlugin {
       const zodSchema = jsonSchemaToZod(fn.parameters);
       const shape =
         zodSchema instanceof z.ZodObject
-          ? (zodSchema as z.AnyZodObject).shape
+          ? zodSchema.shape
           : {};
       this.server.tool(
         fn.name,
