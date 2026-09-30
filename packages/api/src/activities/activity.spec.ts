@@ -35,8 +35,8 @@ describe('Activity', () => {
       })
       .withRecipient(bot)
       .withServiceUrl('http://localhost')
-      .withTimestamp(new Date())
-      .withLocalTimestamp(new Date());
+      .withTimestamp(new Date('2026-06-04T21:00:00.000Z'))
+      .withLocalTimestamp('2026-06-04T14:00:00.000-07:00');
 
     expect(activity.id).toEqual('1');
     expect(activity.type).toEqual('test');
@@ -52,8 +52,22 @@ describe('Activity', () => {
 
     expect(activity.recipient).toEqual(bot);
     expect(activity.serviceUrl).toEqual('http://localhost');
-    expect(activity.timestamp).toBeDefined();
-    expect(activity.localTimestamp).toBeDefined();
+    expect(activity.timestamp).toEqual('2026-06-04T21:00:00.000Z');
+    expect(activity.localTimestamp).toEqual('2026-06-04T14:00:00.000-07:00');
+  });
+
+  it('should preserve timestamp strings from constructor data', () => {
+    const timestamp = '2026-06-04T21:00:00.000Z';
+    const localTimestamp = '2026-06-04T14:00:00.000-07:00';
+
+    const activity = new Activity({
+      type: 'test',
+      timestamp,
+      localTimestamp,
+    });
+
+    expect(activity.timestamp).toEqual(timestamp);
+    expect(activity.localTimestamp).toEqual(localTimestamp);
   });
 
   it('should build from interface', () => {
