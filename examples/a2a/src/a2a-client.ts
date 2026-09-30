@@ -1,4 +1,5 @@
-import type { AgentCard, MessageSendParams } from '@a2a-js/sdk';
+import { Role } from '@a2a-js/sdk';
+import type { AgentCard, SendMessageRequest } from '@a2a-js/sdk';
 import { Client, ClientFactory, JsonRpcTransportFactory } from '@a2a-js/sdk/client';
 
 import { ILogger } from '@microsoft/teams.common';
@@ -41,18 +42,31 @@ export class A2APeerClient {
     if (!this._cachedClient) await this.getPeerCard();
     const client = this._cachedClient!;
 
-    const params: MessageSendParams = {
+    const params: SendMessageRequest = {
+      tenant: '',
       message: {
-        kind: 'message',
-        role: 'user',
         messageId: cryptoRandomId(),
+        contextId: '',
+        taskId: '',
+        role: Role.ROLE_USER,
         parts: [
           {
-            kind: 'data',
-            data: payload as unknown as { [k: string]: unknown },
+            content: { $case: 'data', value: payload },
+            metadata: undefined,
+            filename: '',
+            mediaType: 'application/json',
           },
         ],
+        metadata: undefined,
+        extensions: [],
+        referenceTaskIds: [],
       },
+      configuration: {
+        acceptedOutputModes: ['text/plain'],
+        taskPushNotificationConfig: undefined,
+        returnImmediately: false,
+      },
+      metadata: undefined,
     };
 
     try {

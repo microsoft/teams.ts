@@ -1,3 +1,4 @@
+import { A2A_PROTOCOL_VERSION } from '@a2a-js/sdk';
 import type { AgentCard } from '@a2a-js/sdk';
 
 /**
@@ -59,11 +60,19 @@ export function buildAgentCard(config: Config): AgentCard {
   return {
     name: config.name,
     description: config.description,
+    supportedInterfaces: [
+      {
+        url,
+        protocolBinding: 'JSONRPC',
+        tenant: '',
+        protocolVersion: A2A_PROTOCOL_VERSION,
+      },
+    ],
+    provider: undefined,
     version: '1.0.0',
-    protocolVersion: '0.3.0',
-    url,
-    preferredTransport: 'JSONRPC',
-    capabilities: {},
+    capabilities: { extensions: [] },
+    securitySchemes: {},
+    securityRequirements: [],
     defaultInputModes: ['application/json'],
     defaultOutputModes: ['text/plain'],
     skills: [
@@ -72,7 +81,12 @@ export function buildAgentCard(config: Config): AgentCard {
         name: 'Handoff',
         description: `Accepts handoffs of users from peer bots. Specialty: ${config.description}`,
         tags: ['a2a', 'teams', 'handoff'],
+        examples: [],
+        inputModes: ['application/json'],
+        outputModes: ['text/plain'],
+        securityRequirements: [],
       },
     ],
+    signatures: [],
   };
 }
