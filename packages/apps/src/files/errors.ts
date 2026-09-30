@@ -25,7 +25,7 @@ export type FileActor = 'app' | 'agenticUser';
  * - `reread`: edge case. An earlier download succeeded, then a later re-fetch through the same handle lapsed. Avoid it by calling `download()` once and reusing the returned `DownloadedFile` rather than re-reading the handle.
  */
 export class FileUrlExpiredError extends FileError {
-  /** Lets callers branch without string-matching the message. 
+  /** Lets callers branch without string-matching the message.
    * `firstFetch`: no bytes were ever fetched. `reread`: the uncommon case, a previously successful handle re-fetched too late. */
   readonly reason: 'firstFetch' | 'reread';
 
@@ -44,7 +44,7 @@ export class FileUrlExpiredError extends FileError {
 /**
  * Raised when file bytes are requested for a conversation scope whose download path is not implemented.
  *
- * Only `personal` (1:1) uploaded files download directly. `groupChat` files are surfaced by `list()`, but fetching their bytes needs Graph; `download()`/`stream()` throws until that path lands.
+ * `personal` (1:1) files download through either route. In `groupChat` and `channel` the platform delivers file attachments only to an agentic user, and they download only through Graph at this time. `list()` would still surface a pre-authorized `downloadUrl`, but `download()`/`stream()` throws, as it does for any other scope.
  */
 export class FileScopeNotSupportedError extends FileError {
   /** The conversation scope that is not yet fetchable. */

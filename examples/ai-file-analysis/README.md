@@ -68,10 +68,10 @@ Image bytes are sent inline as a data URI rather than as a link, so the pre-auth
 
 ## Where the bytes come from
 
-A file arrives as metadata, not as bytes. Which route turns that metadata into bytes depends on the shape of the attachment, not on who is reading it.
+A file arrives as metadata, not as bytes. Which route turns that metadata into bytes depends on the shape of the attachment and, outside 1:1 chats, on who is reading it.
 
 - **A bot reads through the pre-authorized download URL.** Teams provides a URL on the attachment and the SDK fetches it directly, with no tokens attached, shown in this example.
-- **An agentic user reads through Microsoft Graph.** Agentic Users never receive a pre-authorized URL, so the SDK resolves the file through Graph's `/shares` endpoint using the agent's own credential.
+- **An agentic user reads through Microsoft Graph.** Agentic users never receive a pre-authorized URL, so the SDK resolves the file through Graph's `/shares` endpoint using the agent's own credential.
 
 ### The download URL expires, and that is final
 
@@ -81,9 +81,9 @@ So download when the file arrives, as this sample does, instead of storing an `I
 
 ### Agentic users
 
-Sideloading this sample will not reach an agentic user. An Agentic User receives activities on its blueprint's notification URL rather than at your bot endpoint, and needs a Graph file permission consented on that blueprint by an administrator. If you have one, point its notification URL at this sample. To provision one, see the [Microsoft Agent 365 documentation](https://learn.microsoft.com/microsoft-agent-365/) and [inheritable permissions](https://learn.microsoft.com/entra/agent-id/concept-inheritable-permissions).
+Sideloading this sample will not reach an agentic user. An agentic user receives activities on its blueprint's notification URL rather than at your bot endpoint, and needs a Graph file permission consented on that blueprint by an administrator. If you have one, point its notification URL at this sample. To provision one, see the [Microsoft Agent 365 documentation](https://learn.microsoft.com/microsoft-agent-365/) and [inheritable permissions](https://learn.microsoft.com/entra/agent-id/concept-inheritable-permissions).
 
-The handler code is unchanged: `list()` then `download()`, with the SDK selecting the agent's own credential rather than the app's. A failed Graph read raises `FileCredentialError` when no credential was available, or `FileAccessError` when the service refused. Both name the identity involved and link its permissions documentation.
+Unlike the sideloaded 1:1 bot, an agentic user also receives files in group chats and channels, from messages that @mention it. The handler code is unchanged: `list()` then `download()`, with the SDK selecting the agent's own credential rather than the app's. A failed Graph read raises `FileCredentialError` when no credential was available, or `FileAccessError` when the service refused. Both name the identity involved and link its permissions documentation.
 
 ## Limits
 

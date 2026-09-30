@@ -179,9 +179,22 @@ type TransportResponse = {
 };
 
 /**
+ * Whether a file that arrived with only a `contentUrl` may be read through Graph in this scope, as this actor.
+ *
+ * Shared by the attachment mapper and the download dispatcher so the two cannot drift: a file `list()` surfaces on its `contentUrl` is always one `download()` will open. `personal` is open to every actor. `groupChat` and `channel` are open only to an agentic user, the only identity the platform delivers files to there at this time. Any other scope stays closed.
+ */
+export function isGraphRouteOpen(scope: ConversationType, actor: FileActor | undefined): boolean {
+  if (scope === 'personal') {
+    return true;
+  }
+
+  return actor === 'agenticUser' && (scope === 'groupChat' || scope === 'channel');
+}
+
+/**
  * Open a byte stream for an inbound file, keyed on its conversation scope so every scope's receive path extends this one place rather than branching in callers.
  *
- * Only `personal` is implemented; `groupChat`/`channel` (and any future scope) throw {@link FileScopeNotSupportedError} until their Graph receive path lands.
+ * `personal` takes either route. In `groupChat` and `channel` the platform delivers file attachments only to an agentic user, each carrying just a `contentUrl`, so they open only through Graph, as {@link isGraphRouteOpen} decides. Everything else throws {@link FileScopeNotSupportedError}.
  */
 export async function openFileStream(
   target: FileFetchTarget,
@@ -189,6 +202,11 @@ export async function openFileStream(
 ): Promise<OpenedFileStream> {
   if (target.scope === 'personal') {
     return openPersonalFileStream(target, options);
+  }
+
+  // A `downloadUrl` outside `personal` keeps the scope error: that route is unvalidated there, and Graph is never substituted for a URL the platform supplied.
+  if (!target.downloadUrl && target.contentUrl && isGraphRouteOpen(target.scope, options?.credential?.actor)) {
+    return openGraphFileStream(target, target.contentUrl, options);
   }
 
   throw new FileScopeNotSupportedError(target.scope);

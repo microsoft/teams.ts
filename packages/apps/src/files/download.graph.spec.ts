@@ -1,7 +1,7 @@
 import { ConversationType } from '@microsoft/teams.api';
 
 import { openFileStream, type FileFetch, type GraphCredential } from './download';
-import { FileAccessError, FileCredentialError, FileUrlExpiredError } from './errors';
+import { FileAccessError, FileCredentialError, FileScopeNotSupportedError, FileUrlExpiredError } from './errors';
 import { encodeSharingUrl } from './graph-share';
 
 const CONTENT_URL = 'https://contoso.sharepoint.com/personal/a/Documents/report.pdf';
@@ -244,6 +244,67 @@ describe('graphShare fetch path', () => {
     ).rejects.toThrow(/agenticUser.*404.*mysite/s);
   });
 
+});
+
+describe('the Graph route outside personal scope', () => {
+  it('opens for an Agentic User in group chat and channel, as one /shares read carrying the agent token', async () => {
+    for (const scope of ['groupChat', 'channel']) {
+      const { fetch, calls } = recordingFetch([{ status: 200 }]);
+
+      const opened = await openFileStream(target({ scope, contentUrl: CONTENT_URL }), {
+        fetch,
+        credential: agenticCredential,
+      });
+
+      expect(calls).toHaveLength(1);
+      expect(calls[0].url).toContain(`/shares/${encodeSharingUrl(CONTENT_URL)}/driveItem/content`);
+      expect(calls[0].authorization).toContain('agent-token');
+      expect(opened.contentType).toBe('application/pdf');
+    }
+  });
+
+  it('stays closed to an app credential, before any request', async () => {
+    for (const scope of ['groupChat', 'channel']) {
+      const { fetch, calls } = recordingFetch([{ status: 200 }]);
+
+      await expect(
+        openFileStream(target({ scope, contentUrl: CONTENT_URL }), { fetch, credential: appCredential })
+      ).rejects.toMatchObject({ constructor: FileScopeNotSupportedError, scope });
+      expect(calls).toHaveLength(0);
+    }
+  });
+
+  it('reports the scope, not a missing credential, when no credential exists', async () => {
+    // In `personal` the same file fails as a credential problem. Here no identity could open the route, so naming a credential would send the reader after the wrong fix.
+    const { fetch, calls } = recordingFetch([{ status: 200 }]);
+
+    await expect(
+      openFileStream(target({ scope: 'groupChat', contentUrl: CONTENT_URL }), { fetch })
+    ).rejects.toBeInstanceOf(FileScopeNotSupportedError);
+    expect(calls).toHaveLength(0);
+  });
+
+  it('keeps the scope error for a file carrying a downloadUrl, even for an Agentic User', async () => {
+    // Graph is never substituted for a URL the platform supplied, and the pre-authorized route is unvalidated outside `personal`.
+    const { fetch, calls } = recordingFetch([{ status: 200 }]);
+
+    await expect(
+      openFileStream(target({ scope: 'groupChat', downloadUrl: DOWNLOAD_URL, contentUrl: CONTENT_URL }), {
+        fetch,
+        credential: agenticCredential,
+      })
+    ).rejects.toMatchObject({ constructor: FileScopeNotSupportedError, scope: 'groupChat' });
+    expect(calls).toHaveLength(0);
+  });
+
+  it('stays closed in a scope it does not recognize, even for an Agentic User', async () => {
+    const { fetch, calls } = recordingFetch([{ status: 200 }]);
+
+    await expect(
+      openFileStream(target({ scope: 'meeting', contentUrl: CONTENT_URL }), { fetch, credential: agenticCredential })
+    ).rejects.toMatchObject({ constructor: FileScopeNotSupportedError, scope: 'meeting' });
+    expect(calls).toHaveLength(0);
+  });
 });
 
 describe('an expired pre-authorized URL', () => {

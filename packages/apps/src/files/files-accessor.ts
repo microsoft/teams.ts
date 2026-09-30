@@ -8,7 +8,7 @@ import {
 } from '@microsoft/teams.api';
 import { Client as HttpClient, ILogger } from '@microsoft/teams.common';
 
-import { GraphCredential } from './download';
+import { GraphCredential, isGraphRouteOpen } from './download';
 import { IncomingFile } from './incoming-file';
 import { IFilesAccessor, IIncomingFile } from './types';
 
@@ -108,9 +108,11 @@ export class FilesAccessor implements IFilesAccessor {
       typeof attachment.content === 'object' && attachment.content !== null && 'downloadUrl' in attachment.content;
     const isAgenticShape = content !== undefined && !declaresDownloadUrl;
 
-    // `downloadUrl` is fetched directly. A `contentUrl` without one is the Agentic User case and resolves through Graph, restricted to `personal` because agentic delivery in other scopes is unvalidated: surfacing a handle there will produce a `list()` entry that then fails at `download()`. The `downloadUrl` branch keeps its existing scope behaviour.
+    // `downloadUrl` is fetched directly. A `contentUrl` without one is the agentic user case and resolves through Graph, only where `isGraphRouteOpen` allows: the dispatcher applies the same check, so a handle surfaced here cannot then fail at `download()` on scope. The `downloadUrl` branch keeps its existing scope behaviour.
     const hasLocator = Boolean(downloadUrl || contentUrl);
-    const canFetch = Boolean(downloadUrl) || (scope === 'personal' && isAgenticShape && Boolean(contentUrl));
+    const canFetch =
+      Boolean(downloadUrl) ||
+      (isGraphRouteOpen(scope, this.credential?.actor) && isAgenticShape && Boolean(contentUrl));
 
     if (!canFetch || !name) {
       // Split by cause: a malformed attachment is a real defect, while an out-of-scope file is expected noise.
