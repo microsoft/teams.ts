@@ -1,3 +1,5 @@
+import { Role } from '@a2a-js/sdk';
+import { AgentEvent } from '@a2a-js/sdk/server';
 import type {
   AgentExecutor,
   ExecutionEventBus,
@@ -81,9 +83,12 @@ export class HandoffAgentExecutor implements AgentExecutor {
   };
 
   private _extractHandoff(ctx: RequestContext): HandoffMessage | null {
-    const dataPart = ctx.userMessage.parts.find((p) => p.kind === 'data');
-    if (!dataPart || dataPart.kind !== 'data') return null;
-    return isHandoffMessage(dataPart.data) ? dataPart.data : null;
+    const dataPart = ctx.userMessage.parts.find(
+      (part) => part.content?.$case === 'data'
+    );
+    if (!dataPart || dataPart.content?.$case !== 'data') return null;
+    const data = dataPart.content.value;
+    return isHandoffMessage(data) ? data : null;
   }
 
   /**
@@ -105,12 +110,24 @@ export class HandoffAgentExecutor implements AgentExecutor {
   }
 
   private _publishText(bus: ExecutionEventBus, ctx: RequestContext, text: string): void {
-    bus.publish({
-      kind: 'message',
-      role: 'agent',
-      messageId: globalThis.crypto?.randomUUID?.() ?? String(Date.now()),
-      contextId: ctx.contextId,
-      parts: [{ kind: 'text', text }],
-    });
+    bus.publish(
+      AgentEvent.message({
+        messageId: globalThis.crypto?.randomUUID?.() ?? String(Date.now()),
+        contextId: ctx.contextId,
+        taskId: ctx.taskId,
+        role: Role.ROLE_AGENT,
+        parts: [
+          {
+            content: { $case: 'text', value: text },
+            metadata: undefined,
+            filename: '',
+            mediaType: 'text/plain',
+          },
+        ],
+        metadata: undefined,
+        extensions: [],
+        referenceTaskIds: [],
+      })
+    );
   }
 }
