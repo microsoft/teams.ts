@@ -223,15 +223,6 @@ export class ActivityInput<T extends string = string> implements IActivityInput<
   }
 
   /**
-   * Set the activity ID this outbound activity replies to.
-   * @param value - Activity ID being replied to.
-   */
-  withReplyToId(value: string) {
-    this.replyToId = value;
-    return this;
-  }
-
-  /**
    * Merge channel-specific metadata into the outbound activity.
    * @param value - Channel metadata to merge.
    */
