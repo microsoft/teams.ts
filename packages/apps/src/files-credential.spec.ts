@@ -1,6 +1,6 @@
 import { AgenticIdentity, IToken } from '@microsoft/teams.api';
 
-import { selectFilesCredential } from './files-credential';
+import { selectFilesCredential, selectInlineImageCredential } from './files-credential';
 
 /** Minimal stand-in for a token; only `toString()` is consumed by the credential. */
 function token(value: string): IToken {
@@ -159,5 +159,42 @@ describe('selectFilesCredential', () => {
     });
 
     expect(await credential.token()).toBeUndefined();
+  });
+});
+
+describe('selectInlineImageCredential', () => {
+  it('reads as the app when there is no agentic identity, and as the agentic user when there is', () => {
+    expect(selectInlineImageCredential({ getToken: () => 'bot-token' }).actor).toBe('app');
+    expect(selectInlineImageCredential({ agenticIdentity: AGENTIC, getToken: () => 'bot-token' }).actor).toBe('agenticUser');
+  });
+
+  it('resolves a string, a string-like value, and a token factory', async () => {
+    const fromString = selectInlineImageCredential({ getToken: () => 'plain' });
+    const fromStringLike = selectInlineImageCredential({ getToken: () => ({ toString: () => 'string-like' }) });
+    const fromFactory = selectInlineImageCredential({ getToken: () => async () => 'factory' });
+
+    expect(await fromString.token()).toBe('plain');
+    expect(await fromStringLike.token()).toBe('string-like');
+    expect(await fromFactory.token()).toBe('factory');
+  });
+
+  it('reports no token for an absent or blank source', async () => {
+    expect(await selectInlineImageCredential({ getToken: () => undefined }).token()).toBeUndefined();
+    expect(await selectInlineImageCredential({ getToken: () => async () => '  ' }).token()).toBeUndefined();
+  });
+
+  it('carries the service URL it was given as the allowed destination', () => {
+    expect(selectInlineImageCredential({ serviceUrl: 'https://smba.trafficmanager.net/amer/', getToken: () => 'bot-token' }).serviceUrl).toBe(
+      'https://smba.trafficmanager.net/amer/'
+    );
+  });
+
+  it('reads the token source at fetch time rather than when built', async () => {
+    let current = 'first';
+    const credential = selectInlineImageCredential({ getToken: () => current });
+
+    current = 'second';
+
+    expect(await credential.token()).toBe('second');
   });
 });

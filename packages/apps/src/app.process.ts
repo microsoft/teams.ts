@@ -37,7 +37,7 @@ import {
   recordTeamsBotActivityProcessDuration
 } from './diagnostics/helpers';
 import { IActivityEvent } from './events';
-import { selectFilesCredential } from './files-credential';
+import { selectFilesCredential, selectInlineImageCredential } from './files-credential';
 import { Router } from './router';
 import type { Route } from './router/route';
 import { IRoutes } from './routes';
@@ -282,6 +282,13 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
         getAgenticGraphToken: (i, t) => this.options.getAgenticGraphToken(i, t),
       });
 
+      // Inline images are read with the turn's Bot API token, not Graph.
+      const filesBotApiCredential = selectInlineImageCredential({
+        agenticIdentity,
+        serviceUrl: activity.serviceUrl,
+        getToken: () => apiClient.http.token,
+      });
+
       const context = new ActivityContext({
         activity,
         next,
@@ -300,6 +307,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
         onOAuthSignInInitiated: this.options.onOAuthSignInInitiated,
         getOAuthConnectionStatus: this.options.getOAuthConnectionStatus,
         filesCredential,
+        filesBotApiCredential,
         activitySender,
         ...pluginContexts
       });

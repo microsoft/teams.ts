@@ -984,6 +984,68 @@ describe('App', () => {
 
       // @ts-expect-error filesCredential is constructor-only and must not appear on the public context type.
       void ctx.filesCredential;
+
+      // @ts-expect-error filesBotApiCredential is constructor-only and must not appear on the public context type.
+      void ctx.filesBotApiCredential;
+    });
+
+    it('reads inline images with the token of the turn\'s own API client', async () => {
+      const incomingActivity: IMessageActivity = new MessageActivity('hello')
+        .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
+        .withRecipient({
+          id: 'bot-1',
+          name: 'Test Bot',
+          role: 'bot',
+          agenticAppId: 'agent-app',
+          agenticUserId: 'agentic-user',
+          agenticAppBlueprintId: 'blueprint-id',
+          tenantId: 'tenant-id',
+        })
+        .withConversation({ id: 'conv-123', conversationType: 'personal' })
+        .withChannelId('msteams')
+        .withServiceUrl('https://service.url/')
+        .toInterface();
+
+      let credential: any;
+      let api: any;
+      app.on('message', (ctx) => {
+        credential = (ctx.files as any).botApiCredential;
+        api = ctx.api;
+      });
+
+      await app.process({ token, body: incomingActivity });
+
+      expect(credential.actor).toBe('agenticUser');
+
+      // The client's token is scoped to the inbound identity, so an agentic identity reads as itself.
+      api.http.token = 'turn-client-token';
+      expect(await credential.token()).toBe('turn-client-token');
+    });
+
+    it('resolves the turn client\'s token factory, the shape a configured token provider installs, and carries the activity service URL', async () => {
+      const incomingActivity: IMessageActivity = new MessageActivity('hello')
+        .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
+        .withRecipient({ id: 'bot-1', name: 'Test Bot', role: 'bot' })
+        .withConversation({ id: 'conv-123', conversationType: 'personal' })
+        .withChannelId('msteams')
+        .withServiceUrl('https://service.url/amer/')
+        .toInterface();
+
+      let credential: any;
+      let api: any;
+      app.on('message', (ctx) => {
+        credential = (ctx.files as any).botApiCredential;
+        api = ctx.api;
+      });
+
+      await app.process({ token, body: incomingActivity });
+
+      const factory = jest.fn(async () => 'factory-token');
+      api.http.token = factory;
+
+      expect(await credential.token()).toBe('factory-token');
+      expect(factory).toHaveBeenCalled();
+      expect(credential.serviceUrl).toBe('https://service.url/amer/');
     });
 
     it('should use different serviceUrls for different incoming activities', async () => {

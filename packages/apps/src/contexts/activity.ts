@@ -18,7 +18,7 @@ import {
 import { Client as HttpClient, ILogger, IStorage } from '@microsoft/teams.common';
 
 import { ApiClient, GraphClient } from '../api';
-import { GraphCredential } from '../files/download';
+import { BotApiCredential, GraphCredential } from '../files/download';
 import { FilesAccessor } from '../files/files-accessor';
 import { IFilesAccessor } from '../files/types';
 import { OAuthSignInOptions, startOAuthSignIn } from '../oauth';
@@ -37,6 +37,13 @@ export interface IActivityContextConstructorArgs {
    * Constructor-only, and deliberately absent from {@link IBaseActivityContextOptions}: it exists so `ctx.files` can reach bytes the pre-authorized download URL cannot, and a handler has no reason to hold it. Declaring it here keeps it off the public context type and out of the instance, rather than advertising a property that is always `undefined`.
    */
   filesCredential?: GraphCredential;
+
+  /**
+   * Bot API credential used by the file path to read inline images, resolved at fetch time.
+   *
+   * Constructor-only for the same reason as {@link filesCredential}.
+   */
+  filesBotApiCredential?: BotApiCredential;
 
   /**
    * activity sender for sending activities and creating streams
@@ -180,7 +187,7 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
   stream: IStreamer;
 
   /**
-   * the uploaded files on the current inbound activity, i.e. `contentType: file.download.info` subset of `activity.attachments`, mapped to `IncomingFile`. See {@link IFilesAccessor}.
+   * the uploaded files on the current inbound activity, i.e. `contentType: file.download.info` subset of `activity.attachments`, plus images pasted inline, mapped to `IncomingFile`. See {@link IFilesAccessor}.
    */
   files: IFilesAccessor;
 
@@ -295,6 +302,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       onOAuthSignInInitiated,
       getOAuthConnectionStatus,
       filesCredential,
+      filesBotApiCredential,
       ...rest
     } = value;
 
@@ -337,7 +345,13 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     this.next = next;
     this.stream = activitySender.createStream(value.ref);
     this.connectionName = value.connectionName;
-    this.files = new FilesAccessor(this.activity, this.log.child('files'), value.client, filesCredential);
+    this.files = new FilesAccessor(
+      this.activity,
+      this.log.child('files'),
+      value.client,
+      filesCredential,
+      filesBotApiCredential
+    );
   }
 
   /**
