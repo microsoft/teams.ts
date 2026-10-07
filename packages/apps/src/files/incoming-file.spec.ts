@@ -187,4 +187,10 @@ describe('IncomingFile', () => {
       expect(calls).toHaveLength(1);
     });
   });
+
+  describe('attachmentStyle', () => {
+    it('defaults to file when not given', () => {
+      expect(personalFile().attachmentStyle).toBe('file');
+    });
+  });
 });

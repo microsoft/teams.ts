@@ -1,7 +1,7 @@
 import { ConversationType } from '@microsoft/teams.api';
 
 /**
- * Base class for the diagnosable failures on the inbound-file path: an expired URL, an unsupported scope, a missing Graph credential, and a refused Graph read.
+ * Base class for the diagnosable failures on the inbound-file path: an expired URL, an unsupported scope, a missing Graph credential, a refused Graph read, and an inline image that was refused or could not be converted.
  *
  * Lets a caller catch those with one `instanceof` check, so a new one can be added without callers changing. A transport or service failure the SDK cannot attribute, such as a Graph 5xx, is not one of these and surfaces as a plain `Error`.
  */
@@ -102,6 +102,57 @@ export class FileAccessError extends FileError {
     const base = `cannot fetch file bytes through Graph: ${accessGuidance(status, actor)}`;
     super(details ? `${base} (service said: ${details})` : base);
     this.name = 'FileAccessError';
+    this.status = status;
+    this.actor = actor;
+    this.details = details;
+  }
+}
+
+/**
+ * Raised when the platform could not convert an inline image for download, answering `415`.
+ *
+ * The same image sent as a file attachment downloads normally.
+ */
+export class InlineImageTransformationError extends FileError {
+  /** The HTTP status, `415`. */
+  readonly status: number;
+  /** The service's error code, such as `TransformationFailed`, when the response carried one. */
+  readonly code?: string;
+  /** The service's message, verbatim and truncated, when present. */
+  readonly details?: string;
+  /** The identity the fetch was attempted as. */
+  readonly actor?: FileActor;
+
+  constructor(status: number, code?: string, details?: string, actor?: FileActor) {
+    const reason = code ? `status ${status}, code ${code}` : `status ${status}`;
+    const base = `cannot download inline image: the platform could not convert it for download (${reason}). Some image formats, such as BMP and AVIF, cannot be converted by the platform, so Teams shows a placeholder, and they cannot be downloaded. Ask the user to send the image as a file attachment instead`;
+    super(details ? `${base} (service said: ${details})` : base);
+    this.name = 'InlineImageTransformationError';
+    this.status = status;
+    this.code = code;
+    this.details = details;
+    this.actor = actor;
+  }
+}
+
+/**
+ * Raised when the Bot API refused the token presented for an inline image, answering `401` or `403`.
+ *
+ * Inline images are read with the same Bot API token the app uses to reply in that conversation (an agentic user token for agentic identities), not Graph, so this is distinct from {@link FileAccessError}.
+ */
+export class InlineImageAccessError extends FileError {
+  /** `401` means the token itself was rejected; `403` means the identity is not allowed to read the image. */
+  readonly status: number;
+  /** The identity the fetch was attempted as. */
+  readonly actor?: FileActor;
+  /** The service's message, verbatim and truncated, when present. */
+  readonly details?: string;
+
+  constructor(status: number, actor?: FileActor, details?: string) {
+    const as = actor ? describeActor(actor) : 'the identity used';
+    const base = `cannot download inline image: the Bot API token presented for ${as} was rejected with status ${status}`;
+    super(details ? `${base} (service said: ${details})` : base);
+    this.name = 'InlineImageAccessError';
     this.status = status;
     this.actor = actor;
     this.details = details;
