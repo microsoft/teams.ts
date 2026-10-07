@@ -149,11 +149,25 @@ export interface IFilesAccessor {
   /**
    * The files attached to the current inbound activity. Async because later scopes hydrate through Graph; the personal path resolves synchronously from the activity but keeps the async signature so the shape never breaks.
    *
-   * Currently takes no arguments, returns uploaded files and inline images, and makes no network requests.
-   * The signature is reserved to grow an options object later (e.g. `list(options?: { contentTypes?; includeRaw? })`) so coverage can change without a break.
+   * Returns uploaded files and inline images, and makes no network requests.
+   * Filter by attachment style using the {@link IFileListOptions.attachmentStyle} option.
    */
-  list(): Promise<IIncomingFile[]>;
+  list(options?: IFileListOptions): Promise<IIncomingFile[]>;
 
-  /** Convenience: the first listed file, or `undefined` when none. Sugar over `list()[0]`; shares `list()`'s resolution so it stays correct when later scopes hydrate through Graph. */
-  first(): Promise<IIncomingFile | undefined>;
+  /**
+   * Convenience: the first listed file/inline image, or `undefined` when none. Sugar over `list()[0]`; shares `list()`'s resolution so it stays correct when later scopes hydrate through Graph.
+   * Filter by attachment style using the {@link IFileListOptions.attachmentStyle} option.
+   */
+  first(options?: IFileListOptions): Promise<IIncomingFile | undefined>;
+}
+
+/**
+ * Options accepted by {@link IFilesAccessor.list} and {@link IFilesAccessor.first}.
+ */
+export interface IFileListOptions {
+  /**
+   * When set, only files with this style are returned.
+   * When omitted, both styles are returned.
+   */
+  attachmentStyle?: AttachmentStyle;
 }

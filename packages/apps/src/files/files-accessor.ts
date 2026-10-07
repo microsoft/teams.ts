@@ -8,9 +8,16 @@ import {
 } from '@microsoft/teams.api';
 import { Client as HttpClient, ILogger } from '@microsoft/teams.common';
 
-import { GraphCredential, isGraphRouteOpen } from './download';
+import { BotApiCredential, GraphCredential, isGraphRouteOpen, isUnderServiceUrl } from './download';
 import { IncomingFile } from './incoming-file';
-import { IFilesAccessor, IIncomingFile } from './types';
+import {
+  formatFromContentType,
+  formatFromHint,
+  inlineImageId,
+  inlineImageNaming,
+  parseInlineImageHints,
+} from './inline-image';
+import { IFileListOptions, IFilesAccessor, IIncomingFile } from './types';
 
 /** Narrow an unknown wire value to `string | undefined`, the shape every {@link FileDownloadInfo} field declares. */
 function isOptionalString(value: unknown): value is string | undefined {
@@ -47,10 +54,12 @@ export class FilesAccessor implements IFilesAccessor {
     /** The app's HTTP client, threaded into every {@link IncomingFile} so downloads go through the SDK's outbound pipeline rather than a bare `fetch`. */
     private readonly httpClient?: HttpClient,
     /** Graph credential for the current actor, resolved at fetch time. Absent when the app has no Graph route, in which case an expired URL cannot be recovered. */
-    private readonly credential?: GraphCredential
+    private readonly credential?: GraphCredential,
+    /** Bot API credential for reading inline images, resolved at fetch time. */
+    private readonly botApiCredential?: BotApiCredential
   ) {}
 
-  async list(): Promise<IIncomingFile[]> {
+  async list(options?: IFileListOptions): Promise<IIncomingFile[]> {
     // Uploaded files only ride on inbound message activities so we validate the shape and return an empty list rather than throwing.
     if (!(this.activity instanceof MessageActivity)) {
       return [];
@@ -58,11 +67,19 @@ export class FilesAccessor implements IFilesAccessor {
 
     const attachments = this.activity.attachments ?? [];
     const scope = this.detectScope();
+    const hints = this.inlineImageHints(attachments);
 
     const files: IIncomingFile[] = [];
 
     attachments.forEach((attachment, index) => {
-      const file = this.toIncomingFile(attachment, index, scope);
+      const inline = this.isInlineImage(attachment);
+
+      // Checked before mapping, so an attachment of the excluded style is never mapped and never logs a warning.
+      if (options?.attachmentStyle && options.attachmentStyle !== (inline ? 'inlineImage' : 'file')) {
+        return;
+      }
+
+      const file = inline ? this.toInlineImage(attachment, index, scope, hints) : this.toIncomingFile(attachment, index, scope);
 
       if (file) {
         files.push(file);
@@ -72,8 +89,8 @@ export class FilesAccessor implements IFilesAccessor {
     return files;
   }
 
-  async first(): Promise<IIncomingFile | undefined> {
-    const files = await this.list();
+  async first(options?: IFileListOptions): Promise<IIncomingFile | undefined> {
+    const files = await this.list(options);
     return files[0];
   }
 
@@ -82,6 +99,80 @@ export class FilesAccessor implements IFilesAccessor {
    */
   private detectScope(): ConversationType {
     return this.activity.conversation?.conversationType ?? 'personal';
+  }
+
+  /**
+   * Format hints for inline images, keyed by attachment id, read from the message's HTML attachments.
+   */
+  private inlineImageHints(attachments: Attachment[]): Map<string, string> {
+    const hints = new Map<string, string>();
+
+    for (const attachment of attachments) {
+      if (attachment.contentType === 'text/html' && typeof attachment.content === 'string') {
+        parseInlineImageHints(attachment.content).forEach((hint, id) => hints.set(id, hint));
+      }
+    }
+
+    return hints;
+  }
+
+  /** Whether an attachment is an image pasted inline: an `image/*` attachment located at a Bot API inline image path. */
+  private isInlineImage(attachment: Attachment): boolean {
+    return (
+      typeof attachment.contentType === 'string' &&
+      /^image\//i.test(attachment.contentType) &&
+      typeof attachment.contentUrl === 'string' &&
+      inlineImageId(attachment.contentUrl) !== undefined
+    );
+  }
+
+  /**
+   * Map an inline image attachment to an {@link IncomingFile}, or `undefined` when its location is not on the activity's service URL.
+   */
+  private toInlineImage(
+    attachment: Attachment,
+    index: number,
+    scope: ConversationType,
+    hints: Map<string, string>
+  ): IncomingFile | undefined {
+    const contentUrl = attachment.contentUrl as string;
+    const id = inlineImageId(contentUrl) as string;
+
+    if (!this.isOnServiceUrl(contentUrl)) {
+      this.log.warn(
+        `skipping inline image attachment at index ${index}; its location is not on the activity's service URL`
+      );
+      return undefined;
+    }
+
+    // Typed from the HTML format hint, or from the attachment's content type when there is no hint.
+    const hint = hints.get(id);
+    const format = hint !== undefined ? formatFromHint(hint) : formatFromContentType(attachment.contentType);
+    const baseName = `image-${id}`;
+    const { name, extension, contentType } = inlineImageNaming(baseName, format);
+
+    return new IncomingFile({
+      name,
+      contentType,
+      extension,
+      scope,
+      source: 'botActivity',
+      attachmentStyle: 'inlineImage',
+      contentUrl,
+      raw: attachment,
+      inlineImageBaseName: baseName,
+      httpClient: this.httpClient,
+      botApiCredential: this.botApiCredential,
+      log: this.log,
+    });
+  }
+
+  /**
+   * Whether a URL is under the activity's service URL over https.
+   * The download path applies the same check through {@link BotApiCredential.serviceUrl}, while this one lets listing skip and warn.
+   */
+  private isOnServiceUrl(url: string): boolean {
+    return isUnderServiceUrl(url, this.activity.serviceUrl);
   }
 
   /**
@@ -138,6 +229,7 @@ export class FilesAccessor implements IFilesAccessor {
       extension: content?.fileType,
       scope,
       source: 'botActivity',
+      attachmentStyle: 'file',
       // Browsable link to the file in OneDrive/SharePoint. Not directly fetchable like `downloadUrl`, but it is the locator a Graph `/shares` resolution keys off.
       contentUrl,
       raw: attachment,
