@@ -221,7 +221,8 @@ describe('file download via HttpClient', () => {
   describe('redirect safety', () => {
     /**
      * Storage answers with a 302 to the host actually holding the bytes, so redirects must be followed.
-     * The guard is on the *scheme*: axios already drops `Authorization` across hosts, so what is left to protect is the payload, which an `https` to `http` hop would put on the wire in the clear.
+     * An `https` to `http` hop would put the payload on the wire in the clear, so it is refused.
+     * The redirect follower drops `Authorization` across unrelated hosts but keeps it on a subdomain, so the hook drops it whenever the host changes.
      *
      * The hook is exercised directly rather than through a real redirect, because the adapter that keeps these tests off the network is the same layer that would perform one.
      */
@@ -249,6 +250,39 @@ describe('file download via HttpClient', () => {
       const beforeRedirect = await capturedBeforeRedirect();
 
       expect(() => beforeRedirect({ protocol: 'https:', host: 'storage.example' })).not.toThrow();
+    });
+
+    const originalHost = new URL('https://download.example/notes.txt?tempauth=abc').host;
+
+    it.each([
+      ['a subdomain of the original host', `files.${originalHost}`],
+      ['an unrelated host', 'storage.example'],
+      ['another port on the original host', `${originalHost}:8443`],
+    ])('drops Authorization on a redirect to %s', async (_, host) => {
+      const beforeRedirect = await capturedBeforeRedirect();
+      const redirect = { protocol: 'https:', host, headers: { Authorization: 'test-credential' } };
+
+      beforeRedirect(redirect);
+
+      expect(redirect.headers).not.toHaveProperty('Authorization');
+    });
+
+    it('drops the header whatever its casing', async () => {
+      const beforeRedirect = await capturedBeforeRedirect();
+      const redirect = { protocol: 'https:', host: `files.${originalHost}`, headers: { authorization: 'test-credential' } };
+
+      beforeRedirect(redirect);
+
+      expect(redirect.headers).not.toHaveProperty('authorization');
+    });
+
+    it('keeps Authorization on a redirect that stays on the original host', async () => {
+      const beforeRedirect = await capturedBeforeRedirect();
+      const redirect = { protocol: 'https:', host: originalHost.toUpperCase(), headers: { Authorization: 'test-credential' } };
+
+      beforeRedirect(redirect);
+
+      expect(redirect.headers.Authorization).toBe('test-credential');
     });
   });
 });

@@ -528,6 +528,7 @@ async function requestViaHttpClient(
   signal?: AbortSignal,
   bearer?: string
 ): Promise<TransportResponse> {
+  const originalHost = new URL(url).host.toLowerCase();
   const response = await client.get<Readable>(url, {
     responseType: 'stream',
     signal,
@@ -536,12 +537,21 @@ async function requestViaHttpClient(
     headers: { Authorization: bearer ? `Bearer ${bearer}` : undefined },
     // We map 401/403 onto typed errors ourselves, so keep axios from throwing first.
     validateStatus: () => true,
-    // Storage answers with a 302 to the host actually holding the bytes, so redirects have to be followed. They must not be followed *down* to plaintext: an `https` to `http` hop would put the file's bytes on the wire in the clear. Axios strips `Authorization` across hosts on its own, so this guards the payload rather than the token.
+    // Storage answers with a 302 to the host actually holding the bytes, so redirects have to be followed. They must not be followed *down* to plaintext: an `https` to `http` hop would put the file's bytes on the wire in the clear.
     beforeRedirect: (redirect: Record<string, any>) => {
       if (redirect.protocol !== 'https:') {
         throw new Error(
           `cannot download file: a redirect destination must use https, got "${redirect.protocol}//${redirect.host ?? redirect.hostname}". The file's bytes would cross that hop in the clear.`
         );
+      }
+
+      // The redirect follower keeps `Authorization` on a hop to a subdomain, so the token is dropped here whenever the host changes.
+      if (String(redirect.host ?? redirect.hostname ?? '').toLowerCase() !== originalHost) {
+        for (const name of Object.keys(redirect.headers ?? {})) {
+          if (name.toLowerCase() === 'authorization') {
+            delete redirect.headers[name];
+          }
+        }
       }
     },
   });
