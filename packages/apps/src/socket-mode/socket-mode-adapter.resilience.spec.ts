@@ -122,7 +122,8 @@ const setActivityHandler = new WeakMap<
 
 function createSocketModeAdapter(
   options: Record<string, unknown>,
-  deps: Omit<SocketModeAdapterDeps, 'processActivity' | 'client'>
+  deps: Omit<SocketModeAdapterDeps, 'processActivity' | 'client' | 'getBotToken'> &
+    Required<Pick<SocketModeAdapterDeps, 'tokenProvider'>>
 ): SocketModeAdapter {
   let handler: ActivityHandler = async () => ({ status: 200 });
   const server = new SocketModeAdapter(options as any, {

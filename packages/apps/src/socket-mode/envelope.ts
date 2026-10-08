@@ -48,6 +48,28 @@ export function readEnvelopeActivity(env: SocketActivityEnvelope): Activity | un
   return undefined;
 }
 
+/** Validate a recipient on an explicitly agentic socket, returning an error without changing its identity. */
+export function validateAgenticRecipient(recipient: unknown, blueprintId?: string): string | undefined {
+  if (!recipient || typeof recipient !== 'object' || Array.isArray(recipient)) {
+    return 'agentic activity requires a recipient identity';
+  }
+  const identity = recipient as Record<string, unknown>;
+  const required = ['agenticAppBlueprintId', 'agenticAppId', 'tenantId'];
+  if (identity.role === 'agenticUser' || identity.agenticUserId != null) {
+    required.push('agenticUserId');
+  }
+  if (!required.every((key) => {
+    const value = identity[key];
+    return typeof value === 'string' && value.length > 0 && value.trim() === value;
+  })) {
+    return 'agentic recipient identity fields must be nonempty, unpadded strings';
+  }
+  if (identity.agenticAppBlueprintId !== blueprintId) {
+    return 'agentic recipient blueprint does not match the App client ID';
+  }
+  return undefined;
+}
+
 /**
  * Whether an envelope represents an invoke activity — which expects a full
  * result over client results — versus a one-way activity, which expects a

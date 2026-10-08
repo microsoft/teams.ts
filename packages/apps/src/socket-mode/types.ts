@@ -50,6 +50,15 @@ export type SocketModeStatus =
  * @experimental This API is in preview and may change in the future.
  */
 export type SocketModeOptions = {
+  /** Agent instance used to authenticate negotiation. Requires an explicit agenticTokenScope; omit all agentic options for classic mode. */
+  readonly agenticAppId?: string;
+
+  /** Explicit negotiate token scope for agentic mode. No default audience is assumed. */
+  readonly agenticTokenScope?: string;
+
+  /** Tenant for agentic negotiation; undefined uses the App credential tenant. Does not override inbound recipients. */
+  readonly agenticTenantId?: string;
+
   /**
    * Base URL of the Teams backend service endpoint used to negotiate the socket. The negotiate
    * request is sent to `{negotiateBaseUrl}/v3/websockets/connect`.
@@ -272,8 +281,8 @@ export type SocketConnectionContext = {
   /** The app's shared HTTP client used for the negotiate request. */
   readonly client: HttpClient;
   /**
-   * Acquire the Bot Framework access token used to authenticate the negotiate
-   * request. Reuses the app's existing credentials.
+   * Acquire the classic or agentic token selected by App for negotiation.
+   * Reuses the app's existing credentials.
    */
   readonly getBotToken: () => Promise<string>;
   /** Readiness timeout in milliseconds. */
