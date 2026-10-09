@@ -9,6 +9,11 @@ const MAX_ENTRA_VALIDATOR_CACHE_SIZE = 100;
 const ENTRA_V1_ISSUER_PREFIX = 'https://sts.windows.net/';
 
 /**
+ * App ID of the Agent 365 platform.
+ */
+export const AGENT_365_PLATFORM_APP_ID = '5a807f24-c9de-44ee-a3a7-329e88a00ffc';
+
+/**
  * Derives the JWKS keys URI from an OpenID metadata URL.
  * e.g. "https://login.botframework.com/v1/.well-known/openidconfiguration"
  *   -> "https://login.botframework.com/v1/.well-known/keys"
@@ -110,7 +115,24 @@ export class InboundActivityTokenValidator {
     const validator = this.getEntraValidator(tenantId);
     // AgenticIdentity inbound Entra tokens currently do not include serviceurl.
     // Revisit service URL validation when the platform defines a signed claim.
-    return await validator.validateAccessToken(rawToken);
+    const payload = await validator.validateAccessToken(rawToken);
+    if (payload) {
+      this.validateEntraCallerApp(payload);
+    }
+    return payload;
+  }
+
+  /**
+   * Requires the client app that requested the token to be the Agent 365 platform.
+   * Entra v2 tokens carry the caller in `azp` and v1 tokens carry it in `appid`.
+   */
+  private validateEntraCallerApp(payload: JwtPayload) {
+    const callerAppId = typeof payload.azp === 'string' && payload.azp
+      ? payload.azp
+      : payload.appid;
+    if (typeof callerAppId !== 'string' || callerAppId.toLowerCase() !== AGENT_365_PLATFORM_APP_ID) {
+      throw new Error('Entra inbound token caller app is not allowed');
+    }
   }
 
   private getEntraValidator(tenantId: string) {
