@@ -37,7 +37,7 @@
     "test": "npx jest"
   },
   "dependencies": {
-    "@azure/msal-node": "^6.0.1",
+    "@azure/msal-node": "^7.0.0",
     "@microsoft/teams.api": "*",
     "@microsoft/teams.common": "*",
     "@microsoft/teams.graph": "*",
@@ -55,12 +55,12 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/jest": "^30.0.0",
-    "@types/node": "^26.6.2",
+    "@types/node": "^26.6.3",
     "@types/supertest": "^7.2.1",
     "jest": "^30.5.2",
     "rimraf": "^6.0.1",
-    "supertest": "^7.0.0",
-    "ts-jest": "^29.4.13",
+    "supertest": "^7.3.0",
+    "ts-jest": "^29.4.14",
     "tsup": "^8.4.0",
     "typescript": "^5.4.5"
   }

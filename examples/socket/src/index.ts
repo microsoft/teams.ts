@@ -23,9 +23,11 @@ const app = new App({
   socketMode: {
     // geos: ['amer', 'emea', 'apac'], // the default
 
-    // NOTE: Socket Mode negotiate is currently only available on the canary
-    // ring — the production default (https://botapi.skype.com) returns 503
-    // today. Remove this override once Socket Mode is enabled in production.
+    // NOTE: Socket Mode negotiate is currently only available on the Canary
+    // and Pilot1 rings — the production default (https://botapi.skype.com)
+    // returns 503 today. Pilot1 (https://pilot1.botapi.skype.com) is
+    // supported as well. Remove this override once Socket Mode is enabled in
+    // production.
     negotiateBaseUrl: 'https://canary.botapi.skype.com',
   },
 });

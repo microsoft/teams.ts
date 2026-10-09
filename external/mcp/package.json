@@ -41,15 +41,15 @@
   },
   "peerDependencies": {
     "@microsoft/teams.apps": "*",
-    "@modelcontextprotocol/sdk": "^1.30.1"
+    "@modelcontextprotocol/sdk": "^1.31.0"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
     "@types/jest": "^30.0.0",
-    "@types/node": "^26.6.2",
+    "@types/node": "^26.6.3",
     "jest": "^30.5.2",
     "rimraf": "^6.0.1",
-    "ts-jest": "^29.4.13",
+    "ts-jest": "^29.4.14",
     "typescript": "^5.4.5"
   }
 }

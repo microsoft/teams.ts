@@ -14,12 +14,14 @@
     "lint": "npx eslint",
     "lint:fix": "npx eslint --fix",
     "start": "node -r dotenv/config .",
-    "dev": "npm run build:client && tsx watch -r dotenv/config src/index.ts",
+    "dev": "concurrently -k -n client,server \"npm:dev:client\" \"npm:dev:server\"",
+    "dev:client": "npx vite build --watch --outDir dist/client",
+    "dev:server": "tsx watch -r dotenv/config src/index.ts",
     "build": "npx tsup && npm run build:client",
     "build:client": "npx vite build --outDir dist/client"
   },
   "dependencies": {
-    "@microsoft/teams-js": "^2.56.0",
+    "@microsoft/teams-js": "^2.57.0",
     "@microsoft/teams.apps": "*",
     "@microsoft/teams.client": "*",
     "@microsoft/teams.common": "*",
@@ -29,11 +31,13 @@
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
-    "@types/node": "^26.6.2",
+    "@types/node": "^26.6.3",
     "@vitejs/plugin-react": "^6.1.1",
-    "dotenv": "^18.0.3",
+    "concurrently": "^10.0.6",
+    "dotenv": "^18.0.5",
     "rimraf": "^6.0.1",
     "tsup": "^8.4.0",
+    "tsx": "^4.23.15",
     "typescript": "^5.4.5",
     "vite": "^8.3.1"
   }
