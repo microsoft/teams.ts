@@ -346,6 +346,17 @@ describe('InboundActivityTokenValidator', () => {
         .rejects.toThrow('Entra inbound token caller app is not allowed');
     });
 
+    it.each([
+      ['empty', ''],
+      ['non-string', 123],
+    ])('should reject a present but %s azp without falling back to appid', async (_, azp) => {
+      const validator = new InboundActivityTokenValidator(mockClientId, mockTenantId);
+      mockValidateAccessToken.mockResolvedValue({ azp, appid: AGENT_365_PLATFORM_APP_ID, sub: 'agent-id' });
+
+      await expect(validator.check(authHeader, { serviceUrl: mockServiceUrl }))
+        .rejects.toThrow('Entra inbound token caller app is not allowed');
+    });
+
     it('should not apply the caller app check to Bot Framework tokens', async () => {
       const validator = new InboundActivityTokenValidator(mockClientId, mockTenantId);
       mockValidateAccessToken.mockResolvedValue({ appid: otherAppId, sub: 'bot-id', serviceurl: mockServiceUrl });

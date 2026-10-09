@@ -125,11 +125,10 @@ export class InboundActivityTokenValidator {
   /**
    * Requires the client app that requested the token to be the Agent 365 platform.
    * Entra v2 tokens carry the caller in `azp` and v1 tokens carry it in `appid`.
+   * `appid` is only consulted when `azp` is absent, so a present but invalid `azp` is rejected.
    */
   private validateEntraCallerApp(payload: JwtPayload) {
-    const callerAppId = typeof payload.azp === 'string' && payload.azp
-      ? payload.azp
-      : payload.appid;
+    const callerAppId = 'azp' in payload ? payload.azp : payload.appid;
     if (typeof callerAppId !== 'string' || callerAppId.toLowerCase() !== AGENT_365_PLATFORM_APP_ID) {
       throw new Error('Entra inbound token caller app is not allowed');
     }
