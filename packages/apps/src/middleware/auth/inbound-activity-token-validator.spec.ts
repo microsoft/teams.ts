@@ -1,6 +1,6 @@
 import { US_GOV, CHINA } from '@microsoft/teams.api';
 
-import { InboundActivityTokenValidator } from './inbound-activity-token-validator';
+import { AGENT_365_PLATFORM_APP_ID, InboundActivityTokenValidator } from './inbound-activity-token-validator';
 import { JwtValidator } from './jwt-validator';
 
 // Mock JwtValidator — real one fetches JWKS keys from remote endpoints.
@@ -209,7 +209,7 @@ describe('InboundActivityTokenValidator', () => {
     it('should use Entra validator for v2 issuer tokens without serviceUrl validation', async () => {
       const validator = new InboundActivityTokenValidator(mockClientId, mockTenantId);
       mockValidateAccessToken.mockResolvedValue({
-        appid: mockClientId,
+        azp: AGENT_365_PLATFORM_APP_ID,
         sub: 'agent-id',
       });
 
@@ -231,7 +231,7 @@ describe('InboundActivityTokenValidator', () => {
 
     it('should use Entra validator for v1 sts issuer tokens', async () => {
       const validator = new InboundActivityTokenValidator(mockClientId, mockTenantId);
-      mockValidateAccessToken.mockResolvedValue({ appid: mockClientId, sub: 'agent-id' });
+      mockValidateAccessToken.mockResolvedValue({ appid: AGENT_365_PLATFORM_APP_ID, sub: 'agent-id' });
 
       const token = createUnverifiedToken({
         iss: `https://sts.windows.net/${mockTenantId}/`,
@@ -254,7 +254,7 @@ describe('InboundActivityTokenValidator', () => {
 
     it('should cache Entra validators by tenant', async () => {
       const validator = new InboundActivityTokenValidator(mockClientId, mockTenantId);
-      mockValidateAccessToken.mockResolvedValue({ appid: mockClientId, sub: 'agent-id' });
+      mockValidateAccessToken.mockResolvedValue({ appid: AGENT_365_PLATFORM_APP_ID, sub: 'agent-id' });
       const token = createUnverifiedToken({
         iss: `https://login.microsoftonline.com/${mockTenantId}/v2.0`,
         tid: mockTenantId,
@@ -270,7 +270,7 @@ describe('InboundActivityTokenValidator', () => {
 
     it('should bound Entra validator cache size', async () => {
       const validator = new InboundActivityTokenValidator(mockClientId, mockTenantId);
-      mockValidateAccessToken.mockResolvedValue({ appid: mockClientId, sub: 'agent-id' });
+      mockValidateAccessToken.mockResolvedValue({ appid: AGENT_365_PLATFORM_APP_ID, sub: 'agent-id' });
 
       for (let i = 0; i < 101; i++) {
         const tenantId = `tenant-${i}`;
@@ -285,6 +285,86 @@ describe('InboundActivityTokenValidator', () => {
       expect(cache.size).toBe(100);
       expect(cache.has('tenant-0')).toBe(false);
       expect(cache.has('tenant-100')).toBe(true);
+    });
+  });
+
+  describe('Entra caller app validation', () => {
+    const otherAppId = '00000000-0000-0000-0000-000000000099';
+    const entraToken = createUnverifiedToken({
+      iss: `https://login.microsoftonline.com/${mockTenantId}/v2.0`,
+      tid: mockTenantId,
+    });
+    const authHeader = `Bearer ${entraToken}`;
+
+    it('should accept the Agent 365 platform app in azp', async () => {
+      const validator = new InboundActivityTokenValidator(mockClientId, mockTenantId);
+      mockValidateAccessToken.mockResolvedValue({ azp: AGENT_365_PLATFORM_APP_ID, sub: 'agent-id' });
+
+      const result = await validator.check(authHeader, { serviceUrl: mockServiceUrl });
+
+      expect(result.fromId).toBe('agent-id');
+    });
+
+    it('should accept the Agent 365 platform app in appid when azp is absent', async () => {
+      const validator = new InboundActivityTokenValidator(mockClientId, mockTenantId);
+      mockValidateAccessToken.mockResolvedValue({ appid: AGENT_365_PLATFORM_APP_ID.toUpperCase(), sub: 'agent-id' });
+
+      const result = await validator.check(authHeader, { serviceUrl: mockServiceUrl });
+
+      expect(result.fromId).toBe('agent-id');
+    });
+
+    it('should reject another app in azp', async () => {
+      const validator = new InboundActivityTokenValidator(mockClientId, mockTenantId);
+      mockValidateAccessToken.mockResolvedValue({ azp: otherAppId, sub: 'agent-id' });
+
+      await expect(validator.check(authHeader, { serviceUrl: mockServiceUrl }))
+        .rejects.toThrow('Entra inbound token caller app is not allowed');
+    });
+
+    it('should reject another app in appid', async () => {
+      const validator = new InboundActivityTokenValidator(mockClientId, mockTenantId);
+      mockValidateAccessToken.mockResolvedValue({ appid: otherAppId, sub: 'agent-id' });
+
+      await expect(validator.check(authHeader, { serviceUrl: mockServiceUrl }))
+        .rejects.toThrow('Entra inbound token caller app is not allowed');
+    });
+
+    it('should reject tokens with neither azp nor appid', async () => {
+      const validator = new InboundActivityTokenValidator(mockClientId, mockTenantId);
+      mockValidateAccessToken.mockResolvedValue({ sub: 'agent-id' });
+
+      await expect(validator.check(authHeader, { serviceUrl: mockServiceUrl }))
+        .rejects.toThrow('Entra inbound token caller app is not allowed');
+    });
+
+    it('should prefer azp over appid', async () => {
+      const validator = new InboundActivityTokenValidator(mockClientId, mockTenantId);
+      mockValidateAccessToken.mockResolvedValue({ azp: otherAppId, appid: AGENT_365_PLATFORM_APP_ID, sub: 'agent-id' });
+
+      await expect(validator.check(authHeader, { serviceUrl: mockServiceUrl }))
+        .rejects.toThrow('Entra inbound token caller app is not allowed');
+    });
+
+    it.each([
+      ['empty', ''],
+      ['non-string', 123],
+    ])('should reject a present but %s azp without falling back to appid', async (_, azp) => {
+      const validator = new InboundActivityTokenValidator(mockClientId, mockTenantId);
+      mockValidateAccessToken.mockResolvedValue({ azp, appid: AGENT_365_PLATFORM_APP_ID, sub: 'agent-id' });
+
+      await expect(validator.check(authHeader, { serviceUrl: mockServiceUrl }))
+        .rejects.toThrow('Entra inbound token caller app is not allowed');
+    });
+
+    it('should not apply the caller app check to Bot Framework tokens', async () => {
+      const validator = new InboundActivityTokenValidator(mockClientId, mockTenantId);
+      mockValidateAccessToken.mockResolvedValue({ appid: otherAppId, sub: 'bot-id', serviceurl: mockServiceUrl });
+      const botToken = createUnverifiedToken({ iss: 'https://api.botframework.com' });
+
+      const result = await validator.check(`Bearer ${botToken}`, { serviceUrl: mockServiceUrl });
+
+      expect(result.appId).toBe(otherAppId);
     });
   });
 
