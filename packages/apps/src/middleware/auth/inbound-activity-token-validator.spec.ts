@@ -366,6 +366,10 @@ describe('InboundActivityTokenValidator', () => {
 
       expect(result.appId).toBe(otherAppId);
     });
+
+    it('should pin AGENT_365_PLATFORM_APP_ID to the Agent 365 platform app id', () => {
+      expect(AGENT_365_PLATFORM_APP_ID).toBe('5a807f24-c9de-44ee-a3a7-329e88a00ffc');
+    });
   });
 
   describe('sovereign cloud support', () => {
