@@ -67,7 +67,7 @@ export class FilesAccessor implements IFilesAccessor {
 
     const attachments = this.activity.attachments ?? [];
     const scope = this.detectScope();
-    const hints = this.inlineImageHints(attachments);
+    const hints = options?.attachmentStyle === 'file' ? new Map<string, string>() : this.inlineImageHints(attachments);
 
     const files: IIncomingFile[] = [];
 

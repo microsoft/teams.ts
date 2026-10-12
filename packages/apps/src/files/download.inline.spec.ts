@@ -128,6 +128,7 @@ describe('isUnderServiceUrl', () => {
     ['a service URL without a trailing slash', `${SERVICE_URL}v3/x`, 'https://smba.trafficmanager.net/amer'],
     ['a host that differs only in case', 'https://SMBA.trafficmanager.net/amer/v3/x', SERVICE_URL],
     ['a service URL with no path', 'https://smba.trafficmanager.net/v3/x', 'https://smba.trafficmanager.net'],
+    ['a percent escape whose hex digits differ only in case', 'https://smba.trafficmanager.net/a%2fb/v3/x', 'https://smba.trafficmanager.net/a%2Fb/'],
   ])('accepts %s', (_, url, serviceUrl) => {
     expect(isUnderServiceUrl(url, serviceUrl)).toBe(true);
   });
@@ -135,6 +136,7 @@ describe('isUnderServiceUrl', () => {
   it.each([
     ['a sibling path that shares a prefix', 'https://smba.trafficmanager.net/americas/v3/x', 'https://smba.trafficmanager.net/amer'],
     ['a dot segment that climbs out', `${SERVICE_URL}../v3/x`, SERVICE_URL],
+    ['a path that differs only in case', 'https://smba.trafficmanager.net/AMER/v3/x', SERVICE_URL],
     ['another host', 'https://attacker.example/amer/v3/x', SERVICE_URL],
     ['a lookalike host', 'https://smba.trafficmanager.net.attacker.example/amer/v3/x', 'https://smba.trafficmanager.net'],
     ['another port', 'https://smba.trafficmanager.net:8443/amer/v3/x', SERVICE_URL],

@@ -176,7 +176,7 @@ export type BotApiCredential = {
 };
 
 /**
- * Whether `url` is under `serviceUrl`: both https, the same origin, and a path starting with the service URL's path.
+ * Whether `url` is under `serviceUrl`: both https, the same origin, and a path starting with the service URL's path, compared case-sensitively.
  *
  * Both are parsed first, so dot segments are resolved before the comparison and cannot climb out of the service URL's path.
  */
@@ -199,9 +199,12 @@ export function isUnderServiceUrl(url: string, serviceUrl: string | undefined): 
     return false;
   }
 
+  // Paths are case-sensitive, so only the hex digits of percent escapes are normalized, since `%2f` and `%2F` are the same escape.
+  const normalizeEscapes = (path: string) => path.replace(/%[0-9a-f]{2}/gi, (escape) => escape.toUpperCase());
+
   // Normalizes to exactly one trailing `/` so a path such as `/amer` cannot match `/americas`.
   const basePath = `${base.pathname.replace(/\/+$/, '')}/`;
-  return target.pathname.toLowerCase().startsWith(basePath.toLowerCase());
+  return normalizeEscapes(target.pathname).startsWith(normalizeEscapes(basePath));
 }
 
 /**

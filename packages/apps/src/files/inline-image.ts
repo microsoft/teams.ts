@@ -49,8 +49,9 @@ export function inlineImageId(contentUrl: string): string | undefined {
 export function parseInlineImageHints(html: string): Map<string, string> {
   const hints = new Map<string, string>();
 
-  // Each <img ...> start tag
-  for (const tag of html.match(/<img\b[^>]*>/gi) ?? []) {
+  // Each <img ...> start tag, skipping a `>` inside a quoted attribute value.
+  // No character can begin more than one alternative, so a malformed tag is scanned in linear time.
+  for (const tag of html.match(/<img\b(?:[^<>"']|"[^"]*"|'[^']*')*>/gi) ?? []) {
     const attributes = new Map<string, string>();
 
     // Each name="value", capturing the name and whichever quoted value matched.

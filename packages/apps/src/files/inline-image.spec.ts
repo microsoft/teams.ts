@@ -67,6 +67,25 @@ describe('parseInlineImageHints', () => {
     expect(Date.now() - started).toBeLessThan(250);
   });
 
+  it.each([
+    ['unclosed tags', '<img '],
+    ['unclosed double quotes', '<img "'],
+    ['unclosed single quotes', '<img \''],
+    ['unclosed attribute values', '<img a="x'],
+    ['tags with no closing bracket', '<img a="x" '],
+    ['mismatched quotes', '<img a="\' '],
+  ])('reads a message of repeated %s in linear time', (_, fragment) => {
+    const started = Date.now();
+
+    expect(hints(fragment.repeat(20_000))).toStrictEqual({});
+    expect(Date.now() - started).toBeLessThan(250);
+  });
+
+  it('reads a tag whose quoted attribute value holds a `>`', () => {
+    expect(hints(`<img alt="1 > 0" itemtype="${itemtype}" itemscope="png" itemid="a">`)).toStrictEqual({ a: 'png' });
+    expect(hints(`<img alt='1 > 0' itemtype="${itemtype}" itemscope="png" itemid="a">`)).toStrictEqual({ a: 'png' });
+  });
+
   it('matches tag and attribute names in any case', () => {
     expect(hints(`<IMG ITEMTYPE="${itemtype}" ItemScope="png" ITEMID="a">`)).toStrictEqual({ a: 'png' });
   });
