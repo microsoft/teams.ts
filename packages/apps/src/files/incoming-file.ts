@@ -162,7 +162,7 @@ export class IncomingFile implements IIncomingFile {
   /**
    * The filename and MIME type for downloaded bytes.
    *
-   * For an inline image, recognized bytes decide, then the hint-derived name and type, because the platform can return a different format from the hint (a GIF downloads as a static PNG).
+   * For an inline image, recognized bytes decide, then the hint-derived name and type, because the Teams service can return a different format from the hint (a GIF downloads as a static PNG).
    */
   private resolveDownloadedType(bytes: Uint8Array, responseContentType: string): { filename: string; contentType: string } {
     if (this.attachmentStyle !== 'inlineImage') {

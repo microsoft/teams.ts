@@ -109,7 +109,7 @@ export class FileAccessError extends FileError {
 }
 
 /**
- * Raised when the platform could not convert an inline image for download, answering `415`.
+ * Raised when the Teams service could not convert an inline image for download, answering `415`.
  *
  * The same image sent as a file attachment downloads normally.
  */
@@ -125,7 +125,7 @@ export class InlineImageTransformationError extends FileError {
 
   constructor(status: number, code?: string, details?: string, actor?: FileActor) {
     const reason = code ? `status ${status}, code ${code}` : `status ${status}`;
-    const base = `cannot download inline image: the platform could not convert it for download (${reason}). Some image formats, such as BMP and AVIF, cannot be converted by the platform, so Teams shows a placeholder, and they cannot be downloaded. Ask the user to send the image as a file attachment instead`;
+    const base = `cannot download inline image: the Teams service could not convert it for download (${reason}). Some image formats, such as BMP and AVIF, cannot be converted by the Teams service, so Teams shows a placeholder, and they cannot be downloaded. Ask the user to send the image as a file attachment instead`;
     super(details ? `${base} (service said: ${details})` : base);
     this.name = 'InlineImageTransformationError';
     this.status = status;
