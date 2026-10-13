@@ -7,6 +7,10 @@ on:
       - "packages/cli/templates/typescript/**"
       - "examples/*/**"
 
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
   verify-template-sync:
     runs-on: ubuntu-latest
