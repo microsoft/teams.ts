@@ -94,7 +94,7 @@ export function formatFromContentType(contentType?: string): InlineImageFormat |
 /**
  * The format the bytes actually are, read from their leading magic bytes, or `undefined` when they are none of {@link InlineImageFormat}.
  *
- * The platform can return bytes in a different format from the hint (a GIF downloads as a static PNG), so the bytes are the stronger signal.
+ * The Teams service can return bytes in a different format from the hint (a GIF downloads as a static PNG), so the bytes are the stronger signal.
  */
 export function sniffImageFormat(bytes: Uint8Array): InlineImageFormat | undefined {
   const startsWith = (signature: number[], offset = 0) =>

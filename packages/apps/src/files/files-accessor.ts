@@ -72,14 +72,17 @@ export class FilesAccessor implements IFilesAccessor {
     const files: IIncomingFile[] = [];
 
     attachments.forEach((attachment, index) => {
-      const inline = this.isInlineImage(attachment);
+      const imageId = this.inlineImageId(attachment);
 
       // Checked before mapping, so an attachment of the excluded style is never mapped and never logs a warning.
-      if (options?.attachmentStyle && options.attachmentStyle !== (inline ? 'inlineImage' : 'file')) {
+      if (options?.attachmentStyle && options.attachmentStyle !== (imageId === undefined ? 'file' : 'inlineImage')) {
         return;
       }
 
-      const file = inline ? this.toInlineImage(attachment, index, scope, hints) : this.toIncomingFile(attachment, index, scope);
+      const file =
+        imageId === undefined
+          ? this.toIncomingFile(attachment, index, scope)
+          : this.toInlineImage(attachment, imageId, index, scope, hints);
 
       if (file) {
         files.push(file);
@@ -116,14 +119,19 @@ export class FilesAccessor implements IFilesAccessor {
     return hints;
   }
 
-  /** Whether an attachment is an image pasted inline: an `image/*` attachment located at a Bot API inline image path. */
-  private isInlineImage(attachment: Attachment): boolean {
-    return (
-      typeof attachment.contentType === 'string' &&
-      /^image\//i.test(attachment.contentType) &&
-      typeof attachment.contentUrl === 'string' &&
-      inlineImageId(attachment.contentUrl) !== undefined
-    );
+  /**
+   * The inline image id when an attachment is an image pasted inline (an `image/*` attachment located at a Bot API inline image path), otherwise `undefined`.
+   */
+  private inlineImageId(attachment: Attachment): string | undefined {
+    if (typeof attachment.contentType !== 'string' || !/^image\//i.test(attachment.contentType)) {
+      return undefined;
+    }
+
+    if (typeof attachment.contentUrl !== 'string') {
+      return undefined;
+    }
+
+    return inlineImageId(attachment.contentUrl);
   }
 
   /**
@@ -131,12 +139,12 @@ export class FilesAccessor implements IFilesAccessor {
    */
   private toInlineImage(
     attachment: Attachment,
+    id: string,
     index: number,
     scope: ConversationType,
     hints: Map<string, string>
   ): IncomingFile | undefined {
     const contentUrl = attachment.contentUrl as string;
-    const id = inlineImageId(contentUrl) as string;
 
     if (!this.isOnServiceUrl(contentUrl)) {
       this.log.warn(
