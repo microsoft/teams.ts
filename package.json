@@ -55,6 +55,7 @@
       "find-my-way": "^9.0.0"
     },
     "follow-redirects": "^1.16.0",
+    "js-yaml": "4.3.2",
     "router": {
       "path-to-regexp": "^8.4.0"
     },
