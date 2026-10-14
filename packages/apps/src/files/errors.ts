@@ -123,7 +123,7 @@ export class InlineImageTransformationError extends FileError {
   /** The identity the fetch was attempted as. */
   readonly actor?: FileActor;
 
-  constructor(status: number, code?: string, details?: string, actor?: FileActor) {
+  constructor(status: number, actor?: FileActor, details?: string, code?: string) {
     const reason = code ? `status ${status}, code ${code}` : `status ${status}`;
     const base = `cannot download inline image: the Teams service could not convert it for download (${reason}). Some image formats, such as BMP and AVIF, cannot be converted by the Teams service, so Teams shows a placeholder, and they cannot be downloaded. Ask the user to send the image as a file attachment instead`;
     super(details ? `${base} (service said: ${details})` : base);
@@ -149,13 +149,26 @@ export class InlineImageAccessError extends FileError {
   readonly details?: string;
 
   constructor(status: number, actor?: FileActor, details?: string) {
-    const as = actor ? describeActor(actor) : 'the identity used';
-    const base = `cannot download inline image: the Bot API token presented for ${as} was rejected with status ${status}`;
+    const base = `cannot download inline image: ${inlineAccessGuidance(status, actor)}`;
     super(details ? `${base} (service said: ${details})` : base);
     this.name = 'InlineImageAccessError';
     this.status = status;
     this.actor = actor;
     this.details = details;
+  }
+}
+
+/** Say what an inline image refusal means, which depends on the status: a rejected token and a denied identity have different remedies. */
+function inlineAccessGuidance(status: number, actor?: FileActor): string {
+  const as = actor ? describeActor(actor) : 'the identity used';
+
+  switch (status) {
+    case 401:
+      return `the Bot API token presented for ${as} was rejected (status 401). It may have expired, or been issued for the wrong audience or tenant`;
+    case 403:
+      return `access was denied for ${as} (status 403). The identity is not allowed to read the image`;
+    default:
+      return `the Bot API token presented for ${as} was rejected with status ${status}`;
   }
 }
 

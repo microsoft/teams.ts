@@ -109,6 +109,24 @@ describe('inline image download', () => {
     expect(calls).toHaveLength(0);
   });
 
+  it('reports the missing token, not the service URL, when there is no Bot API credential at all', async () => {
+    const { fetch, calls } = recordingFetch({ status: 200, body: PNG });
+    const file = new IncomingFile({
+      name: 'image-a1.gif',
+      contentType: 'image/gif',
+      extension: 'gif',
+      scope: 'groupChat',
+      source: 'botActivity',
+      attachmentStyle: 'inlineImage',
+      contentUrl: CONTENT_URL,
+      inlineImageBaseName: 'image-a1',
+      fetch,
+    });
+
+    await expect(file.download()).rejects.toThrow('cannot download inline image: no Bot API token is available');
+    expect(calls).toHaveLength(0);
+  });
+
   it('refuses a content URL that is not https', async () => {
     const { fetch, calls } = recordingFetch({ status: 200, body: PNG });
 
@@ -237,7 +255,9 @@ describe('inline image download errors', () => {
     expect(error.actor).toBe('agenticUser');
     expect(error.details).toBe('Unauthorized: nope');
     expect(error.message).toBe(
-      `cannot download inline image: the Bot API token presented for the agentic user was rejected with status ${status} (service said: Unauthorized: nope)`
+      status === 401
+        ? 'cannot download inline image: the Bot API token presented for the agentic user was rejected (status 401). It may have expired, or been issued for the wrong audience or tenant (service said: Unauthorized: nope)'
+        : 'cannot download inline image: access was denied for the agentic user (status 403). The identity is not allowed to read the image (service said: Unauthorized: nope)'
     );
   });
 

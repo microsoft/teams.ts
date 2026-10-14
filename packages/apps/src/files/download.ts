@@ -401,12 +401,18 @@ async function openInlineImageStream(
     throw new Error('cannot download inline image: content URL must use https');
   }
 
-  if (!isUnderServiceUrl(url, options?.botApiCredential?.serviceUrl)) {
+  const credential = options?.botApiCredential;
+
+  if (!credential) {
+    throw new Error('cannot download inline image: no Bot API token is available');
+  }
+
+  if (!isUnderServiceUrl(url, credential.serviceUrl)) {
     throw new Error('cannot download inline image: content URL is not under the activity\'s service URL');
   }
 
-  const actor = options?.botApiCredential?.actor;
-  const token = await options?.botApiCredential?.token();
+  const actor = credential.actor;
+  const token = await credential.token();
 
   if (!token) {
     throw new Error('cannot download inline image: no Bot API token is available');
@@ -417,7 +423,7 @@ async function openInlineImageStream(
 
   if (response.status === 415) {
     const body = await response.readText();
-    throw new InlineImageTransformationError(response.status, extractServiceErrorCode(body), extractServiceError(body), actor);
+    throw new InlineImageTransformationError(response.status, actor, extractServiceError(body), extractServiceErrorCode(body));
   }
 
   if (response.status === 401 || response.status === 403) {
@@ -427,7 +433,7 @@ async function openInlineImageStream(
   if (!response.ok || !response.stream) {
     const details = extractServiceError(await response.readText());
     throw new Error(
-      `failed to download inline image as '${actor ?? 'app'}': ${response.status} ${response.statusText}`.trim() +
+      `failed to download inline image as '${actor}': ${response.status} ${response.statusText}`.trim() +
         (details ? ` (${details})` : '')
     );
   }
