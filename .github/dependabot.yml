@@ -3,12 +3,18 @@ updates:
   - package-ecosystem: npm
     directory: "/"
     schedule:
-      interval: daily
+      interval: weekly
     cooldown:
       default-days: 7
       semver-major-days: 7
       semver-minor-days: 7
       semver-patch-days: 7
+    groups:
+      npm-minor-patch:
+        update-types: ["minor", "patch"]
+      npm-security:
+        applies-to: security-updates
+        patterns: ["*"]
   - package-ecosystem: "github-actions"
     directory: "/"
     groups:
