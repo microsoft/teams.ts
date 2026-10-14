@@ -9,9 +9,9 @@
     "test:agentic-identity-prod": "dotenv -e .env.agentic-identity-prod -- jest --config jest.config.ts"
   },
   "devDependencies": {
-    "@azure/msal-node": "^7.0.0",
+    "@azure/msal-node": "^7.0.1",
     "@types/jest": "^30.0.0",
-    "@types/node": "^26.6.3",
+    "@types/node": "^26.6.4",
     "dotenv-cli": "^11.0.0",
     "jest": "^30.5.2",
     "ts-jest": "^29.4.14",
