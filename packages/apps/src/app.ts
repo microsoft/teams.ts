@@ -40,6 +40,7 @@ export type {
   AppGetAgenticIdentityOptions,
   AppOptions,
   AppSendOptions,
+  AppStripMentionsTextOptions,
   AppTelemetryOptions,
 } from './app.options';
 import { PluginManager } from './app.plugins';
