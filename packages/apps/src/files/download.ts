@@ -9,8 +9,11 @@ import {
   FileCredentialError,
   FileScopeNotSupportedError,
   FileUrlExpiredError,
+  InlineImageAccessError,
+  InlineImageTransformationError,
 } from './errors';
 import { buildDriveItemContentUrl } from './graph-share';
+import { AttachmentStyle } from './types';
 
 /** How much of an error body to keep. Enough for a Graph error envelope, small enough to never matter. */
 const ERROR_BODY_LIMIT = 2048;
@@ -37,6 +40,20 @@ function extractServiceError(raw?: string): string | undefined {
   }
 
   return truncate(raw);
+}
+
+/** The `error.code` from a JSON error envelope, or `undefined` when the body is not one. */
+function extractServiceErrorCode(raw?: string): string | undefined {
+  if (!raw) {
+    return undefined;
+  }
+
+  try {
+    const code = JSON.parse(raw)?.error?.code;
+    return typeof code === 'string' && code.trim() ? code.trim() : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 function truncate(text: string): string | undefined {
@@ -115,6 +132,12 @@ export type FileFetchTarget = {
   contentUrl?: string;
   /** MIME type reported by the incoming file, used as a fallback when the response omits one. */
   contentType?: string;
+  /**
+   * How the file was attached; see {@link AttachmentStyle}.
+   * An `inlineImage` is read from `contentUrl` with the Bot API credential, in any scope.
+   * Defaults to `file`.
+   */
+  attachmentStyle?: AttachmentStyle;
 };
 
 /**
@@ -132,6 +155,57 @@ export type GraphCredential = {
    */
   baseUrlRoot?: string;
 };
+
+/**
+ * The Bot API token for reading inline images, and the identity it belongs to.
+ *
+ * It is the turn's API client token, so an agentic identity reads as itself.
+ * Resolved at fetch time, so a turn that never downloads an inline image never acquires one.
+ */
+export type BotApiCredential = {
+  actor: FileActor;
+  token: () => Promise<string | undefined>;
+  /**
+   * The activity's `serviceUrl`, the base the turn's replies are sent to.
+   *
+   * Carried with the token so the token is never sent without its allowed destination.
+   * An inline image under a different URL is refused before the token is resolved.
+   * When absent, every inline image is refused.
+   */
+  serviceUrl?: string;
+};
+
+/**
+ * Whether `url` is under `serviceUrl`: both https, the same origin, and a path starting with the service URL's path, compared case-sensitively.
+ *
+ * Both are parsed first, so dot segments are resolved before the comparison and cannot climb out of the service URL's path.
+ */
+export function isUnderServiceUrl(url: string, serviceUrl: string | undefined): boolean {
+  if (!serviceUrl) {
+    return false;
+  }
+
+  let target: URL;
+  let base: URL;
+
+  try {
+    target = new URL(url);
+    base = new URL(serviceUrl);
+  } catch {
+    return false;
+  }
+
+  if (base.protocol !== 'https:' || target.origin !== base.origin) {
+    return false;
+  }
+
+  // Paths are case-sensitive, so only the hex digits of percent escapes are normalized, since `%2f` and `%2F` are the same escape.
+  const normalizeEscapes = (path: string) => path.replace(/%[0-9a-f]{2}/gi, (escape) => escape.toUpperCase());
+
+  // Normalizes to exactly one trailing `/` so a path such as `/amer` cannot match `/americas`.
+  const basePath = `${base.pathname.replace(/\/+$/, '')}/`;
+  return normalizeEscapes(target.pathname).startsWith(normalizeEscapes(basePath));
+}
 
 /**
  * A freshly opened, single-consumption byte stream plus the metadata resolved while opening it.
@@ -152,6 +226,11 @@ export type OpenFileStreamOptions = {
   priorFetchSucceeded?: boolean;
   /** Credential used for the Graph fetch path. Absent means no Graph route is available, so an expired URL cannot be recovered. */
   credential?: GraphCredential;
+  /**
+   * Credential used for inline images.
+   * Absent means inline images cannot be downloaded.
+   */
+  botApiCredential?: BotApiCredential;
   /**
    * Optional logger. Which route produced the bytes is otherwise invisible from outside, and the two routes fail in different ways, so a developer diagnosing a download has no way to tell them apart without this.
    */
@@ -200,6 +279,11 @@ export async function openFileStream(
   target: FileFetchTarget,
   options?: OpenFileStreamOptions
 ): Promise<OpenedFileStream> {
+  // Inline images live on the Bot API, so neither file route nor its scope restriction applies.
+  if (target.attachmentStyle === 'inlineImage') {
+    return openInlineImageStream(target, options);
+  }
+
   if (target.scope === 'personal') {
     return openPersonalFileStream(target, options);
   }
@@ -290,6 +374,66 @@ async function openGraphFileStream(
     const details = extractServiceError(await response.readText());
     throw new Error(
       `failed to download file through Graph as '${actor ?? 'app'}': ${response.status} ${response.statusText}`.trim() +
+        (details ? ` (${details})` : '')
+    );
+  }
+
+  const contentType = response.contentType ?? target.contentType ?? 'application/octet-stream';
+  return { stream: response.stream, sourceUrl: url, contentType };
+}
+
+/**
+ * Fetch an inline image's bytes from the Bot API with the turn's Bot API token.
+ *
+ * The token is sent only to a URL under {@link BotApiCredential.serviceUrl}.
+ */
+async function openInlineImageStream(
+  target: FileFetchTarget,
+  options?: OpenFileStreamOptions
+): Promise<OpenedFileStream> {
+  const url = target.contentUrl;
+
+  if (!url) {
+    throw new Error('cannot download inline image: no content URL is available');
+  }
+
+  if (!/^https:\/\//i.test(url)) {
+    throw new Error('cannot download inline image: content URL must use https');
+  }
+
+  const credential = options?.botApiCredential;
+
+  if (!credential) {
+    throw new Error('cannot download inline image: no Bot API token is available');
+  }
+
+  if (!isUnderServiceUrl(url, credential.serviceUrl)) {
+    throw new Error('cannot download inline image: content URL is not under the activity\'s service URL');
+  }
+
+  const actor = credential.actor;
+  const token = await credential.token();
+
+  if (!token) {
+    throw new Error('cannot download inline image: no Bot API token is available');
+  }
+
+  options?.log?.debug(`reading inline image bytes from the Bot API as '${actor}'`);
+  const response = await requestFile(url, options, token);
+
+  if (response.status === 415) {
+    const body = await response.readText();
+    throw new InlineImageTransformationError(response.status, actor, extractServiceError(body), extractServiceErrorCode(body));
+  }
+
+  if (response.status === 401 || response.status === 403) {
+    throw new InlineImageAccessError(response.status, actor, extractServiceError(await response.readText()));
+  }
+
+  if (!response.ok || !response.stream) {
+    const details = extractServiceError(await response.readText());
+    throw new Error(
+      `failed to download inline image as '${actor}': ${response.status} ${response.statusText}`.trim() +
         (details ? ` (${details})` : '')
     );
   }
@@ -393,6 +537,7 @@ async function requestViaHttpClient(
   signal?: AbortSignal,
   bearer?: string
 ): Promise<TransportResponse> {
+  const originalHost = new URL(url).host.toLowerCase();
   const response = await client.get<Readable>(url, {
     responseType: 'stream',
     signal,
@@ -401,12 +546,21 @@ async function requestViaHttpClient(
     headers: { Authorization: bearer ? `Bearer ${bearer}` : undefined },
     // We map 401/403 onto typed errors ourselves, so keep axios from throwing first.
     validateStatus: () => true,
-    // Storage answers with a 302 to the host actually holding the bytes, so redirects have to be followed. They must not be followed *down* to plaintext: an `https` to `http` hop would put the file's bytes on the wire in the clear. Axios strips `Authorization` across hosts on its own, so this guards the payload rather than the token.
+    // Storage answers with a 302 to the host actually holding the bytes, so redirects have to be followed. They must not be followed *down* to plaintext: an `https` to `http` hop would put the file's bytes on the wire in the clear.
     beforeRedirect: (redirect: Record<string, any>) => {
       if (redirect.protocol !== 'https:') {
         throw new Error(
           `cannot download file: a redirect destination must use https, got "${redirect.protocol}//${redirect.host ?? redirect.hostname}". The file's bytes would cross that hop in the clear.`
         );
+      }
+
+      // The redirect follower keeps `Authorization` on a hop to a subdomain, so the token is dropped here whenever the host changes.
+      if (String(redirect.host ?? redirect.hostname ?? '').toLowerCase() !== originalHost) {
+        for (const name of Object.keys(redirect.headers ?? {})) {
+          if (name.toLowerCase() === 'authorization') {
+            delete redirect.headers[name];
+          }
+        }
       }
     },
   });

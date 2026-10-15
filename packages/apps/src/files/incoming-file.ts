@@ -3,9 +3,17 @@ import { createWriteStream } from 'fs';
 import { ConversationType } from '@microsoft/teams.api';
 import { Client as HttpClient, ILogger } from '@microsoft/teams.common';
 
-import { collectStream, FileFetch, FileFetchTarget, GraphCredential, openFileStream } from './download';
+import {
+  BotApiCredential,
+  collectStream,
+  FileFetch,
+  FileFetchTarget,
+  GraphCredential,
+  openFileStream,
+} from './download';
 import { DownloadedFile } from './downloaded-file';
-import { FileSource, IDownloadedFile, IFileReadOptions, IIncomingFile } from './types';
+import { inlineImageNaming, sniffImageFormat } from './inline-image';
+import { AttachmentStyle, FileSource, IDownloadedFile, IFileReadOptions, IIncomingFile } from './types';
 
 /**
  * Constructor arguments for {@link IncomingFile}.
@@ -17,12 +25,20 @@ export interface IIncomingFileInit {
   extension?: string;
   scope: ConversationType;
   source: FileSource;
+  /** Defaults to `file`. */
+  attachmentStyle?: AttachmentStyle;
   contentUrl?: string;
   raw?: unknown;
+  /**
+   * For an inline image, the name without an extension; the downloaded extension comes from the bytes.
+   */
+  inlineImageBaseName?: string;
   /** Short-lived, pre-authorized download URL (personal scope). */
   downloadUrl?: string;
   /** Graph credential for the current actor, resolved at fetch time rather than captured here. */
   credential?: GraphCredential;
+  /** Bot API credential for inline images, resolved at fetch time. */
+  botApiCredential?: BotApiCredential;
   /** Logger, so which fetch route was taken is diagnosable. */
   log?: ILogger;
   /** Injectable fetch used to keep tests off the network; takes precedence over `httpClient`. */
@@ -41,11 +57,14 @@ export class IncomingFile implements IIncomingFile {
   readonly extension?: string;
   readonly scope: ConversationType;
   readonly source: FileSource;
+  readonly attachmentStyle: AttachmentStyle;
   readonly contentUrl?: string;
   readonly raw?: unknown;
 
   private readonly downloadUrl?: string;
+  private readonly _inlineImageBaseName?: string;
   private readonly _credential?: GraphCredential;
+  private readonly _botApiCredential?: BotApiCredential;
   private readonly _log?: ILogger;
   private readonly _fetch?: FileFetch;
   private readonly _httpClient?: HttpClient;
@@ -58,10 +77,13 @@ export class IncomingFile implements IIncomingFile {
     this.extension = init.extension;
     this.scope = init.scope;
     this.source = init.source;
+    this.attachmentStyle = init.attachmentStyle ?? 'file';
     this.contentUrl = init.contentUrl;
     this.raw = init.raw;
     this.downloadUrl = init.downloadUrl;
+    this._inlineImageBaseName = init.inlineImageBaseName;
     this._credential = init.credential;
+    this._botApiCredential = init.botApiCredential;
     this._log = init.log;
     this._fetch = init.fetch;
     this._httpClient = init.httpClient;
@@ -78,11 +100,12 @@ export class IncomingFile implements IIncomingFile {
     this._priorFetchSucceeded = true;
 
     const bytes = await collectStream(opened.stream);
+    const { filename, contentType } = this.resolveDownloadedType(bytes, opened.contentType);
 
     return new DownloadedFile({
       bytes,
-      contentType: opened.contentType,
-      filename: this.name,
+      contentType,
+      filename,
       sourceUrl: opened.sourceUrl,
     });
   }
@@ -136,12 +159,33 @@ export class IncomingFile implements IIncomingFile {
     }
   }
 
+  /**
+   * The filename and MIME type for downloaded bytes.
+   *
+   * For an inline image, recognized bytes decide, then the hint-derived name and type, because the Teams service can return a different format from the hint (a GIF downloads as a static PNG).
+   */
+  private resolveDownloadedType(bytes: Uint8Array, responseContentType: string): { filename: string; contentType: string } {
+    if (this.attachmentStyle !== 'inlineImage') {
+      return { filename: this.name, contentType: responseContentType };
+    }
+
+    const sniffed = sniffImageFormat(bytes);
+
+    if (sniffed && this._inlineImageBaseName) {
+      const { name, contentType } = inlineImageNaming(this._inlineImageBaseName, sniffed);
+      return { filename: name, contentType };
+    }
+
+    return { filename: this.name, contentType: this.contentType ?? 'application/octet-stream' };
+  }
+
   private target(): FileFetchTarget {
     return {
       scope: this.scope,
       downloadUrl: this.downloadUrl,
       contentUrl: this.contentUrl,
       contentType: this.contentType,
+      attachmentStyle: this.attachmentStyle,
     };
   }
 
@@ -153,6 +197,7 @@ export class IncomingFile implements IIncomingFile {
       fetch: this._fetch,
       httpClient: this._httpClient,
       credential: this._credential,
+      botApiCredential: this._botApiCredential,
       log: this._log,
     };
   }

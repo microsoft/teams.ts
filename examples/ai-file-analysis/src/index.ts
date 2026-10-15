@@ -1,4 +1,4 @@
-import { App } from '@microsoft/teams.apps';
+import { App, InlineImageTransformationError } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common';
 
 import { classifyFile, isAiConfigured, prepareAnalysis, runAnalysis } from './ai';
@@ -36,8 +36,8 @@ app.on('message', async ({ activity, files, send, stream }) => {
   if (attached.length === 0) {
     await send(
       aiConfigured
-        ? 'Attach one or more files. I analyze text files and images, and describe anything else I cannot read.'
-        : 'Attach one or more files. No model is configured, so I will report what I received without analyzing it.'
+        ? 'Attach or paste one or more files. I analyze text files and images, and describe anything else I cannot read.'
+        : 'Attach or paste one or more files. No model is configured, so I will report what I received without analyzing it.'
     );
     return;
   }
@@ -51,7 +51,11 @@ app.on('message', async ({ activity, files, send, stream }) => {
       downloaded = await file.download();
     } catch (err) {
       logger.warn(`Could not download ${file.name}: ${(err as Error).message}`);
-      await send(`I could not download ${file.name}.`);
+      await send(
+        err instanceof InlineImageTransformationError
+          ? 'I could not download that pasted image because its format cannot be converted. Try sending it as a file attachment instead.'
+          : `I could not download ${file.name}.`
+      );
       continue;
     }
 

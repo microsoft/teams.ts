@@ -1,6 +1,7 @@
 import { AgenticIdentity, IToken } from '@microsoft/teams.api';
+import { Token } from '@microsoft/teams.common';
 
-import { GraphCredential } from './files/download';
+import { BotApiCredential, GraphCredential } from './files/download';
 import { FileActor } from './files/errors';
 
 /**
@@ -36,4 +37,30 @@ export function selectFilesCredential(options: {
   // tenant, then `common`. Defaulting here short-circuits that chain and gives a single-tenant bot a `common` token
   // on this path only.
   return as('app', async () => (await getAppGraphToken(tenantId))?.toString());
+}
+
+/**
+ * Build the credential that reads inline images for the current activity, using the turn's Bot API token.
+ *
+ * The token is resolved lazily, so a turn that never downloads an inline image never acquires one.
+ */
+export function selectInlineImageCredential(options: {
+  agenticIdentity?: AgenticIdentity;
+  /** The activity's `serviceUrl`; the token is only sent to URLs under it. */
+  serviceUrl?: string;
+  /** Returns the API client's token source: a string, a string-like value, or a factory. */
+  getToken: () => Token | undefined;
+}): BotApiCredential {
+  const { agenticIdentity, serviceUrl, getToken } = options;
+
+  return {
+    actor: agenticIdentity ? 'agenticUser' : 'app',
+    serviceUrl,
+    token: async () => {
+      const source = getToken();
+      const resolved = typeof source === 'function' ? await source({}) : source;
+      const value = resolved?.toString().trim();
+      return value ? value : undefined;
+    },
+  };
 }
