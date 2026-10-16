@@ -42,7 +42,7 @@
     "@microsoft/teams.graph": "*"
   },
   "peerDependencies": {
-    "@microsoft/teams-js": "^2.57.0"
+    "@microsoft/teams-js": "^2.58.0"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
