@@ -25,13 +25,13 @@
     "@microsoft/teams.apps": "*",
     "@microsoft/teams.cards": "*",
     "@microsoft/teams.common": "*",
-    "@modelcontextprotocol/sdk": "^1.31.0",
+    "@modelcontextprotocol/sdk": "^1.32.1",
     "openai": "^6.37.0"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
-    "@types/node": "^26.6.3",
-    "dotenv": "^18.0.5",
+    "@types/node": "^26.6.4",
+    "dotenv": "^18.0.7",
     "env-cmd": "latest",
     "rimraf": "^6.0.1",
     "tsx": "^4.23.15",

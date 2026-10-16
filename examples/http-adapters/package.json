@@ -12,18 +12,18 @@
     "start:restify": "NODE_ENV=production tsx restify/index.ts"
   },
   "dependencies": {
-    "@hono/node-server": "^2.1.3",
+    "@hono/node-server": "^2.1.4",
     "@microsoft/teams.apps": "*",
-    "express": "^5.0.0",
+    "express": "^5.3.0",
     "hono": "^4.13.13",
     "restify": "^12.0.0"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
     "@types/express": "^5.0.0",
-    "@types/node": "^26.6.3",
+    "@types/node": "^26.6.4",
     "@types/restify": "^8.5.12",
-    "dotenv": "^18.0.5",
+    "dotenv": "^18.0.7",
     "tsx": "^4.23.15",
     "typescript": "^5.4.5"
   }
