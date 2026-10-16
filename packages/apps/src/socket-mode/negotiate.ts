@@ -12,7 +12,7 @@ export type NegotiateDeps = {
   readonly negotiateUrl: string;
   /** The app's shared HTTP client. */
   readonly client: HttpClient;
-  /** Acquire the Bot Framework access token, reusing the app's credentials. */
+  /** Acquire the selected negotiate token, reusing the app's credentials. */
   readonly getBotToken: () => Promise<string>;
   /**
    * Abort the negotiate request after this many milliseconds so a bad
@@ -121,7 +121,7 @@ function parseRetryAfterMs(res: { headers?: unknown }): number | undefined {
 
 /**
  * Perform the Teams backend service Socket Mode handshake: `POST {negotiateUrl}` authenticated
- * with a Bot Framework JWT minted from the bot's own credentials. Teams backend service returns
+ * with the classic or agentic token selected by App. Teams backend service returns
  * the Azure SignalR `url` + `accessToken` to open the socket against.
  *
  * @throws {NegotiateError} if Teams backend service returns a non-2xx response.
@@ -129,7 +129,7 @@ function parseRetryAfterMs(res: { headers?: unknown }): number | undefined {
  */
 export async function negotiate(deps: NegotiateDeps): Promise<NegotiateResult> {
   const token = await deps.getBotToken();
-  if (!token) {
+  if (!token?.trim()) {
     throw new Error(
       'Socket Mode negotiate has no bot token: configure app credentials ' +
       '(clientId/clientSecret, managed identity, or a token provider).'
