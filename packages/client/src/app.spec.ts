@@ -186,7 +186,6 @@ describe('App', () => {
         auth: {
           authority: undefined,
           clientId: 'mock-client-id',
-          supportsNestedAppAuth: true,
           postLogoutRedirectUri: '/',
           redirectUri: '/',
         },

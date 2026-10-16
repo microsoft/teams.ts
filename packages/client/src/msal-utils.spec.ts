@@ -46,7 +46,6 @@ describe('msalUtils', () => {
       expect(config).toEqual({
         auth: {
           clientId: mockClientId,
-          supportsNestedAppAuth: true,
           redirectUri: '/',
           postLogoutRedirectUri: '/',
         },

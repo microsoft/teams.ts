@@ -54,7 +54,6 @@ export const buildMsalConfig = (clientId: string, logger: ILogger): Configuratio
   return {
     auth: {
       clientId,
-      supportsNestedAppAuth: true,
       redirectUri: '/',
       postLogoutRedirectUri: '/',
     },
