@@ -18,6 +18,7 @@ import {
   readEnvelopeActivity,
   readField,
   replyFrameBase,
+  validateAgenticRecipient,
 } from './envelope';
 import { GeoSocket } from './geo-socket';
 import { NegotiateError } from './negotiate';
@@ -118,11 +119,6 @@ export type SocketModeAdapterDeps = {
   /** The app's shared HTTP client used for Socket Mode negotiation. */
   readonly client: HttpClient;
   /**
-   * Token source for the Bot Framework token that authenticates the Teams backend service
-   * negotiate call, reusing the app's credentials.
-   */
-  readonly tokenProvider: IAppTokenProvider;
-  /**
    * Dispatches a connection-authenticated activity into the owning app's shared
    * activity pipeline. Socket Mode creates the normalized token internally.
    */
@@ -144,7 +140,20 @@ export type SocketModeAdapterDeps = {
   readonly onError?: (error: Error) => void | Promise<void>;
   /** Logger to use; defaults to a `SocketModeAdapter`-tagged console logger. */
   readonly logger?: ILogger;
-};
+} & (
+  | {
+    /** Selected App-owned negotiate token callback, called again on reconnect and refresh. */
+    readonly getBotToken: () => Promise<IToken | null>;
+    /** Legacy provider; ignored when getBotToken is supplied. */
+    readonly tokenProvider?: IAppTokenProvider;
+  }
+  | {
+    /** Omit only for the legacy classic-mode provider path. */
+    readonly getBotToken?: undefined;
+    /** Classic-mode token source. Agentic sockets require an App-selected getBotToken callback. */
+    readonly tokenProvider: IAppTokenProvider;
+  }
+);
 
 /**
  * Inbound Socket Mode transport, implemented as an {@link IHttpServerAdapter}.
@@ -192,6 +201,13 @@ export class SocketModeAdapter implements IHttpServerAdapter {
     private readonly deps: SocketModeAdapterDeps
   ) {
     this.log = deps.logger ?? new ConsoleLogger('SocketModeAdapter');
+    if (!deps.getBotToken && (
+      options.agenticAppId !== undefined ||
+      options.agenticTokenScope !== undefined ||
+      options.agenticTenantId !== undefined
+    )) {
+      throw new Error('Agentic Socket Mode requires an App-selected getBotToken callback.');
+    }
   }
 
   /**
@@ -475,6 +491,17 @@ export class SocketModeAdapter implements IHttpServerAdapter {
 
     const activity = readEnvelopeActivity(envelope);
 
+    if (this.options.agenticAppId !== undefined) {
+      const botKey = readField(envelope, 'botKey');
+      const error = botKey !== undefined && botKey !== this.botId
+        ? 'envelope botKey does not match the App client ID'
+        : validateAgenticRecipient(activity?.recipient, this.botId);
+      if (error) {
+        this.log.warn(`socket-mode: ${error}; rejecting envelopeId=${base.envelopeId ?? ''}`);
+        return buildInvokeReplyFrame(base, { status: 400, body: { error } });
+      }
+    }
+
     if (!activity) {
       this.log.warn('socket-mode: inbound envelope had no activity payload; dropping');
       return undefined;
@@ -535,14 +562,16 @@ export class SocketModeAdapter implements IHttpServerAdapter {
   }
 
   /**
-   * Acquire the Bot Framework negotiate token (string form) via the app's token
-   * provider, so Socket Mode reuses the same credential flow as the rest of the SDK.
+   * Acquire the selected negotiate token, retaining the classic provider path
+   * for callers that construct the adapter directly.
    */
   private async acquireBotToken(): Promise<string> {
-    const token = await this.deps.tokenProvider.getAppToken();
+    const token = await (this.deps.getBotToken
+      ? this.deps.getBotToken()
+      : this.deps.tokenProvider.getAppToken());
     if (token == null) {
       throw new Error(
-        'Socket Mode could not acquire a Bot Framework app token. Check that the app credentials are configured.'
+        'Socket Mode could not acquire a connection token. Check that the app credentials are configured.'
       );
     }
     return token.toString();

@@ -907,12 +907,22 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     }
     const options: SocketModeOptions =
       this.options.socketMode === true ? {} : (this.options.socketMode as SocketModeOptions);
+    const { agenticAppId, agenticTokenScope, agenticTenantId } = options;
+    if (agenticAppId === undefined && (agenticTokenScope !== undefined || agenticTenantId !== undefined)) {
+      throw new Error('socketMode.agenticAppId is required when agentic token options are supplied.');
+    }
+    if (agenticAppId !== undefined && !agenticTokenScope?.trim()) {
+      throw new Error('socketMode.agenticTokenScope is required for agentic Socket Mode; no default audience is assumed.');
+    }
+    const getBotToken = agenticAppId === undefined
+      ? () => this.tokenProvider.getAppToken()
+      : () => this.tokenProvider.getAgenticAppToken(agenticTokenScope, agenticAppId, agenticTenantId);
     const messagingEndpoint = this.options.messagingEndpoint ?? '/api/messages';
 
     const socketAdapter = new SocketModeAdapter(options, {
       credentials: this.credentials,
       client: this.client,
-      tokenProvider: this.tokenProvider,
+      getBotToken,
       processActivity: (event) => this.onActivity(event),
       messagingEndpoint,
       onError: (err) => this.eventManager.onError({ error: err }),
