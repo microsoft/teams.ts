@@ -1,7 +1,6 @@
 import '@azure/openai/types';
 import OpenAI, { AzureOpenAI } from 'openai';
-import type { Fetch } from 'openai/core';
-import { Stream } from 'openai/streaming';
+import { Stream } from 'openai/core/streaming';
 
 import type {
   ChatSendOptions,
@@ -24,7 +23,7 @@ export type OpenAIChatModelOptions = {
   readonly organization?: string;
   readonly project?: string;
   readonly headers?: { [key: string]: string };
-  readonly fetch?: Fetch;
+  readonly fetch?: typeof fetch;
   readonly timeout?: number;
   readonly requestOptions?: ChatCompletionCreateParams;
   readonly logger?: ILogger;
@@ -230,12 +229,15 @@ export class OpenAIChatModel implements IChatModel<ChatCompletionCreateParams> {
                   message.tool_calls[call.index].id += call.id;
                 }
 
-                if (call.function?.name) {
-                  message.tool_calls[call.index].function.name += call.function.name;
-                }
+                const toolCall = message.tool_calls[call.index];
+                if (toolCall.type === 'function') {
+                  if (call.function?.name) {
+                    toolCall.function.name += call.function.name;
+                  }
 
-                if (call.function?.arguments) {
-                  message.tool_calls[call.index].function.arguments += call.function.arguments;
+                  if (call.function?.arguments) {
+                    toolCall.function.arguments += call.function.arguments;
+                  }
                 }
               } else {
                 message.tool_calls.push(call);
@@ -265,26 +267,32 @@ export class OpenAIChatModel implements IChatModel<ChatCompletionCreateParams> {
         }
       }
 
+      const functionCalls = message.tool_calls?.flatMap((call) =>
+        call.type === 'function'
+          ? [{
+            id: call.id,
+            name: call.function.name,
+            arguments: JSON.parse(call.function.arguments || '{}'),
+          }]
+          : []
+      );
+
       const modelMessage: ModelMessage = {
         role: 'model',
         audio: message.audio || undefined,
         content: message.content || undefined,
         context: message.context,
-        function_calls: message.tool_calls?.map((call) => ({
-          id: call.id,
-          name: call.function.name,
-          arguments: JSON.parse(call.function.arguments || '{}'),
-        })),
+        function_calls: functionCalls,
       };
 
-      if (message.tool_calls && message.tool_calls.length > 0) {
+      if (functionCalls && functionCalls.length > 0) {
         if (options.autoFunctionCalling !== false) {
           return this.send(modelMessage, {
             ...options,
             messages: memory,
           });
         } else {
-          this._log.debug(`Automatic function calling is disabled, skipping function call execution (total calls: ${message.tool_calls.length})`);
+          this._log.debug(`Automatic function calling is disabled, skipping function call execution (total calls: ${functionCalls.length})`);
         }
       }
 
