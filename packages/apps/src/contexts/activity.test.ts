@@ -327,6 +327,19 @@ describe('ActivityContext', () => {
       );
     });
 
+    it('accepts an omitted or undefined conversation reference', async () => {
+      const activity = buildIncomingMessageActivity('Hello world');
+      context = buildActivityContext(activity);
+      const maybeRef = undefined as ConversationReference | undefined;
+
+      await context.send('forwarded', maybeRef);
+      await context.send('explicit', undefined);
+
+      expect(mockSender.send).toHaveBeenCalledTimes(2);
+      expect(mockSender.send).toHaveBeenNthCalledWith(1, expect.objectContaining({ text: 'forwarded' }), mockRef);
+      expect(mockSender.send).toHaveBeenNthCalledWith(2, expect.objectContaining({ text: 'explicit' }), mockRef);
+    });
+
     describe('targeted messages', () => {
       it('defaults send to targeted when inbound message is targeted', async () => {
         const activity = new MessageActivity('Hello world')

@@ -1,7 +1,9 @@
 /**
  * Constructs a threaded conversation ID by appending `;messageid={messageId}`
- * to the conversation ID. This is the format the Teams service uses to route messages
- * to a specific thread.
+ * to the conversation ID.
+ *
+ * In a channel, sending to the result posts a thread reply to the message `messageId`.
+ * `App.reply()` posts a thread reply through the `replyChains` endpoint, and falls back to this form if the service does not accept that endpoint.
  *
  * @param conversationId the conversation to thread into (e.g. `19:abc@thread.skype`)
  * @param messageId the thread root message ID (must be a non-zero numeric string)
