@@ -495,9 +495,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   /**
    * send an activity proactively to a conversation.
    *
-   * Sends to the exact conversation ID provided. For channel threads,
-   * the conversation ID must include `;messageid=` - use {@link toThreadedConversationId}
-   * to construct it, or use {@link reply} which handles this automatically.
+   * Sends to the exact conversation ID provided. To reply in a reply chain, use {@link reply}.
    *
    * @param conversationId the conversation to send to
    * @param activity the activity to send
@@ -567,20 +565,25 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     options?: AppSendOptions
   ): Promise<any>;
   /**
-   * send an activity proactively to a conversation.
+   * send an activity proactively to a conversation, using the legacy two-argument form.
    *
-   * Sends to the exact conversation ID provided - threaded if
-   * it contains `;messageid=`, flat otherwise.
-   *
-   * @param conversationId the conversation to send to
-   * @param activity the activity to send
-   */
-  /**
-   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   * @deprecated The two-argument form `reply(conversationId, activity)` is deprecated and will be removed in a future release. Use `send(conversationId, activity, options)` for a root message, or `reply(conversationId, messageId, activity, options)` to reply in a reply chain.
+   * Passing a `DeprecatedInputActivity` is also deprecated. Use MessageActivityInput or TypingActivityInput instead.
    */
   async reply(conversationId: string, activity: DeprecatedInputActivity, options?: AppSendOptions): Promise<any>;
+  /**
+   * send an activity proactively to a conversation, using the legacy two-argument form.
+   *
+   * @deprecated The two-argument form `reply(conversationId, activity)` is deprecated and will be removed in a future release. Use `send(conversationId, activity, options)` for a root message, or `reply(conversationId, messageId, activity, options)` to reply in a reply chain.
+   */
   async reply(conversationId: string, activity: ActivityLike, options?: AppSendOptions): Promise<any>;
+  /**
+   * send an activity proactively to a conversation, using the legacy two-argument form.
+   *
+   * @deprecated The two-argument form `reply(conversationId, activity)` is deprecated and will be removed in a future release. Use `send(conversationId, activity, options)` for a root message, or `reply(conversationId, messageId, activity, options)` to reply in a reply chain.
+   */
   async reply(conversationId: string, activity: ActivityLike | DeprecatedInputActivity, options?: AppSendOptions): Promise<any>;
+  // Implementation shared by the three-argument form and the legacy two-argument form.
   async reply(
     conversationId: string,
     messageId: string | ActivityLike | DeprecatedInputActivity,

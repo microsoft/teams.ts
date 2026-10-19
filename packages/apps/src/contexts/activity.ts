@@ -201,13 +201,40 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
   /**
    * send an activity to the conversation
    * @param activity activity to send
-   * @param conversationRef optional conversation reference to send the activity to. By default, it will use the activity's conversation reference.
-   */
-  /**
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
    */
+  send(activity: DeprecatedInputActivity): Promise<SentActivity>;
+  /**
+   * send an activity to the conversation
+   * @param activity activity to send
+   */
+  send(activity: ActivityLike): Promise<SentActivity>;
+  /**
+   * send an activity to the conversation
+   * @param activity activity to send
+   */
+  send(activity: ActivityLike | DeprecatedInputActivity): Promise<SentActivity>;
+  /**
+   * send an activity to the conversation referenced by `conversationRef`
+   * @param activity activity to send
+   * @param conversationRef conversation reference to send to
+   * @deprecated Passing a `DeprecatedInputActivity` is deprecated. Use MessageActivityInput or TypingActivityInput instead.
+   * Passing a conversation reference is also deprecated and will be removed in a future release. Use `App.send()` to send to a different conversation.
+   */
   send(activity: DeprecatedInputActivity, conversationRef?: ConversationReference): Promise<SentActivity>;
+  /**
+   * send an activity to the conversation referenced by `conversationRef`
+   * @param activity activity to send
+   * @param conversationRef conversation reference to send to
+   * @deprecated Passing a conversation reference is deprecated and will be removed in a future release. Use `App.send()` to send to a different conversation.
+   */
   send(activity: ActivityLike, conversationRef?: ConversationReference): Promise<SentActivity>;
+  /**
+   * send an activity to the conversation referenced by `conversationRef`
+   * @param activity activity to send
+   * @param conversationRef conversation reference to send to
+   * @deprecated Passing a conversation reference is deprecated and will be removed in a future release. Use `App.send()` to send to a different conversation.
+   */
   send(activity: ActivityLike | DeprecatedInputActivity, conversationRef?: ConversationReference): Promise<SentActivity>;
 
   /**
@@ -357,18 +384,54 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   /**
    * send an activity in the current conversation without quoting.
    *
+   * @param activity the activity to send
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  async send(activity: DeprecatedInputActivity): Promise<SentActivity>;
+  /**
+   * send an activity in the current conversation without quoting.
+   *
    * In channels, sends to the current thread. In scopes that do not
    * support threading (group chat, meetings), sends as a normal message.
    * To send with a visual quote of the inbound message, use {@link reply}.
    *
    * @param activity the activity to send
-   * @param conversationRef optional conversation reference to send to a different conversation or thread
    */
+  async send(activity: ActivityLike): Promise<SentActivity>;
   /**
-   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   * send an activity in the current conversation without quoting.
+   *
+   * In channels, sends to the current thread. In scopes that do not
+   * support threading (group chat, meetings), sends as a normal message.
+   * To send with a visual quote of the inbound message, use {@link reply}.
+   *
+   * @param activity the activity to send
+   */
+  async send(activity: ActivityLike | DeprecatedInputActivity): Promise<SentActivity>;
+  /**
+   * send an activity to the conversation referenced by `conversationRef`.
+   *
+   * @param activity the activity to send
+   * @param conversationRef conversation reference to send to
+   * @deprecated Passing a `DeprecatedInputActivity` is deprecated. Use MessageActivityInput or TypingActivityInput instead.
+   * Passing a conversation reference is also deprecated and will be removed in a future release. Use `App.send()` to send to a different conversation.
    */
   async send(activity: DeprecatedInputActivity, conversationRef?: ConversationReference): Promise<SentActivity>;
+  /**
+   * send an activity to the conversation referenced by `conversationRef`.
+   *
+   * @param activity the activity to send
+   * @param conversationRef conversation reference to send to
+   * @deprecated Passing a conversation reference is deprecated and will be removed in a future release. Use `App.send()` to send to a different conversation.
+   */
   async send(activity: ActivityLike, conversationRef?: ConversationReference): Promise<SentActivity>;
+  /**
+   * send an activity to the conversation referenced by `conversationRef`.
+   *
+   * @param activity the activity to send
+   * @param conversationRef conversation reference to send to
+   * @deprecated Passing a conversation reference is deprecated and will be removed in a future release. Use `App.send()` to send to a different conversation.
+   */
   async send(activity: ActivityLike | DeprecatedInputActivity, conversationRef?: ConversationReference): Promise<SentActivity>;
   async send(activity: ActivityLike | DeprecatedInputActivity, conversationRef?: ConversationReference) {
     const params = toActivityParams(activity);
