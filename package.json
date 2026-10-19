@@ -50,6 +50,7 @@
     "typescript": "^5.4.5"
   },
   "overrides": {
+    "js-yaml": "^4.3.2",
     "restify": {
       "send": "^1.2.0",
       "find-my-way": "^9.0.0"
