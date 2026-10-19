@@ -37,7 +37,7 @@
   "dependencies": {
     "@microsoft/teams.ai": "*",
     "@microsoft/teams.common": "*",
-    "zod": "^4.6.5"
+    "zod": "^4.6.6"
   },
   "peerDependencies": {
     "@microsoft/teams.apps": "*",
@@ -46,7 +46,7 @@
   "devDependencies": {
     "@microsoft/teams.config": "*",
     "@types/jest": "^30.0.0",
-    "@types/node": "^26.6.4",
+    "@types/node": "^26.6.5",
     "jest": "^30.5.2",
     "rimraf": "^6.0.1",
     "ts-jest": "^29.4.14",
