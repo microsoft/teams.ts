@@ -3,9 +3,11 @@ import { MembershipSource } from '../membership-source';
 
 import { AppInfo } from './app-info';
 import { ChannelInfo } from './channel-info';
+import { ChatInfo } from './chat-info';
 import { FeedbackLoop } from './feedback-loop';
 import { NotificationInfo } from './notification-info';
 import { OnBehalfOf } from './on-behalf-of';
+import { ReplyChainInfo } from './reply-chain-info';
 import { ChannelDataSettings } from './settings';
 import { TeamInfo } from './team-info';
 import { TenantInfo } from './tenant-info';
@@ -27,6 +29,16 @@ export type ChannelData = {
    * @member {AppInfo} [app] Information about the app that sent the message.
    */
   app?: AppInfo;
+
+  /**
+   * @member {ChatInfo} [chat] Information about the chat scope that contains the activity.
+   */
+  chat?: ChatInfo;
+
+  /**
+   * @member {ReplyChainInfo} [replyChain] The reply chain the activity belongs to, identified by its root message.
+   */
+  replyChain?: ReplyChainInfo;
 
   /**
    * @member {string} [eventType] Type of event.
@@ -108,7 +120,7 @@ export type ChannelData = {
    * List of teams that a channel was shared with.
    */
   sharedWithTeams?: TeamInfo[]
-  
+
   /**
    * List of teams that a channel was unshared from.
    */
@@ -122,8 +134,10 @@ export type ChannelData = {
 
 export * from './app-info';
 export * from './channel-info';
+export * from './chat-info';
 export * from './notification-info';
 export * from './on-behalf-of';
+export * from './reply-chain-info';
 export * from './settings';
 export * from './team-info';
 export * from './tenant-info';
