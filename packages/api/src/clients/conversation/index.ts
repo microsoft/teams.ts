@@ -200,6 +200,42 @@ export class ConversationClient {
   }
 
   /**
+   * Create an activity inside a reply chain (thread).
+   *
+   * Posts to `/v3/conversations/{conversationId}/replyChains/{id}`.
+   *
+   * @param conversationId the id of the chat or channel: `channelData.chat.id` or `channelData.channel.id`, **not** `conversation.id`.
+   * @param id the id of the message at the root of the reply chain: `channelData.replyChain.id`, or `activity.id` when replying to a top-level message
+   * @param params the activity to send
+   * @throws Error when `conversationId` or `id` is empty or blank
+   * @throws Error when `conversationId` or `id` is a dot segment (`.` or `..`)
+   *
+   * @experimental This API is in preview and may change in the future. Diagnostic: ExperimentalTeamsThreading
+   */
+  createReplyChainActivity(conversationId: string, id: string, params: ActivityParams): ReturnType<ConversationActivityClient['createReplyChain']>;
+  createReplyChainActivity(conversationId: string, id: string, params: ActivityParams) {
+    return this._activities.createReplyChain(conversationId, id, params);
+  }
+
+  /**
+   * Create an activity inside a reply chain (thread) that is visible only to the specified recipient.
+   *
+   * Takes the same arguments as {@link createReplyChainActivity}.
+   *
+   * @param conversationId the id of the chat or channel: `channelData.chat.id` or `channelData.channel.id`, **not** `conversation.id`.
+   * @param id the id of the message at the root of the reply chain: `channelData.replyChain.id`, or `activity.id` when replying to a top-level message
+   * @param params the activity to send
+   * @throws Error when `conversationId` or `id` is empty or blank
+   * @throws Error when `conversationId` or `id` is a dot segment (`.` or `..`)
+   *
+   * @experimental This API is in preview and may change in the future. Diagnostic: ExperimentalTeamsThreading
+   */
+  createTargetedReplyChainActivity(conversationId: string, id: string, params: ActivityParams): ReturnType<ConversationActivityClient['createTargetedReplyChain']>;
+  createTargetedReplyChainActivity(conversationId: string, id: string, params: ActivityParams) {
+    return this._activities.createTargetedReplyChain(conversationId, id, params);
+  }
+
+  /**
    * Delete an activity in a conversation.
    */
   deleteActivity(conversationId: string, id: string) {
