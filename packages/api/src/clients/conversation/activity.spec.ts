@@ -314,7 +314,7 @@ describe('ConversationActivityClient', () => {
     );
   });
 
-  it('should reply', async () => {
+  it('should reply in a reply chain', async () => {
     const client = new ConversationActivityClient('');
     const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
 
@@ -323,15 +323,61 @@ describe('ConversationActivityClient', () => {
       text: 'hi',
     });
 
-expect(spy).toHaveBeenCalledWith(
-      '/v3/conversations/1/activities',
+    expect(spy).toHaveBeenCalledWith(
+      '/v3/conversations/1/replyChains/2',
       {
         type: 'message',
         text: 'hi',
-        replyToId: '2',
       },
       expectTelemetryConfig()
     );
+  });
+
+  it('should reply in a reply chain with a targeted activity', async () => {
+    const client = new ConversationActivityClient('');
+    const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
+
+    await client.replyTargeted('1', '2', {
+      type: 'message',
+      text: 'hi',
+    });
+
+    expect(spy).toHaveBeenCalledWith(
+      '/v3/conversations/1/replyChains/2?isTargetedActivity=true',
+      {
+        type: 'message',
+        text: 'hi',
+      },
+      expectTelemetryConfig()
+    );
+  });
+
+  it('should escape both ids when replying in a reply chain', async () => {
+    const client = new ConversationActivityClient('');
+    const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
+
+    await client.reply('19:abc@thread.tacv2', 'a:root/id', { type: 'message', text: 'hi' });
+
+    expect(spy.mock.calls[0][0]).toBe(
+      '/v3/conversations/19%3Aabc%40thread.tacv2/replyChains/a%3Aroot%2Fid'
+    );
+  });
+
+  it.each([
+    ['reply', 'conversationId', ['', '2']],
+    ['reply', 'conversationId', ['  ', '2']],
+    ['reply', 'id', ['1', '']],
+    ['reply', 'id', ['1', '  ']],
+    ['replyTargeted', 'conversationId', ['', '2']],
+    ['replyTargeted', 'id', ['1', '']],
+  ] as const)('%s should throw before sending when %s is blank', async (method, name, [threadId, replyChainId]) => {
+    const client = new ConversationActivityClient('');
+    const spy = jest.spyOn(client.http, 'post').mockResolvedValue({});
+
+    await expect(client[method](threadId, replyChainId, { type: 'message', text: 'hi' })).rejects.toThrow(
+      `${name} must be a non-empty string`
+    );
+    expect(spy).not.toHaveBeenCalled();
   });
 
   it('should delete', async () => {
@@ -453,6 +499,14 @@ expect(spy).toHaveBeenCalledWith(
       async (client: ConversationActivityClient, http: TestHttpClient) => {
         mockAdapter(http, { id: 'reply-id' });
         await client.reply('conversation-id', 'activity-id', { type: 'message', text: 'hi' });
+      },
+    ],
+    [
+      'replyTargeted',
+      'reply_targeted',
+      async (client: ConversationActivityClient, http: TestHttpClient) => {
+        mockAdapter(http, { id: 'reply-id' });
+        await client.replyTargeted('conversation-id', 'activity-id', { type: 'message', text: 'hi' });
       },
     ],
     [

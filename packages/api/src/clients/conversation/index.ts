@@ -55,9 +55,16 @@ export interface IConversationActivityOperations {
   update(id: string, params: DeprecatedInputActivity): ReturnType<ConversationActivityClient['update']>;
   update(id: string, params: ActivityParams): ReturnType<ConversationActivityClient['update']>;
   /**
-   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   * @deprecated Passing a `DeprecatedInputActivity` is deprecated. Use MessageActivityInput or TypingActivityInput instead.
    */
   reply(id: string, params: DeprecatedInputActivity): ReturnType<ConversationActivityClient['reply']>;
+  /**
+   * Reply inside a reply chain.
+   *
+   * The conversation id given to `activities(...)` must be the id of the chat or channel from `channelData`, NOT the inbound conversation id.
+   * Use `channelData.chat.id` for chats or `channelData.channel.id` for channels.
+   * `id` is the id of the message at the root of the reply chain: `channelData.replyChain.id`, or `activity.id` when replying to a top-level message.
+   */
   reply(id: string, params: ActivityParams): ReturnType<ConversationActivityClient['reply']>;
   delete(id: string): ReturnType<ConversationActivityClient['delete']>;
   members(activityId: string): ReturnType<ConversationActivityClient['getMembers']>;
@@ -189,14 +196,39 @@ export class ConversationClient {
   }
 
   /**
-   * Reply to an activity in a conversation.
-   *
-   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   * @deprecated Passing a `DeprecatedInputActivity` is deprecated. Use MessageActivityInput or TypingActivityInput instead.
    */
   replyToActivity(conversationId: string, id: string, params: DeprecatedInputActivity): ReturnType<ConversationActivityClient['reply']>;
+  /**
+   * Reply inside a reply chain.
+   *
+   * Posts to `/v3/conversations/{conversationId}/replyChains/{id}`.
+   *
+   * @param conversationId the id of the chat or channel from `channelData`, NOT the inbound conversation id. Use `channelData.chat.id` for chats or `channelData.channel.id` for channels.
+   * @param id the id of the message at the root of the reply chain: `channelData.replyChain.id`, or `activity.id` when replying to a top-level message
+   * @param params the activity to send
+   */
   replyToActivity(conversationId: string, id: string, params: ActivityParams): ReturnType<ConversationActivityClient['reply']>;
   replyToActivity(conversationId: string, id: string, params: ActivityParamsLike) {
     return this._activities.reply(conversationId, id, params);
+  }
+
+  /**
+   * @deprecated Passing a `DeprecatedInputActivity` is deprecated. Use MessageActivityInput or TypingActivityInput instead.
+   */
+  replyToTargetedActivity(conversationId: string, id: string, params: DeprecatedInputActivity): ReturnType<ConversationActivityClient['replyTargeted']>;
+  /**
+   * Reply inside a reply chain with an activity visible only to the specified recipient.
+   *
+   * Takes the same arguments as {@link replyToActivity}.
+   *
+   * @param conversationId the id of the chat or channel from `channelData`, NOT the inbound conversation id. Use `channelData.chat.id` for chats or `channelData.channel.id` for channels.
+   * @param id the id of the message at the root of the reply chain: `channelData.replyChain.id`, or `activity.id` when replying to a top-level message
+   * @param params the activity to send
+   */
+  replyToTargetedActivity(conversationId: string, id: string, params: ActivityParams): ReturnType<ConversationActivityClient['replyTargeted']>;
+  replyToTargetedActivity(conversationId: string, id: string, params: ActivityParamsLike) {
+    return this._activities.replyTargeted(conversationId, id, params);
   }
 
   /**

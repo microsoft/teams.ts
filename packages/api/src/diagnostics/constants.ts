@@ -37,6 +37,7 @@ export const OUTBOUND_OPERATIONS = {
   create: 'create',
   update: 'update',
   reply: 'reply',
+  replyTargeted: 'reply_targeted',
   delete: 'delete',
   createTargeted: 'create_targeted',
   updateTargeted: 'update_targeted',

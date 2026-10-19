@@ -38,18 +38,33 @@ describe('ConversationClient', () => {
       );
     });
 
-    it('replyToActivity should POST a reply', async () => {
+    it('replyToActivity should POST a reply to the reply chain', async () => {
       const client = new ConversationClient('');
       const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
 
       await client.replyToActivity('1', '2', { type: 'message', text: 'hi' });
 
-expect(spy).toHaveBeenCalledWith(
-        '/v3/conversations/1/activities',
+      expect(spy).toHaveBeenCalledWith(
+        '/v3/conversations/1/replyChains/2',
         {
           type: 'message',
           text: 'hi',
-          replyToId: '2',
+        },
+        expectTelemetryConfig()
+      );
+    });
+
+    it('replyToTargetedActivity should POST a targeted reply to the reply chain', async () => {
+      const client = new ConversationClient('');
+      const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
+
+      await client.replyToTargetedActivity('1', '2', { type: 'message', text: 'hi' });
+
+      expect(spy).toHaveBeenCalledWith(
+        '/v3/conversations/1/replyChains/2?isTargetedActivity=true',
+        {
+          type: 'message',
+          text: 'hi',
         },
         expectTelemetryConfig()
       );
@@ -206,18 +221,17 @@ expect(spy).toHaveBeenCalledWith(
         );
       });
 
-      it('reply should POST a reply', async () => {
+      it('reply should POST a reply to the reply chain', async () => {
         const client = new ConversationClient('');
         const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
 
         await client.activities('1').reply('2', { type: 'message', text: 'hi' });
 
-expect(spy).toHaveBeenCalledWith(
-          '/v3/conversations/1/activities',
+        expect(spy).toHaveBeenCalledWith(
+          '/v3/conversations/1/replyChains/2',
           {
             type: 'message',
             text: 'hi',
-            replyToId: '2',
           },
           expectTelemetryConfig()
         );

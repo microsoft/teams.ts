@@ -33,6 +33,12 @@ import { normalizeServiceUrl } from '../service-url';
 export type ActivityParams = IMessageActivityInput | ITypingActivityInput;
 type ActivityParamsLike = ActivityParams | DeprecatedInputActivity;
 
+function requireId(name: string, value: string) {
+  if (typeof value !== 'string' || value.trim() === '') {
+    throw new Error(`${name} must be a non-empty string`);
+  }
+}
+
 function apiOutboundTelemetryConfig(
   operation: ConversationActivityOperation,
   serviceUrl: string,
@@ -142,23 +148,41 @@ export class ConversationActivityClient {
   }
 
   /**
-   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   * @deprecated Passing a `DeprecatedInputActivity` is deprecated. Use MessageActivityInput or TypingActivityInput instead.
    */
   async reply(conversationId: string, id: string, params: DeprecatedInputActivity): Promise<Resource>;
+  /**
+   * Reply inside a reply chain.
+   *
+   * Posts to `/v3/conversations/{conversationId}/replyChains/{id}`.
+   *
+   * @param conversationId the id of the chat or channel from `channelData`, NOT the inbound conversation id. Use `channelData.chat.id` for chats or `channelData.channel.id` for channels.
+   * @param id the id of the message at the root of the reply chain: `channelData.replyChain.id`, or `activity.id` when replying to a top-level message
+   * @param params the activity to send
+   */
   async reply(conversationId: string, id: string, params: ActivityParams): Promise<Resource>;
   async reply(conversationId: string, id: string, params: ActivityParamsLike): Promise<Resource>;
   async reply(conversationId: string, id: string, params: ActivityParamsLike) {
-    // TODO: Will be deprecated alongside accessor in ConversationClient
-    const activity = toActivityParams(params);
-    activity.replyToId = id;
-    const res = await this.http.post<Resource>(
-      `${this.serviceUrl}/v3/conversations/${conversationId}/activities`,
-      activity,
-      apiOutboundTelemetryConfig(OUTBOUND_OPERATIONS.reply, this.serviceUrl, conversationId, activity, {
-        captureResponseActivityId: true,
-      })
-    );
-    return res.data;
+    return this.sendReply(conversationId, id, params, false);
+  }
+
+  /**
+   * @deprecated Passing a `DeprecatedInputActivity` is deprecated. Use MessageActivityInput or TypingActivityInput instead.
+   */
+  async replyTargeted(conversationId: string, id: string, params: DeprecatedInputActivity): Promise<Resource>;
+  /**
+   * Reply inside a reply chain with an activity visible only to the specified recipient.
+   *
+   * Takes the same arguments as {@link reply}.
+   *
+   * @param conversationId the id of the chat or channel from `channelData`, NOT the inbound conversation id. Use `channelData.chat.id` for chats or `channelData.channel.id` for channels.
+   * @param id the id of the message at the root of the reply chain: `channelData.replyChain.id`, or `activity.id` when replying to a top-level message
+   * @param params the activity to send
+   */
+  async replyTargeted(conversationId: string, id: string, params: ActivityParams): Promise<Resource>;
+  async replyTargeted(conversationId: string, id: string, params: ActivityParamsLike): Promise<Resource>;
+  async replyTargeted(conversationId: string, id: string, params: ActivityParamsLike) {
+    return this.sendReply(conversationId, id, params, true);
   }
 
   async delete(conversationId: string, id: string) {
@@ -231,6 +255,26 @@ export class ConversationActivityClient {
         conversationId,
         undefined,
         { activityId: id }
+      )
+    );
+    return res.data;
+  }
+
+  private async sendReply(conversationId: string, id: string, params: ActivityParamsLike, targeted: boolean) {
+    requireId('conversationId', conversationId);
+    requireId('id', id);
+
+    const activity = toActivityParams(params);
+    const query = targeted ? '?isTargetedActivity=true' : '';
+    const res = await this.http.post<Resource>(
+      `${this.serviceUrl}/v3/conversations/${encodeURIComponent(conversationId)}/replyChains/${encodeURIComponent(id)}${query}`,
+      activity,
+      apiOutboundTelemetryConfig(
+        targeted ? OUTBOUND_OPERATIONS.replyTargeted : OUTBOUND_OPERATIONS.reply,
+        this.serviceUrl,
+        conversationId,
+        activity,
+        { captureResponseActivityId: true }
       )
     );
     return res.data;
