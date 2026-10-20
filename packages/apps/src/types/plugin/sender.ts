@@ -10,6 +10,13 @@ export type ActivitySenderOptions = {
    * Agentic identity scope to use when acquiring tokens for this send.
    */
   readonly agenticIdentity?: AgenticIdentity;
+
+  /**
+   * The id of the message at the root of a reply chain (thread).
+   * When set on a new activity, it is sent as a reply in that thread, within the chat or channel the activity is sent to, identified by `channelData.chat.id` or `channelData.channel.id`.
+   * Ignored when the activity updates an existing message.
+   */
+  readonly replyChainId?: string;
 };
 
 /**
