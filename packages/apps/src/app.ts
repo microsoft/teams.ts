@@ -62,10 +62,9 @@ import { createStateLoader, TurnStateLoader } from './state';
 import { createOAuthStateLoader } from './state/loader';
 import { DEFAULT_TENANT_FOR_GRAPH_TOKEN, TokenManager } from './token-manager';
 import { AppTokenProvider, IAppTokenProvider } from './token-provider';
-import { AppEvents, IPlugin, PluginName, RouteHandler } from './types';
+import { ActivitySenderOptions, AppEvents, IPlugin, PluginName, RouteHandler } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 import { getBooleanEnvValue } from './utils/env';
-import { toThreadedConversationId } from './utils/thread';
 
 function isAppSendOptions(value: ActivityLike | DeprecatedInputActivity | AppSendOptions): value is AppSendOptions {
   if (typeof value === 'string') return false;
@@ -515,42 +514,16 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     activity: ActivityLike | DeprecatedInputActivity,
     options?: AppSendOptions
   ) {
-    if (!this.id) {
-      throw new Error('App has no credentials set up');
-    }
-
-    const params = toActivityParams(activity);
-
-    const ref: ConversationReference = {
-      channelId: 'msteams',
-      serviceUrl: this.api.serviceUrl,
-      bot: {
-        id: this.id,
-        role: 'bot',
-      },
-      conversation: {
-        id: conversationId,
-      } as ConversationReference['conversation'],
-    };
-
-    const res = await this.activitySender.send(
-      params,
-      ref,
-      options?.agenticIdentity ? { agenticIdentity: options.agenticIdentity } : undefined,
-    );
-    return res;
+    return this.sendActivity(conversationId, activity, options);
   }
 
   /**
-   * send an activity proactively as a threaded reply.
+   * send an activity proactively as a reply in a thread (reply chain).
    *
-   * Constructs a threaded conversation ID from the conversation ID
-   * and message ID via {@link toThreadedConversationId}, then sends
-   * to that thread. The service determines whether threading is
-   * supported for the given conversation type.
+   * Posts to the reply chain of the message `messageId`, in the chat or channel `conversationId`.
    *
-   * @param conversationId the conversation ID
-   * @param messageId the thread root message ID
+   * @param conversationId the id of the chat or channel from `channelData`, NOT the inbound conversation id. Use `channelData.chat.id` for chats or `channelData.channel.id` for channels.
+   * @param messageId the id of the message at the root of the reply chain: `channelData.replyChain.id`, or `activity.id` when replying to a top-level message
    * @param activity the activity to send
    */
   /**
@@ -591,7 +564,14 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     options?: AppSendOptions
   ) {
     if (typeof messageId === 'string' && activity !== undefined && !isAppSendOptions(activity)) {
-      return this.send(toThreadedConversationId(conversationId, messageId), activity, options);
+      if (!conversationId || conversationId.trim() === '') {
+        throw new Error('conversationId must be a non-empty string');
+      }
+      if (messageId.trim() === '') {
+        throw new Error('messageId must be a non-empty string');
+      }
+
+      return this.sendActivity(conversationId, activity, options, messageId);
     }
 
     const opts = activity && isAppSendOptions(activity) ? activity : options;
@@ -890,6 +870,38 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       return explicit;
     }
     return this.options.oauth?.defaultConnectionName !== undefined;
+  }
+
+  private async sendActivity(
+    conversationId: string,
+    activity: ActivityLike | DeprecatedInputActivity,
+    options?: AppSendOptions,
+    replyChainId?: string
+  ) {
+    if (!this.id) {
+      throw new Error('App has no credentials set up');
+    }
+
+    const params = toActivityParams(activity);
+
+    const ref: ConversationReference = {
+      channelId: 'msteams',
+      serviceUrl: this.api.serviceUrl,
+      bot: {
+        id: this.id,
+        role: 'bot',
+      },
+      conversation: {
+        id: conversationId,
+      } as ConversationReference['conversation'],
+    };
+
+    const senderOptions: ActivitySenderOptions | undefined =
+      options?.agenticIdentity || replyChainId
+        ? { agenticIdentity: options?.agenticIdentity, replyChainId }
+        : undefined;
+
+    return this.activitySender.send(params, ref, senderOptions);
   }
 
   /**
