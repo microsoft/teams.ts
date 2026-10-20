@@ -207,24 +207,46 @@ describe('SocketModeAdapter resilience', () => {
 
   describe('reconnect supervisor', () => {
     it('renegotiates a fresh connection after a drop and reports reconnected', async () => {
-      const server = await makeServer({ reconnectDelaysMs: [0] });
-      onMessaging(server, jest.fn(async () => ({ status: 200 })));
-      await server.start();
-      expect(connState.connections).toHaveLength(1);
-      expect(server.status).toBe('ready');
+      jest.useFakeTimers();
+      try {
+        connState.expiresInSeconds = 300;
+        const server = await makeServer({ reconnectDelaysMs: [0] });
+        onMessaging(server, jest.fn(async () => ({ status: 200 })));
+        await server.start();
+        expect(connState.connections).toHaveLength(1);
+        expect(server.status).toBe('ready');
 
-      const reconnected = jest.fn();
-      server.events.on('reconnected', reconnected);
+        const reconnected = jest.fn();
+        const disconnected = jest.fn();
+        server.events.on('reconnected', reconnected);
+        server.events.on('disconnected', disconnected);
 
-      connState.connections[0].drop(new Error('network drop'));
-      await ticks();
+        connState.expiresInSeconds = 600;
+        const reasons = [
+          'network drop',
+          'access token expired',
+          'Socket mode is no longer enabled for this bot.',
+          'Replaced by a newer socket.',
+        ];
+        for (const [index, reason] of reasons.entries()) {
+          const error = new Error(reason);
+          connState.connections[index].drop(error);
+          await jest.advanceTimersByTimeAsync(0);
+          expect(connState.connections).toHaveLength(index + 2);
+          expect(server.status).toBe('ready');
+          expect(reconnected).toHaveBeenCalledTimes(index + 1);
+          expect(disconnected).toHaveBeenLastCalledWith({ geo: '', error, terminal: false });
+        }
 
-      // A brand-new connection (fresh negotiate + token) was built.
-      expect(connState.connections).toHaveLength(2);
-      expect(server.status).toBe('ready');
-      expect(reconnected).toHaveBeenCalled();
+        await jest.advanceTimersByTimeAsync(539_999);
+        expect(connState.connections).toHaveLength(5);
+        await jest.advanceTimersByTimeAsync(1);
+        expect(connState.connections).toHaveLength(6);
 
-      await server.stop();
+        await server.stop();
+      } finally {
+        jest.useRealTimers();
+      }
     });
 
     it('keeps retrying with back-off until a reconnect succeeds', async () => {
@@ -335,7 +357,7 @@ describe('SocketModeAdapter resilience', () => {
     it('does not surface a planned refresh as a disconnect (no disconnected/reconnected events, no undefined warn)', async () => {
       jest.useFakeTimers();
       try {
-        connState.expiresInSeconds = 120;
+        connState.expiresInSeconds = 300;
         // A recording logger so we can assert a planned refresh never logs an
         // errorless (undefined-payload) disconnect warning.
         const warnings: any[][] = [];
@@ -357,11 +379,18 @@ describe('SocketModeAdapter resilience', () => {
         await server.start();
         expect(server.status).toBe('ready');
 
-        // Fire the proactive refresh timer.
-        await jest.advanceTimersByTimeAsync(61_000);
+        connState.expiresInSeconds = 86400;
+        await jest.advanceTimersByTimeAsync(239_999);
+        expect(connState.connections).toHaveLength(1);
+        await jest.advanceTimersByTimeAsync(1);
+        expect(connState.connections).toHaveLength(2);
+
+        await jest.advanceTimersByTimeAsync(86_339_999);
+        expect(connState.connections).toHaveLength(2);
+        await jest.advanceTimersByTimeAsync(1);
 
         // A fresh connection was negotiated...
-        expect(connState.connections.length).toBeGreaterThanOrEqual(2);
+        expect(connState.connections).toHaveLength(3);
         // ...but the planned rotation must NOT look like an outage.
         expect(disconnected).not.toHaveBeenCalled();
         expect(reconnected).not.toHaveBeenCalled();
@@ -597,19 +626,30 @@ describe('SocketModeAdapter resilience', () => {
     });
 
     it('keeps retrying other negotiate failures such as HTTP 503', async () => {
-      const server = await makeServer({ reconnectDelaysMs: [0] });
-      await server.start();
-
-      connState.startErrorQueue.push(
-        new NegotiateError('Socket Mode negotiate failed: HTTP 503', undefined, 503)
-      );
-      connState.connections[0].drop(new Error('network drop'));
-      await ticks(20);
-
-      expect(connState.connections).toHaveLength(3);
-      expect(server.status).toBe('ready');
-
-      await server.stop();
+      jest.useFakeTimers();
+      try {
+        const server = await makeServer({ reconnectDelaysMs: [100] });
+        await server.start();
+        connState.startErrorQueue.push(
+          new NegotiateError('Socket Mode negotiate failed: HTTP 503', 7_000, 503),
+          new NegotiateError('Socket Mode negotiate failed: HTTP 503', undefined, 503)
+        );
+        connState.connections[0].drop(new Error('network drop'));
+        await jest.advanceTimersByTimeAsync(100);
+        expect(connState.connections).toHaveLength(2);
+        await jest.advanceTimersByTimeAsync(6_999);
+        expect(connState.connections).toHaveLength(2);
+        await jest.advanceTimersByTimeAsync(1);
+        expect(connState.connections).toHaveLength(3);
+        await jest.advanceTimersByTimeAsync(99);
+        expect(connState.connections).toHaveLength(3);
+        await jest.advanceTimersByTimeAsync(1);
+        expect(connState.connections).toHaveLength(4);
+        expect(server.status).toBe('ready');
+        await server.stop();
+      } finally {
+        jest.useRealTimers();
+      }
     });
   });
 

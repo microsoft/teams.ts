@@ -145,7 +145,7 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
   });
 
   describe('make-before-break token refresh', () => {
-    it('keeps the old socket through replacement readiness and the APX handoff window', async () => {
+    it('anchors the full APX handoff window at replacement readiness', async () => {
       jest.useFakeTimers();
       try {
         connectionState.expiresInSeconds = 120;
@@ -169,15 +169,17 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
         expect(handler).toHaveBeenCalledTimes(1);
 
         replacement.fireReady();
-        await jest.advanceTimersByTimeAsync(0);
+        // Advance before the supervisor's await resumes: readiness starts the grace.
+        jest.advanceTimersByTime(4_000);
 
         expect(oldConnection.stopped).toBe(0);
-        await oldConnection.handlers.onActivity(
-          envelope(messageActivity({ id: 'cached-old-id' }), 'cached-old-id')
-        );
+        await oldConnection.handlers.onActivity({
+          ...envelope(messageActivity({ id: 'cached-old-id' }), 'cached-old-id'),
+          deadlineMs: 1,
+        });
         expect(handler).toHaveBeenCalledTimes(2);
 
-        await jest.advanceTimersByTimeAsync(4_999);
+        await jest.advanceTimersByTimeAsync(999);
         expect(oldConnection.stopped).toBe(0);
         await jest.advanceTimersByTimeAsync(1);
         expect(oldConnection.stopped).toBe(1);
@@ -192,10 +194,14 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
       jest.useFakeTimers();
       try {
         connectionState.expiresInSeconds = 120;
+        let release!: () => void;
+        const gate = new Promise<void>((resolve) => { release = resolve; });
         const app = createSocketTestApp({
           socketMode: { geos: [''], reconnectDelaysMs: [0] },
         });
+        app.on('message', () => gate);
         await app.start();
+        const reply = dispatch({ ...envelope(messageActivity()), deadlineMs: 120_000 });
 
         await jest.advanceTimersByTimeAsync(61_000);
         expect(connectionState.connections).toHaveLength(2);
@@ -208,6 +214,10 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
 
         expect(oldConnection.stopped).toBe(1);
         expect(replacement.stopped).toBe(1);
+        expect(jest.getTimerCount()).toBe(0);
+        release();
+        await expect(reply).resolves.toMatchObject({ status: 200 });
+        expect(jest.getTimerCount()).toBe(0);
       } finally {
         jest.useRealTimers();
       }
@@ -217,32 +227,161 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
       jest.useFakeTimers();
       try {
         connectionState.expiresInSeconds = 61;
+        let finishFirst!: () => void;
+        let finishSecond!: () => void;
+        const firstGate = new Promise<void>((resolve) => { finishFirst = resolve; });
+        const secondGate = new Promise<void>((resolve) => { finishSecond = resolve; });
         const app = createSocketTestApp({
           socketMode: { geos: [''], reconnectDelaysMs: [0] },
         });
+        app.on('message', ({ activity }) => activity.id === 'first' ? firstGate : secondGate);
+        const disconnected = jest.fn();
+        const reconnected = jest.fn();
+        app.socketMode!.events.on('disconnected', disconnected);
+        app.socketMode!.events.on('reconnected', reconnected);
         await app.start();
         const first = connectionState.connections[0];
+        const firstReply = first.handlers.onActivity({
+          ...envelope(messageActivity({ id: 'first' }), 'same-envelope-id'),
+          deadlineMs: 20_000,
+        });
 
         await jest.advanceTimersByTimeAsync(1_000);
         expect(connectionState.connections).toHaveLength(2);
         const second = connectionState.connections[1];
+        const secondReply = second.handlers.onActivity({
+          ...envelope(messageActivity({ id: 'second' }), 'same-envelope-id'),
+          deadlineMs: 100_000,
+        });
 
         connectionState.expiresInSeconds = undefined;
         await jest.advanceTimersByTimeAsync(1_000);
         expect(connectionState.connections).toHaveLength(3);
+        finishSecond();
+        await expect(secondReply).resolves.toMatchObject({ status: 200 });
 
         await jest.advanceTimersByTimeAsync(3_999);
         expect(first.stopped).toBe(0);
         expect(second.stopped).toBe(0);
 
         await jest.advanceTimersByTimeAsync(1);
-        expect(first.stopped).toBe(1);
+        expect(first.stopped).toBe(0);
         expect(second.stopped).toBe(0);
 
         await jest.advanceTimersByTimeAsync(1_000);
         expect(second.stopped).toBe(1);
+        expect(first.stopped).toBe(0);
+        finishFirst();
+        await expect(firstReply).resolves.toMatchObject({ status: 200 });
+        // Returning the SDK reply must not synchronously stop its connection.
+        expect(first.stopped).toBe(0);
+        await jest.advanceTimersByTimeAsync(0);
+        expect(first.stopped).toBe(1);
+        first.drop();
+        second.drop();
+        await jest.advanceTimersByTimeAsync(0);
+        expect(connectionState.connections).toHaveLength(3);
+        expect(app.socketMode!.status).toBe('ready');
+        expect(disconnected).not.toHaveBeenCalled();
+        expect(reconnected).not.toHaveBeenCalled();
 
         await app.stop();
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    it('recomputes the latest pending deadline after completion and late arrivals', async () => {
+      jest.useFakeTimers();
+      try {
+        connectionState.expiresInSeconds = 120;
+        const releases = new Map<string, () => void>();
+        const app = createSocketTestApp({
+          socketMode: { geos: [''], reconnectDelaysMs: [0] },
+        });
+        app.on('message', ({ activity }) =>
+          new Promise<void>((resolve) => { releases.set(activity.id, resolve); })
+        );
+        await app.start();
+        const old = connectionState.connections[0];
+
+        await jest.advanceTimersByTimeAsync(59_000);
+        const short = old.handlers.onActivity({
+          ...envelope(messageActivity({ id: 'short' }), 'same-envelope-id'),
+          deadlineMs: 10_000,
+        });
+        const maximum = old.handlers.onActivity({
+          ...envelope(messageActivity({ id: 'maximum' }), 'same-envelope-id'),
+          deadlineMs: 120_000,
+        });
+        await jest.advanceTimersByTimeAsync(7_000);
+        expect(connectionState.connections).toHaveLength(2);
+        expect(old.stopped).toBe(0);
+
+        releases.get('maximum')!();
+        await expect(maximum).resolves.toMatchObject({ status: 200 });
+        await jest.advanceTimersByTimeAsync(2_000);
+        const lateEnvelope = {
+          ...envelope(messageActivity({ id: 'late' }), 'same-envelope-id'),
+          DeadlineMs: 45_000,
+        };
+        const late = old.handlers.onActivity(lateEnvelope);
+        await jest.advanceTimersByTimeAsync(44_999);
+        // The short deadline has passed; the late arrival still owns its full budget.
+        expect(old.stopped).toBe(0);
+        await jest.advanceTimersByTimeAsync(1);
+        expect(old.stopped).toBe(1);
+
+        releases.get('short')!();
+        releases.get('late')!();
+        await expect(short).resolves.toMatchObject({ status: 200 });
+        await expect(late).resolves.toMatchObject({ status: 200 });
+        await jest.advanceTimersByTimeAsync(0);
+        expect(old.stopped).toBe(1);
+        await app.stop();
+        expect(jest.getTimerCount()).toBe(0);
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    it('cleans up a retired server close without reconnecting or disturbing the serving socket', async () => {
+      jest.useFakeTimers();
+      try {
+        connectionState.expiresInSeconds = 120;
+        let release!: () => void;
+        const gate = new Promise<void>((resolve) => { release = resolve; });
+        const app = createSocketTestApp({
+          socketMode: { geos: [''], reconnectDelaysMs: [0] },
+        });
+        app.on('message', () => gate);
+        const disconnected = jest.fn();
+        const reconnected = jest.fn();
+        app.socketMode!.events.on('disconnected', disconnected);
+        app.socketMode!.events.on('reconnected', reconnected);
+        await app.start();
+        const old = connectionState.connections[0];
+        const reply = old.handlers.onActivity({
+          ...envelope(messageActivity()),
+          deadlineMs: 180_000,
+        });
+
+        await jest.advanceTimersByTimeAsync(61_000);
+        old.drop(new Error('Replaced by a newer socket.'));
+        release();
+        await reply;
+        await jest.advanceTimersByTimeAsync(58_999);
+        expect(connectionState.connections).toHaveLength(2);
+        expect(old.stopped).toBe(0);
+        expect(app.socketMode!.status).toBe('ready');
+        expect(disconnected).not.toHaveBeenCalled();
+        expect(reconnected).not.toHaveBeenCalled();
+
+        // Closing a retired socket must not cancel the active token's refresh.
+        await jest.advanceTimersByTimeAsync(1);
+        expect(connectionState.connections).toHaveLength(3);
+        await app.stop();
+        expect(jest.getTimerCount()).toBe(0);
       } finally {
         jest.useRealTimers();
       }
@@ -368,6 +507,7 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
 
     expect(connectionState.contexts[1]).toMatchObject({
       negotiateUrl: 'https://apx.example/ring/v3/websockets/connect',
+      getConnectionIdToReplace: undefined,
       readinessTimeoutMs: 1234,
       keepAliveIntervalMs: 7000,
       serverTimeoutMs: 9000,
@@ -375,6 +515,7 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
     expect(Object.keys(connectionState.contexts[1]).sort()).toEqual([
       'client',
       'getBotToken',
+      'getConnectionIdToReplace',
       'keepAliveIntervalMs',
       'negotiateUrl',
       'readinessTimeoutMs',

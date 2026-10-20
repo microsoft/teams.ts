@@ -1,5 +1,6 @@
 import { ILogger } from '@microsoft/teams.common';
 
+import { readField } from './envelope';
 import {
   ISocketConnection,
   ReplyFrame,
@@ -17,9 +18,12 @@ type CloseReason = { planned: true } | { planned: false; error?: Error };
 /** Keep a superseded socket alive while APX connection-ID caches expire. */
 const CONNECTION_HANDOFF_MS = 5_000;
 
-type ActiveConnection = {
+type SocketGeneration = {
   readonly gen: number;
   readonly connection: ISocketConnection;
+  readonly inFlight: Set<{ readonly deadline: number }>;
+  graceEndsAt?: number;
+  drainTimer?: ReturnType<typeof setTimeout>;
 };
 
 /** Internal callbacks and settings required by one geo supervisor. */
@@ -28,7 +32,9 @@ export type GeoSocketDeps = {
   readonly getAbortSignal: () => AbortSignal | undefined;
   readonly createConnection: (
     negotiateUrl: string,
-    handlers: SocketConnectionHandlers
+    handlers: SocketConnectionHandlers,
+    /** Live predecessor ID lookup for planned refreshes only. */
+    getConnectionIdToReplace?: () => string | undefined
   ) => ISocketConnection;
   readonly dispatch: (
     envelope: SocketActivityEnvelope
@@ -53,9 +59,9 @@ export class GeoSocket {
   /** Monotonic connection generation. */
   private generation = 0;
   /** The ready generation receiving new backend traffic. */
-  private active?: ActiveConnection;
-  /** Prior generations kept alive during APX's connection-ID cache window. */
-  private readonly retiring = new Map<number, ISocketConnection>();
+  private active?: SocketGeneration;
+  /** Prior generations serving cached deliveries and draining SDK replies. */
+  private readonly retiring = new Map<number, SocketGeneration>();
   private supervisorLoop?: Promise<void>;
   private refreshTimer?: ReturnType<typeof setTimeout>;
   private _status: SocketModeStatus = 'idle';
@@ -73,7 +79,7 @@ export class GeoSocket {
     return this._status;
   }
 
-  /** Accept frames from the active socket and its briefly overlapping predecessors. */
+  /** Accept frames from the active socket and its draining predecessors. */
   canDispatch(gen: number): boolean {
     return (
       this.deps.isAccepting() &&
@@ -137,14 +143,7 @@ export class GeoSocket {
   /** Stop token refresh, every owned connection, and the reconnect supervisor. */
   async stop(): Promise<void> {
     this.clearRefreshTimer();
-    const connections = [
-      this.active?.connection,
-      ...this.retiring.values(),
-    ].filter(
-      (connection): connection is ISocketConnection => connection !== undefined
-    );
-    this.active = undefined;
-    this.retiring.clear();
+    const connections = this.releaseConnections();
     await Promise.all(
       connections.map((connection) => connection.stop().catch(() => undefined))
     );
@@ -152,7 +151,10 @@ export class GeoSocket {
     this._status = 'stopped';
   }
 
-  private async connectCycle(gen: number): Promise<{ closed: Promise<CloseReason> }> {
+  private async connectCycle(
+    gen: number,
+    replaces?: SocketGeneration
+  ): Promise<{ closed: Promise<CloseReason> }> {
     let settled = false;
     let settle!: (reason: CloseReason) => void;
     const closed = new Promise<CloseReason>((resolve) => {
@@ -165,26 +167,45 @@ export class GeoSocket {
     });
 
     const handlers: SocketConnectionHandlers = {
-      onActivity: (envelope) => {
+      onActivity: async (envelope) => {
+        const arrivedAt = Date.now();
         if (!this.canDispatch(gen)) {
           this.log.debug(
             'socket-mode: dropping activity received outside the active connection state'
           );
-          return Promise.resolve(undefined);
+          return undefined;
         }
-        return this.deps.dispatch(envelope);
+        const deadlineMs = readField(envelope, 'deadlineMs');
+        let deadline = arrivedAt;
+        if (deadlineMs !== undefined) {
+          if (typeof deadlineMs === 'number' && Number.isFinite(deadlineMs) && deadlineMs >= 0) {
+            deadline += deadlineMs;
+          } else {
+            this.log.warn('socket-mode: invalid deadlineMs; no drain budget beyond the cache grace');
+          }
+        }
+        const activity = { deadline };
+        current.inFlight.add(activity);
+        this.scheduleDrain(current);
+        try {
+          return await this.deps.dispatch(envelope);
+        } finally {
+          current.inFlight.delete(activity);
+          this.scheduleDrain(current);
+        }
       },
       onReady: (frame) => {
         if (this.active && this.active.gen !== gen) {
-          this.retiring.set(this.active.gen, this.active.connection);
+          this.retire(this.active);
         }
-        this.active = { gen, connection };
+        this.active = current;
         // Observers reading aggregate status from the ready event must see the
         // settled value rather than the previous connecting state.
         this._status = 'ready';
         this.deps.onReady(frame);
       },
       onClosed: (error) => {
+        this.clearDrain(current);
         if (this.active?.gen === gen) {
           this.clearRefreshTimer();
           if (settled && this.deps.isAccepting()) {
@@ -200,10 +221,26 @@ export class GeoSocket {
       },
     };
 
-    const connection = this.deps.createConnection(this.negotiateUrl, handlers);
+    const connection = this.deps.createConnection(
+      this.negotiateUrl,
+      handlers,
+      replaces
+        ? () => {
+          if (!this.deps.isAccepting() || this.active !== replaces || !replaces.connection.isOpen) {
+            return undefined;
+          }
+          const expiresAtMs = replaces.connection.expiresAtMs;
+          if (expiresAtMs !== undefined && Date.now() >= expiresAtMs) {
+            return undefined;
+          }
+          return replaces.connection.connectionId;
+        }
+        : undefined
+    );
 
+    const current: SocketGeneration = { gen, connection, inFlight: new Set() };
     await connection.start(this.deps.getAbortSignal());
-    this.scheduleTokenRefresh(gen, connection.expiresInSeconds, () =>
+    this.scheduleTokenRefresh(gen, connection, () =>
       settle({ planned: true })
     );
     return { closed };
@@ -242,17 +279,13 @@ export class GeoSocket {
       }
 
       const previous = planned ? this.active : undefined;
-      const next = await this.reconnect({ keepServing: planned }, error);
+      const next = await this.reconnect({ keepServing: planned, replaces: previous }, error);
       if (!next) return; // stopped while backing off
 
       closed = next.closed;
       this._status = 'ready';
       if (planned) {
-        if (
-          previous &&
-          this.retiring.get(previous.gen) === previous.connection
-        ) {
-          void this.retire(previous);
+        if (previous?.graceEndsAt !== undefined) {
           this.log.info(
             `socket-mode[${this.geo}]: token rotated; inbound delivery continues for this geo`
           );
@@ -283,7 +316,7 @@ export class GeoSocket {
   }
 
   private async reconnect(
-    options: { keepServing: boolean },
+    options: { keepServing: boolean; replaces?: SocketGeneration },
     prevError?: Error
   ): Promise<{ closed: Promise<CloseReason> } | undefined> {
     let attempt = 0;
@@ -300,7 +333,7 @@ export class GeoSocket {
       }
       const gen = ++this.generation;
       try {
-        return await this.connectCycle(gen);
+        return await this.connectCycle(gen, options.replaces);
       } catch (err: any) {
         // Negotiate isn't abortable, so a rejection can land after stop().
         if (!this.deps.isAccepting()) return undefined;
@@ -329,14 +362,7 @@ export class GeoSocket {
     );
     this.clearRefreshTimer();
     // Clear before stopping so their onClosed callbacks do not report again.
-    const connections = [
-      this.active?.connection,
-      ...this.retiring.values(),
-    ].filter(
-      (connection): connection is ISocketConnection => connection !== undefined
-    );
-    this.active = undefined;
-    this.retiring.clear();
+    const connections = this.releaseConnections();
     await Promise.all(
       connections.map((connection) => connection.stop().catch(() => undefined))
     );
@@ -368,28 +394,65 @@ export class GeoSocket {
     this.deps.onDisconnected(error, terminal);
   }
 
-  /** Retire a superseded socket after APX's cached IDs have aged out. */
-  private async retire(previous: ActiveConnection): Promise<void> {
-    const slept = await this.deps.sleep(CONNECTION_HANDOFF_MS);
-    if (
-      !slept ||
-      this.retiring.get(previous.gen) !== previous.connection
-    ) {
-      return;
+  private retire(previous: SocketGeneration): void {
+    previous.graceEndsAt = Date.now() + CONNECTION_HANDOFF_MS;
+    this.retiring.set(previous.gen, previous);
+    this.scheduleDrain(previous);
+  }
+
+  private scheduleDrain(previous: SocketGeneration): void {
+    if (this.retiring.get(previous.gen) !== previous || previous.graceEndsAt === undefined) return;
+    clearTimeout(previous.drainTimer);
+    let closeAt = previous.graceEndsAt;
+    for (const activity of previous.inFlight) {
+      closeAt = Math.max(closeAt, activity.deadline);
     }
-    this.retiring.delete(previous.gen);
-    await previous.connection.stop().catch(() => undefined);
+    // Even an empty drain closes on a timer, outside the SDK reply callback.
+    // Clamp the timer's range, not the message's deadline.
+    const delay = Math.min(Math.max(0, closeAt - Date.now()), 2_147_483_647);
+    previous.drainTimer = setTimeout(() => {
+      previous.drainTimer = undefined;
+      if (!this.deps.isAccepting() || this.retiring.get(previous.gen) !== previous) return;
+      if (Date.now() < closeAt) {
+        this.scheduleDrain(previous);
+        return;
+      }
+      this.retiring.delete(previous.gen);
+      this.clearDrain(previous);
+      void previous.connection.stop().catch((error) => {
+        this.log.warn(`socket-mode[${this.geo}]: failed to stop a retired socket`, error);
+      });
+    }, delay);
+    previous.drainTimer.unref?.();
+  }
+
+  private clearDrain(current: SocketGeneration): void {
+    clearTimeout(current.drainTimer);
+    current.drainTimer = undefined;
+    current.inFlight.clear();
+  }
+
+  private releaseConnections(): ISocketConnection[] {
+    const connections = [this.active, ...this.retiring.values()].filter(
+      (current): current is SocketGeneration => current !== undefined
+    );
+    this.active = undefined;
+    this.retiring.clear();
+    for (const current of connections) this.clearDrain(current);
+    return connections.map((current) => current.connection);
   }
 
   private scheduleTokenRefresh(
     gen: number,
-    expiresInSeconds: number | undefined,
+    connection: ISocketConnection,
     triggerRefresh: () => void
   ): void {
     this.clearRefreshTimer();
+    const { expiresInSeconds, expiresAtMs } = connection;
     if (!expiresInSeconds || expiresInSeconds <= 0) return;
 
-    const delay = Math.max(expiresInSeconds * 1000 - this.deps.tokenRefreshMarginMs, 1_000);
+    const remainingMs = expiresAtMs === undefined ? expiresInSeconds * 1000 : expiresAtMs - Date.now();
+    const delay = Math.max(remainingMs - this.deps.tokenRefreshMarginMs, 1_000);
     this.refreshTimer = setTimeout(() => {
       if (!this.deps.isAccepting() || gen !== this.active?.gen) return;
       this.log.info(`socket-mode[${this.geo}]: proactively renegotiating before token expiry`);

@@ -181,7 +181,12 @@ export type SocketActivityEnvelope = {
    * reply frames always carry the locally configured bot's client id instead.
    */
   readonly botKey?: string;
-  /** Backend service-provided reply budget, in milliseconds. */
+  /**
+   * Nonnegative, finite reply budget in milliseconds from this message's arrival.
+   * Bounds retired-socket draining until the SDK returns its reply/ack; the
+   * five-second replacement-readiness grace always applies. Omitted or invalid
+   * budgets do not extend that grace. This is not a handler-cancellation timeout.
+   */
   readonly deadlineMs?: number;
   /** Delivery headers forwarded by the backend service. */
   readonly headers?: unknown;
@@ -240,6 +245,23 @@ export interface ISocketConnection {
    * supervisor uses it to proactively renegotiate before the token expires.
    */
   readonly expiresInSeconds?: number;
+
+  /**
+   * Local token-expiry deadline in epoch milliseconds, based on negotiate
+   * response receipt plus its lifetime, before socket readiness. `undefined`
+   * when unknown. Expiry disallows replacement headers, not inbound delivery.
+   */
+  readonly expiresAtMs?: number;
+
+  /**
+   * Server identity from this socket's first accepted `SocketReady` frame,
+   * available before `onReady` and retained after close. `undefined` until
+   * readiness or when the server omits the ID.
+   */
+  readonly connectionId?: string;
+
+  /** Whether the transport is open. Only `true` permits a replacement header. */
+  readonly isOpen?: boolean;
 }
 
 /**
@@ -249,7 +271,8 @@ export interface ISocketConnection {
 export type SocketConnectionHandlers = {
   /**
    * Handle one inbound envelope and resolve with the reply frame to return over
-   * client results, or `undefined` to send no reply.
+   * client results, or `undefined` to send no reply. Settlement ends SDK drain
+   * tracking; it does not confirm transport transmission or service receipt.
    */
   readonly onActivity: (envelope: SocketActivityEnvelope) => Promise<ReplyFrame | undefined>;
   /** Called when Teams backend service pushes the `SocketReady` readiness frame. */
@@ -276,6 +299,11 @@ export type SocketConnectionContext = {
    * request. Reuses the app's existing credentials.
    */
   readonly getBotToken: () => Promise<string>;
+  /**
+   * Planned-refresh predecessor's exact ID, checked just before the POST.
+   * Return `undefined` if it has closed, its token expired, or its ID is unavailable.
+   */
+  readonly getConnectionIdToReplace?: () => string | undefined;
   /** Readiness timeout in milliseconds. */
   readonly readinessTimeoutMs: number;
   /** SignalR keep-alive ping interval in milliseconds. */
