@@ -7,6 +7,7 @@ import { IStorage } from '@microsoft/teams.common';
 
 import { ActivitySender } from './activity-sender';
 import { App } from './app';
+import { ActivityContext } from './contexts/activity';
 import { Agent365BaggageKeys } from './diagnostics/agent365-baggage';
 import {
   getTeamsBotApplicationTracer,
@@ -1493,6 +1494,122 @@ describe('App', () => {
       expect(response.status).toBe(500);
       expect(create).not.toHaveBeenCalled();
       expect(sent).not.toHaveBeenCalled();
+    });
+
+    describe('reactive send placement through the full pipeline', () => {
+      const chatId = '19:user_bot@unq.gbl.spaces';
+      const channelId = '19:channel@thread.tacv2';
+
+      const inbound = (options: {
+        id: string;
+        conversationId: string;
+        conversationType: 'personal' | 'channel';
+        channelData?: Record<string, unknown>;
+      }) =>
+        new MessageActivity('hello')
+          .withId(options.id)
+          .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
+          .withRecipient({ id: 'bot-1', name: 'Test Bot', role: 'bot' })
+          .withConversation({ id: options.conversationId, conversationType: options.conversationType })
+          .withChannelId('msteams')
+          .withServiceUrl('https://service.url')
+          .withChannelData(options.channelData ?? {})
+          .toInterface();
+
+      const sendFromHandler = async (body: IMessageActivity) => {
+        const send = jest
+          .spyOn(ActivitySender.prototype, 'send')
+          .mockImplementation(async (activity) => ({ id: 'sent-1', ...activity }) as any);
+        app.on('message', async (ctx) => {
+          await ctx.send('response');
+        });
+        await app.process({ token, body });
+        expect(send).toHaveBeenCalledTimes(1);
+        return send.mock.calls[0] as unknown as [any, any, any];
+      };
+
+      it('does not hand the context a conversation reference unless the caller supplied one', async () => {
+        const contextSend = jest.spyOn(ActivityContext.prototype, 'send');
+        await sendFromHandler(
+          inbound({ id: 'm-1', conversationId: 'conv-1', conversationType: 'personal' })
+        );
+
+        expect(contextSend).toHaveBeenCalledTimes(1);
+        expect((contextSend.mock.calls as unknown[][])[0]).toHaveLength(1);
+      });
+
+      it('replies in the reply chain for a reply chain message in a chat', async () => {
+        const [, ref, options] = await sendFromHandler(
+          inbound({
+            id: 'reply-2',
+            conversationId: 'a:encrypted',
+            conversationType: 'personal',
+            channelData: { chat: { id: chatId }, replyChain: { id: 'root-1' } },
+          })
+        );
+
+        expect(ref.conversation.id).toBe(chatId);
+        expect(options).toEqual({ replyChainId: 'root-1' });
+      });
+
+      it('sends to the inbound conversation for a top-level message in a chat', async () => {
+        const [, ref, options] = await sendFromHandler(
+          inbound({
+            id: 'root-1',
+            conversationId: 'a:encrypted',
+            conversationType: 'personal',
+            channelData: { chat: { id: chatId }, replyChain: { id: 'root-1' } },
+          })
+        );
+
+        expect(ref.conversation.id).toBe('a:encrypted');
+        expect(options).toBeUndefined();
+      });
+
+      it('sends to the inbound conversation, suffix and all, for a channel message with no reply chain id', async () => {
+        const suffixed = `${channelId};messageid=root-1`;
+        const [, ref, options] = await sendFromHandler(
+          inbound({
+            id: 'reply-2',
+            conversationId: suffixed,
+            conversationType: 'channel',
+            channelData: { channel: { id: channelId } },
+          })
+        );
+
+        expect(ref.conversation.id).toBe(suffixed);
+        expect(options).toBeUndefined();
+      });
+
+      it('sends a channel root post to the inbound conversation', async () => {
+        const suffixed = `${channelId};messageid=root-1`;
+        const [, ref, options] = await sendFromHandler(
+          inbound({
+            id: 'root-1',
+            conversationId: suffixed,
+            conversationType: 'channel',
+            channelData: { channel: { id: channelId }, replyChain: { id: 'root-1' } },
+          })
+        );
+
+        expect(ref.conversation.id).toBe(suffixed);
+        expect(options).toBeUndefined();
+      });
+
+      it('sends a channel reply to the inbound conversation even when the payload carries a reply chain id', async () => {
+        const suffixed = `${channelId};messageid=root-1`;
+        const [, ref, options] = await sendFromHandler(
+          inbound({
+            id: 'reply-2',
+            conversationId: suffixed,
+            conversationType: 'channel',
+            channelData: { channel: { id: channelId }, replyChain: { id: 'root-1' } },
+          })
+        );
+
+        expect(ref.conversation.id).toBe(suffixed);
+        expect(options).toBeUndefined();
+      });
     });
 
     it('should emit the "error" event when a route throws', async () => {

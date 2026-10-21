@@ -215,11 +215,19 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
   send(activity: DeprecatedInputActivity): Promise<SentActivity>;
   /**
    * send an activity to the conversation
+   *
+   * In channels, sends to the current reply chain (thread). In scopes that do not support threading (such as meetings), sends as a top-level message.
+   * When the inbound message is inside a reply chain (thread) in a chat, sends into that reply chain (thread).
+   *
    * @param activity activity to send
    */
   send(activity: ActivityLike): Promise<SentActivity>;
   /**
    * send an activity to the conversation
+   *
+   * In channels, sends to the current reply chain (thread). In scopes that do not support threading (such as meetings), sends as a top-level message.
+   * When the inbound message is inside a reply chain (thread) in a chat, sends into that reply chain (thread).
+   *
    * @param activity activity to send
    */
   send(activity: ActivityLike | DeprecatedInputActivity): Promise<SentActivity>;
@@ -422,8 +430,8 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   /**
    * send an activity in the current conversation without quoting.
    *
-   * In channels, sends to the current thread. In scopes that do not
-   * support threading (group chat, meetings), sends as a normal message.
+   * In channels, sends to the current reply chain (thread). In scopes that do not support threading (such as meetings), sends as a top-level message.
+   * When the inbound message is inside a reply chain (thread) in a chat, sends into that reply chain (thread).
    * To send with a visual quote of the inbound message, use {@link reply}.
    *
    * @param activity the activity to send
@@ -432,8 +440,8 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   /**
    * send an activity in the current conversation without quoting.
    *
-   * In channels, sends to the current thread. In scopes that do not
-   * support threading (group chat, meetings), sends as a normal message.
+   * In channels, sends to the current reply chain (thread). In scopes that do not support threading (such as meetings), sends as a top-level message.
+   * When the inbound message is inside a reply chain (thread) in a chat, sends into that reply chain (thread).
    * To send with a visual quote of the inbound message, use {@link reply}.
    *
    * @param activity the activity to send
@@ -486,6 +494,15 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     }
 
     const ref = conversationRef ?? this.ref;
+    const placement = this.getChatReplyChainPlacement(params, conversationRef);
+    if (placement) {
+      return this.activitySender.send(
+        params,
+        { ...ref, conversation: { ...ref.conversation, id: placement.conversationId } },
+        { replyChainId: placement.replyChainId }
+      );
+    }
+
     return this.activitySender.send(params, ref);
   }
 
@@ -614,6 +631,37 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     }
 
     return !params.id && !params.recipient;
+  }
+
+  /**
+   * Finds where a response to the inbound message belongs when it was received as a reply in a thread.
+   *
+   * An inbound message is a reply in a thread when `channelData.replyChain.id` (the root message id) differs from its own id.
+   * When the two are equal, the inbound message is a top-level message, so the response is sent as a top-level message and does not start a thread.
+   * The destination is the chat, `channelData.chat.id`, taken from the payload.
+   * Returns undefined when either id is missing, so the send goes to the inbound conversation.
+   */
+  private getInboundReplyChainPlacement() {
+    if (this.activity.type !== 'message' || this.activity.conversation?.conversationType === 'groupChat') {
+      return undefined;
+    }
+
+    const channelData = this.activity.channelData;
+    const replyChainId = channelData?.replyChain?.id;
+    if (!replyChainId || replyChainId === this.activity.id) {
+      return undefined;
+    }
+
+    const conversationId = channelData?.chat?.id;
+    return conversationId ? { conversationId, replyChainId } : undefined;
+  }
+
+  private getChatReplyChainPlacement(params: ActivityParams, conversationRef?: ConversationReference) {
+    if (params.type !== 'message' || params.id || !this.isSameConversation(conversationRef)) {
+      return undefined;
+    }
+
+    return this.getInboundReplyChainPlacement();
   }
 
   private isSameConversation(conversationRef?: ConversationReference) {
