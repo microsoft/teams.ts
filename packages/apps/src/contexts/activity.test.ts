@@ -113,7 +113,7 @@ describe('ActivityContext', () => {
 
   const buildActivityContext = (
     activity: Activity,
-    constructorArgs: Partial<IActivityContextConstructorArgs> = {}
+    constructorArgs: Partial<IActivityContextConstructorArgs> & { ref?: ConversationReference } = {}
   ): ActivityContext => {
     return new ActivityContext({
       appId: 'test-app',
@@ -338,6 +338,263 @@ describe('ActivityContext', () => {
       expect(mockSender.send).toHaveBeenCalledTimes(2);
       expect(mockSender.send).toHaveBeenNthCalledWith(1, expect.objectContaining({ text: 'forwarded' }), mockRef);
       expect(mockSender.send).toHaveBeenNthCalledWith(2, expect.objectContaining({ text: 'explicit' }), mockRef);
+    });
+
+    describe('reply chain placement', () => {
+      const chatId = '19:user_bot@unq.gbl.spaces';
+      const channelId = '19:channel@thread.tacv2';
+
+      const buildInbound = (options: {
+        conversationType: 'personal' | 'channel';
+        conversationId: string;
+        id: string;
+        channelData?: Record<string, unknown>;
+        type?: 'message' | 'typing';
+      }) => {
+        const activity = new MessageActivity('Hello world')
+          .withFrom({ id: 'test-user', name: 'Test User', role: 'user' })
+          .withRecipient({ id: 'bot-id', name: 'Bot', role: 'bot' })
+          .withChannelId('test-channel')
+          .withConversation({ id: options.conversationId, conversationType: options.conversationType, isGroup: false })
+          .withId(options.id)
+          .withChannelData(options.channelData ?? {});
+        return activity;
+      };
+
+      const refFor = (conversationId: string, conversationType: 'personal' | 'channel'): ConversationReference => ({
+        ...mockRef,
+        conversation: { id: conversationId, conversationType, isGroup: false },
+      });
+
+      const lastCall = () => mockSender.send.mock.calls[0];
+
+      it('replies in the reply chain when the inbound is inside one, in a chat', async () => {
+        const ref = refFor('a:encrypted-conversation', 'personal');
+        context = buildActivityContext(
+          buildInbound({
+            conversationType: 'personal',
+            conversationId: 'a:encrypted-conversation',
+            id: 'reply-2',
+            channelData: { chat: { id: chatId }, replyChain: { id: 'root-1' } },
+          }),
+          { ref }
+        );
+
+        await context.send('hi');
+
+        const [params, sentRef, options] = lastCall();
+        expect(params).toEqual(expect.objectContaining({ text: 'hi', type: 'message' }));
+        expect(sentRef.conversation.id).toBe(chatId);
+        expect(options).toEqual({ replyChainId: 'root-1' });
+      });
+
+      it('sends to the inbound conversation when the inbound is a top-level message in a chat', async () => {
+        const ref = refFor('a:encrypted-conversation', 'personal');
+        context = buildActivityContext(
+          buildInbound({
+            conversationType: 'personal',
+            conversationId: 'a:encrypted-conversation',
+            id: 'root-1',
+            channelData: { chat: { id: chatId }, replyChain: { id: 'root-1' } },
+          }),
+          { ref }
+        );
+
+        await context.send('hi');
+
+        expect(mockSender.send).toHaveBeenCalledWith(expect.objectContaining({ text: 'hi' }), ref);
+      });
+
+      it('sends to the inbound conversation when the payload carries no reply chain id', async () => {
+        const ref = refFor(chatId, 'personal');
+        context = buildActivityContext(
+          buildInbound({ conversationType: 'personal', conversationId: chatId, id: 'm-1', channelData: { chat: { id: chatId } } }),
+          { ref }
+        );
+
+        await context.send('hi');
+
+        expect(mockSender.send).toHaveBeenCalledWith(expect.objectContaining({ text: 'hi' }), ref);
+      });
+
+      it('sends to the inbound conversation when the chat id is missing', async () => {
+        const ref = refFor('a:encrypted-conversation', 'personal');
+        context = buildActivityContext(
+          buildInbound({
+            conversationType: 'personal',
+            conversationId: 'a:encrypted-conversation',
+            id: 'reply-2',
+            channelData: { replyChain: { id: 'root-1' } },
+          }),
+          { ref }
+        );
+
+        await context.send('hi');
+
+        expect(mockSender.send).toHaveBeenCalledWith(expect.objectContaining({ text: 'hi' }), ref);
+      });
+
+      describe('in a channel', () => {
+        const suffixed = `${channelId};messageid=root-1`;
+
+        it('keeps sending to the inbound conversation when the payload has no reply chain id', async () => {
+          const ref = refFor(suffixed, 'channel');
+          context = buildActivityContext(
+            buildInbound({
+              conversationType: 'channel',
+              conversationId: suffixed,
+              id: 'reply-2',
+              channelData: { channel: { id: channelId } },
+            }),
+            { ref }
+          );
+
+          await context.send('hi');
+
+          expect(mockSender.send).toHaveBeenCalledWith(expect.objectContaining({ text: 'hi' }), ref);
+          expect(mockSender.send.mock.calls[0]).toHaveLength(2);
+          expect(mockSender.send.mock.calls[0][1].conversation.id).toBe(suffixed);
+        });
+
+        it('keeps sending to the inbound conversation for a root post', async () => {
+          const ref = refFor(`${channelId};messageid=root-1`, 'channel');
+          context = buildActivityContext(
+            buildInbound({
+              conversationType: 'channel',
+              conversationId: `${channelId};messageid=root-1`,
+              id: 'root-1',
+              channelData: { channel: { id: channelId }, replyChain: { id: 'root-1' } },
+            }),
+            { ref }
+          );
+
+          await context.send('hi');
+
+          expect(mockSender.send).toHaveBeenCalledWith(expect.objectContaining({ text: 'hi' }), ref);
+        });
+
+        it('keeps sending to the inbound conversation when the payload carries a reply chain id', async () => {
+          const ref = refFor(suffixed, 'channel');
+          context = buildActivityContext(
+            buildInbound({
+              conversationType: 'channel',
+              conversationId: suffixed,
+              id: 'reply-2',
+              channelData: { channel: { id: channelId }, replyChain: { id: 'root-1' } },
+            }),
+            { ref }
+          );
+
+          await context.send('hi');
+
+          expect(mockSender.send).toHaveBeenCalledWith(expect.objectContaining({ text: 'hi' }), ref);
+          expect(mockSender.send.mock.calls[0]).toHaveLength(2);
+        });
+
+        it('keeps sending to the inbound conversation for a channel reply with no channel id', async () => {
+          const ref = refFor(suffixed, 'channel');
+          context = buildActivityContext(
+            buildInbound({
+              conversationType: 'channel',
+              conversationId: suffixed,
+              id: 'reply-2',
+              channelData: { replyChain: { id: 'root-1' } },
+            }),
+            { ref }
+          );
+
+          await context.send('hi');
+
+          expect(mockSender.send).toHaveBeenCalledWith(expect.objectContaining({ text: 'hi' }), ref);
+        });
+      });
+
+      describe('when placement does not apply', () => {
+        const replyInChain = () =>
+          buildInbound({
+            conversationType: 'personal',
+            conversationId: 'a:encrypted-conversation',
+            id: 'reply-2',
+            channelData: { chat: { id: chatId }, replyChain: { id: 'root-1' } },
+          });
+
+        it('does not place an update of an existing message', async () => {
+          const ref = refFor('a:encrypted-conversation', 'personal');
+          context = buildActivityContext(replyInChain(), { ref });
+
+          await context.send({ type: 'message', text: 'edited', id: 'existing-1' });
+
+          expect(mockSender.send).toHaveBeenCalledWith(expect.objectContaining({ id: 'existing-1' }), ref);
+        });
+
+        it('does not place a typing activity', async () => {
+          const ref = refFor('a:encrypted-conversation', 'personal');
+          context = buildActivityContext(replyInChain(), { ref });
+
+          await context.send({ type: 'typing' });
+
+          expect(mockSender.send).toHaveBeenCalledWith(expect.objectContaining({ type: 'typing' }), ref);
+        });
+
+        it('does not place a send to a different conversation', async () => {
+          const ref = refFor('a:encrypted-conversation', 'personal');
+          context = buildActivityContext(replyInChain(), { ref });
+          const otherRef = refFor('other-conversation', 'personal');
+
+          await context.send('hi', otherRef);
+
+          expect(mockSender.send).toHaveBeenCalledWith(expect.objectContaining({ text: 'hi' }), otherRef);
+        });
+
+        it('places a send that names the same conversation as the inbound', async () => {
+          const ref = refFor('a:encrypted-conversation', 'personal');
+          context = buildActivityContext(replyInChain(), { ref });
+
+          await context.send('hi', refFor('a:encrypted-conversation', 'personal'));
+
+          expect(lastCall()[2]).toEqual({ replyChainId: 'root-1' });
+        });
+      });
+
+      it('keeps the quote when replying inside a reply chain', async () => {
+        const ref = refFor('a:encrypted-conversation', 'personal');
+        context = buildActivityContext(
+          buildInbound({
+            conversationType: 'personal',
+            conversationId: 'a:encrypted-conversation',
+            id: 'reply-2',
+            channelData: { chat: { id: chatId }, replyChain: { id: 'root-1' } },
+          }),
+          { ref }
+        );
+
+        await context.reply('hi');
+
+        const [params, sentRef, options] = lastCall();
+        expect(params.entities).toEqual(
+          expect.arrayContaining([expect.objectContaining({ type: 'quotedReply' })])
+        );
+        expect(sentRef.conversation.id).toBe(chatId);
+        expect(options).toEqual({ replyChainId: 'root-1' });
+      });
+
+      it('keeps a message targeted when it is placed in the reply chain of a targeted inbound message', async () => {
+        const ref = refFor('a:encrypted-conversation', 'personal');
+        const inbound = buildInbound({
+          conversationType: 'personal',
+          conversationId: 'a:encrypted-conversation',
+          id: 'reply-2',
+          channelData: { chat: { id: chatId }, replyChain: { id: 'root-1' } },
+        }).withRecipient({ id: 'bot-id', name: 'Bot', role: 'bot' }, true);
+        context = buildActivityContext(inbound, { ref });
+
+        await context.send('only for you');
+
+        const [params, sentRef, options] = lastCall();
+        expect(params.recipient).toEqual(expect.objectContaining({ id: 'test-user', isTargeted: true }));
+        expect(sentRef.conversation.id).toBe(chatId);
+        expect(options).toEqual({ replyChainId: 'root-1' });
+      });
     });
 
     describe('targeted messages', () => {
