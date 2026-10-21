@@ -723,6 +723,46 @@ describe('ActivityContext', () => {
         expect(sentActivity.entities).toBeUndefined();
       });
 
+      it('keeps an explicit quote on a targeted send when the inbound message is not targeted', async () => {
+        context = buildActivityContext(buildIncomingMessageActivity('Hello world'));
+
+        await context.send(
+          new MessageActivity('Secret message')
+            .withRecipient({ id: 'explicit-user-id', name: '', role: 'user' }, true)
+            .addQuote('quoted-message-1')
+        );
+
+        const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+        expect(sentActivity.entities).toEqual(
+          expect.arrayContaining([expect.objectContaining({ type: 'quotedReply', quotedReply: { messageId: 'quoted-message-1' } })])
+        );
+        expect(sentActivity.entities).not.toEqual(
+          expect.arrayContaining([expect.objectContaining({ type: 'targetedMessageInfo' })])
+        );
+        expect(sentActivity.text).toContain('<quoted messageId="quoted-message-1"/>');
+      });
+
+      it('removes the quote of the inbound message when replying to a targeted message', async () => {
+        const activity = new MessageActivity('Hello world')
+          .withFrom({ id: 'test-user', name: 'Test User', role: 'user' })
+          .withRecipient({ id: 'bot-id', name: 'Bot', role: 'bot' }, true)
+          .withChannelId('test-channel')
+          .withConversation({ id: 'test-conversation', conversationType: 'channel', isGroup: false })
+          .withId('test-activity-id');
+        context = buildActivityContext(activity);
+
+        await context.reply('Here is your agenda');
+
+        const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+        expect(sentActivity.entities).not.toEqual(
+          expect.arrayContaining([expect.objectContaining({ type: 'quotedReply' })])
+        );
+        expect(sentActivity.text).not.toContain('<quoted messageId="test-activity-id"/>');
+        expect(sentActivity.entities).toEqual(
+          expect.arrayContaining([expect.objectContaining({ type: 'targetedMessageInfo', messageId: 'test-activity-id' })])
+        );
+      });
+
       it('sends targeted message with explicit recipient id', async () => {
         const activity = buildIncomingMessageActivity('Hello world');
         context = buildActivityContext(activity);
