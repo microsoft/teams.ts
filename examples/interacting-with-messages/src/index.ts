@@ -17,7 +17,7 @@ import {
   registerReactionEvents,
 } from './reactions';
 import {
-  handleManualThread,
+  handleTopLevelThread,
   handleProactiveThread,
   handleThreadReply,
   handleThreadSend,
@@ -42,10 +42,10 @@ app.on('message', async (context) => {
       '- `quote batch` - combine multiple quotes\n' +
       '- `quote manual` - combine a quote and text manually\n\n' +
       '**Threading:**\n' +
-      '- `thread reply` - send a reactive threaded reply\n' +
-      '- `thread send` - send to the same thread without quoting\n' +
-      '- `thread proactive` - send a proactive threaded reply\n' +
-      '- `thread manual` - construct a threaded conversation ID manually\n\n' +
+      '- `thread reply` - send a reactive, quoted reply, matching the threading level of your message\n' +
+      '- `thread send` - send reactively without quoting, matching the threading level of your message\n' +
+      '- `thread proactive` - send a proactive reply in a thread on your message\n' +
+      '- `thread top-level` - send a new top-level message, outside any reply chain (thread)\n\n' +
       '**Reactions:**\n' +
       '- `reaction add <type>` - add a reaction to your message\n' +
       '- `reaction remove <type>` - add, then remove, a reaction\n' +
@@ -89,7 +89,7 @@ app.on('message', async (context) => {
     return;
   }
 
-  if (await handleManualThread(app, context, text)) {
+  if (await handleTopLevelThread(app, context, text)) {
     return;
   }
 
