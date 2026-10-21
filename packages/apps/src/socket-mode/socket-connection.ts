@@ -1,4 +1,4 @@
-import { HubConnection, HubConnectionBuilder, LogLevel, ILogger as ISignalRLogger } from '@microsoft/signalr';
+import { HubConnection, HubConnectionBuilder, HubConnectionState, HttpTransportType, LogLevel, ILogger as ISignalRLogger } from '@microsoft/signalr';
 import { ILogger } from '@microsoft/teams.common';
 
 import { negotiate } from './negotiate';
@@ -24,6 +24,12 @@ export class SignalRSocketConnection implements ISocketConnection {
   /** Access-token lifetime from the negotiate response; drives proactive refresh. */
   expiresInSeconds?: number;
 
+  /** Local token-expiry deadline; see {@link ISocketConnection.expiresAtMs}. */
+  expiresAtMs?: number;
+
+  /** This socket's server identity; see {@link ISocketConnection.connectionId}. */
+  connectionId?: string;
+
   private connection?: HubConnection;
   private stopped = false;
   /**
@@ -40,6 +46,11 @@ export class SignalRSocketConnection implements ISocketConnection {
     private readonly log?: ILogger
   ) {}
 
+  /** Whether SignalR is connected and stopping has not begun. */
+  get isOpen(): boolean {
+    return !this.stopped && this.connection?.state === HubConnectionState.Connected;
+  }
+
   async start(signal?: AbortSignal): Promise<void> {
     this.stopped = false;
     this.settled = false;
@@ -49,16 +60,20 @@ export class SignalRSocketConnection implements ISocketConnection {
       negotiateUrl: this.context.negotiateUrl,
       client: this.context.client,
       getBotToken: this.context.getBotToken,
+      getConnectionIdToReplace: this.context.getConnectionIdToReplace,
       log: this.log,
     });
     this.expiresInSeconds = neg.expiresIn || undefined;
+    this.expiresAtMs = neg.expiresIn > 0 ? Date.now() + neg.expiresIn * 1000 : undefined;
     this.throwIfAborted(signal);
 
-    // Self-driven reconnect: the SocketModeAdapter supervisor owns reconnect (a fresh
-    // negotiate + token on every cycle), so SignalR's own auto-reconnect is left
-    // OFF here. Explicit heartbeats make a dead connection surface promptly.
+    // APX tokens are single-socket: disable transport fallback and leave automatic
+    // and stateful reconnect off. The supervisor negotiates afresh for every retry.
     const connection = new HubConnectionBuilder()
-      .withUrl(neg.url, { accessTokenFactory: () => neg.accessToken })
+      .withUrl(neg.url, {
+        accessTokenFactory: () => neg.accessToken,
+        transport: HttpTransportType.WebSockets,
+      })
       .configureLogging(this.signalRLogger([neg.accessToken]))
       .build();
     connection.keepAliveIntervalInMilliseconds = this.context.keepAliveIntervalMs;
@@ -93,6 +108,7 @@ export class SignalRSocketConnection implements ISocketConnection {
       // Ignore a late/duplicate readiness frame once the gate has settled (e.g.
       // after stop or a prior SocketReady) so `onReady` fires at most once.
       if (this.settled || this.stopped) return;
+      this.connectionId = frame?.connectionId;
       this.log?.debug('socket-mode: SocketReady received; readiness satisfied');
       // Complete the internal readiness transition FIRST so a throwing observer
       // can't wedge the connection into a permanent not-ready state (readiness

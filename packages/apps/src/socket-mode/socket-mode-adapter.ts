@@ -328,8 +328,8 @@ export class SocketModeAdapter implements IHttpServerAdapter {
       {
         isAccepting: () => !this.stopped,
         getAbortSignal: () => this.abort?.signal,
-        createConnection: (negotiateUrl, handlers) =>
-          this.createConnection(negotiateUrl, handlers),
+        createConnection: (negotiateUrl, handlers, getConnectionIdToReplace) =>
+          this.createConnection(negotiateUrl, handlers, getConnectionIdToReplace),
         dispatch: (envelope) => this.dispatch(envelope),
         retryAfterOf: (error) => this.retryAfterOf(error),
         isNonRetryable: (error) => isNonRetryableError(error),
@@ -352,13 +352,15 @@ export class SocketModeAdapter implements IHttpServerAdapter {
   /** Build a connection for a geo. */
   private createConnection(
     negotiateUrl: string,
-    handlers: SocketConnectionHandlers
+    handlers: SocketConnectionHandlers,
+    getConnectionIdToReplace?: () => string | undefined
   ): ISocketConnection {
     return new SignalRSocketConnection(
       {
         negotiateUrl,
         client: this.deps.client,
         getBotToken: () => this.acquireBotToken(),
+        getConnectionIdToReplace,
         readinessTimeoutMs: this.options.readinessTimeoutMs ?? DEFAULT_READINESS_TIMEOUT_MS,
         keepAliveIntervalMs: this.options.keepAliveIntervalMs ?? DEFAULT_KEEPALIVE_INTERVAL_MS,
         serverTimeoutMs: this.options.serverTimeoutMs ?? DEFAULT_SERVER_TIMEOUT_MS,
@@ -494,7 +496,7 @@ export class SocketModeAdapter implements IHttpServerAdapter {
         ? buildInvokeReplyFrame(base, response)
         : buildAckReplyFrame(base, response.status);
       this.log.debug(
-        `socket-mode: reply sent kind=${invoke ? 'invoke' : 'ack'} status=${reply.status} envelopeId=${base.envelopeId ?? ''}`
+        `socket-mode: reply produced kind=${invoke ? 'invoke' : 'ack'} status=${reply.status} envelopeId=${base.envelopeId ?? ''}`
       );
       return reply;
     } catch (error: any) {

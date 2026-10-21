@@ -15,6 +15,11 @@ export type NegotiateDeps = {
   /** Acquire the Bot Framework access token, reusing the app's credentials. */
   readonly getBotToken: () => Promise<string>;
   /**
+   * Read the open, unexpired predecessor's exact ID after token acquisition.
+   * Omit or return `undefined`/`""` to omit the planned-refresh replacement header.
+   */
+  readonly getConnectionIdToReplace?: () => string | undefined;
+  /**
    * Abort the negotiate request after this many milliseconds so a bad
    * `negotiateBaseUrl` (or a hung endpoint) can't leave the caller pending
    * forever. Defaults to {@link DEFAULT_NEGOTIATE_TIMEOUT_MS}.
@@ -140,11 +145,15 @@ export async function negotiate(deps: NegotiateDeps): Promise<NegotiateResult> {
 
   deps.log?.debug(`socket-mode: negotiate POST ${deps.negotiateUrl}`);
 
+  const replacesConnectionId = deps.getConnectionIdToReplace?.();
   const res = await deps.client.post<Partial<NegotiateResult>>(
     deps.negotiateUrl,
     undefined,
     {
     headers: {
+        ...(replacesConnectionId
+          ? { 'x-ms-socket-replaces-connection-id': replacesConnectionId }
+          : {}),
         authorization: `Bearer ${token}`,
     },
       timeout: deps.timeoutMs ?? DEFAULT_NEGOTIATE_TIMEOUT_MS,
