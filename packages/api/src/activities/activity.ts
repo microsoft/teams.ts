@@ -342,9 +342,6 @@ export class ActivityInput<T extends string = string> implements IActivityInput<
    * Skips if already present.
    *
    * @param messageId the message ID of the targeted message
-   *
-   * @experimental This API is in preview and may change in the future.
-   * Diagnostic: ExperimentalTeamsTargeted
    */
   addTargetedMessageInfo(messageId: string) {
     if (this.entities) {
@@ -602,9 +599,6 @@ export class Activity<T extends string = string> implements IActivity<T> {
    * @param isTargeted - If true, marks this as a targeted message visible only to the recipient (default: false)
    * @returns this instance for chaining
    *
-   * @experimental This API is in preview and may change in the future.
-   * Diagnostic: ExperimentalTeamsTargeted
-   *
    * @deprecated Use ActivityInput/MessageActivityInput/TypingActivityInput when constructing outbound activities.
    */
   withRecipient(value: Account, isTargeted: boolean = false) {
@@ -756,9 +750,6 @@ export class Activity<T extends string = string> implements IActivity<T> {
    * while still delivering the message.
    *
    * @param messageId the message ID of the targeted message (from the incoming activity's `id`)
-   *
-   * @experimental This API is in preview and may change in the future.
-   * Diagnostic: ExperimentalTeamsTargeted
    *
    * @deprecated Use ActivityInput/MessageActivityInput/TypingActivityInput when constructing outbound activities.
    */
