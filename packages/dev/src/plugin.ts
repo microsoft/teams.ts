@@ -122,8 +122,20 @@ export class DevtoolsPlugin {
   }
 
   onStart({ port }: IPluginStartEvent) {
-    const numericPort = this.options.customPort ?? (
-      typeof port === 'string' ? parseInt(port, 10) + 1 : port + 1);
+    let numericPort: number;
+    if (this.options.customPort) {
+      numericPort = this.options.customPort;
+    } else if (typeof port === 'number') {
+      numericPort = port + 1;
+    } else {
+      const parsed = parseInt(port, 10);
+      if (isNaN(parsed)) {
+        numericPort = 3979;
+        this.log.warn(`Port is a named pipe (${port}), using default devtools port ${numericPort}. Set customPort to override.`);
+      } else {
+        numericPort = parsed + 1;
+      }
+    }
 
     this.express.use(
       router({
