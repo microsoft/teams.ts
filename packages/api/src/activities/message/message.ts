@@ -691,8 +691,6 @@ export class MessageActivity extends Activity<'message'> implements IMessageActi
    * @param account - The recipient account
    * @param isTargeted - If true, marks this as a targeted message visible only to the recipient
    * @returns this instance for chaining
-   *
-   * Diagnostic: ExperimentalTeamsTargeted
    */
   withRecipient(account: Account, isTargeted: boolean = false): this {
     super.withRecipient(account, isTargeted);

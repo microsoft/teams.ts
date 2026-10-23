@@ -19,7 +19,7 @@ Targeted messages are messages that only a specific recipient can see - other pa
 
 ## Manifest configuration
 
-The `appPackage/manifest.json` uses `manifestVersion: "devPreview"` because the slash-command opt-in fields are only defined in the devPreview schema:
+The `appPackage/manifest.json` uses `manifestVersion: "1.29"`, which defines the slash-command opt-in fields:
 
 - `bots[].supportsTargetedMessages: true` — opts the bot into receiving slash-command-style targeted messages.
 - `bots[].commandLists[].triggers: ["slash"]` — declares the listed commands as slash commands. They appear in the Teams `/` picker for group chats and channels.
