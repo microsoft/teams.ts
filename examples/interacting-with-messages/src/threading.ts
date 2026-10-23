@@ -15,12 +15,14 @@ export async function handleThreadReply(
     return false;
   }
 
-  await context.reply('This is a quoted reply, matching the threading level of your message.');
+  await context.reply('This is a quoted reply. In a channel it goes in the same thread. In a chat it matches the level of your message.');
   return true;
 }
 
 /**
- * Handles the command that sends reactively without quoting, matching the threading level of the inbound message.
+ * Handles the command that sends reactively without quoting.
+ * In a channel, the message is sent in the same thread.
+ * In a chat, it matches the level of the inbound message.
  * @returns Whether the command matched.
  */
 export async function handleThreadSend(
@@ -31,7 +33,7 @@ export async function handleThreadSend(
     return false;
   }
 
-  await context.send('This is sent without quoting, matching the threading level of your message.');
+  await context.send('This is sent without quoting. In a channel it goes in the same thread. In a chat it matches the level of your message.');
   return true;
 }
 
@@ -100,6 +102,7 @@ const INSUFFICIENT_METADATA =
  * The ids come from the payload.
  * `chat.id` identifies the chat and `channel.id` the channel.
  * `replyChain.id` is the root of the reply chain.
+ * A top-level post in a channel (a payload with a `channel.id` and no `chat.id`) carries no `replyChain.id`, so the id of the post itself is the root.
  * An id the payload does not carry is left undefined.
  */
 function getThreadReference(context: MessageContext): {
@@ -107,8 +110,9 @@ function getThreadReference(context: MessageContext): {
   replyChainId?: string;
 } {
   const channelData = context.activity.channelData;
+  const isChannel = !channelData?.chat?.id && !!channelData?.channel?.id;
   return {
     conversationId: channelData?.chat?.id ?? channelData?.channel?.id,
-    replyChainId: channelData?.replyChain?.id,
+    replyChainId: channelData?.replyChain?.id ?? (isChannel ? context.activity.id : undefined),
   };
 }

@@ -42,8 +42,8 @@ app.on('message', async (context) => {
       '- `quote batch` - combine multiple quotes\n' +
       '- `quote manual` - combine a quote and text manually\n\n' +
       '**Threading:**\n' +
-      '- `thread reply` - send a reactive, quoted reply, matching the threading level of your message\n' +
-      '- `thread send` - send reactively without quoting, matching the threading level of your message\n' +
+      '- `thread reply` - send a reactive, quoted reply (in a channel, in the same thread; in a chat, matches the level of your message)\n' +
+      '- `thread send` - send reactively without quoting (in a channel, in the same thread; in a chat, matches the level of your message)\n' +
       '- `thread proactive` - send a proactive reply in a thread on your message\n' +
       '- `thread top-level` - send a new top-level message, outside any reply chain\n\n' +
       '**Reactions:**\n' +
