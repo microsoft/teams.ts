@@ -44,9 +44,9 @@
     "test": "npx turbo test --concurrency=100%"
   },
   "devDependencies": {
-    "@turbo/gen": "^2.11.7",
+    "@turbo/gen": "^2.11.9",
     "nerdbank-gitversioning": "^3.10.94",
-    "turbo": "^2.11.7",
+    "turbo": "^2.11.9",
     "typescript": "^5.4.5"
   },
   "overrides": {

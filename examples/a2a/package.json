@@ -25,13 +25,13 @@
     "@microsoft/teams.apps": "*",
     "@microsoft/teams.common": "*",
     "express": "^5.3.0",
-    "openai": "^7.32.0"
+    "openai": "^7.39.0"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
     "@types/express": "^5.0.0",
     "@types/node": "^26.6.5",
-    "dotenv": "^18.0.7",
+    "dotenv": "^18.0.8",
     "env-cmd": "latest",
     "rimraf": "^6.0.1",
     "tsx": "^4.23.15",

@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@microsoft/teams.common": "*",
-    "qs": "^6.16.0"
+    "qs": "^6.16.1"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
@@ -45,7 +45,7 @@
     "cross-env": "^10.1.0",
     "jest": "^30.5.2",
     "rimraf": "^6.0.1",
-    "ts-jest": "^29.4.14",
+    "ts-jest": "^29.4.15",
     "tsup": "^8.4.0",
     "typescript": "^5.4.5"
   }
