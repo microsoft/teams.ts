@@ -1,0 +1,28 @@
+{
+  "name": "@examples/plan",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "main": "dist/index.js",
+  "scripts": {
+    "clean": "npx rimraf ./dist",
+    "lint": "npx eslint",
+    "lint:fix": "npx eslint --fix",
+    "build": "npx tsc",
+    "start": "node .",
+    "dev": "tsx watch -r dotenv/config src/index.ts"
+  },
+  "dependencies": {
+    "@microsoft/teams.api": "*",
+    "@microsoft/teams.apps": "*",
+    "@microsoft/teams.common": "*"
+  },
+  "devDependencies": {
+    "@microsoft/teams.config": "*",
+    "@types/node": "^26.6.5",
+    "dotenv": "^18.0.7",
+    "rimraf": "^6.0.1",
+    "tsx": "^4.23.15",
+    "typescript": "^5.4.5"
+  }
+}

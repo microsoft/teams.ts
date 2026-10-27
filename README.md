@@ -106,6 +106,7 @@ $: npm run test
 - [`@examples/a2a`](./examples/a2a/README.md) — agent-to-agent with `@a2a-js/sdk`
 - [`@examples/ai-file-analysis`](./examples/ai-file-analysis/README.md) — receiving attached files and sending them to a model
 - [`@examples/interacting-with-messages`](./examples/interacting-with-messages/README.md)
+- [`@examples/plan`](./examples/plan/README.md) - prompt-bound structured progress with plans and steps
 - [`@examples/tab`](./examples/tab/README.md)
 - [`@examples/mcp-server`](./examples/mcp-server/README.md)
 - [`@examples/meetings`](./examples/meetings/README.md)

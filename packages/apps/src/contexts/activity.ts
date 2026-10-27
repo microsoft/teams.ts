@@ -22,6 +22,7 @@ import { BotApiCredential, GraphCredential } from '../files/download';
 import { FilesAccessor } from '../files/files-accessor';
 import { IFilesAccessor } from '../files/types';
 import { OAuthSignInOptions, startOAuthSignIn } from '../oauth';
+import { Plan } from '../plan';
 import { TurnStateContainer } from '../state';
 import { IStreamer } from '../types';
 import { IActivitySender } from '../types/plugin/sender';
@@ -191,6 +192,9 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
    */
   files: IFilesAccessor;
 
+  /** Get a cached Plan; replyToId defaults to the inbound activity ID. */
+  plan(replyToId?: string): Plan;
+
   /**
    * call the next event/middleware handler
    */
@@ -289,6 +293,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   [key: string]: any;
 
   private activitySender: IActivitySender;
+  private readonly plans: Map<string, Plan>;
   private readonly validateOAuthConnection?: IActivityContextConstructorArgs['validateOAuthConnection'];
   private readonly onOAuthSignInInitiated?: IActivityContextConstructorArgs['onOAuthSignInInitiated'];
   private readonly getOAuthConnectionStatus?: IActivityContextConstructorArgs['getOAuthConnectionStatus'];
@@ -352,6 +357,17 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       filesCredential,
       filesBotApiCredential
     );
+    this.plans = new Map();
+  }
+
+  /** Get a cached Plan; replyToId defaults to the inbound activity ID. */
+  plan(replyToId: string = this.activity.id): Plan {
+    let plan = this.plans.get(replyToId);
+    if (!plan) {
+      plan = new Plan(this.api, this.ref, replyToId);
+      this.plans.set(replyToId, plan);
+    }
+    return plan;
   }
 
   /**
@@ -485,6 +501,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       state: this.state,
       stream: this.stream,
       files: this.files,
+      plan: this.plan.bind(this),
       isSignedIn: this.isSignedIn,
       connectionName: this.connectionName,
       userToken: this.userToken,

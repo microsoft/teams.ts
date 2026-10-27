@@ -1,0 +1,8 @@
+{
+  "extends": "@microsoft/teams.config/tsconfig.node.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": ["src/**/*.ts"]
+}

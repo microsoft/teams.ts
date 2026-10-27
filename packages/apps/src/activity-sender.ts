@@ -4,6 +4,7 @@ import {
   Client,
   ConversationReference,
   DeprecatedInputActivity,
+  getPlanInfo,
   SentActivity,
   toActivityParams
 } from '@microsoft/teams.api';
@@ -65,11 +66,12 @@ export class ActivitySender implements IActivitySender {
     };
 
     const isTargeted = payload.recipient?.isTargeted === true;
+    const plan = getPlanInfo(payload);
 
     const api = this.createClient(ref.serviceUrl, options?.agenticIdentity);
 
     // Decide create vs update, with targeted variants
-    if (payload.id) {
+    if (payload.id && !plan) {
       if (isTargeted) {
         const { recipient: _recipient, ...targetedUpdate } = payload;
         const res = await api.conversations.updateTargetedActivity(

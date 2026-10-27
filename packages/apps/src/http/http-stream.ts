@@ -3,6 +3,7 @@ import {
   ChannelData,
   Client,
   ConversationReference,
+  getPlanInfo,
   IMessageActivity,
   IMessageActivityInput,
   ITypingActivity,
@@ -290,6 +291,9 @@ export class HttpStream implements IStreamer {
    * through the update path instead of creating a duplicate message.
    */
   protected async sendFinal() {
+    if (getPlanInfo(this.finalActivity ?? {})) {
+      throw new StreamTimedOutError('Plan completion requires a POST; it cannot use the stream update fallback.');
+    }
     const finalAttachments = this.finalActivity?.attachments ?? [];
     const finalEntities = (this.finalActivity?.entities ?? []).filter((e) => e.type !== 'streaminfo');
     const finalSuggestedActions = this.finalActivity?.suggestedActions;
