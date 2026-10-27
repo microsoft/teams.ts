@@ -50,7 +50,10 @@ function setup(tokenProvider?: ITokenProvider) {
     const response = { config, headers: {}, statusText: '', data: next.data, status: next.status ?? 201 };
     if (next.code) {
       response.data = { error: { code: next.code, message: next.message ?? 'Plan failed' } };
-      throw new AxiosError('Request failed', next.code, config, undefined, response);
+    }
+    if (response.status >= 400) {
+      const code = response.status >= 500 ? AxiosError.ERR_BAD_RESPONSE : AxiosError.ERR_BAD_REQUEST;
+      throw new AxiosError('Request failed', code, config, undefined, response);
     }
     return response;
   };
@@ -368,15 +371,15 @@ describe('Plan HTTP stream', () => {
   beforeEach(() => jest.useFakeTimers());
   afterEach(() => jest.useRealTimers());
 
-  it('sends completion only on the final POST and preserves the prompt and Plan metadata', async () => {
-    const { stream: createStream, requests } = setup();
+  it.each([undefined, 'other-prompt'])('sends completion only on the final POST and preserves Plan metadata (replyToId: %s)', async (replyToId) => {
+    const { stream: createStream, requests, ref } = setup();
     const stream = createStream();
     stream.emit('Here is ');
     stream.emit('the answer.');
     const final = new MessageActivityInput('', {
       entities: [complete], textFormat: 'extendedmarkdown',
       channelData: { feedbackLoop: { type: 'default' } },
-      replyToId: 'other-prompt',
+      replyToId,
     });
     const original = JSON.stringify(final);
     stream.emit(final);
@@ -384,20 +387,23 @@ describe('Plan HTTP stream', () => {
     await jest.runAllTimersAsync();
     const result = await pending;
     expect(result?.id).toBe('answer');
+    expect(result?.replyToId).toBe(replyToId ?? 'prompt');
     const payloads = requests.map((request) => JSON.parse(request.data));
     expect(requests.every((request) => request.method === 'post')).toBe(true);
-    expect(payloads.every((payload) => payload.replyToId === 'prompt')).toBe(true);
     for (const chunk of payloads.slice(0, -1)) {
       expect(chunk.type).toBe('typing');
+      expect(chunk.replyToId).toBe('prompt');
       expect(chunk.entities).not.toContainEqual(complete);
     }
     expect(payloads.at(-1)).toMatchObject({
       type: 'message', id: 'answer', text: 'Here is the answer.', textFormat: 'extendedmarkdown',
+      replyToId: replyToId ?? 'prompt',
       channelData: { feedbackLoop: { type: 'default' } },
     });
     expect(payloads.at(-1).entities).toContainEqual(complete);
     expect(payloads.at(-1).entities).toContainEqual(expect.objectContaining({ type: 'streaminfo', streamType: 'final' }));
     expect(JSON.stringify(final)).toBe(original);
+    expect(ref.activityId).toBe('prompt');
     expect(await stream.close()).toBe(result);
   });
 
@@ -492,9 +498,39 @@ describe('Plan HTTP stream', () => {
     expect(requests.every((request) => request.method === 'post')).toBe(true);
   });
 
-  it.each(['PlanNotFound', 'PlanConflict'])('uses the existing retry policy for %s from a chunk', async (code) => {
+  it('does not retry or fall back on HTTP 409 PlanConflict during completion', async () => {
     const { stream: createStream, requests, responses } = setup();
-    responses.push({ code, status: 409 });
+    const stream = createStream();
+    const onClose = jest.fn();
+    stream.events.on('close', onClose);
+    stream.emit(new MessageActivityInput('Answer').addEntity(complete));
+    await jest.runAllTimersAsync();
+    const message = 'The user stopped this plan. It can no longer be updated or completed.';
+    responses.push({ code: 'PlanConflict', status: 409, message });
+    const started = Date.now();
+    const closing = stream.close();
+    const rejection = expect(closing).rejects.toMatchObject({
+      name: 'PlanConflictStreamError',
+      code: AxiosError.ERR_BAD_REQUEST,
+      response: { status: 409, data: { error: { code: 'PlanConflict', message } } },
+      cause: expect.any(AxiosError),
+    });
+
+    await Promise.all([jest.runAllTimersAsync(), rejection]);
+
+    await expect(closing).rejects.toBeInstanceOf(AxiosError);
+    expect(Date.now()).toBe(started);
+    expect(requests).toHaveLength(2);
+    expect(requests.every((request) => request.method === 'post')).toBe(true);
+    expect(JSON.parse(requests[1].data).type).toBe('message');
+    expect(onClose).not.toHaveBeenCalled();
+    expect(stream.canceled).toBe(false);
+    expect(stream.timedOut).toBe(false);
+  });
+
+  it('uses the existing retry policy for PlanNotFound from a chunk', async () => {
+    const { stream: createStream, requests, responses } = setup();
+    responses.push({ code: 'PlanNotFound', status: 409 });
     const stream = createStream();
     stream.emit(new MessageActivityInput('Answer').addEntity(complete));
     await jest.runAllTimersAsync();
@@ -502,18 +538,30 @@ describe('Plan HTTP stream', () => {
     expect(requests).toHaveLength(3);
   });
 
-  it.each(['PlanNotFound', 'PlanConflict', 'ServiceError'])('uses the existing retry policy for %s on completion', async (code) => {
+  it.each<Response>([
+    { code: 'PlanNotFound', status: 409 },
+    { code: 'OtherConflict', status: 409 },
+    { code: 'PlanConflict', status: 500 },
+    { code: 'PlanConflict', status: 503 },
+    { code: 'ServiceError', status: 500 },
+    { data: { error: null }, status: 409 },
+    { data: null, status: 409 },
+    { data: 'not JSON', status: 409 },
+    { status: 409 },
+  ])('uses the existing retry policy on completion for %j', async (response) => {
     const { stream: createStream, requests, responses } = setup();
     const stream = createStream();
     stream.emit(new MessageActivityInput('Answer').addEntity(complete));
     await jest.runAllTimersAsync();
-    responses.push({ code, status: 500 });
+    responses.push(response);
+    const started = Date.now();
     const closing = stream.close();
     await Promise.all([
       jest.runAllTimersAsync(),
       expect(closing).resolves.toMatchObject({ id: 'answer' }),
     ]);
     expect(requests).toHaveLength(3);
+    expect(Date.now() - started).toBe(500);
   });
 
   it('propagates completion errors when the existing retry limit is exhausted', async () => {

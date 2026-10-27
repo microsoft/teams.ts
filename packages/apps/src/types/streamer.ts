@@ -1,3 +1,5 @@
+import { AxiosError } from 'axios';
+
 import {
   IMessageActivity,
   IMessageActivityInput,
@@ -45,6 +47,22 @@ export class StreamNotAllowedError extends TerminalStreamError {
   constructor(message?: string) {
     super(message ?? 'stream not allowed');
     this.name = 'StreamNotAllowedError';
+  }
+}
+
+/**
+ * Raised for HTTP 409 PlanConflict streaming failures without retrying.
+ * Preserves the original HTTP request, response, and cause.
+ *
+ * @experimental This API is in preview and may change in the future.
+ * Diagnostic: ExperimentalTeamsPlan
+ */
+export class PlanConflictStreamError extends AxiosError {
+  /** @param error The original HTTP 409 PlanConflict failure. */
+  constructor(error: AxiosError) {
+    super(error.message, error.code, error.config, error.request, error.response);
+    this.name = 'PlanConflictStreamError';
+    this.cause = error;
   }
 }
 

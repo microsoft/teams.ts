@@ -1,3 +1,5 @@
+import { isAxiosError } from 'axios';
+
 import {
   ActivityParams,
   ChannelData,
@@ -19,6 +21,7 @@ import { ConsoleLogger, EventEmitter, ILogger } from '@microsoft/teams.common';
 import {
   IStreamer,
   IStreamerEvents,
+  PlanConflictStreamError,
   StreamCancelledError,
   StreamNotAllowedError,
   StreamTimedOutError,
@@ -94,6 +97,8 @@ export class HttpStream implements IStreamer {
 
   /**
    * Emit a new activity or text to the stream.
+   * An explicit replyToId on the final message is preserved; otherwise,
+   * the conversation reference's activity ID is used.
    * @param activity Activity object or string message.
    */
   /**
@@ -229,7 +234,7 @@ export class HttpStream implements IStreamer {
     } else {
       // Build final message activity from the last-emitted message input (last wins),
       // overlaying accumulated text, id, channelData, and the stream-final entity.
-      const activity = new MessageActivityInput(this.text)
+      const activity = new MessageActivityInput(this.text, { replyToId: this.finalActivity?.replyToId })
         .withId(this.id)
         .addAttachments(...finalAttachments)
         .addEntities(...finalEntities)
@@ -273,13 +278,13 @@ export class HttpStream implements IStreamer {
   }
 
   /**
-   * Send an activity through retry, treating terminal stream errors as non-retryable.
+   * Send through retry, excluding terminal stream errors and HTTP 409 Plan conflicts.
    * @param activity ActivityParams to send.
    */
   protected async sendWithRetry(activity: ActivityParams) {
     return promises.retry(() => this.send(activity), {
       logger: this._logger,
-      nonRetryable: [TerminalStreamError],
+      nonRetryable: [TerminalStreamError, PlanConflictStreamError],
     });
   }
 
@@ -302,6 +307,7 @@ export class HttpStream implements IStreamer {
     const activity: IMessageActivityInput = {
       type: 'message',
       text: this.text,
+      replyToId: this.finalActivity?.replyToId,
       attachments: finalAttachments,
       entities: finalEntities,
     };
@@ -490,7 +496,7 @@ export class HttpStream implements IStreamer {
       ...params,
       from: this.ref.bot,
       conversation: this.ref.conversation,
-      replyToId: this.ref.activityId,
+      replyToId: params.replyToId ?? this.ref.activityId,
     };
 
     try {
@@ -511,6 +517,10 @@ export class HttpStream implements IStreamer {
 
       return { ...payload, ...res };
     } catch (err: any) {
+      if (isAxiosError(err) && err.response?.status === 409 && err.response.data?.error?.code === 'PlanConflict') {
+        throw new PlanConflictStreamError(err);
+      }
+
       // Various error codes are used for streaming.
       // https://learn.microsoft.com/en-us/microsoftteams/platform/bots/streaming-ux?tabs=csharp#error-codes
       if (err?.response?.status === 403) {
