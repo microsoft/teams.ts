@@ -264,11 +264,16 @@ describe('Activity', () => {
     });
 
     it('should omit encodingFormat when text is not provided', () => {
-        const activity = new Activity({ type: 'test' }).addCitation(0, {
-          abstract: 'test',
-          name: 'test',
-        });
-        expect(activity.entities?.at(0)?.citation?.at(0)?.appearance.encodingFormat).toBeUndefined();
+      const activity = new Activity({ type: 'test' }).addCitation(0, {
+        abstract: 'test',
+        name: 'test',
+      });
+      const entity = activity.entities?.at(0);
+      if (entity?.type !== 'https://schema.org/Message') {
+        throw new Error('Expected a message entity.');
+      }
+      expect(entity.citation).toHaveLength(1);
+      expect(entity.citation[0].appearance.encodingFormat).toBeUndefined();
     });
 
     it('should include image when icon is provided', () => {
