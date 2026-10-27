@@ -192,7 +192,12 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
    */
   files: IFilesAccessor;
 
-  /** Get a cached Plan; replyToId defaults to the inbound activity ID. */
+  /**
+   * Get a cached Plan; replyToId defaults to the inbound activity ID.
+   *
+   * @experimental This API is in preview and may change in the future.
+   * Diagnostic: ExperimentalTeamsPlan
+   */
   plan(replyToId?: string): Plan;
 
   /**
@@ -360,7 +365,12 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     this.plans = new Map();
   }
 
-  /** Get a cached Plan; replyToId defaults to the inbound activity ID. */
+  /**
+   * Get a cached Plan; replyToId defaults to the inbound activity ID.
+   *
+   * @experimental This API is in preview and may change in the future.
+   * Diagnostic: ExperimentalTeamsPlan
+   */
   plan(replyToId: string = this.activity.id): Plan {
     let plan = this.plans.get(replyToId);
     if (!plan) {

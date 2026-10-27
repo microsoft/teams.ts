@@ -2,6 +2,8 @@
 
 A test application that demonstrated structured progress reporting.
 
+> Plans and steps are preview APIs and may change. Diagnostic: `ExperimentalTeamsPlan`.
+
 | Command | Scenario |
 | --- | --- |
 | `complete` | Start, block, update, and complete steps with descriptions and sources, then send an answer. |

@@ -10,6 +10,12 @@ import {
   Step,
 } from '@microsoft/teams.api';
 
+/**
+ * Sends prompt-bound Plan activities.
+ *
+ * @experimental This API is in preview and may change in the future.
+ * Diagnostic: ExperimentalTeamsPlan
+ */
 export class Plan {
   private readonly ref: ConversationReference;
   private readonly api: Client;
