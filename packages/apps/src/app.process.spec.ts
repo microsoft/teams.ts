@@ -2,7 +2,7 @@ import { context, propagation, ROOT_CONTEXT } from '@opentelemetry/api';
 import type { Baggage, Context, ContextManager, Span, Tracer } from '@opentelemetry/api';
 import { AxiosError } from 'axios';
 
-import { AgenticIdentity, IMessageActivity, InvokeResponse, ISignInFailureInvokeActivity, ITaskFetchInvokeActivity, IToken, MessageActivity, TaskModuleResponse, TokenStatus } from '@microsoft/teams.api';
+import { AgenticIdentity, ConversationClient, IMessageActivity, InvokeResponse, ISignInFailureInvokeActivity, ITaskFetchInvokeActivity, IToken, MessageActivity, SentActivity, TaskModuleResponse, TokenStatus } from '@microsoft/teams.api';
 import { IStorage } from '@microsoft/teams.common';
 
 import { ActivitySender } from './activity-sender';
@@ -20,6 +20,7 @@ import {
 } from './diagnostics/helpers';
 import { IActivityResponseEvent, IActivitySentEvent, IErrorEvent } from './events';
 import { IActivityEvent } from './events/activity';
+import { Plan } from './plan';
 import { TurnStateContainer } from './state';
 import { createTestApp } from './test-utils';
 
@@ -1218,6 +1219,174 @@ describe('App', () => {
 
       expect(sent.length).toBeGreaterThanOrEqual(1);
       expect(sent.some((e) => e.activity !== undefined)).toBe(true);
+    });
+
+    it.each([
+      ['start', 'start'], ['update', 'continue'], ['stop', 'stop'], ['error', 'error'], ['completePlan', 'complete'],
+    ] as const)('notifies app listeners once when a context Plan calls %s', async (method, operation) => {
+      const sent: IActivitySentEvent[] = [];
+      app.event('activity.sent', (event) => {
+        sent.push(event);
+      });
+      const id = operation === 'complete' ? 'answer' : 'DO_NOT_USE_PLACEHOLDER_ID';
+      const create = jest.spyOn(ConversationClient.prototype, 'createActivity').mockResolvedValue({ id });
+      let result: SentActivity | undefined;
+      app.on('message', async (ctx) => {
+        const plan = ctx.plan('original-prompt');
+        if (method === 'completePlan') {
+          result = await plan.completePlan('Done');
+        } else if (method === 'start' || method === 'update') {
+          await plan[method]([{ id: 'lookup', version: 1, title: 'Lookup', status: 'active' }]);
+        } else {
+          await plan[method]();
+        }
+      });
+
+      const response = await app.process({ token, body: { ...messageActivity, id: 'inbound-id' } });
+
+      expect(response.status).toBe(200);
+      expect(create).toHaveBeenCalledTimes(1);
+      expect(sent).toHaveLength(1);
+      expect(sent[0]).toMatchObject({
+        activityId: 'inbound-id',
+        serviceUrl: messageActivity.serviceUrl,
+        conversation: messageActivity.conversation,
+        bot: messageActivity.recipient,
+        activity: {
+          id,
+          type: operation === 'complete' ? 'message' : 'typing',
+          replyToId: 'original-prompt',
+          from: messageActivity.recipient,
+          conversation: messageActivity.conversation,
+          entities: [expect.objectContaining({ type: 'planInfo', planType: operation })],
+        },
+      });
+      if (method === 'completePlan') {
+        expect(sent[0].activity).toBe(result);
+      }
+    });
+
+    it('subscribes once per cached Plan without replacing other listeners', async () => {
+      const sent: IActivitySentEvent[] = [];
+      const onSent = jest.fn<void, [IActivitySentEvent]>();
+      app.event('activity.sent', (event) => {
+        sent.push(event);
+      });
+      const create = jest.spyOn(ConversationClient.prototype, 'createActivity')
+        .mockResolvedValueOnce({ id: 'DO_NOT_USE_PLACEHOLDER_ID' })
+        .mockResolvedValueOnce({ id: 'other-answer' })
+        .mockResolvedValueOnce({ id: 'answer' });
+      app.on('message', async (ctx) => {
+        const plan = ctx.plan();
+        plan.events.on('sent', onSent);
+        expect(ctx.plan('inbound-id')).toBe(plan);
+        const other = ctx.plan('other-prompt');
+        expect(ctx.plan('other-prompt')).toBe(other);
+
+        await plan.start([]);
+        await ctx.plan('other-prompt').completePlan('Other answer');
+        await ctx.plan().completePlan('Done');
+      });
+
+      const response = await app.process({ token, body: { ...messageActivity, id: 'inbound-id' } });
+
+      expect(response.status).toBe(200);
+      expect(create).toHaveBeenCalledTimes(3);
+      expect(sent.map(({ activity }) => [activity.replyToId, activity.id])).toEqual([
+        ['inbound-id', 'DO_NOT_USE_PLACEHOLDER_ID'],
+        ['other-prompt', 'other-answer'],
+        ['inbound-id', 'answer'],
+      ]);
+      expect(onSent).toHaveBeenCalledTimes(2);
+      expect(onSent).toHaveBeenNthCalledWith(1, sent[0]);
+      expect(onSent).toHaveBeenNthCalledWith(2, sent[2]);
+    });
+
+    it('does not inherit context targeting when sending a Plan completion', async () => {
+      const sent = jest.fn<void, [IActivitySentEvent]>();
+      app.event('activity.sent', sent);
+      const create = jest.spyOn(ConversationClient.prototype, 'createActivity').mockResolvedValue({ id: 'answer' });
+      const createTargeted = jest.spyOn(ConversationClient.prototype, 'createTargetedActivity')
+        .mockResolvedValue({ id: 'targeted-answer' });
+      app.on('message', async (ctx) => {
+        await ctx.plan().completePlan('Done');
+      });
+
+      const incoming: IMessageActivity = {
+        ...messageActivity,
+        id: 'inbound-id',
+        recipient: { ...messageActivity.recipient, isTargeted: true },
+      };
+      const response = await app.process({ token, body: incoming });
+
+      expect(response.status).toBe(200);
+      expect(create).toHaveBeenCalledTimes(1);
+      expect(createTargeted).not.toHaveBeenCalled();
+      expect(sent).toHaveBeenCalledTimes(1);
+      expect(sent.mock.calls[0][0].activity.id).toBe('answer');
+      expect(sent.mock.calls[0][0].activity.recipient).toBeUndefined();
+    });
+
+    it.each(['start', 'completePlan'] as const)('does not notify outgoing activity listeners when Plan.%s fails', async (method) => {
+      const sent = jest.fn();
+      app.event('activity.sent', sent);
+      const create = jest.spyOn(ConversationClient.prototype, 'createActivity')
+        .mockRejectedValue(new Error('Plan send failed'));
+      app.on('message', async (ctx) => {
+        if (method === 'completePlan') {
+          await ctx.plan().completePlan('Done');
+        } else {
+          await ctx.plan().start([]);
+        }
+      });
+
+      const response = await app.process({ token, body: { ...messageActivity, id: 'inbound-id' } });
+
+      expect(response.status).toBe(500);
+      expect(create).toHaveBeenCalledTimes(1);
+      expect(sent).not.toHaveBeenCalled();
+    });
+
+    it('keeps outgoing notifications for a context Plan retained after the turn', async () => {
+      const sent: IActivitySentEvent[] = [];
+      app.event('activity.sent', (event) => {
+        sent.push(event);
+      });
+      const create = jest.spyOn(ConversationClient.prototype, 'createActivity').mockResolvedValue({ id: 'answer' });
+      let savedPlan: Plan | undefined;
+      app.on('message', (ctx) => {
+        savedPlan = ctx.plan();
+      });
+
+      await app.process({ token, body: { ...messageActivity, id: 'inbound-id' } });
+      expect(create).not.toHaveBeenCalled();
+      expect(sent).toHaveLength(0);
+      if (!savedPlan) throw new Error('Expected the handler to retain a Plan.');
+      const result = await savedPlan.completePlan('Background answer');
+
+      expect(create).toHaveBeenCalledTimes(1);
+      expect(sent).toHaveLength(1);
+      expect(sent[0].activity).toBe(result);
+      expect(sent[0].activity.replyToId).toBe('inbound-id');
+    });
+
+    it('does not notify outgoing activity listeners for rejected Plan completion metadata', async () => {
+      const sent = jest.fn();
+      app.event('activity.sent', sent);
+      const create = jest.spyOn(ConversationClient.prototype, 'createActivity').mockResolvedValue({ id: 'answer' });
+      app.on('message', async (ctx) => {
+        await ctx.plan().completePlan({
+          type: 'message',
+          text: 'Done',
+          entities: [{ type: 'planInfo', planType: 'start' }],
+        });
+      });
+
+      const response = await app.process({ token, body: { ...messageActivity, id: 'inbound-id' } });
+
+      expect(response.status).toBe(500);
+      expect(create).not.toHaveBeenCalled();
+      expect(sent).not.toHaveBeenCalled();
     });
 
     it('should emit the "error" event when a route throws', async () => {

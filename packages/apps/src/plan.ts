@@ -9,6 +9,9 @@ import {
   SentActivity,
   Step,
 } from '@microsoft/teams.api';
+import { EventEmitter } from '@microsoft/teams.common';
+
+import { IActivitySentEvent } from './events';
 
 /**
  * Sends prompt-bound Plan activities.
@@ -17,6 +20,12 @@ import {
  * Diagnostic: ExperimentalTeamsPlan
  */
 export class Plan {
+  /**
+   * Emits `sent` after successful control and completion sends, with the activity
+   * and a copy of the saved conversation reference.
+   */
+  readonly events = new EventEmitter<{ sent: IActivitySentEvent }>();
+
   private readonly ref: ConversationReference;
   private readonly api: Client;
 
@@ -73,6 +82,8 @@ export class Plan {
       conversation: structuredClone(this.ref.conversation),
     };
     const result = await this.api.conversations.createActivity(this.ref.conversation.id, payload);
-    return { ...payload, ...result };
+    const sent = { ...payload, ...result };
+    this.events.emit('sent', { ...structuredClone(this.ref), activity: sent });
+    return sent;
   }
 }

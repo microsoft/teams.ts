@@ -9,6 +9,7 @@ import { Client as HttpClient, ClientOptions, ConsoleLogger, LocalStorage } from
 import { ActivitySender } from './activity-sender';
 import { GraphClient } from './api';
 import { ActivityContext } from './contexts/activity';
+import { IActivitySentEvent } from './events';
 import { HttpStream } from './http/http-stream';
 import { Plan } from './plan';
 import { StreamTimedOutError } from './types';
@@ -80,10 +81,19 @@ describe('Plan', () => {
   ] as const)('sends %s as a prompt-bound typing control', async (method, operation) => {
     const { api, ref, requests } = setup();
     const plan = new Plan(api, ref, 'original-prompt');
+    const onSent = jest.fn<void, [IActivitySentEvent]>();
+    plan.events.on('sent', onSent);
     const result = method === 'start' || method === 'update'
       ? await plan[method]([lookup])
       : await plan[method]();
     expect(result).toBeUndefined();
+    expect(onSent).toHaveBeenCalledTimes(1);
+    expect(onSent).toHaveBeenCalledWith({
+      ...ref,
+      activity: expect.objectContaining({
+        id: 'DO_NOT_USE_PLACEHOLDER_ID', type: 'typing', replyToId: 'original-prompt',
+      }),
+    });
     expect(requests).toHaveLength(1);
     expect(requests[0].url).toBe('https://example.com/v3/conversations/chat/activities');
     expect(JSON.parse(requests[0].data)).toEqual({
@@ -129,8 +139,14 @@ describe('Plan', () => {
 
   it('completes with the answer ID and a single completion entity', async () => {
     const { api, ref, requests } = setup();
-    const result = await new Plan(api, ref, 'prompt').completePlan('Done');
+    const plan = new Plan(api, ref, 'prompt');
+    const onSent = jest.fn<void, [IActivitySentEvent]>();
+    plan.events.on('sent', onSent);
+    const result = await plan.completePlan('Done');
     expect(result.id).toBe('answer');
+    expect(onSent).toHaveBeenCalledTimes(1);
+    expect(onSent).toHaveBeenCalledWith({ ...ref, activity: result });
+    expect(onSent.mock.calls[0][0].activity).toBe(result);
     expect(JSON.parse(requests[0].data)).toEqual({
       type: 'message', text: 'Done', replyToId: 'prompt',
       from: ref.bot, conversation: ref.conversation, entities: [complete],
@@ -159,11 +175,15 @@ describe('Plan', () => {
 
   it.each<PlanType>(['start', 'continue', 'stop', 'error'])('rejects a conflicting %s before sending', async (operation) => {
     const { api, ref, requests } = setup();
+    const plan = new Plan(api, ref, 'prompt');
+    const onSent = jest.fn<void, [IActivitySentEvent]>();
+    plan.events.on('sent', onSent);
     const message: IMessageActivityInput = {
       type: 'message', text: 'Done', entities: [{ type: 'planInfo', planType: operation }],
     };
-    await expect(new Plan(api, ref, 'prompt').completePlan(message)).rejects.toThrow('non-complete');
+    await expect(plan.completePlan(message)).rejects.toThrow('non-complete');
     expect(requests).toHaveLength(0);
+    expect(onSent).not.toHaveBeenCalled();
   });
 
   it('rejects duplicate completion entities', async () => {
@@ -250,6 +270,49 @@ describe('Plan', () => {
     expect(requests.map((request) => JSON.parse(request.data).replyToId)).toEqual(['prompt', 'other']);
   });
 
+  it('emits sent events with the saved reference without exposing it to mutation', async () => {
+    const { api, ref, sender, logger, requests } = setup();
+    const onSent = jest.fn<void, [IActivitySentEvent]>();
+    const ctx = new ActivityContext({
+      appId: 'app',
+      activity: new MessageActivity('Question', {
+        id: 'prompt', from: ref.user, recipient: ref.bot, conversation: ref.conversation,
+      }),
+      api, ref, log: logger, activitySender: sender, connectionName: 'graph',
+      appGraph: new GraphClient(), userGraph: new GraphClient(), storage: new LocalStorage(), next: jest.fn(),
+    });
+    const plan = ctx.plan();
+    plan.events.on('sent', onSent);
+    const send = jest.spyOn(ctx, 'send');
+    ctx.ref = {
+      ...ref,
+      serviceUrl: 'https://changed.example.com',
+      bot: { id: 'changed-bot', role: 'bot' },
+      conversation: { id: 'changed-chat', conversationType: 'groupChat' },
+    };
+
+    const result = await plan.completePlan('Done');
+
+    expect(send).not.toHaveBeenCalled();
+    expect(onSent).toHaveBeenCalledTimes(1);
+    expect(onSent).toHaveBeenCalledWith({ ...ref, activity: result });
+    expect(requests).toHaveLength(1);
+    expect(requests[0].url).toBe('https://example.com/v3/conversations/chat/activities');
+    expect(JSON.parse(requests[0].data)).toMatchObject({ from: ref.bot, conversation: ref.conversation });
+
+    const event = onSent.mock.calls[0][0];
+    event.bot.isTargeted = true;
+    await ctx.plan().stop();
+
+    expect(ctx.plan()).toBe(plan);
+    expect(onSent).toHaveBeenCalledTimes(2);
+    expect(onSent.mock.calls[1][0]).toEqual({ ...ref, activity: expect.anything() });
+    expect(onSent.mock.calls[1][0].conversation).not.toBe(event.conversation);
+    expect(requests).toHaveLength(2);
+    expect(requests[1].url).toBe('https://example.com/v3/conversations/chat/activities');
+    expect(JSON.parse(requests[1].data)).toMatchObject({ from: ref.bot, conversation: ref.conversation });
+  });
+
   it.each([false, true])('routes an existing answer ID through POST (streamed: %s)', async (streamed) => {
     const { sender, ref, requests } = setup();
     const input = new MessageActivityInput('Done', { replyToId: 'prompt' }).withId('answer').addEntity(complete);
@@ -289,11 +352,15 @@ describe('Plan', () => {
 
   it.each(['PlanNotFound', 'PlanConflict'])('propagates %s without restart, retry, or fallback', async (code) => {
     const { api, ref, requests, responses } = setup();
+    const plan = new Plan(api, ref, 'prompt');
+    const onSent = jest.fn<void, [IActivitySentEvent]>();
+    plan.events.on('sent', onSent);
     responses.push({ code, status: 409 });
-    await expect(new Plan(api, ref, 'prompt').completePlan('Done')).rejects.toMatchObject({
+    await expect(plan.completePlan('Done')).rejects.toMatchObject({
       response: { status: 409, data: { error: { code } } },
     });
     expect(requests).toHaveLength(1);
+    expect(onSent).not.toHaveBeenCalled();
   });
 });
 
