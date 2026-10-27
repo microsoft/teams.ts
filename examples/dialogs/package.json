@@ -27,7 +27,7 @@
   "devDependencies": {
     "rimraf": "^6.0.1",
     "@types/node": "^26.6.5",
-    "dotenv": "^18.0.7",
+    "dotenv": "^18.0.8",
     "env-cmd": "latest",
     "tsx": "^4.23.15",
     "typescript": "^5.4.5"

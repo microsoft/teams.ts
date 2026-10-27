@@ -26,15 +26,15 @@
     "@microsoft/teams.client": "*",
     "@microsoft/teams.common": "*",
     "@microsoft/teams.graph-endpoints": "*",
-    "react": "^19.2.2",
-    "react-dom": "^19.3.0"
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
     "@types/node": "^26.6.5",
     "@vitejs/plugin-react": "^6.1.2",
     "concurrently": "^10.0.6",
-    "dotenv": "^18.0.7",
+    "dotenv": "^18.0.8",
     "rimraf": "^6.0.1",
     "tsup": "^8.4.0",
     "tsx": "^4.23.15",
