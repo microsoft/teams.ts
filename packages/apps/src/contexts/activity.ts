@@ -496,11 +496,17 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     const ref = conversationRef ?? this.ref;
     const placement = this.getChatReplyChainPlacement(params, conversationRef);
     if (placement) {
-      return this.activitySender.send(
-        params,
-        { ...ref, conversation: { ...ref.conversation, id: placement.conversationId } },
-        { replyChainId: placement.replyChainId }
-      );
+      try {
+        return await this.activitySender.send(
+          params,
+          { ...ref, conversation: { ...ref.conversation, id: placement.chatOrChannelId } },
+          { replyChainId: placement.replyChainId }
+        );
+      } catch (err: any) {
+        if (!placement.inChannel || err?.response?.status !== 404) {
+          throw err;
+        }
+      }
     }
 
     return this.activitySender.send(params, ref);
@@ -634,12 +640,16 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   }
 
   /**
-   * Finds where a response to the inbound message belongs when it was received as a reply in a thread.
+   * Finds the chat or channel and reply chain a response to the inbound message is posted to.
    *
-   * An inbound message is a reply in a thread when `channelData.replyChain.id` (the root message id) differs from its own id.
-   * When the two are equal, the inbound message is a top-level message, so the response is sent as a top-level message and does not start a thread.
-   * The destination is the chat, `channelData.chat.id`, taken from the payload.
-   * Returns undefined when either id is missing, so the send goes to the inbound conversation.
+   * In a channel the response always goes to the reply chain of the thread the inbound message is in: `channelData.replyChain.id` is the root of that thread, and it equals the inbound message's own id for a post that starts a thread.
+   * The destination is the channel, `channelData.channel.id`.
+   *
+   * In a chat an inbound message is a reply in a thread when `channelData.replyChain.id` differs from its own id.
+   * When `channelData.replyChain.id` and `activity.id` are equal, the inbound message is a top-level message, so the response is sent as a top-level message and does not start a thread.
+   * The destination is the chat, `channelData.chat.id`.
+   *
+   * Returns undefined when an id is missing, so no reply chain (thread) is chosen and the response goes to the inbound conversation.
    */
   private getInboundReplyChainPlacement() {
     if (this.activity.type !== 'message' || this.activity.conversation?.conversationType === 'groupChat') {
@@ -648,12 +658,21 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
 
     const channelData = this.activity.channelData;
     const replyChainId = channelData?.replyChain?.id;
-    if (!replyChainId || replyChainId === this.activity.id) {
+    if (!replyChainId) {
       return undefined;
     }
 
-    const conversationId = channelData?.chat?.id;
-    return conversationId ? { conversationId, replyChainId } : undefined;
+    if (this.activity.conversation?.conversationType === 'channel') {
+      const channelId = channelData?.channel?.id;
+      return channelId ? { chatOrChannelId: channelId, replyChainId, inChannel: true } : undefined;
+    }
+
+    if (replyChainId === this.activity.id) {
+      return undefined;
+    }
+
+    const chatId = channelData?.chat?.id;
+    return chatId ? { chatOrChannelId: chatId, replyChainId, inChannel: false } : undefined;
   }
 
   private getChatReplyChainPlacement(params: ActivityParams, conversationRef?: ConversationReference) {

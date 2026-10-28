@@ -388,6 +388,23 @@ describe('ActivityContext', () => {
         expect(options).toEqual({ replyChainId: 'root-1' });
       });
 
+      it('does not fall back to the inbound conversation in a chat when the reply chain route is not found', async () => {
+        const ref = refFor('a:encrypted-conversation', 'personal');
+        context = buildActivityContext(
+          buildInbound({
+            conversationType: 'personal',
+            conversationId: 'a:encrypted-conversation',
+            id: 'reply-2',
+            channelData: { chat: { id: chatId }, replyChain: { id: 'root-1' } },
+          }),
+          { ref }
+        );
+        mockSender.send.mockRejectedValueOnce(Object.assign(new Error('Not Found'), { response: { status: 404 } }));
+
+        await expect(context.send('hi')).rejects.toThrow('Not Found');
+        expect(mockSender.send).toHaveBeenCalledTimes(1);
+      });
+
       it('sends to the inbound conversation in a group chat, even when the payload carries both ids', async () => {
         const ref = refFor('19:group@thread.v2', 'groupChat');
         context = buildActivityContext(
@@ -427,6 +444,26 @@ describe('ActivityContext', () => {
 
         const [, sentRef, options] = lastCall();
         expect(sentRef.conversation.id).toBe('19:meeting_abc@thread.v2');
+        expect(options).toBeUndefined();
+      });
+
+      it('places nothing for an inbound activity that is not a message', async () => {
+        const ref = refFor('a:encrypted-conversation', 'personal');
+        const inbound = {
+          ...buildInbound({
+            conversationType: 'personal',
+            conversationId: 'a:encrypted-conversation',
+            id: 'reply-2',
+            channelData: { chat: { id: chatId }, replyChain: { id: 'root-1' } },
+          }),
+          type: 'event',
+        } as unknown as Activity;
+        context = buildActivityContext(inbound, { ref });
+
+        await context.send('hi');
+
+        const [, sentRef, options] = lastCall();
+        expect(sentRef.conversation.id).toBe('a:encrypted-conversation');
         expect(options).toBeUndefined();
       });
 
@@ -498,7 +535,7 @@ describe('ActivityContext', () => {
           expect(mockSender.send.mock.calls[0][1].conversation.id).toBe(suffixed);
         });
 
-        it('keeps sending to the inbound conversation for a root post', async () => {
+        it('replies in the reply chain of a root post', async () => {
           const ref = refFor(`${channelId};messageid=root-1`, 'channel');
           context = buildActivityContext(
             buildInbound({
@@ -512,10 +549,12 @@ describe('ActivityContext', () => {
 
           await context.send('hi');
 
-          expect(mockSender.send).toHaveBeenCalledWith(expect.objectContaining({ text: 'hi' }), ref);
+          const [, sentRef, options] = mockSender.send.mock.calls[0];
+          expect(sentRef.conversation.id).toBe(channelId);
+          expect(options).toEqual({ replyChainId: 'root-1' });
         });
 
-        it('keeps sending to the inbound conversation when the payload carries a reply chain id', async () => {
+        it('replies in the reply chain of the thread when the payload carries a reply chain id', async () => {
           const ref = refFor(suffixed, 'channel');
           context = buildActivityContext(
             buildInbound({
@@ -529,8 +568,45 @@ describe('ActivityContext', () => {
 
           await context.send('hi');
 
-          expect(mockSender.send).toHaveBeenCalledWith(expect.objectContaining({ text: 'hi' }), ref);
-          expect(mockSender.send.mock.calls[0]).toHaveLength(2);
+          const [, sentRef, options] = mockSender.send.mock.calls[0];
+          expect(sentRef.conversation.id).toBe(channelId);
+          expect(options).toEqual({ replyChainId: 'root-1' });
+        });
+
+        it('sends to the inbound conversation when the reply chain route is not found', async () => {
+          const ref = refFor(suffixed, 'channel');
+          context = buildActivityContext(
+            buildInbound({
+              conversationType: 'channel',
+              conversationId: suffixed,
+              id: 'reply-2',
+              channelData: { channel: { id: channelId }, replyChain: { id: 'root-1' } },
+            }),
+            { ref }
+          );
+          mockSender.send.mockRejectedValueOnce(Object.assign(new Error('Not Found'), { response: { status: 404 } }));
+
+          await context.send('hi');
+
+          expect(mockSender.send).toHaveBeenCalledTimes(2);
+          expect(mockSender.send.mock.calls[1]).toEqual([expect.objectContaining({ text: 'hi' }), ref]);
+        });
+
+        it('does not fall back for an error other than a missing route', async () => {
+          const ref = refFor(suffixed, 'channel');
+          context = buildActivityContext(
+            buildInbound({
+              conversationType: 'channel',
+              conversationId: suffixed,
+              id: 'reply-2',
+              channelData: { channel: { id: channelId }, replyChain: { id: 'root-1' } },
+            }),
+            { ref }
+          );
+          mockSender.send.mockRejectedValueOnce(Object.assign(new Error('Bad Request'), { response: { status: 400 } }));
+
+          await expect(context.send('hi')).rejects.toThrow('Bad Request');
+          expect(mockSender.send).toHaveBeenCalledTimes(1);
         });
 
         it('keeps sending to the inbound conversation for a channel reply with no channel id', async () => {

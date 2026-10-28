@@ -1581,7 +1581,7 @@ describe('App', () => {
         expect(options).toBeUndefined();
       });
 
-      it('sends a channel root post to the inbound conversation', async () => {
+      it('replies in the reply chain of a channel root post', async () => {
         const suffixed = `${channelId};messageid=root-1`;
         const [, ref, options] = await sendFromHandler(
           inbound({
@@ -1592,11 +1592,11 @@ describe('App', () => {
           })
         );
 
-        expect(ref.conversation.id).toBe(suffixed);
-        expect(options).toBeUndefined();
+        expect(ref.conversation.id).toBe(channelId);
+        expect(options).toEqual({ replyChainId: 'root-1' });
       });
 
-      it('sends a channel reply to the inbound conversation even when the payload carries a reply chain id', async () => {
+      it('replies in the reply chain of the thread for a channel reply', async () => {
         const suffixed = `${channelId};messageid=root-1`;
         const [, ref, options] = await sendFromHandler(
           inbound({
@@ -1607,8 +1607,8 @@ describe('App', () => {
           })
         );
 
-        expect(ref.conversation.id).toBe(suffixed);
-        expect(options).toBeUndefined();
+        expect(ref.conversation.id).toBe(channelId);
+        expect(options).toEqual({ replyChainId: 'root-1' });
       });
     });
 
