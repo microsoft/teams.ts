@@ -15,8 +15,28 @@ export type ActivitySenderOptions = {
    * The id of the message at the root of a reply chain (thread).
    * When set on a new activity, it is sent as a reply in that thread, within the chat or channel the activity is sent to, identified by `channelData.chat.id` or `channelData.channel.id`.
    * Ignored when the activity updates an existing message.
+   *
+   * @experimental This API is in preview and may change in the future. Diagnostic: ExperimentalTeamsThreading
    */
   readonly replyChainId?: string;
+};
+
+/**
+ * Options for creating a stream.
+ *
+ * @experimental This API is in preview and may change in the future. Diagnostic: ExperimentalTeamsThreading
+ */
+export type StreamOptions = {
+  /**
+   * Places the stream in a reply chain (thread).
+   * `chatOrChannelId` is the chat or channel id (`channelData.chat.id` or `channelData.channel.id`) and `replyChainId` is the id of the message at the root of the reply chain (`channelData.replyChain.id`).
+   * `inChannel` marks the chat or channel id as a channel id.
+   */
+  readonly replyChain?: {
+    readonly chatOrChannelId: string;
+    readonly replyChainId: string;
+    readonly inChannel?: boolean;
+  };
 };
 
 /**
@@ -38,5 +58,5 @@ export interface IActivitySender {
   /**
    * Create a new activity stream
    */
-  createStream(ref: ConversationReference): IStreamer;
+  createStream(ref: ConversationReference, options?: StreamOptions): IStreamer;
 }

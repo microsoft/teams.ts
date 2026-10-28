@@ -391,7 +391,19 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     this.onOAuthSignInInitiated = onOAuthSignInInitiated;
     this.getOAuthConnectionStatus = getOAuthConnectionStatus;
     this.next = next;
-    this.stream = activitySender.createStream(value.ref);
+    const placement = this.getInboundReplyChainPlacement();
+    this.stream = activitySender.createStream(
+      value.ref,
+      placement
+        ? {
+            replyChain: {
+              chatOrChannelId: placement.chatOrChannelId,
+              replyChainId: placement.replyChainId,
+              ...(placement.inChannel ? { inChannel: true } : {}),
+            },
+          }
+        : undefined
+    );
     this.connectionName = value.connectionName;
     this.files = new FilesAccessor(
       this.activity,

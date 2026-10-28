@@ -447,8 +447,48 @@ describe('ActivityContext', () => {
         expect(options).toBeUndefined();
       });
 
+      it('creates the stream in the reply chain when the inbound is inside one, in a chat', () => {
+        const ref = refFor('a:encrypted-conversation', 'personal');
+        mockSender.createStream.mockClear();
+        context = buildActivityContext(
+          buildInbound({
+            conversationType: 'personal',
+            conversationId: 'a:encrypted-conversation',
+            id: 'reply-2',
+            channelData: { chat: { id: chatId }, replyChain: { id: 'root-1' } },
+          }),
+          { ref }
+        );
+
+        expect(mockSender.createStream).toHaveBeenCalledWith(ref, {
+          replyChain: { chatOrChannelId: chatId, replyChainId: 'root-1' },
+        });
+      });
+
+      it('creates the stream without a reply chain for a top-level message in a chat and for a group chat', () => {
+        for (const [conversationType, id] of [
+          ['personal', 'root-1'],
+          ['groupChat', 'reply-2'],
+        ] as const) {
+          const ref = refFor('a:conversation', conversationType);
+          mockSender.createStream.mockClear();
+          context = buildActivityContext(
+            buildInbound({
+              conversationType,
+              conversationId: 'a:conversation',
+              id,
+              channelData: { chat: { id: chatId }, replyChain: { id: 'root-1' } },
+            }),
+            { ref }
+          );
+
+          expect(mockSender.createStream).toHaveBeenCalledWith(ref, undefined);
+        }
+      });
+
       it('places nothing for an inbound activity that is not a message', async () => {
         const ref = refFor('a:encrypted-conversation', 'personal');
+        mockSender.createStream.mockClear();
         const inbound = {
           ...buildInbound({
             conversationType: 'personal',
@@ -460,11 +500,33 @@ describe('ActivityContext', () => {
         } as unknown as Activity;
         context = buildActivityContext(inbound, { ref });
 
+        expect(mockSender.createStream).toHaveBeenCalledWith(ref, undefined);
+
         await context.send('hi');
 
         const [, sentRef, options] = lastCall();
         expect(sentRef.conversation.id).toBe('a:encrypted-conversation');
         expect(options).toBeUndefined();
+      });
+
+      it('creates the stream without a reply chain in a meeting chat', () => {
+        const ref = refFor('19:meeting_abc@thread.v2', 'groupChat');
+        mockSender.createStream.mockClear();
+        context = buildActivityContext(
+          buildInbound({
+            conversationType: 'groupChat',
+            conversationId: '19:meeting_abc@thread.v2',
+            id: 'reply-2',
+            channelData: {
+              chat: { id: chatId },
+              replyChain: { id: 'root-1' },
+              meeting: { id: 'meeting-1' },
+            },
+          }),
+          { ref }
+        );
+
+        expect(mockSender.createStream).toHaveBeenCalledWith(ref, undefined);
       });
 
       it('sends to the inbound conversation when the inbound is a top-level message in a chat', async () => {
@@ -533,6 +595,27 @@ describe('ActivityContext', () => {
           expect(mockSender.send).toHaveBeenCalledWith(expect.objectContaining({ text: 'hi' }), ref);
           expect(mockSender.send.mock.calls[0]).toHaveLength(2);
           expect(mockSender.send.mock.calls[0][1].conversation.id).toBe(suffixed);
+        });
+
+        it.each([
+          ['a thread reply', 'reply-2'],
+          ['a root post', 'root-1'],
+        ])('creates the stream in the reply chain of the thread for %s', (_name, id) => {
+          const ref = refFor(suffixed, 'channel');
+          mockSender.createStream.mockClear();
+          context = buildActivityContext(
+            buildInbound({
+              conversationType: 'channel',
+              conversationId: suffixed,
+              id,
+              channelData: { channel: { id: channelId }, replyChain: { id: 'root-1' } },
+            }),
+            { ref }
+          );
+
+          expect(mockSender.createStream).toHaveBeenCalledWith(ref, {
+            replyChain: { chatOrChannelId: channelId, replyChainId: 'root-1', inChannel: true },
+          });
         });
 
         it('replies in the reply chain of a root post', async () => {
