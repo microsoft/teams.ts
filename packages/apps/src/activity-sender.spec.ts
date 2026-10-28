@@ -391,6 +391,23 @@ describe('ActivitySender', () => {
   });
 
   describe('createStream', () => {
+    it('should place the first chunk of the stream in the reply chain', async () => {
+      const replyChain = { chatOrChannelId: 'chat-id', replyChainId: 'root-1' };
+      const stream = sender.createStream(ref, { replyChain });
+
+      stream.emit('hello');
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      expect(mockClient.conversations.createReplyChainActivity).toHaveBeenCalledTimes(1);
+      expect(mockClient.conversations.createReplyChainActivity).toHaveBeenCalledWith(
+        'chat-id',
+        'root-1',
+        expect.objectContaining({ type: 'typing' })
+      );
+      expect(mockClient.conversations.createActivity).not.toHaveBeenCalled();
+      expect(mockClient.conversations.replyToActivity).not.toHaveBeenCalled();
+    });
+
     it('should return a stream instance', () => {
       const stream = sender.createStream(ref);
       expect(stream).toBeDefined();

@@ -11,7 +11,7 @@ import {
 import { ILogger } from '@microsoft/teams.common';
 
 import { HttpStream } from './http/http-stream';
-import { ActivitySenderOptions, IStreamer, IActivitySender } from './types';
+import { ActivitySenderOptions, IStreamer, IActivitySender, StreamOptions } from './types';
 
 /**
  * Creates an API client for a sender operation, optionally scoped to an agentic
@@ -47,8 +47,8 @@ export class ActivitySender implements IActivitySender {
     return this.dispatch(activity, ref, options);
   }
 
-  createStream(ref: ConversationReference): IStreamer {
-    return new HttpStream(this.createClient(ref.serviceUrl), ref, this.logger);
+  createStream(ref: ConversationReference, options?: StreamOptions): IStreamer {
+    return new HttpStream(this.createClient(ref.serviceUrl), ref, this.logger, options);
   }
 
   private async dispatch(
