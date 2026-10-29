@@ -1,7 +1,7 @@
 import { setTimeout as sleep } from 'node:timers/promises';
 
 import { MessageActivityInput, Step } from '@microsoft/teams.api';
-import { App, Plan } from '@microsoft/teams.apps';
+import { App, Plan, PlanOptions } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common';
 
 const logger = new ConsoleLogger('@examples/plan');
@@ -16,7 +16,7 @@ function lookupStep(): Step {
   };
 }
 
-async function prepareAnswer(plan: Plan) {
+async function prepareAnswer(plan: Plan, readyDescription: string) {
   await plan.start([
     lookupStep(),
     {
@@ -33,8 +33,8 @@ async function prepareAnswer(plan: Plan) {
   await plan.update([
     {
       id: 'lookup', version: 3, status: 'completed', title: 'Sources checked',
-      description: 'Found relevant Teams SDK documentation.',
-      sources: [{ title: 'Teams SDK', url: 'https://microsoft.github.io/teams-sdk/' }],
+      description: 'Found the relevant Teams SDK documentation for the answer.',
+      sources: [{ title: 'Teams SDK docs', url: 'https://microsoft.github.io/teams-sdk/', icon: 'Text' }],
     },
     {
       id: 'answer', version: 2, status: 'active', title: 'Drafting answer',
@@ -44,22 +44,31 @@ async function prepareAnswer(plan: Plan) {
   await sleep(2000);
   await plan.update([{
     id: 'answer', version: 3, status: 'completed', title: 'Answer ready',
-    description: 'The response is ready to send.',
-  }]);
-}
-
-async function sendProactivePlan(plan: Plan) {
-  await sleep(5000);
-  await plan.start([{
-    id: 'report', version: 1, status: 'active', title: 'Preparing background report',
-    description: 'This work started after the original message handler returned.',
+    description: readyDescription,
   }]);
   await sleep(2000);
+}
+
+async function sendProactivePlan(options: PlanOptions) {
+  await sleep(10000);
+  const plan = new Plan(options);
+  await plan.update([
+    {
+      id: 'report', version: 2, status: 'completed', title: 'Report ready',
+      description: 'The background work is complete and the report is ready to send.',
+    },
+    {
+      id: 'deliver', version: 1, status: 'active', title: 'Delivering report',
+      description: 'Finalizing delivery of the completed report back to the user.',
+    },
+  ]);
+  await sleep(2000);
   await plan.update([{
-    id: 'report', version: 2, status: 'completed', title: 'Report ready',
-    description: 'The background work is complete and the report is ready to send.',
+    id: 'deliver', version: 2, status: 'completed', title: 'Delivered report',
+    description: 'Finalized delivery of the completed report back to the user.',
   }]);
-  await plan.completePlan('Your background report is ready.');
+  await sleep(10000);
+  await plan.complete('Your background report is ready.');
 }
 
 app.on('message', async (ctx) => {
@@ -67,11 +76,11 @@ app.on('message', async (ctx) => {
   const plan = ctx.plan();
   switch (command) {
     case 'complete':
-      await prepareAnswer(plan);
-      await plan.completePlan('Here is the answer based on the sources.');
+      await prepareAnswer(plan, 'The response is ready to send.');
+      await plan.complete('Here is the answer based on the sources.');
       break;
     case 'complete-stream':
-      await prepareAnswer(plan);
+      await prepareAnswer(plan, 'The response is ready to stream.');
       for (const chunk of ['Here is ', 'the answer ', 'based on the sources.']) {
         ctx.stream.emit(chunk);
         await sleep(500);
@@ -91,12 +100,16 @@ app.on('message', async (ctx) => {
         id: 'lookup', version: 2, status: 'error', title: 'Source lookup failed',
         description: 'The source could not be retrieved, so the lookup cannot continue.',
       }]);
+      await sleep(2000);
       await plan.error();
       break;
     case 'proactive': {
-      const savedPlan = new Plan(ctx.api, ctx.ref, ctx.activity.id);
-      await ctx.send('I\'ll start a Plan in five seconds and send the report when it is ready.');
-      const task = sendProactivePlan(savedPlan);
+      await plan.start([{
+        id: 'report', version: 1, status: 'active', title: 'Preparing background report',
+        description: 'This report continues in the background after the handler returns.',
+      }]);
+      const options: PlanOptions = { ...plan.toJSON(), apiClient: ctx.api };
+      const task = sendProactivePlan(options);
       proactiveTasks.add(task);
       void task.catch((error) => logger.error('Proactive Plan failed', error))
         .finally(() => proactiveTasks.delete(task));

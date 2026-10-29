@@ -21,7 +21,7 @@ export class StreamCancelledError extends Error {
 }
 
 /**
- * Base class for terminal streaming errors (HTTP 403) that should not be retried.
+ * Base class for terminal streaming errors that should not be retried.
  */
 export class TerminalStreamError extends Error {
   constructor(message?: string) {
@@ -32,6 +32,8 @@ export class TerminalStreamError extends Error {
 
 /**
  * Raised when the bot failed to complete streaming within the two-minute limit.
+ * A buffered Plan completion cannot use the ordinary PUT fallback. Resolve it
+ * explicitly through Plan.complete() rather than retrying the same stream close.
  */
 export class StreamTimedOutError extends TerminalStreamError {
   constructor(message?: string) {
@@ -53,6 +55,8 @@ export class StreamNotAllowedError extends TerminalStreamError {
 /**
  * Raised for HTTP 409 PlanConflict streaming failures without retrying.
  * Preserves the original HTTP request, response, and cause.
+ * This is a service lifecycle conflict, not a timeout; resolve the Plan state
+ * explicitly instead of retrying the same stream close.
  *
  * @experimental This API is in preview and may change in the future.
  * Diagnostic: ExperimentalTeamsPlan

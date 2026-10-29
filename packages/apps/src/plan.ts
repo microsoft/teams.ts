@@ -1,7 +1,6 @@
 import {
   ActivityParams,
   Client,
-  ConversationReference,
   getPlanInfo,
   IMessageActivityInput,
   MessageActivityInput,
@@ -11,59 +10,84 @@ import {
 } from '@microsoft/teams.api';
 import { EventEmitter } from '@microsoft/teams.common';
 
-import { IActivitySentEvent } from './events';
+/**
+ * Bind a Plan to its originating prompt and inject the runtime client.
+ *
+ * @experimental This API is in preview and may change in the future.
+ * Diagnostic: ExperimentalTeamsPlan
+ */
+export type PlanOptions = {
+  /** Conversation ID, including any thread suffix, used for every Plan send. */
+  readonly conversationId: string;
+  /** Original prompt activity ID, not a later event, answer, or stream ID. */
+  readonly replyToId: string;
+  /** Runtime-only client, already scoped to the conversation's service URL and caller. */
+  readonly apiClient: Client;
+};
 
 /**
- * Sends prompt-bound Plan activities.
+ * Sends prompt-bound Plan activities; the application owns ordering and concurrency.
+ * Serialize the IDs with JSON.stringify() and inject a client when reconstructing.
  *
  * @experimental This API is in preview and may change in the future.
  * Diagnostic: ExperimentalTeamsPlan
  */
 export class Plan {
   /**
-   * Emits `sent` after successful control and completion sends, with the activity
-   * and a copy of the saved conversation reference.
+   * Emits the SentActivity once after a successful send, before the method returns.
+   * Listeners are runtime-only and are not serialized.
    */
-  readonly events = new EventEmitter<{ sent: IActivitySentEvent }>();
+  readonly events = new EventEmitter<{ sent: SentActivity }>();
 
-  private readonly ref: ConversationReference;
+  /** Conversation ID to which this Plan is bound. */
+  readonly conversationId: string;
+
+  /** Original prompt ID to which all Plan activities reply. */
+  readonly replyToId: string;
+
   private readonly api: Client;
 
-  /**
-   * @param replyToId Original prompt activity ID, not the answer or stream ID.
-   */
-  constructor(api: Client, ref: ConversationReference, private readonly replyToId: string) {
-    if (!replyToId) throw new TypeError('A Plan requires a prompt replyToId.');
-    this.ref = structuredClone(ref);
-    this.api = api.fromServiceUrl({ serviceUrl: this.ref.serviceUrl });
+  /** Create a Plan from saved IDs and a configured client; no request or client cloning occurs. */
+  constructor(options: PlanOptions) {
+    this.conversationId = options.conversationId;
+    this.replyToId = options.replyToId;
+    this.api = options.apiClient;
   }
 
+  /** Serialize only the prompt binding, excluding the client, credentials, and listeners. */
+  toJSON(): Pick<PlanOptions, 'conversationId' | 'replyToId'> {
+    return { conversationId: this.conversationId, replyToId: this.replyToId };
+  }
+
+  /** Start the bound Plan with the supplied ordered steps; API failures propagate. */
   async start(steps: readonly Step[]): Promise<void> {
     await this.sendUpdate('start', steps);
   }
 
+  /** Send new or changed steps, with versions incremented by the application. */
   async update(steps: readonly Step[]): Promise<void> {
     await this.sendUpdate('continue', steps);
   }
 
+  /** Stop the displayed Plan without canceling application-owned work. */
   async stop(): Promise<void> {
     await this.sendUpdate('stop');
   }
 
+  /** Report a failed Plan without canceling application-owned work. */
   async error(): Promise<void> {
     await this.sendUpdate('error');
   }
 
-  /** Complete with an answer, preserving metadata. */
-  async completePlan(message: string | IMessageActivityInput): Promise<SentActivity> {
+  /** Complete with an answer, preserving metadata and rejecting non-complete Plan operations. */
+  async complete(message: string | IMessageActivityInput): Promise<SentActivity> {
     const input = typeof message === 'string'
       ? new MessageActivityInput(message)
       : MessageActivityInput.from(structuredClone(message));
-    const plan = getPlanInfo(input);
-    if (plan && plan.planType !== 'complete') {
-      throw new TypeError('completePlan() cannot send non-complete Plan operations.');
+    if (input.entities?.some((entity) => entity.type === 'planInfo' && entity.planType !== 'complete')) {
+      throw new TypeError('complete() cannot send non-complete Plan operations.');
     }
-    if (!plan) input.addEntity({ type: 'planInfo', planType: 'complete' });
+    if (!getPlanInfo(input)) input.addEntity({ type: 'planInfo', planType: 'complete' });
     return this.send(input);
   }
 
@@ -78,12 +102,11 @@ export class Plan {
     const payload = {
       ...structuredClone(activity),
       replyToId: this.replyToId,
-      from: structuredClone(this.ref.bot),
-      conversation: structuredClone(this.ref.conversation),
+      conversation: { id: this.conversationId },
     };
-    const result = await this.api.conversations.createActivity(this.ref.conversation.id, payload);
+    const result = await this.api.conversations.createActivity(this.conversationId, payload);
     const sent = { ...payload, ...result };
-    this.events.emit('sent', { ...structuredClone(this.ref), activity: sent });
+    this.events.emit('sent', sent);
     return sent;
   }
 }

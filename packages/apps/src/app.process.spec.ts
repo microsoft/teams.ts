@@ -1222,7 +1222,7 @@ describe('App', () => {
     });
 
     it.each([
-      ['start', 'start'], ['update', 'continue'], ['stop', 'stop'], ['error', 'error'], ['completePlan', 'complete'],
+      ['start', 'start'], ['update', 'continue'], ['stop', 'stop'], ['error', 'error'], ['complete', 'complete'],
     ] as const)('notifies app listeners once when a context Plan calls %s', async (method, operation) => {
       const sent: IActivitySentEvent[] = [];
       app.event('activity.sent', (event) => {
@@ -1232,9 +1232,9 @@ describe('App', () => {
       const create = jest.spyOn(ConversationClient.prototype, 'createActivity').mockResolvedValue({ id });
       let result: SentActivity | undefined;
       app.on('message', async (ctx) => {
-        const plan = ctx.plan('original-prompt');
-        if (method === 'completePlan') {
-          result = await plan.completePlan('Done');
+        const plan = ctx.plan();
+        if (method === 'complete') {
+          result = await plan.complete('Done');
         } else if (method === 'start' || method === 'update') {
           await plan[method]([{ id: 'lookup', version: 1, title: 'Lookup', status: 'active' }]);
         } else {
@@ -1255,51 +1255,46 @@ describe('App', () => {
         activity: {
           id,
           type: operation === 'complete' ? 'message' : 'typing',
-          replyToId: 'original-prompt',
-          from: messageActivity.recipient,
-          conversation: messageActivity.conversation,
+          replyToId: 'inbound-id',
+          conversation: { id: messageActivity.conversation.id },
           entities: [expect.objectContaining({ type: 'planInfo', planType: operation })],
         },
       });
-      if (method === 'completePlan') {
+      expect(sent[0].activity).not.toHaveProperty('from');
+      if (method === 'complete') {
         expect(sent[0].activity).toBe(result);
       }
     });
 
-    it('subscribes once per cached Plan without replacing other listeners', async () => {
+    it('subscribes once to the cached Plan without replacing other listeners', async () => {
       const sent: IActivitySentEvent[] = [];
-      const onSent = jest.fn<void, [IActivitySentEvent]>();
+      const onSent = jest.fn<void, [SentActivity]>();
       app.event('activity.sent', (event) => {
         sent.push(event);
       });
       const create = jest.spyOn(ConversationClient.prototype, 'createActivity')
         .mockResolvedValueOnce({ id: 'DO_NOT_USE_PLACEHOLDER_ID' })
-        .mockResolvedValueOnce({ id: 'other-answer' })
         .mockResolvedValueOnce({ id: 'answer' });
       app.on('message', async (ctx) => {
         const plan = ctx.plan();
         plan.events.on('sent', onSent);
-        expect(ctx.plan('inbound-id')).toBe(plan);
-        const other = ctx.plan('other-prompt');
-        expect(ctx.plan('other-prompt')).toBe(other);
+        expect(ctx.plan()).toBe(plan);
 
         await plan.start([]);
-        await ctx.plan('other-prompt').completePlan('Other answer');
-        await ctx.plan().completePlan('Done');
+        await ctx.plan().complete('Done');
       });
 
       const response = await app.process({ token, body: { ...messageActivity, id: 'inbound-id' } });
 
       expect(response.status).toBe(200);
-      expect(create).toHaveBeenCalledTimes(3);
+      expect(create).toHaveBeenCalledTimes(2);
       expect(sent.map(({ activity }) => [activity.replyToId, activity.id])).toEqual([
         ['inbound-id', 'DO_NOT_USE_PLACEHOLDER_ID'],
-        ['other-prompt', 'other-answer'],
         ['inbound-id', 'answer'],
       ]);
       expect(onSent).toHaveBeenCalledTimes(2);
-      expect(onSent).toHaveBeenNthCalledWith(1, sent[0]);
-      expect(onSent).toHaveBeenNthCalledWith(2, sent[2]);
+      expect(onSent.mock.calls[0][0]).toBe(sent[0].activity);
+      expect(onSent.mock.calls[1][0]).toBe(sent[1].activity);
     });
 
     it('does not inherit context targeting when sending a Plan completion', async () => {
@@ -1309,7 +1304,7 @@ describe('App', () => {
       const createTargeted = jest.spyOn(ConversationClient.prototype, 'createTargetedActivity')
         .mockResolvedValue({ id: 'targeted-answer' });
       app.on('message', async (ctx) => {
-        await ctx.plan().completePlan('Done');
+        await ctx.plan().complete('Done');
       });
 
       const incoming: IMessageActivity = {
@@ -1327,14 +1322,14 @@ describe('App', () => {
       expect(sent.mock.calls[0][0].activity.recipient).toBeUndefined();
     });
 
-    it.each(['start', 'completePlan'] as const)('does not notify outgoing activity listeners when Plan.%s fails', async (method) => {
+    it.each(['start', 'complete'] as const)('does not notify outgoing activity listeners when Plan.%s fails', async (method) => {
       const sent = jest.fn();
       app.event('activity.sent', sent);
       const create = jest.spyOn(ConversationClient.prototype, 'createActivity')
         .mockRejectedValue(new Error('Plan send failed'));
       app.on('message', async (ctx) => {
-        if (method === 'completePlan') {
-          await ctx.plan().completePlan('Done');
+        if (method === 'complete') {
+          await ctx.plan().complete('Done');
         } else {
           await ctx.plan().start([]);
         }
@@ -1347,7 +1342,7 @@ describe('App', () => {
       expect(sent).not.toHaveBeenCalled();
     });
 
-    it('keeps outgoing notifications for a context Plan retained after the turn', async () => {
+    it('keeps a reference snapshot and outgoing notifications for a retained context Plan', async () => {
       const sent: IActivitySentEvent[] = [];
       app.event('activity.sent', (event) => {
         sent.push(event);
@@ -1356,18 +1351,46 @@ describe('App', () => {
       let savedPlan: Plan | undefined;
       app.on('message', (ctx) => {
         savedPlan = ctx.plan();
+        ctx.ref.conversation = { ...ctx.ref.conversation, id: 'changed-chat' };
+        ctx.ref.bot.isTargeted = true;
+        ctx.ref.serviceUrl = 'https://changed.example.com';
       });
 
-      await app.process({ token, body: { ...messageActivity, id: 'inbound-id' } });
+      const incoming: IMessageActivity = {
+        ...messageActivity, id: 'inbound-id',
+        conversation: { ...messageActivity.conversation },
+        recipient: { ...messageActivity.recipient },
+      };
+      await app.process({ token, body: incoming });
       expect(create).not.toHaveBeenCalled();
       expect(sent).toHaveLength(0);
       if (!savedPlan) throw new Error('Expected the handler to retain a Plan.');
-      const result = await savedPlan.completePlan('Background answer');
+      const result = await savedPlan.complete('Background answer');
 
       expect(create).toHaveBeenCalledTimes(1);
       expect(sent).toHaveLength(1);
       expect(sent[0].activity).toBe(result);
       expect(sent[0].activity.replyToId).toBe('inbound-id');
+      expect(sent[0]).toMatchObject({
+        conversation: messageActivity.conversation,
+        bot: messageActivity.recipient,
+        serviceUrl: messageActivity.serviceUrl,
+      });
+      sent[0].conversation = { ...sent[0].conversation, id: 'listener-mutated-chat' };
+      sent[0].bot.isTargeted = true;
+      await savedPlan.stop();
+
+      expect(create).toHaveBeenCalledTimes(2);
+      expect(sent).toHaveLength(2);
+      expect(sent[1]).toMatchObject({
+        conversation: messageActivity.conversation,
+        bot: messageActivity.recipient,
+        serviceUrl: messageActivity.serviceUrl,
+        activity: { conversation: { id: messageActivity.conversation.id }, replyToId: 'inbound-id' },
+      });
+      expect(sent[1].conversation).not.toBe(sent[0].conversation);
+      expect(sent[1].bot).not.toBe(sent[0].bot);
+      expect(sent[1].bot.isTargeted).toBe(messageActivity.recipient.isTargeted);
     });
 
     it('does not notify outgoing activity listeners for rejected Plan completion metadata', async () => {
@@ -1375,7 +1398,7 @@ describe('App', () => {
       app.event('activity.sent', sent);
       const create = jest.spyOn(ConversationClient.prototype, 'createActivity').mockResolvedValue({ id: 'answer' });
       app.on('message', async (ctx) => {
-        await ctx.plan().completePlan({
+        await ctx.plan().complete({
           type: 'message',
           text: 'Done',
           entities: [{ type: 'planInfo', planType: 'start' }],

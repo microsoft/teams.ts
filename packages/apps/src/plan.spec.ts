@@ -2,16 +2,15 @@ import { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 import {
   Client, ConversationReference, IMessageActivityInput, ITokenProvider, MessageActivity, MessageActivityInput,
-  PlanInfoEntity, PlanType, Step,
+  PlanInfoEntity, PlanType, SentActivity, Step,
 } from '@microsoft/teams.api';
 import { Client as HttpClient, ClientOptions, ConsoleLogger, LocalStorage } from '@microsoft/teams.common';
 
 import { ActivitySender } from './activity-sender';
 import { GraphClient } from './api';
 import { ActivityContext } from './contexts/activity';
-import { IActivitySentEvent } from './events';
 import { HttpStream } from './http/http-stream';
-import { Plan } from './plan';
+import { Plan, PlanOptions } from './plan';
 import { StreamTimedOutError } from './types';
 
 class TestHttpClient extends HttpClient {
@@ -73,35 +72,83 @@ const lookup: Step = { id: 'lookup', version: 1, title: 'Lookup', status: 'activ
 const complete: PlanInfoEntity = { type: 'planInfo', planType: 'complete' };
 
 describe('Plan', () => {
-  it('requires a prompt activity ID', () => {
+  it('serializes only the conversation and originating prompt IDs', () => {
     const { api, ref, requests } = setup();
-    expect(() => new Plan(api, ref, '')).toThrow('A Plan requires a prompt replyToId.');
+    const plan = new Plan({ conversationId: ref.conversation.id, replyToId: 'prompt', apiClient: api });
+    plan.events.on('sent', jest.fn());
+
+    expect(JSON.parse(JSON.stringify(plan))).toEqual({ conversationId: 'chat', replyToId: 'prompt' });
     expect(requests).toHaveLength(0);
+  });
+
+  it('reconstructs from saved IDs with a new runtime client and no inherited listeners', async () => {
+    const original = setup();
+    const options: PlanOptions = {
+      conversationId: 'chat;messageid=root', replyToId: 'original-prompt', apiClient: original.api,
+    };
+    const plan = new Plan(options);
+    const onOriginalSent = jest.fn();
+    plan.events.on('sent', onOriginalSent);
+    const serialized = JSON.stringify(plan);
+    const saved: Pick<PlanOptions, 'conversationId' | 'replyToId'> = JSON.parse(serialized);
+    const runtime = setup();
+    const scopedApi = runtime.api.fromServiceUrl({ serviceUrl: 'https://runtime.example.com' });
+    const clone = jest.spyOn(scopedApi, 'clone');
+    const restored = new Plan({ ...saved, apiClient: scopedApi });
+    const onRestoredSent = jest.fn();
+    restored.events.on('sent', onRestoredSent);
+
+    await restored.update([{ ...lookup, version: 2, status: 'completed' }]);
+    const result = await restored.complete('Background answer');
+
+    expect(restored.toJSON()).toEqual(saved);
+    expect(JSON.stringify(restored)).toBe(serialized);
+    expect(original.requests).toHaveLength(0);
+    expect(clone).not.toHaveBeenCalled();
+    expect(onOriginalSent).not.toHaveBeenCalled();
+    expect(onRestoredSent).toHaveBeenCalledTimes(2);
+    expect(onRestoredSent.mock.calls[1][0]).toBe(result);
+    expect(runtime.requests).toHaveLength(2);
+    for (const request of runtime.requests) {
+      expect(request.url).toBe('https://runtime.example.com/v3/conversations/chat;messageid=root/activities');
+      expect(JSON.parse(request.data)).toMatchObject({
+        replyToId: 'original-prompt', conversation: { id: 'chat;messageid=root' },
+      });
+    }
+  });
+
+  it('leaves empty prompt ID validation to the service', async () => {
+    const { api, ref, requests, responses } = setup();
+    responses.push({ status: 400, code: 'ServiceError' });
+    const plan = new Plan({ conversationId: ref.conversation.id, replyToId: '', apiClient: api });
+
+    await expect(plan.start([])).rejects.toMatchObject({
+      response: { status: 400, data: { error: { code: 'ServiceError' } } },
+    });
+    expect(requests).toHaveLength(1);
+    expect(JSON.parse(requests[0].data).replyToId).toBe('');
   });
 
   it.each([
     ['start', 'start'], ['update', 'continue'], ['stop', 'stop'], ['error', 'error'],
   ] as const)('sends %s as a prompt-bound typing control', async (method, operation) => {
     const { api, ref, requests } = setup();
-    const plan = new Plan(api, ref, 'original-prompt');
-    const onSent = jest.fn<void, [IActivitySentEvent]>();
+    const plan = new Plan({ conversationId: ref.conversation.id, replyToId: 'original-prompt', apiClient: api });
+    const onSent = jest.fn<void, [SentActivity]>();
     plan.events.on('sent', onSent);
     const result = method === 'start' || method === 'update'
       ? await plan[method]([lookup])
       : await plan[method]();
     expect(result).toBeUndefined();
     expect(onSent).toHaveBeenCalledTimes(1);
-    expect(onSent).toHaveBeenCalledWith({
-      ...ref,
-      activity: expect.objectContaining({
-        id: 'DO_NOT_USE_PLACEHOLDER_ID', type: 'typing', replyToId: 'original-prompt',
-      }),
-    });
+    expect(onSent).toHaveBeenCalledWith(expect.objectContaining({
+      id: 'DO_NOT_USE_PLACEHOLDER_ID', type: 'typing', replyToId: 'original-prompt',
+    }));
     expect(requests).toHaveLength(1);
-    expect(requests[0].url).toBe('https://example.com/v3/conversations/chat/activities');
+    expect(requests[0].url).toBe('https://different.example.com/v3/conversations/chat/activities');
     expect(JSON.parse(requests[0].data)).toEqual({
-      type: 'typing', replyToId: 'original-prompt', from: { id: 'bot', role: 'bot' },
-      conversation: ref.conversation,
+      type: 'typing', replyToId: 'original-prompt',
+      conversation: { id: 'chat' },
       entities: [{
         type: 'planInfo', planType: operation,
         ...(['start', 'continue'].includes(operation) ? { steps: [lookup] } : {}),
@@ -111,12 +158,12 @@ describe('Plan', () => {
 
   it('preserves step details and sends only the supplied updates', async () => {
     const { api, ref, requests } = setup();
-    const plan = new Plan(api, ref, 'prompt');
+    const plan = new Plan({ conversationId: ref.conversation.id, replyToId: 'prompt', apiClient: api });
     const steps: Step[] = [
       {
         ...lookup,
         description: 'Checking the report.',
-        sources: [{ title: 'Report', url: 'https://example.com/report', icon: 'document' }],
+        sources: [{ title: 'Report', url: 'https://example.com/report', icon: 'Text' }],
       },
       { id: 'answer', version: 1, title: 'Draft answer', status: 'proposed', sources: [] },
     ];
@@ -134,7 +181,7 @@ describe('Plan', () => {
 
   it.each(['start', 'update'] as const)('preserves an explicit empty step list for %s', async (method) => {
     const { api, ref, requests } = setup();
-    await new Plan(api, ref, 'prompt')[method]([]);
+    await new Plan({ conversationId: ref.conversation.id, replyToId: 'prompt', apiClient: api })[method]([]);
     expect(JSON.parse(requests[0].data).entities).toStrictEqual([
       { type: 'planInfo', planType: method === 'start' ? 'start' : 'continue', steps: [] },
     ]);
@@ -142,34 +189,34 @@ describe('Plan', () => {
 
   it('completes with the answer ID and a single completion entity', async () => {
     const { api, ref, requests } = setup();
-    const plan = new Plan(api, ref, 'prompt');
-    const onSent = jest.fn<void, [IActivitySentEvent]>();
+    const plan = new Plan({ conversationId: ref.conversation.id, replyToId: 'prompt', apiClient: api });
+    const onSent = jest.fn<void, [SentActivity]>();
     plan.events.on('sent', onSent);
-    const result = await plan.completePlan('Done');
+    const result = await plan.complete('Done');
     expect(result.id).toBe('answer');
     expect(onSent).toHaveBeenCalledTimes(1);
-    expect(onSent).toHaveBeenCalledWith({ ...ref, activity: result });
-    expect(onSent.mock.calls[0][0].activity).toBe(result);
+    expect(onSent.mock.calls[0][0]).toBe(result);
     expect(JSON.parse(requests[0].data)).toEqual({
       type: 'message', text: 'Done', replyToId: 'prompt',
-      from: ref.bot, conversation: ref.conversation, entities: [complete],
+      conversation: { id: 'chat' }, entities: [complete],
     });
   });
 
   it.each([false, true])('preserves caller metadata without mutating it (existing completion: %s)', async (existing) => {
     const { api, ref, requests } = setup();
     const message = new MessageActivityInput('Done', {
-      replyToId: 'other', textFormat: 'extendedmarkdown', summary: 'Fallback',
+      replyToId: 'other', conversation: { id: 'other-chat' },
+      textFormat: 'extendedmarkdown', summary: 'Fallback',
       value: { custom: 'kept' }, channelData: { feedbackLoop: { type: 'default' } },
       entities: JSON.parse('[{"type":"appMetadata","value":"kept"}]'),
       attachments: [{ contentType: 'application/vnd.microsoft.card.adaptive', content: { type: 'AdaptiveCard' } }],
     });
     if (existing) message.addEntity(complete);
     const original = JSON.stringify(message);
-    await new Plan(api, ref, 'prompt').completePlan(message);
+    await new Plan({ conversationId: ref.conversation.id, replyToId: 'prompt', apiClient: api }).complete(message);
     const payload = JSON.parse(requests[0].data);
     expect(payload).toMatchObject({
-      ...JSON.parse(original), replyToId: 'prompt',
+      ...JSON.parse(original), replyToId: 'prompt', conversation: { id: 'chat' },
       entities: [{ type: 'appMetadata', value: 'kept' }, complete],
     });
     expect(payload.entities).toEqual([{ type: 'appMetadata', value: 'kept' }, complete]);
@@ -178,28 +225,40 @@ describe('Plan', () => {
 
   it.each<PlanType>(['start', 'continue', 'stop', 'error'])('rejects a conflicting %s before sending', async (operation) => {
     const { api, ref, requests } = setup();
-    const plan = new Plan(api, ref, 'prompt');
-    const onSent = jest.fn<void, [IActivitySentEvent]>();
+    const plan = new Plan({ conversationId: ref.conversation.id, replyToId: 'prompt', apiClient: api });
+    const onSent = jest.fn<void, [SentActivity]>();
     plan.events.on('sent', onSent);
     const message: IMessageActivityInput = {
       type: 'message', text: 'Done', entities: [{ type: 'planInfo', planType: operation }],
     };
-    await expect(plan.completePlan(message)).rejects.toThrow('non-complete');
+    await expect(plan.complete(message)).rejects.toThrow('non-complete');
     expect(requests).toHaveLength(0);
     expect(onSent).not.toHaveBeenCalled();
   });
 
-  it('rejects duplicate completion entities', async () => {
-    const { api, ref, requests } = setup();
-    await expect(new Plan(api, ref, 'prompt').completePlan({
+  it('leaves duplicate completion entity validation to the service', async () => {
+    const { api, ref, requests, responses } = setup();
+    responses.push({ status: 400, code: 'ServiceError' });
+    await expect(new Plan({ conversationId: ref.conversation.id, replyToId: 'prompt', apiClient: api }).complete({
       type: 'message', text: 'Done', entities: [complete, complete],
-    })).rejects.toThrow('at most one');
+    })).rejects.toMatchObject({
+      response: { status: 400, data: { error: { code: 'ServiceError' } } },
+    });
+    expect(requests).toHaveLength(1);
+    expect(JSON.parse(requests[0].data).entities).toEqual([complete, complete]);
+  });
+
+  it('rejects a non-complete operation even after a completion entity', async () => {
+    const { api, ref, requests } = setup();
+    await expect(new Plan({ conversationId: ref.conversation.id, replyToId: 'prompt', apiClient: api }).complete({
+      type: 'message', text: 'Done', entities: [complete, { type: 'planInfo', planType: 'stop' }],
+    })).rejects.toThrow('non-complete');
     expect(requests).toHaveLength(0);
   });
 
-  it('snapshots both the saved reference and caller-owned steps', async () => {
+  it('keeps the original IDs and snapshots caller-owned steps', async () => {
     const { api, ref, requests } = setup();
-    const plan = new Plan(api, ref, 'prompt');
+    const plan = new Plan({ conversationId: ref.conversation.id, replyToId: 'prompt', apiClient: api });
     ref.bot = { ...ref.bot, id: 'changed' };
     ref.conversation = { ...ref.conversation, id: 'changed' };
     const steps = [{ ...lookup, sources: [{ title: 'Report', url: 'https://example.com/report' }] }];
@@ -208,38 +267,46 @@ describe('Plan', () => {
     steps[0].sources[0].title = 'changed';
     await pending;
     expect(JSON.parse(requests[0].data)).toMatchObject({
-      from: { id: 'bot' }, conversation: { id: 'chat' },
+      conversation: { id: 'chat' },
       entities: [{ steps: [{ title: 'Lookup', sources: [{ title: 'Report' }] }] }],
     });
+    expect(JSON.parse(requests[0].data).from).toBeUndefined();
   });
 
-  it('preserves the scoped caller and HTTP configuration at the saved service URL', async () => {
+  it('uses the injected client scope and HTTP configuration without cloning it', async () => {
     const getAppToken = jest.fn();
     const getAgenticAppToken = jest.fn().mockResolvedValue('agent-token');
     const { api, ref, requests } = setup({ getAppToken, getAgenticAppToken });
-    await new Plan(api, ref, 'prompt').stop();
+    const clone = jest.spyOn(api, 'clone');
+    const fromServiceUrl = jest.spyOn(api, 'fromServiceUrl');
+    const plan = new Plan({ conversationId: ref.conversation.id, replyToId: 'prompt', apiClient: api });
+    expect(requests).toHaveLength(0);
+    await plan.stop();
+    expect(clone).not.toHaveBeenCalled();
+    expect(fromServiceUrl).not.toHaveBeenCalled();
     expect(getAppToken).not.toHaveBeenCalled();
     expect(getAgenticAppToken).toHaveBeenCalledWith('https://botapi.skype.com/.default', 'agent', 'tenant');
-    expect(requests[0].url).toContain('https://example.com/');
+    expect(requests[0].url).toContain('https://different.example.com/');
     expect(requests[0].headers.get('Authorization')).toBe('Bearer agent-token');
     expect(requests[0].headers.get('X-Application')).toBe('kept');
   });
 
-  it('preserves a targeted prompt reference without local validation', async () => {
+  it('does not carry prompt reference metadata into Plan controls', async () => {
     const { api, ref, requests } = setup();
     ref.bot.isTargeted = true;
-    await new Plan(api, ref, 'prompt').start([lookup]);
+    await new Plan({ conversationId: ref.conversation.id, replyToId: 'prompt', apiClient: api }).start([lookup]);
     expect(requests).toHaveLength(1);
     expect(JSON.parse(requests[0].data)).toMatchObject({
-      from: ref.bot, replyToId: 'prompt',
+      replyToId: 'prompt', conversation: { id: 'chat' },
       entities: [{ type: 'planInfo', planType: 'start', steps: [lookup] }],
     });
+    expect(JSON.parse(requests[0].data).from).toBeUndefined();
   });
 
   it('preserves an explicitly targeted completion recipient', async () => {
     const { api, ref, requests } = setup();
     const message = new MessageActivityInput('Private').withRecipient({ id: 'user', role: 'user' }, true);
-    await new Plan(api, ref, 'prompt').completePlan(message);
+    await new Plan({ conversationId: ref.conversation.id, replyToId: 'prompt', apiClient: api }).complete(message);
     expect(requests).toHaveLength(1);
     expect(JSON.parse(requests[0].data)).toMatchObject({
       recipient: { id: 'user', role: 'user', isTargeted: true }, entities: [complete],
@@ -248,34 +315,47 @@ describe('Plan', () => {
 
   it('preserves an ordinary explicit recipient', async () => {
     const { api, ref, requests } = setup();
-    await new Plan(api, ref, 'prompt').completePlan(
+    await new Plan({ conversationId: ref.conversation.id, replyToId: 'prompt', apiClient: api }).complete(
       new MessageActivityInput('Explicit audience').withRecipient({ id: 'chosen', role: 'user' })
     );
     expect(requests[0].url).not.toContain('isTargetedActivity');
     expect(JSON.parse(requests[0].data).recipient).toEqual({ id: 'chosen', role: 'user' });
   });
 
-  it('caches the factory by prompt and exposes it to routed handlers', async () => {
+  it('caches one inbound Plan per context and scopes its client lazily', async () => {
     const { api, ref, sender, logger, requests } = setup();
-    const ctx = new ActivityContext({
+    ref.activityId = 'ref-id';
+    const options = {
       appId: 'app',
       activity: new MessageActivity('Question', { replyToId: 'parent' })
         .withId('prompt').withFrom(ref.user!).withRecipient(ref.bot)
         .withConversation(ref.conversation),
       api, ref, log: logger, activitySender: sender, connectionName: 'graph',
       appGraph: new GraphClient(), userGraph: new GraphClient(), storage: new LocalStorage(), next: jest.fn(),
-    });
-    expect(ctx.plan()).toBe(ctx.plan('prompt'));
-    expect(ctx.plan()).not.toBe(ctx.plan('other'));
+    };
+    const ctx = new ActivityContext(options);
+    const other = new ActivityContext(options);
+    const fromServiceUrl = jest.spyOn(api, 'fromServiceUrl');
+    expect(fromServiceUrl).not.toHaveBeenCalled();
+    expect(ctx.plan()).toBe(ctx.plan());
     expect(ctx.toInterface().plan()).toBe(ctx.plan());
+    expect(fromServiceUrl).toHaveBeenCalledTimes(1);
+    expect(fromServiceUrl).toHaveBeenCalledWith({ serviceUrl: ref.serviceUrl });
+    expect(ctx.plan().replyToId).toBe('prompt');
+    expect(other.plan()).not.toBe(ctx.plan());
+    expect(fromServiceUrl).toHaveBeenCalledTimes(2);
+    const onSent = jest.fn();
+    ctx.plan().events.on('sent', onSent);
     await ctx.plan().stop();
-    await ctx.plan('other').stop();
-    expect(requests.map((request) => JSON.parse(request.data).replyToId)).toEqual(['prompt', 'other']);
+    await other.plan().stop();
+    expect(onSent).toHaveBeenCalledTimes(1);
+    expect(requests.map((request) => JSON.parse(request.data).replyToId)).toEqual(['prompt', 'prompt']);
+    expect(requests.every((request) => request.url?.startsWith(ref.serviceUrl))).toBe(true);
   });
 
-  it('emits sent events with the saved reference without exposing it to mutation', async () => {
+  it('retains the context-created binding without using ctx.send or a mutable reference', async () => {
     const { api, ref, sender, logger, requests } = setup();
-    const onSent = jest.fn<void, [IActivitySentEvent]>();
+    const onSent = jest.fn<void, [SentActivity]>();
     const ctx = new ActivityContext({
       appId: 'app',
       activity: new MessageActivity('Question', {
@@ -294,26 +374,30 @@ describe('Plan', () => {
       conversation: { id: 'changed-chat', conversationType: 'groupChat' },
     };
 
-    const result = await plan.completePlan('Done');
+    const result = await plan.complete('Done');
 
     expect(send).not.toHaveBeenCalled();
     expect(onSent).toHaveBeenCalledTimes(1);
-    expect(onSent).toHaveBeenCalledWith({ ...ref, activity: result });
+    expect(onSent.mock.calls[0][0]).toBe(result);
     expect(requests).toHaveLength(1);
     expect(requests[0].url).toBe('https://example.com/v3/conversations/chat/activities');
-    expect(JSON.parse(requests[0].data)).toMatchObject({ from: ref.bot, conversation: ref.conversation });
+    expect(JSON.parse(requests[0].data).conversation).toEqual({ id: 'chat' });
 
     const event = onSent.mock.calls[0][0];
-    event.bot.isTargeted = true;
+    event.replyToId = 'listener-mutated-prompt';
+    event.entities?.push({ type: 'planInfo', planType: 'error' });
     await ctx.plan().stop();
 
     expect(ctx.plan()).toBe(plan);
     expect(onSent).toHaveBeenCalledTimes(2);
-    expect(onSent.mock.calls[1][0]).toEqual({ ...ref, activity: expect.anything() });
-    expect(onSent.mock.calls[1][0].conversation).not.toBe(event.conversation);
+    expect(onSent.mock.calls[1][0]).toMatchObject({
+      conversation: { id: 'chat' }, replyToId: 'prompt',
+      entities: [{ type: 'planInfo', planType: 'stop' }],
+    });
+    expect(onSent.mock.calls[1][0].entities).not.toBe(event.entities);
     expect(requests).toHaveLength(2);
     expect(requests[1].url).toBe('https://example.com/v3/conversations/chat/activities');
-    expect(JSON.parse(requests[1].data)).toMatchObject({ from: ref.bot, conversation: ref.conversation });
+    expect(JSON.parse(requests[1].data).conversation).toEqual({ id: 'chat' });
   });
 
   it.each([false, true])('routes an existing answer ID through POST (streamed: %s)', async (streamed) => {
@@ -355,11 +439,11 @@ describe('Plan', () => {
 
   it.each(['PlanNotFound', 'PlanConflict'])('propagates %s without restart, retry, or fallback', async (code) => {
     const { api, ref, requests, responses } = setup();
-    const plan = new Plan(api, ref, 'prompt');
-    const onSent = jest.fn<void, [IActivitySentEvent]>();
+    const plan = new Plan({ conversationId: ref.conversation.id, replyToId: 'prompt', apiClient: api });
+    const onSent = jest.fn<void, [SentActivity]>();
     plan.events.on('sent', onSent);
     responses.push({ code, status: 409 });
-    await expect(plan.completePlan('Done')).rejects.toMatchObject({
+    await expect(plan.complete('Done')).rejects.toMatchObject({
       response: { status: 409, data: { error: { code } } },
     });
     expect(requests).toHaveLength(1);

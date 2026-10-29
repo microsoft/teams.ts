@@ -38,7 +38,6 @@ import {
 } from './diagnostics/helpers';
 import { IActivityEvent } from './events';
 import { selectFilesCredential, selectInlineImageCredential } from './files-credential';
-import { Plan } from './plan';
 import { Router } from './router';
 import type { Route } from './router/route';
 import { IRoutes } from './routes';
@@ -329,15 +328,16 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
         return res;
       };
 
-      const observedPlans = new WeakSet<Plan>();
+      let planAttached = false;
       const getPlan = context.plan.bind(context);
-      context.plan = (replyToId?: string) => {
-        const plan = getPlan(replyToId);
-        if (!observedPlans.has(plan)) {
-          observedPlans.add(plan);
-          plan.events.on('sent', (event) => {
-            this.options.eventManager.onActivitySent(event);
+      context.plan = () => {
+        const plan = getPlan();
+        if (!planAttached) {
+          const planRef = structuredClone(context.ref);
+          plan.events.on('sent', (activity) => {
+            this.options.eventManager.onActivitySent({ ...structuredClone(planRef), activity });
           });
+          planAttached = true;
         }
         return plan;
       };

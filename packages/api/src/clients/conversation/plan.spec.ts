@@ -181,14 +181,17 @@ describe('Plan transport', () => {
     expect(JSON.parse(requests[0].data)).toEqual(input);
   });
 
-  it.each(methods)('rejects duplicate Plan entities before %s', async (method) => {
-    const { client, requests } = setup();
+  it.each(methods)('leaves duplicate Plan entity validation to the service via %s', async (method) => {
+    const { client, requests } = setup(undefined, 400, 'ServiceError');
     const input = activity('complete', 'message');
     input.entities?.push({ type: 'planInfo', planType: 'stop' });
     const result = method === 'replyToActivity'
       ? client.replyToActivity('chat', 'prompt', input)
       : client.createActivity('chat', input);
-    await expect(result).rejects.toThrow(TypeError);
-    expect(requests).toHaveLength(0);
+    await expect(result).rejects.toMatchObject({
+      response: { status: 400, data: { error: { code: 'ServiceError' } } },
+    });
+    expect(requests).toHaveLength(1);
+    expect(JSON.parse(requests[0].data)).toEqual(input);
   });
 });

@@ -193,12 +193,12 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
   files: IFilesAccessor;
 
   /**
-   * Get a cached Plan; replyToId defaults to the inbound activity ID.
+   * Get the Plan bound to this inbound activity. Use new Plan(options) for a saved prompt.
    *
    * @experimental This API is in preview and may change in the future.
    * Diagnostic: ExperimentalTeamsPlan
    */
-  plan(replyToId?: string): Plan;
+  plan(): Plan;
 
   /**
    * call the next event/middleware handler
@@ -298,7 +298,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   [key: string]: any;
 
   private activitySender: IActivitySender;
-  private readonly plans: Map<string, Plan>;
+  private _plan?: Plan;
   private readonly validateOAuthConnection?: IActivityContextConstructorArgs['validateOAuthConnection'];
   private readonly onOAuthSignInInitiated?: IActivityContextConstructorArgs['onOAuthSignInInitiated'];
   private readonly getOAuthConnectionStatus?: IActivityContextConstructorArgs['getOAuthConnectionStatus'];
@@ -362,22 +362,24 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       filesCredential,
       filesBotApiCredential
     );
-    this.plans = new Map();
+    this._plan = undefined;
   }
 
   /**
-   * Get a cached Plan; replyToId defaults to the inbound activity ID.
+   * Get the Plan bound to this inbound activity, scoping its client on first access.
    *
    * @experimental This API is in preview and may change in the future.
    * Diagnostic: ExperimentalTeamsPlan
    */
-  plan(replyToId: string = this.activity.id): Plan {
-    let plan = this.plans.get(replyToId);
-    if (!plan) {
-      plan = new Plan(this.api, this.ref, replyToId);
-      this.plans.set(replyToId, plan);
+  plan(): Plan {
+    if (!this._plan) {
+      this._plan = new Plan({
+        conversationId: this.ref.conversation.id,
+        replyToId: this.activity.id,
+        apiClient: this.api.fromServiceUrl({ serviceUrl: this.ref.serviceUrl }),
+      });
     }
-    return plan;
+    return this._plan;
   }
 
   /**

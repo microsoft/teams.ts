@@ -294,6 +294,8 @@ export class HttpStream implements IStreamer {
    * Drops the `streaminfo` entity (added by `addStreamFinal()` on the normal
    * close path) and the stream channel data so `id` is kept and the send routes
    * through the update path instead of creating a duplicate message.
+   * Plan completion requires a POST: callers must resolve it through Plan.complete()
+   * after a timeout instead of retrying this ordinary-message fallback.
    */
   protected async sendFinal() {
     if (getPlanInfo(this.finalActivity ?? {})) {
