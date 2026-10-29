@@ -5,14 +5,16 @@ import { HttpMethod, HttpRouteHandler, IHttpServerAdapter } from '../http';
 import { createTestApp } from '../test-utils';
 import { IPlugin } from '../types';
 
+import { configureSocketModeForTest, SocketModeTestSettings } from './socket-mode.test-harness';
 import {
   ReplyFrame,
   SocketActivityEnvelope,
   SocketConnectionContext,
   SocketConnectionHandlers,
+  SocketModeOptions,
 } from './types';
 
-export { App };
+export { App, createTestApp };
 
 jest.mock('./socket-connection', () => {
   const state: {
@@ -161,14 +163,21 @@ export function resetConnectionState(): void {
 }
 
 export function createSocketTestApp(
-  options: Partial<AppOptions<IPlugin>> = {}
+  options: Omit<Partial<AppOptions<IPlugin>>, 'socketMode'> & {
+    socketMode?: boolean | (SocketModeOptions & SocketModeTestSettings);
+  } = {}
 ): App {
-  return createTestApp({
+  const { socketMode = { geos: [''] }, ...appOptions } = options;
+  const { geos, negotiateBaseUrl, ...settings } =
+    typeof socketMode === 'object' ? socketMode : {};
+  const app = createTestApp({
     clientId: 'bot1',
     logger: quietLogger(),
-    socketMode: { geos: [''] },
-    ...options,
+    ...appOptions,
+    socketMode: typeof socketMode === 'object' ? { geos, negotiateBaseUrl } : socketMode,
   });
+  if (app.socketMode) configureSocketModeForTest(app.socketMode, settings);
+  return app;
 }
 
 export async function dispatch(

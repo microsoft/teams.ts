@@ -6,6 +6,7 @@ import {
   CapturingAdapter,
   connectionState,
   createSocketTestApp,
+  createTestApp,
   dispatch,
   envelope,
   messageActivity,
@@ -482,7 +483,7 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
     await app.stop();
   });
 
-  it('forwards default and configured connection options', async () => {
+  it('keeps timing SDK-managed even when unsupported options are supplied at runtime', async () => {
     const defaultApp = createSocketTestApp();
     await defaultApp.start();
 
@@ -494,23 +495,25 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
     });
     await defaultApp.stop();
 
-    const customApp = createSocketTestApp({
-      socketMode: {
-        geos: [''],
-        negotiateBaseUrl: 'https://apx.example/ring/',
-        readinessTimeoutMs: 1234,
-        keepAliveIntervalMs: 7000,
-        serverTimeoutMs: 9000,
-      },
+    const unsupportedOptions = {
+      geos: [''],
+      negotiateBaseUrl: 'https://apx.example/ring/',
+      readinessTimeoutMs: 1234,
+      keepAliveIntervalMs: 7000,
+      serverTimeoutMs: 9000,
+    };
+    const customApp = createTestApp({
+      clientId: 'bot1',
+      socketMode: unsupportedOptions,
     });
     await customApp.start();
 
     expect(connectionState.contexts[1]).toMatchObject({
       negotiateUrl: 'https://apx.example/ring/v3/websockets/connect',
       getConnectionIdToReplace: undefined,
-      readinessTimeoutMs: 1234,
-      keepAliveIntervalMs: 7000,
-      serverTimeoutMs: 9000,
+      readinessTimeoutMs: 30_000,
+      keepAliveIntervalMs: 15_000,
+      serverTimeoutMs: 30_000,
     });
     expect(Object.keys(connectionState.contexts[1]).sort()).toEqual([
       'client',
@@ -522,6 +525,57 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
       'serverTimeoutMs',
     ]);
     await customApp.stop();
+  });
+
+  it('ignores runtime startup and reconnect overrides and uses SDK backoff', async () => {
+    jest.useFakeTimers();
+    const random = jest.spyOn(Math, 'random').mockReturnValue(0.5);
+    const unsupportedOptions = {
+      geos: [''],
+      startupTimeoutMs: 0,
+      reconnectDelaysMs: [0],
+    };
+    const app = createTestApp({ clientId: 'bot1', socketMode: unsupportedOptions });
+    try {
+      connectionState.startErrorQueue.push(new Error('temporary failure'));
+      const start = app.start();
+      const started = expect(start).resolves.toBeUndefined();
+      await jest.advanceTimersByTimeAsync(499);
+      expect(connectionState.connections).toHaveLength(1);
+      await jest.advanceTimersByTimeAsync(1);
+      await started;
+      expect(connectionState.connections).toHaveLength(2);
+
+      connectionState.connections[1].drop(new Error('network drop'));
+      await jest.advanceTimersByTimeAsync(499);
+      expect(connectionState.connections).toHaveLength(2);
+      await jest.advanceTimersByTimeAsync(1);
+      expect(connectionState.connections).toHaveLength(3);
+      expect(app.socketMode!.status).toBe('ready');
+    } finally {
+      await app.stop();
+      random.mockRestore();
+      jest.useRealTimers();
+    }
+  });
+
+  it('does not let a runtime override extend the 30-second startup budget', async () => {
+    jest.useFakeTimers();
+    const unsupportedOptions = { geos: [''], startupTimeoutMs: 60_000 };
+    const app = createTestApp({ clientId: 'bot1', socketMode: unsupportedOptions });
+    try {
+      connectionState.startErrorQueue.push(
+        ...Array.from({ length: 4 }, () => new NegotiateError('throttled', 10_000))
+      );
+      const start = expect(app.start()).rejects.toThrow('throttled');
+      await jest.advanceTimersByTimeAsync(20_000);
+      expect(connectionState.connections).toHaveLength(3);
+      expect(app.socketMode!.status).toBe('stopped');
+      await start;
+    } finally {
+      await app.stop();
+      jest.useRealTimers();
+    }
   });
 
   it('does not wedge readiness when an observer throws', async () => {

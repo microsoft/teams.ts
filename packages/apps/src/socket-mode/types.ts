@@ -76,60 +76,6 @@ export type SocketModeOptions = {
    * @default ['amer', 'emea', 'apac']
    */
   readonly geos?: readonly string[];
-
-  /**
-   * How long, in milliseconds, to wait for Teams backend service's `SocketReady` frame after the
-   * underlying socket connects before treating the connection as failed. The
-   * connection is not considered usable until this readiness contract is
-   * satisfied.
-   *
-   * @default 30000
-   */
-  readonly readinessTimeoutMs?: number;
-
-  /**
-   * Total time budget, in milliseconds, for establishing the *initial*
-   * connection at `App.start()`. The first connect is retried with the same
-   * back-off as reconnect until it succeeds or this budget is exhausted, at
-   * which point `App.start()` rejects. After the first successful connection the
-   * reconnect supervisor takes over and retries indefinitely until `App.stop()`.
-   * Set to `0` to fail on the very first attempt.
-   *
-   * @default 30000
-   */
-  readonly startupTimeoutMs?: number;
-
-  /**
-   * Reconnect back-off schedule (milliseconds to wait before each reconnect
-   * attempt) used by the self-driven reconnect supervisor. When omitted, a
-   * capped exponential schedule with jitter is used (roughly 1s, 2s, 4s, 8s,
-   * then 15s repeating). When provided, these delays are used in order and the
-   * final value repeats until the socket reconnects. The supervisor keeps
-   * retrying — with a fresh negotiate/token each attempt — until `App.stop()`.
-   */
-  readonly reconnectDelaysMs?: readonly number[];
-
-  /**
-   * SignalR keep-alive ping interval in milliseconds — how often the client
-   * pings the server while otherwise idle. Should stay comfortably below
-   * {@link serverTimeoutMs}. Defaults to SignalR's built-in 15s.
-   *
-   * @default 15000
-   */
-  readonly keepAliveIntervalMs?: number;
-
-  /**
-   * SignalR server timeout in milliseconds — how long without an **inbound**
-   * message before the connection is considered lost and torn down (triggering
-   * a reconnect). SignalR only resets this on frames received from the server,
-   * so it must be larger than the interval at which the server sends traffic or
-   * keep-alives; too low a value causes needless reconnect churn on idle
-   * connections. Defaults to SignalR's built-in 30s. Coordinate changes with
-   * the service.
-   *
-   * @default 30000
-   */
-  readonly serverTimeoutMs?: number;
 };
 
 /**

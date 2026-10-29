@@ -2,7 +2,8 @@ import { Client as HttpClient, ConsoleLogger } from '@microsoft/teams.common';
 
 import { NegotiateError } from './negotiate';
 import { SocketModeAdapter, SocketModeAdapterDeps } from './socket-mode-adapter';
-import { SocketActivityEnvelope } from './types';
+import { configureSocketModeForTest, SocketModeTestSettings } from './socket-mode.test-harness';
+import { SocketActivityEnvelope, SocketModeOptions } from './types';
 
 // A controllable fake for the single-generation connection so the adapter's
 // reconnect supervisor and dispatch fence can be driven
@@ -121,16 +122,18 @@ const setActivityHandler = new WeakMap<
 >();
 
 function createSocketModeAdapter(
-  options: Record<string, unknown>,
+  options: SocketModeOptions & SocketModeTestSettings,
   deps: Omit<SocketModeAdapterDeps, 'processActivity' | 'client'>
 ): SocketModeAdapter {
   let handler: ActivityHandler = async () => ({ status: 200 });
-  const server = new SocketModeAdapter(options as any, {
+  const { geos, negotiateBaseUrl, ...settings } = options;
+  const server = new SocketModeAdapter({ geos, negotiateBaseUrl }, {
     credentials: { clientId: 'bot1' } as any,
     client: new HttpClient(),
     ...deps,
     processActivity: (event) => handler(event),
   });
+  configureSocketModeForTest(server, settings);
   setActivityHandler.set(server, (next) => {
     handler = next;
   });
@@ -154,7 +157,7 @@ function onMessaging(
 }
 
 async function makeServer(
-  options: Record<string, unknown> = {},
+  options: SocketModeOptions & SocketModeTestSettings = {},
   logger: ConsoleLogger = new ConsoleLogger('test', { level: 'error' })
 ): Promise<SocketModeAdapter> {
   // Default to a single geo ([''] = no geo segment) so the per-connection

@@ -3,6 +3,7 @@ import { Client as HttpClient, ConsoleLogger } from '@microsoft/teams.common';
 
 import { SignalRSocketConnection } from './socket-connection';
 import { SocketModeAdapter } from './socket-mode-adapter';
+import { configureSocketModeForTest } from './socket-mode.test-harness';
 import { SocketConnectionContext, SocketConnectionHandlers, SocketReadyFrame } from './types';
 
 type SignalRState = {
@@ -122,10 +123,9 @@ function makeHandlers(overrides: Partial<SocketConnectionHandlers> = {}): Socket
 }
 
 function makeAdapter(getBotToken = async () => 'bot-jwt', reconnectDelayMs = 0): SocketModeAdapter {
-  return new SocketModeAdapter({
+  const adapter = new SocketModeAdapter({
     negotiateBaseUrl: 'https://apx.example',
     geos: ['amer'],
-    reconnectDelaysMs: [reconnectDelayMs],
   }, {
     client,
     tokenProvider: {
@@ -147,6 +147,8 @@ function makeAdapter(getBotToken = async () => 'bot-jwt', reconnectDelayMs = 0):
     messagingEndpoint: '/api/messages',
     logger: new ConsoleLogger('test', { level: 'error' }),
   });
+  configureSocketModeForTest(adapter, { reconnectDelaysMs: [reconnectDelayMs] });
+  return adapter;
 }
 
 describe('SignalRSocketConnection', () => {
