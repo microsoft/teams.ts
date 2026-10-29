@@ -187,6 +187,50 @@ describe('Plan', () => {
     ]);
   });
 
+  it('builds completion metadata synchronously without sending or changing the Plan', () => {
+    const { api, ref, requests } = setup();
+    const plan = new Plan({ conversationId: ref.conversation.id, replyToId: 'original-prompt', apiClient: api });
+    const onSent = jest.fn();
+    plan.events.on('sent', onSent);
+    const saved = plan.toJSON();
+
+    const message = plan.completion();
+
+    expect(message).toBeInstanceOf(MessageActivityInput);
+    expect(JSON.parse(JSON.stringify(message))).toEqual({
+      type: 'message', text: '', replyToId: 'original-prompt', entities: [complete],
+    });
+    expect(plan.toJSON()).toEqual(saved);
+    expect(requests).toHaveLength(0);
+    expect(onSent).not.toHaveBeenCalled();
+  });
+
+  it('returns independent completion builders and entities on every call', () => {
+    const { api, ref } = setup();
+    const plan = new Plan({ conversationId: ref.conversation.id, replyToId: 'prompt', apiClient: api });
+    const first = plan.completion();
+    const second = plan.completion();
+    expect(first).not.toBe(second);
+    expect(first.entities).not.toBe(second.entities);
+    expect(first.entities?.[0]).not.toBe(second.entities?.[0]);
+
+    const entity = first.entities?.[0];
+    if (entity?.type !== 'planInfo') throw new Error('Expected completion metadata');
+    entity.planType = 'stop';
+    first.replyToId = 'changed-prompt';
+    first.withText('Changed')
+      .withTextFormat('extendedmarkdown')
+      .withChannelData({ feedbackLoop: { type: 'default' } })
+      .addEntity({ type: 'planInfo', planType: 'error' });
+
+    for (const message of [second, plan.completion()]) {
+      expect(JSON.parse(JSON.stringify(message))).toEqual({
+        type: 'message', text: '', replyToId: 'prompt', entities: [complete],
+      });
+    }
+    expect(plan.replyToId).toBe('prompt');
+  });
+
   it('completes with the answer ID and a single completion entity', async () => {
     const { api, ref, requests } = setup();
     const plan = new Plan({ conversationId: ref.conversation.id, replyToId: 'prompt', apiClient: api });
@@ -454,6 +498,50 @@ describe('Plan', () => {
 describe('Plan HTTP stream', () => {
   beforeEach(() => jest.useFakeTimers());
   afterEach(() => jest.useRealTimers());
+
+  it.each(['prompt', 'original-prompt'])('emits completion() last and closes explicitly for %s', async (replyToId) => {
+    const { api, ref, stream: createStream, requests } = setup();
+    const plan = new Plan({ conversationId: ref.conversation.id, replyToId, apiClient: api });
+    const onSent = jest.fn();
+    plan.events.on('sent', onSent);
+    const stream = createStream();
+    const onClose = jest.fn();
+    stream.events.on('close', onClose);
+    stream.emit('Here is ');
+    stream.emit('the answer.');
+    await jest.runAllTimersAsync();
+    const final = plan.completion()
+      .withTextFormat('extendedmarkdown')
+      .withChannelData({ feedbackLoop: { type: 'default' } });
+    const original = JSON.stringify(final);
+    stream.emit(final);
+    await jest.runAllTimersAsync();
+
+    expect(stream.closed).toBe(false);
+    expect(onClose).not.toHaveBeenCalled();
+    for (const request of requests) {
+      const payload = JSON.parse(request.data);
+      expect(payload.type).toBe('typing');
+      expect(payload.entities).not.toContainEqual(complete);
+    }
+
+    const result = await stream.close();
+
+    expect(result).toMatchObject({ id: 'answer', replyToId, text: 'Here is the answer.' });
+    const payload = JSON.parse(requests[requests.length - 1].data);
+    expect(payload).toMatchObject({
+      type: 'message', id: 'answer', replyToId, conversation: ref.conversation,
+      text: 'Here is the answer.', textFormat: 'extendedmarkdown',
+      channelData: { feedbackLoop: { type: 'default' } },
+    });
+    expect(payload.entities.filter((entity: { type: string }) => entity.type === 'planInfo')).toEqual([complete]);
+    expect(payload.entities).toContainEqual(expect.objectContaining({ type: 'streaminfo', streamType: 'final' }));
+    expect(requests.every((request) => request.method === 'post')).toBe(true);
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(onSent).not.toHaveBeenCalled();
+    expect(JSON.stringify(final)).toBe(original);
+    expect(ref.activityId).toBe('prompt');
+  });
 
   it.each([undefined, 'other-prompt'])('sends completion only on the final POST and preserves Plan metadata (replyToId: %s)', async (replyToId) => {
     const { stream: createStream, requests, ref } = setup();

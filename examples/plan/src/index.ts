@@ -1,6 +1,6 @@
 import { setTimeout as sleep } from 'node:timers/promises';
 
-import { MessageActivityInput, Step } from '@microsoft/teams.api';
+import { Step } from '@microsoft/teams.api';
 import { App, Plan, PlanOptions } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common';
 
@@ -85,7 +85,7 @@ app.on('message', async (ctx) => {
         ctx.stream.emit(chunk);
         await sleep(500);
       }
-      ctx.stream.emit(new MessageActivityInput().addEntity({ type: 'planInfo', planType: 'complete' }));
+      ctx.stream.emit(plan.completion());
       await ctx.stream.close();
       break;
     case 'stop':

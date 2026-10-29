@@ -79,6 +79,18 @@ export class Plan {
     await this.sendUpdate('error');
   }
 
+  /**
+   * Build a fresh completion message without sending or changing this Plan.
+   * Emit it last on a stream for the same conversation, then explicitly close the stream.
+   * The original prompt ID is preserved; use the returned builder to add final metadata.
+   */
+  completion(): MessageActivityInput {
+    return new MessageActivityInput('', {
+      replyToId: this.replyToId,
+      entities: [{ type: 'planInfo', planType: 'complete' }],
+    });
+  }
+
   /** Complete with an answer, preserving metadata and rejecting non-complete Plan operations. */
   async complete(message: string | IMessageActivityInput): Promise<SentActivity> {
     const input = typeof message === 'string'

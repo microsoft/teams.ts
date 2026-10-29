@@ -12,6 +12,21 @@ A test application demonstrating structured progress reporting.
 | `error` | Mark a step as failed and end the Plan with an error. |
 | `proactive` | Start in the handler, then reconstruct from saved IDs to prepare and deliver a background report. |
 
+## Streamed completion
+
+Emit completion metadata last, after the answer text, then close explicitly:
+
+```typescript
+ctx.stream.emit('Here is the answer.');
+ctx.stream.emit(plan.completion());
+await ctx.stream.close();
+```
+
+`plan.completion()` synchronously builds a fresh `MessageActivityInput` bound to the
+original prompt. It does not send, emit a Plan event, or close the stream. The builder
+supports additional final metadata; the stream must target the same conversation.
+Use `await plan.complete(message)` to send a non-streamed answer instead.
+
 ## Long-running work
 
 `ctx.plan()` caches one Plan for the inbound activity. Keep step IDs stable and increment
@@ -31,6 +46,9 @@ npm install
 npx turbo run build --filter=@examples/plan
 npm run dev --workspace=@examples/plan
 ```
+
+After building, `npm test --workspace=@examples/plan` checks the streaming sample
+in process without starting a server or making network requests.
 
 For Teams, expose `/api/messages` through a tunnel and use the official Teams CLI to create the app:
 
