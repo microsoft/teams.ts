@@ -22,12 +22,12 @@
     "@microsoft/teams.apps": "*",
     "@microsoft/teams.cards": "*",
     "@microsoft/teams.common": "*",
-    "openai": "^7.32.0"
+    "openai": "^7.39.0"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
     "@types/node": "^26.6.5",
-    "dotenv": "^18.0.7",
+    "dotenv": "^18.0.8",
     "rimraf": "^6.0.1",
     "tsx": "^4.23.15",
     "typescript": "^5.4.5"
