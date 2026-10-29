@@ -15,30 +15,12 @@ A test application demonstrating structured progress reporting.
 ## Long-running work
 
 `ctx.plan()` caches one Plan for the inbound activity. Keep step IDs stable and increment
-their versions whenever status, title, description, or sources change. Source icons use
-the shared `CitationIconName` values (for example, `'Text'`).
+their versions whenever status, title, description, or sources change.
 
 Persist only the prompt binding, then inject an authenticated client already scoped to
-the conversation's service URL and caller:
-
-```typescript
-const saved = ctx.plan().toJSON(); // Also used by JSON.stringify(plan).
-const resumed = new Plan({ ...saved, apiClient: scopedClient });
-await resumed.complete('Your background report is ready.');
-```
-
-The client and event listeners are not serialized. Context-created Plans forward sends
-to app/plugin events; reconstructed Plans have their own `events.on('sent', ...)`
-listeners receiving `SentActivity`.
-
-Use `complete()` instead of `completePlan()`. The constructor now accepts `PlanOptions`;
-use it instead of passing a prompt override to `ctx.plan()`. The original prompt ID
-must remain separate from any answer or stream ID.
+the conversation's service URL and caller.
 
 The application owns background tasks, cancellation, and prompt-deletion cleanup.
-Plan completion after a stream timeout requires explicit recovery via `Plan.complete()`,
-not the ordinary PUT fallback. HTTP 409 `PlanConflict` is a separate, non-retryable
-lifecycle conflict.
 
 ## Run
 
