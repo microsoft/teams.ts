@@ -503,7 +503,7 @@ export class HttpStream implements IStreamer {
   /**
    * Creates the first message of the stream as a reply in the reply chain (thread).
    * In a channel, when the service answers HTTP 404 and the reply chain id is a plain non-zero number, creates the message in the inbound conversation instead.
-   * Any other error is thrown.
+   * Any other error is thrown, including a 404 outside a channel.
    */
   protected async createInReplyChain(
     replyChain: NonNullable<StreamOptions['replyChain']>,

@@ -1811,7 +1811,7 @@ describe('App', () => {
             expect(await placementFor('message.ext.submit', body('100'))).toEqual(flat);
           });
 
-          it('never places a card invoke in a group chat', async () => {
+          it('places a card invoke in a group chat by the shape of the payload', async () => {
             const result = await sendFromEvent(
               'card.action',
               rawInbound({
@@ -1825,7 +1825,7 @@ describe('App', () => {
               })
             );
 
-            expect(result).toEqual({ conversationId: '19:group@thread.v2', options: undefined });
+            expect(result).toEqual({ conversationId: '19:group@thread.v2', options: { replyChainId: '100' } });
           });
 
           it('never places a card invoke in a channel', async () => {

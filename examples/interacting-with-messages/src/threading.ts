@@ -7,7 +7,7 @@ type MessageContext = IActivityContext<Extract<Activity, { type: 'message' }>>;
  * Handles the command that sends a reactive, quoted reply.
  * In a 1:1 chat the reply matches the level of the inbound message: a reply to a message in a thread stays in the thread, and a reply to a top-level message is posted at top level.
  * In a channel the reply stays in the reply chain (thread) of the inbound message, including when the inbound message is a top-level post.
- * In a group chat the reply is sent to the inbound conversation and is not placed in a reply chain.
+ * The reply is placed in a reply chain only when the payload carries `channelData.replyChain.id`.
  * @returns Whether the command matched.
  */
 export async function handleThreadReply(

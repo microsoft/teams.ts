@@ -744,69 +744,32 @@ describe('App', () => {
       expect(options).toEqual({ replyChainId: '1680000000000' });
     });
 
-    it('should send to the suffixed conversation id when the reply chain route is not found', async () => {
-      const notFound = Object.assign(new Error('Not Found'), { response: { status: 404 } });
-      const mockSend = jest.fn().mockRejectedValueOnce(notFound).mockResolvedValueOnce({ id: 'activity-id' });
-      jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
-
-      const result = await app.testReply('19:abc@thread.skype', '1680000000000', { type: 'message', text: 'Hello chain' });
-
-      expect(mockSend).toHaveBeenCalledTimes(2);
-      expect(mockSend.mock.calls[0][2]).toEqual({ replyChainId: '1680000000000' });
-      expect(mockSend.mock.calls[1][1].conversation.id).toBe('19:abc@thread.skype;messageid=1680000000000');
-      expect(mockSend.mock.calls[1][2]).toBeUndefined();
-      expect(result).toEqual({ id: 'activity-id' });
-    });
-
-    it('should keep the agentic identity when falling back to the suffixed conversation id', async () => {
-      const notFound = Object.assign(new Error('Not Found'), { response: { status: 404 } });
-      const mockSend = jest.fn().mockRejectedValueOnce(notFound).mockResolvedValueOnce({ id: 'activity-id' });
-      jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
-      const agenticIdentity = { agenticAppBlueprintId: 'bp', agenticAppId: 'app', agenticUserId: 'user', tenantId: 'tenant' };
-
-      await (app as any).reply('19:abc@thread.skype', '123', { type: 'message', text: 'Hello' }, { agenticIdentity });
-
-      expect(mockSend.mock.calls[1][1].conversation.id).toBe('19:abc@thread.skype;messageid=123');
-      expect(mockSend.mock.calls[1][2]).toEqual({ agenticIdentity });
-    });
-
-    it('should send to the suffixed conversation id when the reply chain route answers 400', async () => {
-      const badRequest = Object.assign(new Error('Bad Request'), { response: { status: 400 } });
-      const mockSend = jest.fn().mockRejectedValueOnce(badRequest).mockResolvedValueOnce({ id: 'activity-id' });
-      jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
-
-      const result = await app.testReply('19:abc@thread.skype', '1680000000000', { type: 'message', text: 'Hello chain' });
-
-      expect(mockSend).toHaveBeenCalledTimes(2);
-      expect(mockSend.mock.calls[1][1].conversation.id).toBe('19:abc@thread.skype;messageid=1680000000000');
-      expect(result).toEqual({ id: 'activity-id' });
-    });
-
-    it.each([404, 400])('should not double the suffix when the conversation id already carries one (%s)', async (status) => {
-      const error = Object.assign(new Error('failed'), { response: { status } });
-      const mockSend = jest.fn().mockRejectedValueOnce(error).mockResolvedValueOnce({ id: 'activity-id' });
-      jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
-
-      await app.testReply('19:abc@thread.skype;messageid=111', '1680000000000', { type: 'message', text: 'Hello' });
-
-      expect(mockSend.mock.calls[1][1].conversation.id).toBe('19:abc@thread.skype;messageid=1680000000000');
-    });
-
     it.each([
-      ['an error other than a missing route or a bad request', '1680000000000', 500],
-      ['a forbidden error', '1680000000000', 403],
-      ['a message id that is not numeric', 'a:encrypted-root', 404],
-      ['a message id that is not numeric on a bad request', 'a:encrypted-root', 400],
-      ['a message id of 0', '0', 404],
-      ['a message id of 0 on a bad request', '0', 400],
-    ])('should not fall back for %s', async (_name, messageId, status) => {
+      ['a missing route', 404],
+      ['a bad request', 400],
+      ['a server error', 500],
+      ['a forbidden error', 403],
+    ])('should throw and send nothing else when the reply chain route answers %s', async (_name, status) => {
       const error = Object.assign(new Error('failed'), { response: { status } });
       const mockSend = jest.fn().mockRejectedValue(error);
       jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
 
-      await expect(app.testReply('19:abc@thread.skype', messageId, { type: 'message', text: 'Hello' })).rejects.toThrow(
+      await expect(app.testReply('19:abc@thread.skype', '1680000000000', { type: 'message', text: 'Hello' })).rejects.toThrow(
         'failed'
       );
+      expect(mockSend).toHaveBeenCalledTimes(1);
+      expect(mockSend.mock.calls[0][1].conversation.id).toBe('19:abc@thread.skype');
+      expect(mockSend.mock.calls[0][2]).toEqual({ replyChainId: '1680000000000' });
+    });
+
+    it.each([404, 400])('should throw without a second request for a conversation id that carries a suffix (%s)', async (status) => {
+      const error = Object.assign(new Error('failed'), { response: { status } });
+      const mockSend = jest.fn().mockRejectedValue(error);
+      jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
+
+      await expect(
+        app.testReply('19:abc@thread.skype;messageid=111', '1680000000000', { type: 'message', text: 'Hello' })
+      ).rejects.toThrow('failed');
       expect(mockSend).toHaveBeenCalledTimes(1);
     });
 

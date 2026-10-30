@@ -65,7 +65,6 @@ import { AppTokenProvider, IAppTokenProvider } from './token-provider';
 import { ActivitySenderOptions, AppEvents, IPlugin, PluginName, RouteHandler } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 import { getBooleanEnvValue } from './utils/env';
-import { toThreadedConversationId } from './utils/thread';
 
 function isAppSendOptions(value: ActivityLike | DeprecatedInputActivity | AppSendOptions): value is AppSendOptions {
   if (typeof value === 'string') return false;
@@ -536,14 +535,11 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * send an activity proactively as a reply in a reply chain (thread).
    *
    * Posts to the reply chain of the message `messageId`, in the chat or channel `conversationId`.
-   * When the service answers HTTP 404 or 400 and `messageId` is a plain non-zero number, sends the activity again to the conversation id `{conversationId};messageid={messageId}`.
-   * In that retry, a suffix already on `conversationId` is replaced, not doubled.
-   * Only the status code is tested.
-   * Any other error is thrown.
+   * Any error from the service is thrown, and the activity is not sent anywhere else.
    * The SDK does not state where a client shows the message in a group chat.
    *
    * @param conversationId the id of the chat or channel: `channelData.chat.id` or `channelData.channel.id`, **not** `conversation.id`.
-   * @param messageId the id of the message at the root of the reply chain: `channelData.replyChain.id`, or `activity.id` when replying to a top-level message
+   * @param messageId the id of the message at the root of the reply chain: `channelData.replyChain.id`
    * @param activity the activity to send
    * @throws Error when `conversationId` or `messageId` is empty or blank
    * @throws Error when `conversationId` or `messageId` is a dot segment (`.` or `..`)
@@ -553,14 +549,11 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * send an activity proactively as a reply in a reply chain (thread).
    *
    * Posts to the reply chain of the message `messageId`, in the chat or channel `conversationId`.
-   * When the service answers HTTP 404 or 400 and `messageId` is a plain non-zero number, sends the activity again to the conversation id `{conversationId};messageid={messageId}`.
-   * In that retry, a suffix already on `conversationId` is replaced, not doubled.
-   * Only the status code is tested.
-   * Any other error is thrown.
+   * Any error from the service is thrown, and the activity is not sent anywhere else.
    * The SDK does not state where a client shows the message in a group chat.
    *
    * @param conversationId the id of the chat or channel: `channelData.chat.id` or `channelData.channel.id`, **not** `conversation.id`.
-   * @param messageId the id of the message at the root of the reply chain: `channelData.replyChain.id`, or `activity.id` when replying to a top-level message
+   * @param messageId the id of the message at the root of the reply chain: `channelData.replyChain.id`
    * @param activity the activity to send
    * @throws Error when `conversationId` or `messageId` is empty or blank
    * @throws Error when `conversationId` or `messageId` is a dot segment (`.` or `..`)
@@ -605,16 +598,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         throw new Error('messageId must be a non-empty string');
       }
 
-      try {
-        return await this.sendActivity(conversationId, activity, options, messageId);
-      } catch (err: any) {
-        const status = err?.response?.status;
-        if ((status !== 404 && status !== 400) || !/^\d+$/.test(messageId) || messageId === '0') {
-          throw err;
-        }
-
-        return this.send(toThreadedConversationId(conversationId, messageId), activity, options);
-      }
+      return this.sendActivity(conversationId, activity, options, messageId);
     }
 
     const opts = activity && isAppSendOptions(activity) ? activity : options;

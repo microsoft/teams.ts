@@ -205,7 +205,7 @@ export class ConversationClient {
    * Posts to `/v3/conversations/{conversationId}/replyChains/{id}`.
    *
    * @param conversationId the id of the chat or channel: `channelData.chat.id` or `channelData.channel.id`, **not** `conversation.id`.
-   * @param id the id of the message at the root of the reply chain: `channelData.replyChain.id`, or `activity.id` when replying to a top-level message
+   * @param id the id of the message at the root of the reply chain: `channelData.replyChain.id`
    * @param params the activity to send
    * @throws Error when `conversationId` or `id` is empty or blank
    * @throws Error when `conversationId` or `id` is a dot segment (`.` or `..`)
@@ -223,7 +223,7 @@ export class ConversationClient {
    * Takes the same arguments as {@link createReplyChainActivity}.
    *
    * @param conversationId the id of the chat or channel: `channelData.chat.id` or `channelData.channel.id`, **not** `conversation.id`.
-   * @param id the id of the message at the root of the reply chain: `channelData.replyChain.id`, or `activity.id` when replying to a top-level message
+   * @param id the id of the message at the root of the reply chain: `channelData.replyChain.id`
    * @param params the activity to send
    * @throws Error when `conversationId` or `id` is empty or blank
    * @throws Error when `conversationId` or `id` is a dot segment (`.` or `..`)
