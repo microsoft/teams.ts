@@ -55,6 +55,10 @@ describe('HttpStream', () => {
   describe('in a reply chain', () => {
     const replyChain = { chatOrChannelId: 'chat-id', replyChainId: 'root-1' };
 
+    afterEach(() => {
+      jest.clearAllTimers();
+    });
+
     test('creates the first chunk in the reply chain and sends the rest to the conversation', async () => {
       client.conversations.createReplyChainActivity = jest.fn(async (_c: any, _r: any, activity: any) => ({ ...activity, id: 'stream-1' }));
       mockCreate();
