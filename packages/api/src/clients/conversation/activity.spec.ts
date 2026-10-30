@@ -328,27 +328,19 @@ describe('ConversationActivityClient', () => {
       {
         type: 'message',
         text: 'hi',
+        replyToId: '2',
       },
       expectTelemetryConfig()
     );
   });
 
-  it('should not set replyToId on the activity when replying', async () => {
+  it('should stamp replyToId on the activity when replying', async () => {
     const client = new ConversationActivityClient('');
     const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
 
     await client.reply('1', '2', { type: 'message', text: 'hi' });
 
-    expect(spy.mock.calls[0][1]).not.toHaveProperty('replyToId');
-  });
-
-  it('should keep a replyToId the caller put on the activity when replying', async () => {
-    const client = new ConversationActivityClient('');
-    const spy = jest.spyOn(client.http, 'post').mockResolvedValueOnce({});
-
-    await client.reply('1', '2', { type: 'message', text: 'hi', replyToId: '3' });
-
-    expect(spy.mock.calls[0][1]).toHaveProperty('replyToId', '3');
+    expect(spy.mock.calls[0][1]).toHaveProperty('replyToId', '2');
   });
 
   it('should not post a reply to the reply chain route', async () => {

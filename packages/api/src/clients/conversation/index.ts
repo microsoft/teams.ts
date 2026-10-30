@@ -58,13 +58,6 @@ export interface IConversationActivityOperations {
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
    */
   reply(id: string, params: DeprecatedInputActivity): ReturnType<ConversationActivityClient['reply']>;
-  /**
-   * Reply to an activity in a conversation.
-   *
-   * Posts to `/v3/conversations/{conversationId}/activities`.
-   * To create an activity in a reply chain (thread), use `ConversationClient.createReplyChainActivity`.
-   * The activity id is not sent.
-   */
   reply(id: string, params: ActivityParams): ReturnType<ConversationActivityClient['reply']>;
   delete(id: string): ReturnType<ConversationActivityClient['delete']>;
   members(activityId: string): ReturnType<ConversationActivityClient['getMembers']>;
@@ -201,13 +194,6 @@ export class ConversationClient {
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
    */
   replyToActivity(conversationId: string, id: string, params: DeprecatedInputActivity): ReturnType<ConversationActivityClient['reply']>;
-  /**
-   * Reply to an activity in a conversation.
-   *
-   * Posts to `/v3/conversations/{conversationId}/activities`.
-   * To create an activity in a reply chain (thread), use {@link createReplyChainActivity}.
-   * The activity id is not sent.
-   */
   replyToActivity(conversationId: string, id: string, params: ActivityParams): ReturnType<ConversationActivityClient['reply']>;
   replyToActivity(conversationId: string, id: string, params: ActivityParamsLike) {
     return this._activities.reply(conversationId, id, params);
