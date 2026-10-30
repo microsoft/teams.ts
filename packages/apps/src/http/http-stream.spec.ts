@@ -76,9 +76,9 @@ describe('HttpStream', () => {
       expect(client.conversations.createActivity.mock.calls[0][1].id).toBe('stream-1');
     });
 
-    test('does not fall back to the conversation in a chat when the reply chain route is not found', async () => {
+    test.each([404, 400])('does not fall back to the conversation in a chat when the reply chain route answers %s', async (status) => {
       client.conversations.createReplyChainActivity = jest.fn().mockRejectedValue(
-        Object.assign(new Error('Not Found'), { response: { status: 404 } })
+        Object.assign(new Error('Rejected'), { response: { status } })
       );
       mockCreate();
       const stream = new HttpStream(client, ref, logger, { replyChain: { ...replyChain, replyChainId: '1680000000000' } });

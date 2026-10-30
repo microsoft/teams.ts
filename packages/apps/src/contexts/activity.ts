@@ -186,10 +186,10 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
    * a stream that can emit activity chunks
    *
    * The first message of the stream goes to the reply chain (thread) where `send` would place a response.
-   * In a 1:1 chat the stream starts in the thread when the inbound activity is in a thread, and at top level otherwise.
+   * In a chat the stream starts in the thread when the inbound activity is in a thread, and at top level otherwise.
    * In a channel the stream starts in the reply chain of the inbound message.
    * In a channel, when the service answers HTTP 404, the first message of the stream is created in the inbound conversation instead.
-   * In a group chat the stream is not placed in a reply chain.
+   * Without `channelData.replyChain.id` the stream is not placed in a reply chain.
    */
   stream: IStreamer;
 
@@ -222,11 +222,11 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
   /**
    * send an activity to the conversation
    *
-   * In a 1:1 chat, sends into the reply chain (thread) when the inbound activity is inside one, and at top level otherwise.
+   * In a chat, sends into the reply chain (thread) when the inbound activity is inside one, and at top level otherwise.
    * The inbound activity can be a message, a card action, an invoke, a reaction, an edit or a delete.
    * In a channel, sends into the reply chain of the inbound message.
    * In a channel, when the service answers HTTP 404, sends to the inbound conversation instead.
-   * Group chats, meetings and other inbound activities are not placed, and the activity is sent to the inbound conversation.
+   * Inbound activities without `channelData.replyChain.id`, and other inbound activities, are not placed, and the activity is sent to the inbound conversation.
    *
    * @param activity activity to send
    */
@@ -234,11 +234,11 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
   /**
    * send an activity to the conversation
    *
-   * In a 1:1 chat, sends into the reply chain (thread) when the inbound activity is inside one, and at top level otherwise.
+   * In a chat, sends into the reply chain (thread) when the inbound activity is inside one, and at top level otherwise.
    * The inbound activity can be a message, a card action, an invoke, a reaction, an edit or a delete.
    * In a channel, sends into the reply chain of the inbound message.
    * In a channel, when the service answers HTTP 404, sends to the inbound conversation instead.
-   * Group chats, meetings and other inbound activities are not placed, and the activity is sent to the inbound conversation.
+   * Inbound activities without `channelData.replyChain.id`, and other inbound activities, are not placed, and the activity is sent to the inbound conversation.
    *
    * @param activity activity to send
    */
@@ -276,11 +276,11 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
   /**
    * reply to the inbound activity, automatically quoting the inbound message
    *
-   * In a 1:1 chat, sends into the reply chain (thread) when the inbound activity is inside one, and at top level otherwise.
+   * In a chat, sends into the reply chain (thread) when the inbound activity is inside one, and at top level otherwise.
    * The inbound activity can be a message, a card action, an invoke, a reaction, an edit or a delete.
    * In a channel, sends into the reply chain of the inbound message.
    * In a channel, when the service answers HTTP 404, sends to the inbound conversation instead.
-   * Group chats, meetings and other inbound activities are not placed, and the activity is sent to the inbound conversation.
+   * Inbound activities without `channelData.replyChain.id`, and other inbound activities, are not placed, and the activity is sent to the inbound conversation.
    * The response is automatically quoted only when the inbound activity id is a plain numeric message id.
    * Otherwise (for example an invoke or a card action with a service-generated `f:` id) the activity is sent without a quote, exactly like {@link send}.
    * Explicit quotes through {@link quote} are unchanged.
@@ -291,11 +291,11 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
   /**
    * reply to the inbound activity, automatically quoting the inbound message
    *
-   * In a 1:1 chat, sends into the reply chain (thread) when the inbound activity is inside one, and at top level otherwise.
+   * In a chat, sends into the reply chain (thread) when the inbound activity is inside one, and at top level otherwise.
    * The inbound activity can be a message, a card action, an invoke, a reaction, an edit or a delete.
    * In a channel, sends into the reply chain of the inbound message.
    * In a channel, when the service answers HTTP 404, sends to the inbound conversation instead.
-   * Group chats, meetings and other inbound activities are not placed, and the activity is sent to the inbound conversation.
+   * Inbound activities without `channelData.replyChain.id`, and other inbound activities, are not placed, and the activity is sent to the inbound conversation.
    * The response is automatically quoted only when the inbound activity id is a plain numeric message id.
    * Otherwise (for example an invoke or a card action with a service-generated `f:` id) the activity is sent without a quote, exactly like {@link send}.
    * Explicit quotes through {@link quote} are unchanged.
@@ -478,14 +478,11 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   /**
    * send an activity in the current conversation without quoting.
    *
-   * In a 1:1 chat, sends into the reply chain (thread) when the inbound activity is inside one, and at top level otherwise.
+   * In a chat, sends into the reply chain (thread) when the inbound activity is inside one, and at top level otherwise.
    * The inbound activity can be a message, a card action, an invoke, a reaction, an edit or a delete.
    * In a channel, sends into the reply chain of the inbound message.
    * In a channel, when the service answers HTTP 404, sends to the inbound conversation instead.
-   * Group chats, meetings and other inbound activities are not placed, and the activity is sent to the inbound conversation.
-   * The response is automatically quoted only when the inbound activity id is a plain numeric message id.
-   * Otherwise (for example an invoke or a card action with a service-generated `f:` id) the activity is sent without a quote, exactly like {@link send}.
-   * Explicit quotes through {@link quote} are unchanged.
+   * Inbound activities without `channelData.replyChain.id`, and other inbound activities, are not placed, and the activity is sent to the inbound conversation.
    * To send with a visual quote of the inbound message, use {@link reply}.
    *
    * @param activity the activity to send
@@ -494,14 +491,11 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   /**
    * send an activity in the current conversation without quoting.
    *
-   * In a 1:1 chat, sends into the reply chain (thread) when the inbound activity is inside one, and at top level otherwise.
+   * In a chat, sends into the reply chain (thread) when the inbound activity is inside one, and at top level otherwise.
    * The inbound activity can be a message, a card action, an invoke, a reaction, an edit or a delete.
    * In a channel, sends into the reply chain of the inbound message.
    * In a channel, when the service answers HTTP 404, sends to the inbound conversation instead.
-   * Group chats, meetings and other inbound activities are not placed, and the activity is sent to the inbound conversation.
-   * The response is automatically quoted only when the inbound activity id is a plain numeric message id.
-   * Otherwise (for example an invoke or a card action with a service-generated `f:` id) the activity is sent without a quote, exactly like {@link send}.
-   * Explicit quotes through {@link quote} are unchanged.
+   * Inbound activities without `channelData.replyChain.id`, and other inbound activities, are not placed, and the activity is sent to the inbound conversation.
    * To send with a visual quote of the inbound message, use {@link reply}.
    *
    * @param activity the activity to send
@@ -580,11 +574,11 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    * send an activity in the current conversation with a visual quote
    * of the inbound message.
    *
-   * In a 1:1 chat, sends into the reply chain (thread) when the inbound activity is inside one, and at top level otherwise.
+   * In a chat, sends into the reply chain (thread) when the inbound activity is inside one, and at top level otherwise.
    * The inbound activity can be a message, a card action, an invoke, a reaction, an edit or a delete.
    * In a channel, sends into the reply chain of the inbound message.
    * In a channel, when the service answers HTTP 404, sends to the inbound conversation instead.
-   * Group chats, meetings and other inbound activities are not placed, and the activity is sent to the inbound conversation.
+   * Inbound activities without `channelData.replyChain.id`, and other inbound activities, are not placed, and the activity is sent to the inbound conversation.
    * The response is automatically quoted only when the inbound activity id is a plain numeric message id.
    * Otherwise (for example an invoke or a card action with a service-generated `f:` id) the activity is sent without a quote, exactly like {@link send}.
    * Explicit quotes through {@link quote} are unchanged.
@@ -597,11 +591,11 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    * send an activity in the current conversation with a visual quote
    * of the inbound message.
    *
-   * In a 1:1 chat, sends into the reply chain (thread) when the inbound activity is inside one, and at top level otherwise.
+   * In a chat, sends into the reply chain (thread) when the inbound activity is inside one, and at top level otherwise.
    * The inbound activity can be a message, a card action, an invoke, a reaction, an edit or a delete.
    * In a channel, sends into the reply chain of the inbound message.
    * In a channel, when the service answers HTTP 404, sends to the inbound conversation instead.
-   * Group chats, meetings and other inbound activities are not placed, and the activity is sent to the inbound conversation.
+   * Inbound activities without `channelData.replyChain.id`, and other inbound activities, are not placed, and the activity is sent to the inbound conversation.
    * The response is automatically quoted only when the inbound activity id is a plain numeric message id.
    * Otherwise (for example an invoke or a card action with a service-generated `f:` id) the activity is sent without a quote, exactly like {@link send}.
    * Explicit quotes through {@link quote} are unchanged.
@@ -732,14 +726,10 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    * The destination is the chat, `channelData.chat.id`.
    * When the inbound activity is on a top-level message the response is sent as a top-level message.
    *
-   * Group chats and meetings are not placed.
+   * Placement depends only on the payload: without `channelData.replyChain.id` and the chat or channel id the activity is not placed.
    * Returns undefined when an id is missing or blank, so the send goes to the inbound conversation.
    */
   private getInboundReplyChainPlacement() {
-    if (this.activity.conversation?.conversationType === 'groupChat') {
-      return undefined;
-    }
-
     const channelData = this.activity.channelData;
     const replyChainId = channelData?.replyChain?.id;
     if (!isPresent(replyChainId)) {
@@ -760,8 +750,8 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   /**
    * Whether the inbound activity in a chat is inside a thread: `channelData.replyChain.id` differs from the id of the message the activity acts on.
    * The message it acts on is:
-   * - `activity.id` for a message, an edit, a delete and a reaction.
-   * - `replyToId` (the card's message) for a message sent by a card button (a message with `channelData.source`).
+   * - `activity.id` for a message, an edit and a delete.
+   * - `replyToId` (the reacted message) for a reaction and for a message sent by a card button (a message with `channelData.source`).
    * - `value.messagePayload.id` for a message action, and `replyToId` (the message the user acted on, for example a card or a message with feedback buttons) for any other invoke.
    *
    * An invoke that is not tied to a message (for example a compose-box extension or a `task/fetch` from a bot command) is inside a thread when `channelData.replyChain.id` is present.
@@ -777,8 +767,9 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
         return hasSource(activity.channelData) ? isOtherPlainId(activity.replyToId) : activity.id !== replyChainId;
       case 'messageUpdate':
       case 'messageDelete':
-      case 'messageReaction':
         return activity.id !== replyChainId;
+      case 'messageReaction':
+        return isOtherPlainId(activity.replyToId);
       case 'invoke': {
         const payloadId =
           typeof activity.value === 'object' && activity.value !== null && 'messagePayload' in activity.value
