@@ -710,6 +710,48 @@ describe('Plan HTTP stream', () => {
     expect(requests).toHaveLength(3);
   });
 
+  it.each(['emit', 'update'] as const)('starts fresh with %s after retiring a rejected final Plan completion', async (reopen) => {
+    const { stream: createStream, requests, responses } = setup();
+    const stream = createStream();
+    const onClose = jest.fn();
+    stream.events.on('close', onClose);
+    stream.emit(new MessageActivityInput('Rejected answer', {
+      entities: [complete], attachments: [{ contentType: 'text/plain', content: 'Old attachment' }],
+      channelData: { feedbackLoop: { type: 'default' } },
+    }));
+    await jest.runAllTimersAsync();
+    responses.push({ code: 'PlanConflict', status: 409 });
+
+    await expect(stream.close()).rejects.toMatchObject({ name: 'PlanConflictStreamError' });
+    expect(stream.closed).toBe(false);
+    expect(stream.canceled).toBe(false);
+    expect(stream.timedOut).toBe(false);
+    expect(onClose).not.toHaveBeenCalled();
+    await expect(stream.close()).resolves.toBeUndefined();
+    expect(requests).toHaveLength(2);
+
+    stream[reopen]('Fresh');
+    await jest.runAllTimersAsync();
+    const first = JSON.parse(requests[2].data);
+    expect(first.id).toBeUndefined();
+    expect(first.channelData).toMatchObject({
+      streamSequence: 1, streamType: reopen === 'update' ? 'informative' : 'streaming',
+    });
+    expect(first.channelData.streamId).toBeUndefined();
+    if (reopen === 'update') {
+      stream.emit('Fresh');
+      await jest.runAllTimersAsync();
+    }
+    const result = await stream.close();
+    expect(result).toMatchObject({ text: 'Fresh', attachments: [] });
+    expect(result?.entities).not.toContainEqual(complete);
+    expect(result?.channelData?.feedbackLoop).toBeUndefined();
+    expect(onClose).toHaveBeenCalledTimes(1);
+    const count = requests.length;
+    expect(await stream.close()).toBe(result);
+    expect(requests).toHaveLength(count);
+  });
+
   it.each<Response>([
     { code: 'PlanNotFound', status: 409 },
     { code: 'OtherConflict', status: 409 },

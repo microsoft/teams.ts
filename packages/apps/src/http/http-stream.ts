@@ -119,7 +119,7 @@ export class HttpStream implements IStreamer {
       throw new StreamCancelledError();
     }
 
-    // Emitting after close or a retired Plan timeout starts a fresh stream cycle.
+    // Emitting after close or a retired Plan cycle starts a fresh stream cycle.
     if (this.closed || this._retired) {
       this._logger.debug('starting a new streamed message');
       this.resetForNextStream();
@@ -176,8 +176,8 @@ export class HttpStream implements IStreamer {
   /**
    * Close the stream by sending the final message.
    * Waits for all queued activities to flush.
-   * A Plan timeout discards the failed cycle and raises once. Further closes return
-   * undefined until the next emit or update starts a fresh cycle.
+   * A Plan timeout or final Plan conflict discards the failed cycle and raises once.
+   * Further closes return undefined until the next emit or update starts a fresh cycle.
    */
   async close() {
     // Closing is idempotent until the next emit/update reopens the stream.
@@ -265,6 +265,10 @@ export class HttpStream implements IStreamer {
           // streamInfo entity + stream channel data so this routes to update, not create.
           res = await this.sendFinal();
         } else {
+          if (err instanceof PlanConflictStreamError && getPlanInfo(activity)) {
+            this.resetCurrentStream();
+            this._retired = true;
+          }
           throw err;
         }
       }

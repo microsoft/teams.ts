@@ -1,8 +1,8 @@
 import { context, propagation, ROOT_CONTEXT } from '@opentelemetry/api';
 import type { Baggage, Context, ContextManager, Span, Tracer } from '@opentelemetry/api';
-import { AxiosError } from 'axios';
+import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
-import { AgenticIdentity, ConversationClient, IMessageActivity, InvokeResponse, ISignInFailureInvokeActivity, ITaskFetchInvokeActivity, IToken, MessageActivity, SentActivity, TaskModuleResponse, TokenStatus } from '@microsoft/teams.api';
+import { ActivityParams, AgenticIdentity, ConversationClient, IMessageActivity, InvokeResponse, ISignInFailureInvokeActivity, ITaskFetchInvokeActivity, IToken, MessageActivity, SentActivity, TaskModuleResponse, TokenStatus } from '@microsoft/teams.api';
 import { IStorage } from '@microsoft/teams.common';
 
 import { ActivitySender } from './activity-sender';
@@ -23,6 +23,7 @@ import { IActivityEvent } from './events/activity';
 import { Plan } from './plan';
 import { TurnStateContainer } from './state';
 import { createTestApp } from './test-utils';
+import { PlanConflictStreamError } from './types';
 
 jest.mock('./diagnostics/helpers', () => ({
   getTeamsBotApplicationTracer: jest.fn(),
@@ -1340,6 +1341,88 @@ describe('App', () => {
       expect(response.status).toBe(500);
       expect(create).toHaveBeenCalledTimes(1);
       expect(sent).not.toHaveBeenCalled();
+    });
+
+    it('does not replay a rejected final Plan completion after the handler recovers with stop', async () => {
+      const requests: { config: InternalAxiosRequestConfig; payload: ActivityParams }[] = [];
+      const conflicts: AxiosError[] = [];
+      const onClose = jest.fn();
+      const onError = jest.fn();
+      let caught: PlanConflictStreamError | undefined;
+      let recovered = false;
+      jest.spyOn(app.tokenProvider, 'getAppToken').mockResolvedValue(token);
+      jest.replaceProperty(axios.defaults, 'adapter', async (config: InternalAxiosRequestConfig) => {
+        const payload: ActivityParams = JSON.parse(config.data);
+        requests.push({ config, payload });
+        const plan = payload.entities?.find((entity) => entity.type === 'planInfo');
+        if (plan?.planType === 'complete') {
+          const error = new AxiosError(
+            'The Plan cannot be completed.',
+            AxiosError.ERR_BAD_REQUEST,
+            config,
+            { path: config.url },
+            {
+              config, headers: {}, status: 409, statusText: 'Conflict',
+              data: { error: { code: 'PlanConflict', message: 'The Plan cannot be completed.' } },
+            }
+          );
+          conflicts.push(error);
+          throw error;
+        }
+        return {
+          config, headers: {}, statusText: '',
+          status: plan?.planType === 'stop' ? 202 : 201,
+          data: plan?.planType === 'stop' ? null : { id: 'stream-answer' },
+        };
+      });
+      app.event('error', onError);
+      app.on('message', async (ctx) => {
+        const plan = ctx.plan();
+        ctx.stream.events.on('close', onClose);
+        ctx.stream.emit('Streamed answer');
+        ctx.stream.emit(plan.completion());
+        try {
+          await ctx.stream.close();
+        } catch (error) {
+          if (!(error instanceof PlanConflictStreamError)) throw error;
+          caught = error;
+          await plan.stop();
+          recovered = true;
+        }
+      });
+
+      const response = await app.process({ token, body: { ...messageActivity, id: 'inbound-id' } });
+
+      expect(caught).toBeInstanceOf(PlanConflictStreamError);
+      expect(caught?.cause).toBe(conflicts[0]);
+      expect(caught?.config).toBe(conflicts[0].config);
+      expect(caught?.request).toBe(conflicts[0].request);
+      expect(caught?.response).toBe(conflicts[0].response);
+      expect(caught?.code).toBe(conflicts[0].code);
+      expect(caught?.message).toBe(conflicts[0].message);
+      expect(recovered).toBe(true);
+      expect(response.status).toBe(200);
+      expect(conflicts).toHaveLength(1);
+      expect(onError).not.toHaveBeenCalled();
+      expect(onClose).not.toHaveBeenCalled();
+      expect(requests.every(({ config }) => config.method === 'post')).toBe(true);
+      const completions = requests.filter(({ payload }) => payload.type === 'message');
+      expect(completions).toHaveLength(1);
+      expect(completions[0].payload).toMatchObject({
+        id: 'stream-answer', text: 'Streamed answer', replyToId: 'inbound-id',
+        entities: expect.arrayContaining([
+          { type: 'planInfo', planType: 'complete' },
+          expect.objectContaining({ type: 'streaminfo', streamType: 'final' }),
+        ]),
+      });
+      expect(requests.at(-1)?.payload).toMatchObject({
+        type: 'typing', replyToId: 'inbound-id',
+        entities: [{ type: 'planInfo', planType: 'stop' }],
+      });
+      for (const { payload } of requests.slice(0, -2)) {
+        expect(payload.type).toBe('typing');
+        expect(payload.entities?.some((entity) => entity.type === 'planInfo')).toBe(false);
+      }
     });
 
     it('keeps a reference snapshot and outgoing notifications for a retained context Plan', async () => {

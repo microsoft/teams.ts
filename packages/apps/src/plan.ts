@@ -28,6 +28,10 @@ export type PlanOptions = {
 /**
  * Sends prompt-bound Plan activities; the application owns ordering and concurrency.
  * Serialize the IDs with JSON.stringify() and inject a client when reconstructing.
+ * 
+ * Targeted Plan scenarios are not supported. 
+ * Plans use ordinary create routing, and completion() does not inherit
+ * targeting from the originating context.
  *
  * @experimental This API is in preview and may change in the future.
  * Diagnostic: ExperimentalTeamsPlan
