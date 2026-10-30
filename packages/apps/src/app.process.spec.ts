@@ -7,6 +7,7 @@ import { IStorage } from '@microsoft/teams.common';
 
 import { ActivitySender } from './activity-sender';
 import { App } from './app';
+import { ActivityContext } from './contexts/activity';
 import { Agent365BaggageKeys } from './diagnostics/agent365-baggage';
 import {
   getTeamsBotApplicationTracer,
@@ -1493,6 +1494,470 @@ describe('App', () => {
       expect(response.status).toBe(500);
       expect(create).not.toHaveBeenCalled();
       expect(sent).not.toHaveBeenCalled();
+    });
+
+    describe('reactive send placement through the full pipeline', () => {
+      const chatId = '19:user_bot@unq.gbl.spaces';
+      const channelId = '19:channel@thread.tacv2';
+
+      const inbound = (options: {
+        id: string;
+        conversationId: string;
+        conversationType: 'personal' | 'channel';
+        channelData?: Record<string, unknown>;
+      }) =>
+        new MessageActivity('hello')
+          .withId(options.id)
+          .withFrom({ id: 'user-1', name: 'Test User', role: 'user' })
+          .withRecipient({ id: 'bot-1', name: 'Test Bot', role: 'bot' })
+          .withConversation({ id: options.conversationId, conversationType: options.conversationType })
+          .withChannelId('msteams')
+          .withServiceUrl('https://service.url')
+          .withChannelData(options.channelData ?? {})
+          .toInterface();
+
+      const sendFromHandler = async (body: IMessageActivity) => {
+        const send = jest
+          .spyOn(ActivitySender.prototype, 'send')
+          .mockImplementation(async (activity) => ({ id: 'sent-1', ...activity }) as any);
+        app.on('message', async (ctx) => {
+          await ctx.send('response');
+        });
+        await app.process({ token, body });
+        expect(send).toHaveBeenCalledTimes(1);
+        return send.mock.calls[0] as unknown as [any, any, any];
+      };
+
+      describe('for card, invoke and event payloads', () => {
+        const rawInbound = (fields: Record<string, unknown>) =>
+          ({
+            channelId: 'msteams',
+            serviceUrl: 'https://service.url',
+            from: { id: 'user-1', name: 'Test User', role: 'user' },
+            recipient: { id: 'bot-1', name: 'Test Bot', role: 'bot' },
+            conversation: { id: 'a:opaque-conversation', conversationType: 'personal' },
+            ...fields,
+          }) as any;
+
+        const sendFromEvent = async (event: string, body: any) => {
+          const send = jest
+            .spyOn(ActivitySender.prototype, 'send')
+            .mockImplementation(async (activity) => ({ id: 'sent-1', ...activity }) as any);
+          app.on(event as any, async (ctx: any) => {
+            await ctx.send('response');
+            return { statusCode: 200, type: 'application/vnd.microsoft.activity.message', value: 'OK' };
+          });
+          await app.process({ token, body });
+          expect(send).toHaveBeenCalledTimes(1);
+          const [, ref, options] = send.mock.calls[0] as unknown as [any, any, any];
+          return { conversationId: ref.conversation.id as string, options };
+        };
+
+        const chatData = (replyChainId: string, extra: Record<string, unknown> = {}) => ({
+          chat: { id: chatId },
+          replyChain: { id: replyChainId },
+          ...extra,
+        });
+
+        it.each([
+          ['an L1 card', '1793229507815', '1793229507815', 'a:opaque-conversation', undefined],
+          ['a card in a thread', '1793229764819', '1793229504226', chatId, { replyChainId: '1793229504226' }],
+        ])('places a messageBack click on %s', async (_name, cardId, rootId, conversationId, options) => {
+          const result = await sendFromEvent(
+            'message',
+            rawInbound({
+              type: 'message',
+              id: 'f:75fdb71e-3aeb-8ff2-8bdf-e1709d492142',
+              replyToId: cardId,
+              value: { type: 'messageBack', text: 'capture mb', displayText: 'messageBack clicked', value: { probe: 'mb' } },
+              channelData: chatData(rootId, { source: { name: 'message' } }),
+            })
+          );
+
+          expect(result.conversationId).toBe(conversationId);
+          expect(result.options).toEqual(options);
+        });
+
+        it.each([
+          ['an L1 card', '1793229507815', '1793229507815', 'a:opaque-conversation', undefined],
+          ['a card in a thread', '1793229764819', '1793229504226', chatId, { replyChainId: '1793229504226' }],
+        ])('places an adaptiveCard/action invoke on %s', async (_name, cardId, rootId, conversationId, options) => {
+          const result = await sendFromEvent(
+            'card.action',
+            rawInbound({
+              type: 'invoke',
+              name: 'adaptiveCard/action',
+              id: 'f:ec156ed9-f382-40ee-5384-8e38f066fee2',
+              replyToId: cardId,
+              value: { action: { type: 'Action.Execute', verb: 'capture_execute', data: { action: 'capture_execute' } }, trigger: 'manual' },
+              channelData: chatData(rootId, { source: { name: 'message' } }),
+            })
+          );
+
+          expect(result.conversationId).toBe(conversationId);
+          expect(result.options).toEqual(options);
+        });
+
+        it.each([
+          ['an L1 message', '1793230432295', '1793230432295', 'a:opaque-conversation', undefined],
+          ['a message in a thread', '1793230385713', '1793230314269', chatId, { replyChainId: '1793230314269' }],
+        ])('places a message action on %s', async (_name, messageId, rootId, conversationId, options) => {
+          const result = await sendFromEvent(
+            'message.ext.submit',
+            rawInbound({
+              type: 'invoke',
+              name: 'composeExtension/submitAction',
+              id: 'f:fa6ab590-4432-37f6-4cf9-93a20a055fb4',
+              value: { commandId: 'getMessageDetails', commandContext: 'message', messagePayload: { id: messageId } },
+              channelData: chatData(rootId, { source: { name: 'compose' } }),
+            })
+          );
+
+          expect(result.conversationId).toBe(conversationId);
+          expect(result.options).toEqual(options);
+        });
+
+        it.each([
+          ['an L1 message', '1793229864429', '1793229864429', 'a:opaque-conversation', undefined],
+          ['a message in a thread', '1793230177745', '1793229504226', chatId, { replyChainId: '1793229504226' }],
+        ])('places a reaction on %s', async (_name, messageId, rootId, conversationId, options) => {
+          const result = await sendFromEvent(
+            'messageReaction',
+            rawInbound({
+              type: 'messageReaction',
+              id: messageId,
+              replyToId: messageId,
+              reactionsAdded: [{ type: 'like' }],
+              channelData: chatData(rootId),
+            })
+          );
+
+          expect(result.conversationId).toBe(conversationId);
+          expect(result.options).toEqual(options);
+        });
+
+        describe('with null or empty fields', () => {
+          const placementFor = async (event: string, body: any) => {
+            const createStream = jest.spyOn(ActivitySender.prototype, 'createStream');
+            const sent = await sendFromEvent(event, body);
+            expect(createStream).toHaveBeenCalledTimes(1);
+            return { ...sent, streamReplyChain: createStream.mock.calls[0][1]?.replyChain };
+          };
+
+          const placed = {
+            conversationId: chatId,
+            options: { replyChainId: '100' },
+            streamReplyChain: { chatOrChannelId: chatId, replyChainId: '100' },
+          };
+          const notPlaced = {
+            conversationId: 'a:opaque-conversation',
+            options: undefined,
+            streamReplyChain: undefined,
+          };
+
+          const message = (channelData: Record<string, unknown>, fields: Record<string, unknown> = {}) =>
+            rawInbound({ type: 'message', id: '105', text: 'hi', channelData: chatData('100', channelData), ...fields });
+          const invoke = (fields: Record<string, unknown>, channelData: Record<string, unknown> = chatData('100')) =>
+            rawInbound({ type: 'invoke', name: 'composeExtension/submitAction', id: 'f:client-id', channelData, ...fields });
+          const messageAction = (messagePayload: Record<string, unknown>, fields: Record<string, unknown> = {}) =>
+            invoke({ value: { commandId: 'getMessageDetails', messagePayload }, ...fields });
+
+          it.each([
+            ['a message without source', 'message', message({}), placed],
+            ['a message with source null', 'message', message({ source: null }), placed],
+            ['a message on the root with source null', 'message', message({ source: null }, { id: '100' }), notPlaced],
+            ['a message with an empty source and a replyToId on the root', 'message', message({ source: {} }, { replyToId: '100' }), placed],
+            ['a message with an empty source and a replyToId in the thread', 'message', message({ source: {} }, { replyToId: '105' }), placed],
+            ['a message with a source without a name and a replyToId on the root', 'message', message({ source: { foo: 1 } }, { replyToId: '100' }), placed],
+            ['a message with a source with an empty name and a replyToId on the root', 'message', message({ source: { name: '' } }, { replyToId: '100' }), placed],
+            ['a message on the root with an empty source and a replyToId in the thread', 'message', message({ source: {} }, { id: '100', replyToId: '105' }), notPlaced],
+            ['a message with a blank chat id', 'message', message({ chat: { id: ' ' } }), notPlaced],
+            ['a message with a blank reply chain id', 'message', message({ replyChain: { id: '  ' } }), notPlaced],
+            [
+              'a card message on the root',
+              'message',
+              message({ source: { name: 'message' } }, { replyToId: '100' }),
+              notPlaced,
+            ],
+            [
+              'a card message in the thread',
+              'message',
+              message({ source: { name: 'message' } }, { replyToId: '105' }),
+              placed,
+            ],
+            ['an invoke without replyToId and without a message payload', 'message.ext.submit', invoke({ value: { commandId: 'x' } }), placed],
+            [
+              'the same invoke without a reply chain id',
+              'message.ext.submit',
+              invoke({ value: { commandId: 'x' } }, { chat: { id: chatId } }),
+              notPlaced,
+            ],
+            ['an invoke with replyToId null', 'message.ext.submit', invoke({ replyToId: null, value: { commandId: 'x' } }), placed],
+            ['an invoke with an empty replyToId', 'message.ext.submit', invoke({ replyToId: '', value: { commandId: 'x' } }), notPlaced],
+            ['a message action with a null payload id in the thread', 'message.ext.submit', messageAction({ id: null }, { replyToId: '105' }), placed],
+            ['a message action with a null payload id on the root', 'message.ext.submit', messageAction({ id: null }, { replyToId: '100' }), notPlaced],
+            ['a message action with an empty payload id', 'message.ext.submit', messageAction({ id: '' }, { replyToId: '105' }), notPlaced],
+            ['a message action on a message in the thread', 'message.ext.submit', messageAction({ id: '105' }), placed],
+            ['a message action on the root message', 'message.ext.submit', messageAction({ id: '100' }), notPlaced],
+            ['a message action with a numeric payload id', 'message.ext.submit', messageAction({ id: 100 }, { replyToId: '100' }), notPlaced],
+          ])('sends and starts the stream for %s', async (_name, event, body, expected) => {
+            expect(await placementFor(event, body)).toEqual(expected);
+          });
+        });
+
+        describe('for invokes through the registered handler', () => {
+          const placementFor = async (event: string, body: any) => {
+            const createStream = jest.spyOn(ActivitySender.prototype, 'createStream');
+            const sent = await sendFromEvent(event, body);
+            expect(createStream).toHaveBeenCalledTimes(1);
+            return { ...sent, streamReplyChain: createStream.mock.calls[0][1]?.replyChain };
+          };
+
+          const flat = {
+            conversationId: 'a:opaque-conversation',
+            options: undefined,
+            streamReplyChain: undefined,
+          };
+          const placedIn = (rootId: string) => ({
+            conversationId: chatId,
+            options: { replyChainId: rootId },
+            streamReplyChain: { chatOrChannelId: chatId, replyChainId: rootId },
+          });
+
+          const compose = { source: { name: 'compose' } };
+          const fromMessage = { source: { name: 'message' } };
+
+          it.each([
+            [
+              'composeExtension/fetchTask',
+              'message.ext.open',
+              { commandId: 'fetchDialog', commandContext: 'compose', context: { theme: 'default' } },
+            ],
+            [
+              'composeExtension/query',
+              'message.ext.query',
+              {
+                commandId: 'searchQuery',
+                parameters: [{ name: 'searchQuery', value: 'q' }],
+                queryOptions: { count: 25, skip: 0 },
+              },
+            ],
+          ])('places a %s invoke without a message by the reply chain of the payload', async (name, event, value) => {
+            const body = (channelData: Record<string, unknown>) =>
+              rawInbound({ type: 'invoke', name, id: 'f:client-id', value, channelData });
+
+            expect(await placementFor(event, body({ chat: { id: chatId }, ...compose }))).toEqual(flat);
+
+            jest.restoreAllMocks();
+            expect(await placementFor(event, body(chatData('1793230314269', compose)))).toEqual(placedIn('1793230314269'));
+          });
+
+          it.each([
+            ['task/fetch', 'dialog.open', { data: { dialog_id: 'capture_dialog', type: 'task/fetch' }, context: { theme: 'default' } }],
+            ['task/submit', 'dialog.submit', { data: { action: 'capture_dialog' }, context: { theme: 'default' } }],
+          ])('places a %s invoke from a card', async (name, event, value) => {
+            const body = (cardId: string, rootId: string) =>
+              rawInbound({
+                type: 'invoke',
+                name,
+                id: 'f:client-id',
+                replyToId: cardId,
+                value,
+                channelData: chatData(rootId, compose),
+              });
+
+            expect(await placementFor(event, body('1793229507815', '1793229507815'))).toEqual(flat);
+
+            jest.restoreAllMocks();
+            expect(await placementFor(event, body('1793229764819', '1793229504226'))).toEqual(placedIn('1793229504226'));
+          });
+
+          it.each([
+            ['an L1 message', '1793230315283', '1793230315283', flat],
+            ['a message in a thread', '1793230387232', '1793230314269', placedIn('1793230314269')],
+          ])('places feedback on %s', async (_name, messageId, rootId, expected) => {
+            const result = await placementFor(
+              'message.submit',
+              rawInbound({
+                type: 'invoke',
+                name: 'message/submitAction',
+                id: 'f:client-id',
+                replyToId: messageId,
+                value: { actionName: 'feedback', actionValue: { reaction: 'like', feedback: '{"feedbackText":"fb"}' } },
+                channelData: chatData(rootId, fromMessage),
+              })
+            );
+
+            expect(result).toEqual(expected);
+          });
+
+          it.each([
+            ['an empty message payload', {}],
+            ['a message payload id that is not a string', { id: ['105'] }],
+          ])('compares a message action with %s with its replyToId', async (_name, messagePayload) => {
+            const body = (replyToId: string) =>
+              rawInbound({
+                type: 'invoke',
+                name: 'composeExtension/submitAction',
+                id: 'f:client-id',
+                replyToId,
+                value: { commandId: 'getMessageDetails', commandContext: 'message', messagePayload },
+                channelData: chatData('100', compose),
+              });
+
+            expect(await placementFor('message.ext.submit', body('105'))).toEqual(placedIn('100'));
+
+            jest.restoreAllMocks();
+            expect(await placementFor('message.ext.submit', body('100'))).toEqual(flat);
+          });
+
+          it('places a card invoke in a group chat by the shape of the payload', async () => {
+            const result = await sendFromEvent(
+              'card.action',
+              rawInbound({
+                type: 'invoke',
+                name: 'adaptiveCard/action',
+                id: 'f:client-id',
+                replyToId: '105',
+                conversation: { id: '19:group@thread.v2', conversationType: 'groupChat' },
+                value: { action: { type: 'Action.Execute', verb: 'v', data: {} }, trigger: 'manual' },
+                channelData: { chat: { id: '19:group@thread.v2' }, replyChain: { id: '100' }, ...fromMessage },
+              })
+            );
+
+            expect(result).toEqual({ conversationId: '19:group@thread.v2', options: { replyChainId: '100' } });
+          });
+
+          it('never places a card invoke in a channel', async () => {
+            const suffixed = `${channelId};messageid=100`;
+            const result = await sendFromEvent(
+              'card.action',
+              rawInbound({
+                type: 'invoke',
+                name: 'adaptiveCard/action',
+                id: 'f:client-id',
+                replyToId: '105',
+                conversation: { id: suffixed, conversationType: 'channel' },
+                value: { action: { type: 'Action.Execute', verb: 'v', data: {} }, trigger: 'manual' },
+                channelData: { channel: { id: channelId }, replyChain: { id: '100' }, ...fromMessage },
+              })
+            );
+
+            expect(result).toEqual({ conversationId: suffixed, options: undefined });
+          });
+
+          it.each([
+            ['an L1 card', '1793229507815', '1793229507815', flat],
+            ['a card in a thread', '1793229764819', '1793229504226', placedIn('1793229504226')],
+          ])('starts the stream of a card invoke handler on %s by the same rule as send', async (_name, cardId, rootId, expected) => {
+            const createStream = jest.spyOn(ActivitySender.prototype, 'createStream');
+            jest.spyOn(ActivitySender.prototype, 'send').mockImplementation(async (activity) => ({ id: 'sent-1', ...activity }) as any);
+            app.on('card.action' as any, async () => ({
+              statusCode: 200,
+              type: 'application/vnd.microsoft.activity.message',
+              value: 'OK',
+            }));
+
+            await app.process({
+              token,
+              body: rawInbound({
+                type: 'invoke',
+                name: 'adaptiveCard/action',
+                id: 'f:client-id',
+                replyToId: cardId,
+                value: { action: { type: 'Action.Execute', verb: 'v', data: {} }, trigger: 'manual' },
+                channelData: chatData(rootId, fromMessage),
+              }),
+            });
+
+            expect(createStream).toHaveBeenCalledTimes(1);
+            expect(createStream.mock.calls[0][1]?.replyChain).toEqual(expected.streamReplyChain);
+          });
+        });
+      });
+
+      it('does not hand the context a conversation reference unless the caller supplied one', async () => {
+        const contextSend = jest.spyOn(ActivityContext.prototype, 'send');
+        await sendFromHandler(
+          inbound({ id: 'm-1', conversationId: 'conv-1', conversationType: 'personal' })
+        );
+
+        expect(contextSend).toHaveBeenCalledTimes(1);
+        expect((contextSend.mock.calls as unknown[][])[0]).toHaveLength(1);
+      });
+
+      it('replies in the reply chain for a reply chain message in a chat', async () => {
+        const [, ref, options] = await sendFromHandler(
+          inbound({
+            id: 'reply-2',
+            conversationId: 'a:encrypted',
+            conversationType: 'personal',
+            channelData: { chat: { id: chatId }, replyChain: { id: 'root-1' } },
+          })
+        );
+
+        expect(ref.conversation.id).toBe(chatId);
+        expect(options).toEqual({ replyChainId: 'root-1' });
+      });
+
+      it('sends to the inbound conversation for a top-level message in a chat', async () => {
+        const [, ref, options] = await sendFromHandler(
+          inbound({
+            id: 'root-1',
+            conversationId: 'a:encrypted',
+            conversationType: 'personal',
+            channelData: { chat: { id: chatId }, replyChain: { id: 'root-1' } },
+          })
+        );
+
+        expect(ref.conversation.id).toBe('a:encrypted');
+        expect(options).toBeUndefined();
+      });
+
+      it('sends to the inbound conversation, suffix and all, for a channel message with no reply chain id', async () => {
+        const suffixed = `${channelId};messageid=root-1`;
+        const [, ref, options] = await sendFromHandler(
+          inbound({
+            id: 'reply-2',
+            conversationId: suffixed,
+            conversationType: 'channel',
+            channelData: { channel: { id: channelId } },
+          })
+        );
+
+        expect(ref.conversation.id).toBe(suffixed);
+        expect(options).toBeUndefined();
+      });
+
+      it('replies in the reply chain of a channel root post', async () => {
+        const suffixed = `${channelId};messageid=root-1`;
+        const [, ref, options] = await sendFromHandler(
+          inbound({
+            id: 'root-1',
+            conversationId: suffixed,
+            conversationType: 'channel',
+            channelData: { channel: { id: channelId }, replyChain: { id: 'root-1' } },
+          })
+        );
+
+        expect(ref.conversation.id).toBe(channelId);
+        expect(options).toEqual({ replyChainId: 'root-1' });
+      });
+
+      it('replies in the reply chain of the thread for a channel reply', async () => {
+        const suffixed = `${channelId};messageid=root-1`;
+        const [, ref, options] = await sendFromHandler(
+          inbound({
+            id: 'reply-2',
+            conversationId: suffixed,
+            conversationType: 'channel',
+            channelData: { channel: { id: channelId }, replyChain: { id: 'root-1' } },
+          })
+        );
+
+        expect(ref.conversation.id).toBe(channelId);
+        expect(options).toEqual({ replyChainId: 'root-1' });
+      });
     });
 
     it('should emit the "error" event when a route throws', async () => {

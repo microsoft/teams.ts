@@ -113,7 +113,7 @@ describe('ActivityContext', () => {
 
   const buildActivityContext = (
     activity: Activity,
-    constructorArgs: Partial<IActivityContextConstructorArgs> = {}
+    constructorArgs: Partial<IActivityContextConstructorArgs> & { ref?: ConversationReference } = {}
   ): ActivityContext => {
     return new ActivityContext({
       appId: 'test-app',
@@ -327,6 +327,795 @@ describe('ActivityContext', () => {
       );
     });
 
+    it('accepts an omitted or undefined conversation reference', async () => {
+      const activity = buildIncomingMessageActivity('Hello world');
+      context = buildActivityContext(activity);
+      const maybeRef = undefined as ConversationReference | undefined;
+
+      await context.send('forwarded', maybeRef);
+      await context.send('explicit', undefined);
+
+      expect(mockSender.send).toHaveBeenCalledTimes(2);
+      expect(mockSender.send).toHaveBeenNthCalledWith(1, expect.objectContaining({ text: 'forwarded' }), mockRef);
+      expect(mockSender.send).toHaveBeenNthCalledWith(2, expect.objectContaining({ text: 'explicit' }), mockRef);
+    });
+
+    describe('reply chain placement', () => {
+      const chatId = '19:user_bot@unq.gbl.spaces';
+      const channelId = '19:channel@thread.tacv2';
+
+      const buildInbound = (options: {
+        conversationType: 'personal' | 'channel' | 'groupChat';
+        conversationId: string;
+        id: string;
+        channelData?: Record<string, unknown>;
+        type?: 'message' | 'typing';
+      }) => {
+        const activity = new MessageActivity('Hello world')
+          .withFrom({ id: 'test-user', name: 'Test User', role: 'user' })
+          .withRecipient({ id: 'bot-id', name: 'Bot', role: 'bot' })
+          .withChannelId('test-channel')
+          .withConversation({ id: options.conversationId, conversationType: options.conversationType, isGroup: false })
+          .withId(options.id)
+          .withChannelData(options.channelData ?? {});
+        return activity;
+      };
+
+      const refFor = (conversationId: string, conversationType: 'personal' | 'channel' | 'groupChat'): ConversationReference => ({
+        ...mockRef,
+        conversation: { id: conversationId, conversationType, isGroup: false },
+      });
+
+      const lastCall = () => mockSender.send.mock.calls[0];
+
+      it('replies in the reply chain when the inbound is inside one, in a chat', async () => {
+        const ref = refFor('a:encrypted-conversation', 'personal');
+        context = buildActivityContext(
+          buildInbound({
+            conversationType: 'personal',
+            conversationId: 'a:encrypted-conversation',
+            id: 'reply-2',
+            channelData: { chat: { id: chatId }, replyChain: { id: 'root-1' } },
+          }),
+          { ref }
+        );
+
+        await context.send('hi');
+
+        const [params, sentRef, options] = lastCall();
+        expect(params).toEqual(expect.objectContaining({ text: 'hi', type: 'message' }));
+        expect(sentRef.conversation.id).toBe(chatId);
+        expect(options).toEqual({ replyChainId: 'root-1' });
+      });
+
+      it('does not fall back to the inbound conversation in a chat when the reply chain route is not found', async () => {
+        const ref = refFor('a:encrypted-conversation', 'personal');
+        context = buildActivityContext(
+          buildInbound({
+            conversationType: 'personal',
+            conversationId: 'a:encrypted-conversation',
+            id: 'reply-2',
+            channelData: { chat: { id: chatId }, replyChain: { id: 'root-1' } },
+          }),
+          { ref }
+        );
+        mockSender.send.mockRejectedValueOnce(Object.assign(new Error('Not Found'), { response: { status: 404 } }));
+
+        await expect(context.send('hi')).rejects.toThrow('Not Found');
+        expect(mockSender.send).toHaveBeenCalledTimes(1);
+      });
+
+      it('replies in the reply chain in a group chat by the shape of the payload', async () => {
+        const ref = refFor('19:group@thread.v2', 'groupChat');
+        context = buildActivityContext(
+          buildInbound({
+            conversationType: 'groupChat',
+            conversationId: '19:group@thread.v2',
+            id: 'reply-2',
+            channelData: { chat: { id: '19:group@thread.v2' }, replyChain: { id: 'root-1' } },
+          }),
+          { ref }
+        );
+
+        await context.send('hi');
+
+        const [, sentRef, options] = lastCall();
+        expect(sentRef.conversation.id).toBe('19:group@thread.v2');
+        expect(options).toEqual({ replyChainId: 'root-1' });
+      });
+
+      it('sends to the inbound conversation in a group chat when the payload carries no reply chain id', async () => {
+        const ref = refFor('19:group@thread.v2', 'groupChat');
+        context = buildActivityContext(
+          buildInbound({
+            conversationType: 'groupChat',
+            conversationId: '19:group@thread.v2',
+            id: 'reply-2',
+            channelData: { chat: { id: '19:group@thread.v2' } },
+          }),
+          { ref }
+        );
+
+        await context.send('hi');
+
+        expect(mockSender.send).toHaveBeenCalledWith(expect.objectContaining({ text: 'hi' }), ref);
+      });
+
+      it.each([
+        ['a 404', 404],
+        ['a 400', 400],
+      ])('does not fall back in a group chat after %s from the reply chain route', async (_name, status) => {
+        const ref = refFor('19:group@thread.v2', 'groupChat');
+        context = buildActivityContext(
+          buildInbound({
+            conversationType: 'groupChat',
+            conversationId: '19:group@thread.v2',
+            id: 'reply-2',
+            channelData: { chat: { id: '19:group@thread.v2' }, replyChain: { id: 'root-1' } },
+          }),
+          { ref }
+        );
+        mockSender.send.mockRejectedValueOnce(Object.assign(new Error('Rejected'), { response: { status } }));
+
+        await expect(context.send('hi')).rejects.toThrow('Rejected');
+        expect(mockSender.send).toHaveBeenCalledTimes(1);
+      });
+
+      it('does not fall back in a chat after a 400 from the reply chain route', async () => {
+        const ref = refFor('a:encrypted-conversation', 'personal');
+        context = buildActivityContext(
+          buildInbound({
+            conversationType: 'personal',
+            conversationId: 'a:encrypted-conversation',
+            id: 'reply-2',
+            channelData: { chat: { id: chatId }, replyChain: { id: 'root-1' } },
+          }),
+          { ref }
+        );
+        mockSender.send.mockRejectedValueOnce(Object.assign(new Error('Bad Request'), { response: { status: 400 } }));
+
+        await expect(context.send('hi')).rejects.toThrow('Bad Request');
+        expect(mockSender.send).toHaveBeenCalledTimes(1);
+      });
+
+      it('replies in the reply chain in a meeting chat by the shape of the payload', async () => {
+        const ref = refFor('19:meeting_abc@thread.v2', 'groupChat');
+        context = buildActivityContext(
+          buildInbound({
+            conversationType: 'groupChat',
+            conversationId: '19:meeting_abc@thread.v2',
+            id: 'reply-2',
+            channelData: {
+              chat: { id: '19:meeting_abc@thread.v2' },
+              replyChain: { id: 'root-1' },
+              meeting: { id: 'meeting-1' },
+            },
+          }),
+          { ref }
+        );
+
+        await context.send('hi');
+
+        const [, sentRef, options] = lastCall();
+        expect(sentRef.conversation.id).toBe('19:meeting_abc@thread.v2');
+        expect(options).toEqual({ replyChainId: 'root-1' });
+      });
+
+      it('creates the stream in the reply chain when the inbound is inside one, in a chat', () => {
+        const ref = refFor('a:encrypted-conversation', 'personal');
+        mockSender.createStream.mockClear();
+        context = buildActivityContext(
+          buildInbound({
+            conversationType: 'personal',
+            conversationId: 'a:encrypted-conversation',
+            id: 'reply-2',
+            channelData: { chat: { id: chatId }, replyChain: { id: 'root-1' } },
+          }),
+          { ref }
+        );
+
+        expect(mockSender.createStream).toHaveBeenCalledWith(ref, {
+          replyChain: { chatOrChannelId: chatId, replyChainId: 'root-1' },
+        });
+      });
+
+      it('creates the stream without a reply chain for a top-level message in a chat and in a group chat', () => {
+        for (const conversationType of ['personal', 'groupChat'] as const) {
+          const ref = refFor('a:conversation', conversationType);
+          mockSender.createStream.mockClear();
+          context = buildActivityContext(
+            buildInbound({
+              conversationType,
+              conversationId: 'a:conversation',
+              id: 'root-1',
+              channelData: { chat: { id: chatId }, replyChain: { id: 'root-1' } },
+            }),
+            { ref }
+          );
+
+          expect(mockSender.createStream).toHaveBeenCalledWith(ref, undefined);
+        }
+      });
+
+      it('creates the stream in the reply chain for a group chat by the shape of the payload', () => {
+        const ref = refFor('a:conversation', 'groupChat');
+        mockSender.createStream.mockClear();
+        context = buildActivityContext(
+          buildInbound({
+            conversationType: 'groupChat',
+            conversationId: 'a:conversation',
+            id: 'reply-2',
+            channelData: { chat: { id: chatId }, replyChain: { id: 'root-1' } },
+          }),
+          { ref }
+        );
+
+        expect(mockSender.createStream).toHaveBeenCalledWith(ref, {
+          replyChain: { chatOrChannelId: chatId, replyChainId: 'root-1' },
+        });
+      });
+
+      it('places nothing for an inbound activity that is not a message', async () => {
+        const ref = refFor('a:encrypted-conversation', 'personal');
+        mockSender.createStream.mockClear();
+        const inbound = {
+          ...buildInbound({
+            conversationType: 'personal',
+            conversationId: 'a:encrypted-conversation',
+            id: 'reply-2',
+            channelData: { chat: { id: chatId }, replyChain: { id: 'root-1' } },
+          }),
+          type: 'event',
+        } as unknown as Activity;
+        context = buildActivityContext(inbound, { ref });
+
+        expect(mockSender.createStream).toHaveBeenCalledWith(ref, undefined);
+
+        await context.send('hi');
+
+        const [, sentRef, options] = lastCall();
+        expect(sentRef.conversation.id).toBe('a:encrypted-conversation');
+        expect(options).toBeUndefined();
+      });
+
+      it('creates the stream in the reply chain in a meeting chat by the shape of the payload', () => {
+        const ref = refFor('19:meeting_abc@thread.v2', 'groupChat');
+        mockSender.createStream.mockClear();
+        context = buildActivityContext(
+          buildInbound({
+            conversationType: 'groupChat',
+            conversationId: '19:meeting_abc@thread.v2',
+            id: 'reply-2',
+            channelData: {
+              chat: { id: chatId },
+              replyChain: { id: 'root-1' },
+              meeting: { id: 'meeting-1' },
+            },
+          }),
+          { ref }
+        );
+
+        expect(mockSender.createStream).toHaveBeenCalledWith(ref, {
+          replyChain: { chatOrChannelId: chatId, replyChainId: 'root-1' },
+        });
+      });
+
+      it('sends to the inbound conversation when the inbound is a top-level message in a chat', async () => {
+        const ref = refFor('a:encrypted-conversation', 'personal');
+        context = buildActivityContext(
+          buildInbound({
+            conversationType: 'personal',
+            conversationId: 'a:encrypted-conversation',
+            id: 'root-1',
+            channelData: { chat: { id: chatId }, replyChain: { id: 'root-1' } },
+          }),
+          { ref }
+        );
+
+        await context.send('hi');
+
+        expect(mockSender.send).toHaveBeenCalledWith(expect.objectContaining({ text: 'hi' }), ref);
+      });
+
+      it('sends to the inbound conversation when the payload carries no reply chain id', async () => {
+        const ref = refFor(chatId, 'personal');
+        context = buildActivityContext(
+          buildInbound({ conversationType: 'personal', conversationId: chatId, id: 'm-1', channelData: { chat: { id: chatId } } }),
+          { ref }
+        );
+
+        await context.send('hi');
+
+        expect(mockSender.send).toHaveBeenCalledWith(expect.objectContaining({ text: 'hi' }), ref);
+      });
+
+      it('sends to the inbound conversation when the chat id is missing', async () => {
+        const ref = refFor('a:encrypted-conversation', 'personal');
+        context = buildActivityContext(
+          buildInbound({
+            conversationType: 'personal',
+            conversationId: 'a:encrypted-conversation',
+            id: 'reply-2',
+            channelData: { replyChain: { id: 'root-1' } },
+          }),
+          { ref }
+        );
+
+        await context.send('hi');
+
+        expect(mockSender.send).toHaveBeenCalledWith(expect.objectContaining({ text: 'hi' }), ref);
+      });
+
+      describe('in a channel', () => {
+        const suffixed = `${channelId};messageid=root-1`;
+
+        it('keeps sending to the inbound conversation when the payload has no reply chain id', async () => {
+          const ref = refFor(suffixed, 'channel');
+          context = buildActivityContext(
+            buildInbound({
+              conversationType: 'channel',
+              conversationId: suffixed,
+              id: 'reply-2',
+              channelData: { channel: { id: channelId } },
+            }),
+            { ref }
+          );
+
+          await context.send('hi');
+
+          expect(mockSender.send).toHaveBeenCalledWith(expect.objectContaining({ text: 'hi' }), ref);
+          expect(mockSender.send.mock.calls[0]).toHaveLength(2);
+          expect(mockSender.send.mock.calls[0][1].conversation.id).toBe(suffixed);
+        });
+
+        it.each([
+          ['a thread reply', 'reply-2'],
+          ['a root post', 'root-1'],
+        ])('creates the stream in the reply chain of the thread for %s', (_name, id) => {
+          const ref = refFor(suffixed, 'channel');
+          mockSender.createStream.mockClear();
+          context = buildActivityContext(
+            buildInbound({
+              conversationType: 'channel',
+              conversationId: suffixed,
+              id,
+              channelData: { channel: { id: channelId }, replyChain: { id: 'root-1' } },
+            }),
+            { ref }
+          );
+
+          expect(mockSender.createStream).toHaveBeenCalledWith(ref, {
+            replyChain: { chatOrChannelId: channelId, replyChainId: 'root-1', inChannel: true },
+          });
+        });
+
+        it.each([
+          ['a blank channel id', { channel: { id: '  ' }, replyChain: { id: 'root-1' } }],
+          ['a blank reply chain id', { channel: { id: channelId }, replyChain: { id: ' ' } }],
+        ])('sends to the inbound conversation and creates the stream there for %s', async (_name, channelData) => {
+          const ref = refFor(suffixed, 'channel');
+          mockSender.createStream.mockClear();
+          context = buildActivityContext(
+            buildInbound({ conversationType: 'channel', conversationId: suffixed, id: 'reply-2', channelData }),
+            { ref }
+          );
+
+          await context.send('hi');
+
+          expect(mockSender.send).toHaveBeenCalledWith(expect.objectContaining({ text: 'hi' }), ref);
+          expect(mockSender.send.mock.calls[0]).toHaveLength(2);
+          expect(mockSender.createStream).toHaveBeenCalledWith(ref, undefined);
+        });
+
+        it('replies in the reply chain of a root post', async () => {
+          const ref = refFor(`${channelId};messageid=root-1`, 'channel');
+          context = buildActivityContext(
+            buildInbound({
+              conversationType: 'channel',
+              conversationId: `${channelId};messageid=root-1`,
+              id: 'root-1',
+              channelData: { channel: { id: channelId }, replyChain: { id: 'root-1' } },
+            }),
+            { ref }
+          );
+
+          await context.send('hi');
+
+          const [, sentRef, options] = mockSender.send.mock.calls[0];
+          expect(sentRef.conversation.id).toBe(channelId);
+          expect(options).toEqual({ replyChainId: 'root-1' });
+        });
+
+        it('replies in the reply chain of the thread when the payload carries a reply chain id', async () => {
+          const ref = refFor(suffixed, 'channel');
+          context = buildActivityContext(
+            buildInbound({
+              conversationType: 'channel',
+              conversationId: suffixed,
+              id: 'reply-2',
+              channelData: { channel: { id: channelId }, replyChain: { id: 'root-1' } },
+            }),
+            { ref }
+          );
+
+          await context.send('hi');
+
+          const [, sentRef, options] = mockSender.send.mock.calls[0];
+          expect(sentRef.conversation.id).toBe(channelId);
+          expect(options).toEqual({ replyChainId: 'root-1' });
+        });
+
+        it('sends to the inbound conversation when the reply chain route is not found', async () => {
+          const ref = refFor(suffixed, 'channel');
+          context = buildActivityContext(
+            buildInbound({
+              conversationType: 'channel',
+              conversationId: suffixed,
+              id: 'reply-2',
+              channelData: { channel: { id: channelId }, replyChain: { id: 'root-1' } },
+            }),
+            { ref }
+          );
+          mockSender.send.mockRejectedValueOnce(Object.assign(new Error('Not Found'), { response: { status: 404 } }));
+
+          await context.send('hi');
+
+          expect(mockSender.send).toHaveBeenCalledTimes(2);
+          expect(mockSender.send.mock.calls[1]).toEqual([expect.objectContaining({ text: 'hi' }), ref]);
+        });
+
+        it('does not fall back for an error other than a missing route', async () => {
+          const ref = refFor(suffixed, 'channel');
+          context = buildActivityContext(
+            buildInbound({
+              conversationType: 'channel',
+              conversationId: suffixed,
+              id: 'reply-2',
+              channelData: { channel: { id: channelId }, replyChain: { id: 'root-1' } },
+            }),
+            { ref }
+          );
+          mockSender.send.mockRejectedValueOnce(Object.assign(new Error('Bad Request'), { response: { status: 400 } }));
+
+          await expect(context.send('hi')).rejects.toThrow('Bad Request');
+          expect(mockSender.send).toHaveBeenCalledTimes(1);
+        });
+
+        it('keeps sending to the inbound conversation for a channel reply with no channel id', async () => {
+          const ref = refFor(suffixed, 'channel');
+          context = buildActivityContext(
+            buildInbound({
+              conversationType: 'channel',
+              conversationId: suffixed,
+              id: 'reply-2',
+              channelData: { replyChain: { id: 'root-1' } },
+            }),
+            { ref }
+          );
+
+          await context.send('hi');
+
+          expect(mockSender.send).toHaveBeenCalledWith(expect.objectContaining({ text: 'hi' }), ref);
+        });
+      });
+
+      it.each([
+        ['a blank chat id', { chat: { id: '   ' }, replyChain: { id: 'root-1' } }],
+        ['a blank reply chain id', { chat: { id: chatId }, replyChain: { id: '  ' } }],
+      ])('sends to the inbound conversation and creates the stream there in a chat for %s', async (_name, channelData) => {
+        const ref = refFor('a:encrypted-conversation', 'personal');
+        mockSender.createStream.mockClear();
+        context = buildActivityContext(
+          buildInbound({ conversationType: 'personal', conversationId: 'a:encrypted-conversation', id: 'reply-2', channelData }),
+          { ref }
+        );
+
+        await context.send('hi');
+
+        expect(mockSender.send).toHaveBeenCalledWith(expect.objectContaining({ text: 'hi' }), ref);
+        expect(mockSender.send.mock.calls[0]).toHaveLength(2);
+        expect(mockSender.createStream).toHaveBeenCalledWith(ref, undefined);
+      });
+
+      describe('for inbound cards, invokes and message events', () => {
+        const buildShape = (options: {
+          type: string;
+          id?: string;
+          replyToId?: string;
+          value?: unknown;
+          channelData?: Record<string, unknown>;
+          conversationType?: 'personal' | 'channel' | 'groupChat';
+        }) => {
+          const conversationType = options.conversationType ?? 'personal';
+          const conversationId = conversationType === 'channel' ? `${channelId};messageid=100` : 'a:encrypted-conversation';
+          const activity = {
+            type: options.type,
+            id: options.id ?? 'f:client-id',
+            replyToId: options.replyToId,
+            value: options.value,
+            channelId: 'test-channel',
+            from: { id: 'test-user', name: 'Test User', role: 'user' },
+            recipient: { id: 'bot-id', name: 'Bot', role: 'bot' },
+            conversation: { id: conversationId, conversationType, isGroup: false },
+            channelData: options.channelData ?? {},
+          } as unknown as Activity;
+          return { activity, ref: refFor(conversationId, conversationType) };
+        };
+
+        const chatChannelData = (replyChainId: string, extra: Record<string, unknown> = {}) => ({
+          chat: { id: chatId },
+          replyChain: { id: replyChainId },
+          ...extra,
+        });
+        const fromCard = { source: { name: 'message' } };
+
+        const sendFrom = async (shape: ReturnType<typeof buildShape>) => {
+          context = buildActivityContext(shape.activity, { ref: shape.ref });
+          await context.send('hi');
+          const [, sentRef, options] = mockSender.send.mock.calls[0];
+          return { conversationId: sentRef.conversation.id as string, options };
+        };
+
+        it.each([
+          ['a messageBack or Action.Submit message', { type: 'message', replyToId: '105' }, fromCard],
+          ['an adaptiveCard/action invoke', { type: 'invoke', replyToId: '105' }, {}],
+          ['a message action invoke', { type: 'invoke', value: { messagePayload: { id: '105' } } }, {}],
+          ['a reaction', { type: 'messageReaction', id: 'f:9f78d1f3', replyToId: '105' }, {}],
+          ['an edit', { type: 'messageUpdate', id: '105' }, {}],
+          ['a delete', { type: 'messageDelete', id: '105' }, {}],
+        ])('replies in the thread for %s on a message inside a thread', async (_name, shape, extra) => {
+          const result = await sendFrom(buildShape({ ...shape, channelData: chatChannelData('100', extra) }));
+
+          expect(result.conversationId).toBe(chatId);
+          expect(result.options).toEqual({ replyChainId: '100' });
+        });
+
+        it.each([
+          ['a messageBack or Action.Submit message', { type: 'message', replyToId: '100' }, fromCard],
+          ['an adaptiveCard/action invoke', { type: 'invoke', replyToId: '100' }, {}],
+          ['a message action invoke', { type: 'invoke', value: { messagePayload: { id: '100' } } }, {}],
+          ['a reaction', { type: 'messageReaction', id: 'f:9f78d1f3', replyToId: '100' }, {}],
+          ['an edit', { type: 'messageUpdate', id: '100' }, {}],
+          ['a delete', { type: 'messageDelete', id: '100' }, {}],
+        ])('sends to the inbound conversation for %s on a top-level message', async (_name, shape, extra) => {
+          const result = await sendFrom(buildShape({ ...shape, channelData: chatChannelData('100', extra) }));
+
+          expect(result.conversationId).toBe('a:encrypted-conversation');
+          expect(result.options).toBeUndefined();
+        });
+
+        it('does not place a reaction that has no replyToId, and does not use its own id instead', async () => {
+          const result = await sendFrom(
+            buildShape({ type: 'messageReaction', id: '105', channelData: chatChannelData('100') })
+          );
+
+          expect(result.conversationId).toBe('a:encrypted-conversation');
+          expect(result.options).toBeUndefined();
+        });
+
+        it('compares a message action with the message payload id, not the reply id', async () => {
+          const result = await sendFrom(
+            buildShape({
+              type: 'invoke',
+              replyToId: '100',
+              value: { messagePayload: { id: '105' } },
+              channelData: chatChannelData('100'),
+            })
+          );
+
+          expect(result.options).toEqual({ replyChainId: '100' });
+        });
+
+        it.each([
+          ['an encrypted replyToId', '1:abc'],
+          ['a replyToId of 0', '0'],
+          ['a replyToId with other characters', '12a'],
+          ['a replyToId with a prefix before the digits', 'x105'],
+          ['an empty replyToId', ''],
+        ])('does not place a card message or invoke with %s', async (_name, replyToId) => {
+          for (const type of ['message', 'invoke']) {
+            mockSender.send.mockClear();
+            const result = await sendFrom(
+              buildShape({ type, replyToId, channelData: chatChannelData('100', type === 'message' ? fromCard : {}) })
+            );
+
+            expect(result.conversationId).toBe('a:encrypted-conversation');
+            expect(result.options).toBeUndefined();
+          }
+        });
+
+        it.each([
+          ['null', null],
+          ['a string', 'payload'],
+          ['an object without a message payload', { action: { type: 'Action.Execute' } }],
+          ['an object with an empty message payload', { messagePayload: null }],
+        ])('compares an invoke whose value is %s with its replyToId', async (_name, value) => {
+          const inside = await sendFrom(
+            buildShape({ type: 'invoke', replyToId: '105', value, channelData: chatChannelData('100') })
+          );
+
+          expect(inside.conversationId).toBe(chatId);
+          expect(inside.options).toEqual({ replyChainId: '100' });
+
+          mockSender.send.mockClear();
+          const topLevel = await sendFrom(
+            buildShape({ type: 'invoke', replyToId: '100', value, channelData: chatChannelData('100') })
+          );
+
+          expect(topLevel.conversationId).toBe('a:encrypted-conversation');
+          expect(topLevel.options).toBeUndefined();
+        });
+
+        it('does not place a card message without a replyToId', async () => {
+          const result = await sendFrom(buildShape({ type: 'message', channelData: chatChannelData('100', fromCard) }));
+
+          expect(result.options).toBeUndefined();
+        });
+
+        it('places an invoke that is not tied to a message when the payload has a reply chain id', async () => {
+          const result = await sendFrom(buildShape({ type: 'invoke', channelData: chatChannelData('100') }));
+
+          expect(result.conversationId).toBe(chatId);
+          expect(result.options).toEqual({ replyChainId: '100' });
+        });
+
+        it('does not place an invoke that is not tied to a message when the payload has no reply chain id', async () => {
+          const result = await sendFrom(buildShape({ type: 'invoke', channelData: { chat: { id: chatId } } }));
+
+          expect(result.options).toBeUndefined();
+        });
+
+        it.each(['conversationUpdate', 'installationUpdate', 'event', 'typing'])('never places a %s', async (type) => {
+          const result = await sendFrom(buildShape({ type, id: '105', channelData: chatChannelData('100') }));
+
+          expect(result.conversationId).toBe('a:encrypted-conversation');
+          expect(result.options).toBeUndefined();
+        });
+
+        it.each(['message', 'invoke', 'messageReaction'])('places a %s in a group chat by the shape of the payload', async (type) => {
+          const result = await sendFrom(
+            buildShape({ type, id: '105', replyToId: '105', conversationType: 'groupChat', channelData: chatChannelData('100') })
+          );
+
+          expect(result.conversationId).toBe(chatId);
+          expect(result.options).toEqual({ replyChainId: '100' });
+        });
+
+        it('does not place a message in a channel when the payload has no reply chain id', async () => {
+          const result = await sendFrom(
+            buildShape({
+              type: 'message',
+              id: '105',
+              conversationType: 'channel',
+              channelData: { channel: { id: channelId } },
+            })
+          );
+
+          expect(result.conversationId).toBe(`${channelId};messageid=100`);
+          expect(result.options).toBeUndefined();
+        });
+
+        it('does not place an invoke or reaction in a channel', async () => {
+          for (const type of ['invoke', 'messageReaction']) {
+            mockSender.send.mockClear();
+            const result = await sendFrom(
+              buildShape({
+                type,
+                id: '105',
+                replyToId: '105',
+                conversationType: 'channel',
+                channelData: { channel: { id: channelId }, replyChain: { id: '100' } },
+              })
+            );
+
+            expect(result.conversationId).toBe(`${channelId};messageid=100`);
+            expect(result.options).toBeUndefined();
+          }
+        });
+
+        it('places a card message in a channel in the reply chain of the thread', async () => {
+          const result = await sendFrom(
+            buildShape({
+              type: 'message',
+              replyToId: '105',
+              conversationType: 'channel',
+              channelData: { channel: { id: channelId }, replyChain: { id: '100' }, ...fromCard },
+            })
+          );
+
+          expect(result.conversationId).toBe(channelId);
+          expect(result.options).toEqual({ replyChainId: '100' });
+        });
+      });
+
+      describe('when placement does not apply', () => {
+        const replyInChain = () =>
+          buildInbound({
+            conversationType: 'personal',
+            conversationId: 'a:encrypted-conversation',
+            id: 'reply-2',
+            channelData: { chat: { id: chatId }, replyChain: { id: 'root-1' } },
+          });
+
+        it('does not place an update of an existing message', async () => {
+          const ref = refFor('a:encrypted-conversation', 'personal');
+          context = buildActivityContext(replyInChain(), { ref });
+
+          await context.send({ type: 'message', text: 'edited', id: 'existing-1' });
+
+          expect(mockSender.send).toHaveBeenCalledWith(expect.objectContaining({ id: 'existing-1' }), ref);
+        });
+
+        it('does not place a typing activity', async () => {
+          const ref = refFor('a:encrypted-conversation', 'personal');
+          context = buildActivityContext(replyInChain(), { ref });
+
+          await context.send({ type: 'typing' });
+
+          expect(mockSender.send).toHaveBeenCalledWith(expect.objectContaining({ type: 'typing' }), ref);
+        });
+
+        it('does not place a send to a different conversation', async () => {
+          const ref = refFor('a:encrypted-conversation', 'personal');
+          context = buildActivityContext(replyInChain(), { ref });
+          const otherRef = refFor('other-conversation', 'personal');
+
+          await context.send('hi', otherRef);
+
+          expect(mockSender.send).toHaveBeenCalledWith(expect.objectContaining({ text: 'hi' }), otherRef);
+        });
+
+        it('places a send that names the same conversation as the inbound', async () => {
+          const ref = refFor('a:encrypted-conversation', 'personal');
+          context = buildActivityContext(replyInChain(), { ref });
+
+          await context.send('hi', refFor('a:encrypted-conversation', 'personal'));
+
+          expect(lastCall()[2]).toEqual({ replyChainId: 'root-1' });
+        });
+      });
+
+      it('keeps the quote when replying inside a reply chain', async () => {
+        const ref = refFor('a:encrypted-conversation', 'personal');
+        context = buildActivityContext(
+          buildInbound({
+            conversationType: 'personal',
+            conversationId: 'a:encrypted-conversation',
+            id: 'reply-2',
+            channelData: { chat: { id: chatId }, replyChain: { id: 'root-1' } },
+          }),
+          { ref }
+        );
+
+        await context.reply('hi');
+
+        const [params, sentRef, options] = lastCall();
+        expect(params.entities).toEqual(
+          expect.arrayContaining([expect.objectContaining({ type: 'quotedReply' })])
+        );
+        expect(sentRef.conversation.id).toBe(chatId);
+        expect(options).toEqual({ replyChainId: 'root-1' });
+      });
+
+      it('keeps a message targeted when it is placed in the reply chain of a targeted inbound message', async () => {
+        const ref = refFor('a:encrypted-conversation', 'personal');
+        const inbound = buildInbound({
+          conversationType: 'personal',
+          conversationId: 'a:encrypted-conversation',
+          id: 'reply-2',
+          channelData: { chat: { id: chatId }, replyChain: { id: 'root-1' } },
+        }).withRecipient({ id: 'bot-id', name: 'Bot', role: 'bot' }, true);
+        context = buildActivityContext(inbound, { ref });
+
+        await context.send('only for you');
+
+        const [params, sentRef, options] = lastCall();
+        expect(params.recipient).toEqual(expect.objectContaining({ id: 'test-user', isTargeted: true }));
+        expect(sentRef.conversation.id).toBe(chatId);
+        expect(options).toEqual({ replyChainId: 'root-1' });
+      });
+    });
+
     describe('targeted messages', () => {
       it('defaults send to targeted when inbound message is targeted', async () => {
         const activity = new MessageActivity('Hello world')
@@ -451,6 +1240,46 @@ describe('ActivityContext', () => {
         );
         expect(sentActivity.recipient.isTargeted).toBeUndefined();
         expect(sentActivity.entities).toBeUndefined();
+      });
+
+      it('keeps an explicit quote on a targeted send when the inbound message is not targeted', async () => {
+        context = buildActivityContext(buildIncomingMessageActivity('Hello world'));
+
+        await context.send(
+          new MessageActivity('Secret message')
+            .withRecipient({ id: 'explicit-user-id', name: '', role: 'user' }, true)
+            .addQuote('quoted-message-1')
+        );
+
+        const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+        expect(sentActivity.entities).toEqual(
+          expect.arrayContaining([expect.objectContaining({ type: 'quotedReply', quotedReply: { messageId: 'quoted-message-1' } })])
+        );
+        expect(sentActivity.entities).not.toEqual(
+          expect.arrayContaining([expect.objectContaining({ type: 'targetedMessageInfo' })])
+        );
+        expect(sentActivity.text).toContain('<quoted messageId="quoted-message-1"/>');
+      });
+
+      it('removes the quote of the inbound message when replying to a targeted message', async () => {
+        const activity = new MessageActivity('Hello world')
+          .withFrom({ id: 'test-user', name: 'Test User', role: 'user' })
+          .withRecipient({ id: 'bot-id', name: 'Bot', role: 'bot' }, true)
+          .withChannelId('test-channel')
+          .withConversation({ id: 'test-conversation', conversationType: 'channel', isGroup: false })
+          .withId('test-activity-id');
+        context = buildActivityContext(activity);
+
+        await context.reply('Here is your agenda');
+
+        const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+        expect(sentActivity.entities).not.toEqual(
+          expect.arrayContaining([expect.objectContaining({ type: 'quotedReply' })])
+        );
+        expect(sentActivity.text).not.toContain('<quoted messageId="test-activity-id"/>');
+        expect(sentActivity.entities).toEqual(
+          expect.arrayContaining([expect.objectContaining({ type: 'targetedMessageInfo', messageId: 'test-activity-id' })])
+        );
       });
 
       it('sends targeted message with explicit recipient id', async () => {

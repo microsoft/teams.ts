@@ -24,6 +24,7 @@ import {
   PlanConflictStreamError,
   StreamCancelledError,
   StreamNotAllowedError,
+  StreamOptions,
   StreamTimedOutError,
   TerminalStreamError,
 } from '../types';
@@ -49,6 +50,7 @@ export class HttpStream implements IStreamer {
 
   protected client: Client;
   protected ref: ConversationReference;
+  protected replyChain?: StreamOptions['replyChain'];
   protected index = 0;
   protected id?: string;
   protected text: string = '';
@@ -90,9 +92,15 @@ export class HttpStream implements IStreamer {
     return this._result !== undefined;
   }
 
-  constructor(client: Client, ref: ConversationReference, logger?: ILogger) {
+  constructor(
+    client: Client,
+    ref: ConversationReference,
+    logger?: ILogger,
+    options?: StreamOptions
+  ) {
     this.client = client;
     this.ref = ref;
+    this.replyChain = options?.replyChain;
     this._logger = logger?.child('stream') || new ConsoleLogger('@teams/http-stream');
   }
 
@@ -493,6 +501,29 @@ export class HttpStream implements IStreamer {
   }
 
   /**
+   * Creates the first message of the stream as a reply in the reply chain (thread).
+   * In a channel, when the service answers HTTP 404 and the reply chain id is a plain non-zero number, creates the message in the inbound conversation instead.
+   * Any other error is thrown, including a 404 outside a channel.
+   */
+  protected async createInReplyChain(
+    replyChain: NonNullable<StreamOptions['replyChain']>,
+    payload: ActivityParams & { from: ConversationReference['bot']; conversation: ConversationReference['conversation'] }
+  ) {
+    try {
+      const res = await this.client.conversations.createReplyChainActivity(replyChain.chatOrChannelId, replyChain.replyChainId, payload);
+      return { ...payload, ...res };
+    } catch (err: any) {
+      const id = replyChain.replyChainId;
+      if (!replyChain.inChannel || err?.response?.status !== 404 || !/^\d+$/.test(id) || id === '0') {
+        throw err;
+      }
+    }
+
+    const res = await this.client.conversations.createActivity(this.ref.conversation.id, payload);
+    return { ...payload, ...res };
+  }
+
+  /**
    * Send or update a streaming activity
    * @param activity ActivityParams to send.
    */
@@ -518,6 +549,10 @@ export class HttpStream implements IStreamer {
         );
 
         return { ...payload, ...res };
+      }
+
+      if (this.replyChain && !payload.id) {
+        return await this.createInReplyChain(this.replyChain, payload);
       }
 
       const res = await this.client.conversations.createActivity(

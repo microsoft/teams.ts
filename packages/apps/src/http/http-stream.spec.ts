@@ -52,6 +52,109 @@ describe('HttpStream', () => {
     return () => calls;
   }
 
+  describe('in a reply chain', () => {
+    const replyChain = { chatOrChannelId: 'chat-id', replyChainId: 'root-1' };
+
+    afterEach(() => {
+      jest.clearAllTimers();
+    });
+
+    test('creates the first chunk in the reply chain and sends the rest to the conversation', async () => {
+      client.conversations.createReplyChainActivity = jest.fn(async (_c: any, _r: any, activity: any) => ({ ...activity, id: 'stream-1' }));
+      mockCreate();
+      const stream = new HttpStream(client, { ...ref, activityId: 'inbound-1' }, logger, { replyChain });
+
+      stream.emit('one');
+      await jest.advanceTimersByTimeAsync(0);
+      stream.emit('two');
+      await jest.advanceTimersByTimeAsync(600);
+
+      expect(client.conversations.createReplyChainActivity).toHaveBeenCalledTimes(1);
+      expect(client.conversations.createReplyChainActivity).toHaveBeenCalledWith(
+        'chat-id',
+        'root-1',
+        expect.objectContaining({ type: 'typing', replyToId: 'inbound-1' })
+      );
+      expect(client.conversations.createActivity).toHaveBeenCalledTimes(1);
+      expect(client.conversations.createActivity.mock.calls[0][0]).toBe('conversation-id');
+      expect(client.conversations.createActivity.mock.calls[0][1].id).toBe('stream-1');
+    });
+
+    test.each([404, 400])('does not fall back to the conversation in a chat when the reply chain route answers %s', async (status) => {
+      client.conversations.createReplyChainActivity = jest.fn().mockRejectedValue(
+        Object.assign(new Error('Rejected'), { response: { status } })
+      );
+      mockCreate();
+      const stream = new HttpStream(client, ref, logger, { replyChain: { ...replyChain, replyChainId: '1680000000000' } });
+
+      stream.emit('one');
+      await jest.advanceTimersByTimeAsync(0);
+
+      expect(client.conversations.createReplyChainActivity).toHaveBeenCalled();
+      expect(client.conversations.createActivity).not.toHaveBeenCalled();
+    });
+
+    describe('in a channel', () => {
+      const channelChain = { chatOrChannelId: 'channel-id', replyChainId: '1680000000000', inChannel: true };
+      const notFound = () => Object.assign(new Error('Not Found'), { response: { status: 404 } });
+
+      test('creates the first chunk in the inbound conversation when the reply chain route is not found, once', async () => {
+        client.conversations.createReplyChainActivity = jest.fn().mockRejectedValue(notFound());
+        mockCreate();
+        const stream = new HttpStream(client, { ...ref, activityId: 'inbound-1' }, logger, { replyChain: channelChain });
+
+        stream.emit('one');
+        await jest.advanceTimersByTimeAsync(0);
+
+        expect(client.conversations.createReplyChainActivity).toHaveBeenCalledTimes(1);
+        expect(client.conversations.createActivity).toHaveBeenCalledTimes(1);
+        const [conversationId, payload] = client.conversations.createActivity.mock.calls[0];
+        expect(conversationId).toBe('conversation-id');
+        expect(payload.type).toBe('typing');
+        expect(payload.replyToId).toBe('inbound-1');
+      });
+
+      test('keeps sending the following chunks to the message created by the fallback', async () => {
+        client.conversations.createReplyChainActivity = jest.fn().mockRejectedValue(notFound());
+        mockCreate();
+        const stream = new HttpStream(client, ref, logger, { replyChain: channelChain });
+
+        stream.emit('one');
+        await jest.advanceTimersByTimeAsync(0);
+        stream.emit('two');
+        await jest.advanceTimersByTimeAsync(600);
+
+        expect(client.conversations.createReplyChainActivity).toHaveBeenCalledTimes(1);
+        expect(client.conversations.createActivity).toHaveBeenCalledTimes(2);
+        const first = client.conversations.createActivity.mock.calls[0][1];
+        const second = client.conversations.createActivity.mock.calls[1][1];
+        expect(first.channelData.streamId).toBeUndefined();
+        expect(second.id).toBe('activity-1');
+        expect(second.channelData.streamId).toBe('activity-1');
+        expect(second.channelData.streamSequence).toBe(2);
+      });
+
+      test.each([
+        ['a message id that is not numeric', 'a:encrypted-root', 404],
+        ['a message id of 0', '0', 404],
+        ['a bad request', '1680000000000', 400],
+        ['a server error', '1680000000000', 500],
+      ])('does not fall back for %s', async (_name, replyChainId, status) => {
+        client.conversations.createReplyChainActivity = jest
+          .fn()
+          .mockRejectedValue(Object.assign(new Error('failed'), { response: { status } }));
+        mockCreate();
+        const stream = new HttpStream(client, ref, logger, { replyChain: { ...channelChain, replyChainId } });
+
+        stream.emit('one');
+        await jest.advanceTimersByTimeAsync(0);
+
+        expect(client.conversations.createReplyChainActivity).toHaveBeenCalled();
+        expect(client.conversations.createActivity).not.toHaveBeenCalled();
+      });
+    });
+  });
+
   test('stream multiple emits with timer', async () => {
     const stream = new HttpStream(client, ref, logger);
     mockCreate();
