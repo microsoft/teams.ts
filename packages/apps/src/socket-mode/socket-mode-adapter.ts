@@ -37,8 +37,6 @@ import {
 
 const DEFAULT_READINESS_TIMEOUT_MS = 30_000;
 const DEFAULT_STARTUP_TIMEOUT_MS = 30_000;
-const DEFAULT_KEEPALIVE_INTERVAL_MS = 15_000;
-const DEFAULT_SERVER_TIMEOUT_MS = 30_000;
 
 /** Reconnect back-off bounds: capped exponential with full jitter. */
 const RECONNECT_INITIAL_DELAY_MS = 1_000;
@@ -183,14 +181,10 @@ export class SocketModeAdapter implements IHttpServerAdapter {
   private readonly transportSettings: {
     startupTimeoutMs: number;
     readinessTimeoutMs: number;
-    keepAliveIntervalMs: number;
-    serverTimeoutMs: number;
     reconnectDelaysMs?: readonly number[];
   } = {
     startupTimeoutMs: DEFAULT_STARTUP_TIMEOUT_MS,
     readinessTimeoutMs: DEFAULT_READINESS_TIMEOUT_MS,
-    keepAliveIntervalMs: DEFAULT_KEEPALIVE_INTERVAL_MS,
-    serverTimeoutMs: DEFAULT_SERVER_TIMEOUT_MS,
   };
 
   /** One independent supervised connection per geo. */
@@ -374,8 +368,6 @@ export class SocketModeAdapter implements IHttpServerAdapter {
         getBotToken: () => this.acquireBotToken(),
         getConnectionIdToReplace,
         readinessTimeoutMs: this.transportSettings.readinessTimeoutMs,
-        keepAliveIntervalMs: this.transportSettings.keepAliveIntervalMs,
-        serverTimeoutMs: this.transportSettings.serverTimeoutMs,
       },
       handlers,
       this.log

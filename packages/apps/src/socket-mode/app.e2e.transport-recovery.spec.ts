@@ -111,17 +111,16 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
     await app.stop();
   });
 
-  it('honors Retry-After while retrying startup and waits for every geo', async () => {
+  it('honors a 429 Retry-After while retrying startup and waits for every geo', async () => {
     jest.useFakeTimers();
     try {
       connectionState.startErrorQueue.push(
-        new NegotiateError('negotiate throttled', 1_000)
+        new NegotiateError('negotiate throttled', 15_000, 429)
       );
       const app = createSocketTestApp({
         socketMode: {
           geos: ['amer', 'emea'],
           reconnectDelaysMs: [10],
-          startupTimeoutMs: 5_000,
         },
       });
 
@@ -129,7 +128,7 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
       const start = app.start().then(() => {
         started = true;
       });
-      await jest.advanceTimersByTimeAsync(999);
+      await jest.advanceTimersByTimeAsync(14_999);
 
       expect(connectionState.connections).toHaveLength(2);
       expect(started).toBe(false);
@@ -490,8 +489,6 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
     expect(connectionState.contexts[0]).toMatchObject({
       negotiateUrl: 'https://botapi.skype.com/v3/websockets/connect',
       readinessTimeoutMs: 30_000,
-      keepAliveIntervalMs: 15_000,
-      serverTimeoutMs: 30_000,
     });
     await defaultApp.stop();
 
@@ -512,17 +509,13 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
       negotiateUrl: 'https://apx.example/ring/v3/websockets/connect',
       getConnectionIdToReplace: undefined,
       readinessTimeoutMs: 30_000,
-      keepAliveIntervalMs: 15_000,
-      serverTimeoutMs: 30_000,
     });
     expect(Object.keys(connectionState.contexts[1]).sort()).toEqual([
       'client',
       'getBotToken',
       'getConnectionIdToReplace',
-      'keepAliveIntervalMs',
       'negotiateUrl',
       'readinessTimeoutMs',
-      'serverTimeoutMs',
     ]);
     await customApp.stop();
   });

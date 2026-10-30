@@ -252,8 +252,4 @@ export type SocketConnectionContext = {
   readonly getConnectionIdToReplace?: () => string | undefined;
   /** Readiness timeout in milliseconds. */
   readonly readinessTimeoutMs: number;
-  /** SignalR keep-alive ping interval in milliseconds. */
-  readonly keepAliveIntervalMs: number;
-  /** SignalR server timeout in milliseconds (connection considered lost after). */
-  readonly serverTimeoutMs: number;
 };
