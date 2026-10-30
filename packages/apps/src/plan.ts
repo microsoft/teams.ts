@@ -95,7 +95,7 @@ export class Plan {
   async complete(message: string | IMessageActivityInput): Promise<SentActivity> {
     const input = typeof message === 'string'
       ? new MessageActivityInput(message)
-      : MessageActivityInput.from(structuredClone(message));
+      : MessageActivityInput.from(structuredClone(MessageActivityInput.from(message)));
     if (input.entities?.some((entity) => entity.type === 'planInfo' && entity.planType !== 'complete')) {
       throw new TypeError('complete() cannot send non-complete Plan operations.');
     }
