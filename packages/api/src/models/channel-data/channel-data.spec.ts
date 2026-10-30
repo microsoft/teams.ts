@@ -1,6 +1,6 @@
 import { MessageActivity } from '../../activities/message';
 
-import { ChannelData, ChatInfo, EncryptedChatInfo, ReplyChainInfo } from './index';
+import { ChannelData, ChatInfo, EncryptedChatInfo, ReplyChainInfo, SourceInfo } from './index';
 
 describe('ChannelData chat and reply chain ids', () => {
   it('exposes the ids of an inbound activity', () => {
@@ -81,5 +81,51 @@ describe('ChannelData chat and reply chain ids', () => {
     expect(activity.channelData?.replyChain?.id).toBe('1700000000001');
     expect(activity.channelData?.chat?.id).toBe('19:user_bot@unq.gbl.spaces');
     expect(activity.channelData?.tenant?.id).toBe('tenant-1');
+  });
+});
+
+describe('ChannelData source', () => {
+  it('exposes the source name of an inbound activity', () => {
+    const wire = JSON.stringify({
+      type: 'message',
+      id: '1700000000002',
+      text: 'hi',
+      channelData: {
+        tenant: { id: 'tenant-1' },
+        source: { name: 'message' },
+      },
+    });
+
+    const channelData = MessageActivity.from(JSON.parse(wire)).channelData;
+
+    expect(channelData?.source?.name).toBe('message');
+  });
+
+  it('type check: allows the source and its name to be absent', () => {
+    const none: ChannelData = { tenant: { id: 'tenant-1' } };
+    const empty: ChannelData = { source: {} };
+    const source: SourceInfo = { name: 'message' };
+
+    expect(none.source).toBeUndefined();
+    expect(empty.source?.name).toBeUndefined();
+    expect(source.name).toBe('message');
+  });
+
+  it('is absent when the wire payload has no source', () => {
+    const wire = JSON.stringify({ type: 'message', id: '1', text: 'hi', channelData: { tenant: { id: 'tenant-1' } } });
+
+    const channelData = MessageActivity.from(JSON.parse(wire)).channelData;
+
+    expect(channelData?.source).toBeUndefined();
+    expect(channelData?.source?.name).toBeUndefined();
+  });
+
+  it('rejects values of the wrong type', () => {
+    // @ts-expect-error the source is an object, not a string
+    const stringSource: ChannelData = { source: 'message' };
+    // @ts-expect-error the source name is a string
+    const numericName: ChannelData = { source: { name: 123 } };
+
+    expect([stringSource, numericName]).toHaveLength(2);
   });
 });
