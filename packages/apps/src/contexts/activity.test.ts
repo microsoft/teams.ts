@@ -618,6 +618,24 @@ describe('ActivityContext', () => {
           });
         });
 
+        it.each([
+          ['a blank channel id', { channel: { id: '  ' }, replyChain: { id: 'root-1' } }],
+          ['a blank reply chain id', { channel: { id: channelId }, replyChain: { id: ' ' } }],
+        ])('sends to the inbound conversation and creates the stream there for %s', async (_name, channelData) => {
+          const ref = refFor(suffixed, 'channel');
+          mockSender.createStream.mockClear();
+          context = buildActivityContext(
+            buildInbound({ conversationType: 'channel', conversationId: suffixed, id: 'reply-2', channelData }),
+            { ref }
+          );
+
+          await context.send('hi');
+
+          expect(mockSender.send).toHaveBeenCalledWith(expect.objectContaining({ text: 'hi' }), ref);
+          expect(mockSender.send.mock.calls[0]).toHaveLength(2);
+          expect(mockSender.createStream).toHaveBeenCalledWith(ref, undefined);
+        });
+
         it('replies in the reply chain of a root post', async () => {
           const ref = refFor(`${channelId};messageid=root-1`, 'channel');
           context = buildActivityContext(
@@ -707,6 +725,212 @@ describe('ActivityContext', () => {
           await context.send('hi');
 
           expect(mockSender.send).toHaveBeenCalledWith(expect.objectContaining({ text: 'hi' }), ref);
+        });
+      });
+
+      it.each([
+        ['a blank chat id', { chat: { id: '   ' }, replyChain: { id: 'root-1' } }],
+        ['a blank reply chain id', { chat: { id: chatId }, replyChain: { id: '  ' } }],
+      ])('sends to the inbound conversation and creates the stream there in a chat for %s', async (_name, channelData) => {
+        const ref = refFor('a:encrypted-conversation', 'personal');
+        mockSender.createStream.mockClear();
+        context = buildActivityContext(
+          buildInbound({ conversationType: 'personal', conversationId: 'a:encrypted-conversation', id: 'reply-2', channelData }),
+          { ref }
+        );
+
+        await context.send('hi');
+
+        expect(mockSender.send).toHaveBeenCalledWith(expect.objectContaining({ text: 'hi' }), ref);
+        expect(mockSender.send.mock.calls[0]).toHaveLength(2);
+        expect(mockSender.createStream).toHaveBeenCalledWith(ref, undefined);
+      });
+
+      describe('for inbound cards, invokes and message events', () => {
+        const buildShape = (options: {
+          type: string;
+          id?: string;
+          replyToId?: string;
+          value?: unknown;
+          channelData?: Record<string, unknown>;
+          conversationType?: 'personal' | 'channel' | 'groupChat';
+        }) => {
+          const conversationType = options.conversationType ?? 'personal';
+          const conversationId = conversationType === 'channel' ? `${channelId};messageid=100` : 'a:encrypted-conversation';
+          const activity = {
+            type: options.type,
+            id: options.id ?? 'f:client-id',
+            replyToId: options.replyToId,
+            value: options.value,
+            channelId: 'test-channel',
+            from: { id: 'test-user', name: 'Test User', role: 'user' },
+            recipient: { id: 'bot-id', name: 'Bot', role: 'bot' },
+            conversation: { id: conversationId, conversationType, isGroup: false },
+            channelData: options.channelData ?? {},
+          } as unknown as Activity;
+          return { activity, ref: refFor(conversationId, conversationType) };
+        };
+
+        const chatChannelData = (replyChainId: string, extra: Record<string, unknown> = {}) => ({
+          chat: { id: chatId },
+          replyChain: { id: replyChainId },
+          ...extra,
+        });
+        const fromCard = { source: { name: 'message' } };
+
+        const sendFrom = async (shape: ReturnType<typeof buildShape>) => {
+          context = buildActivityContext(shape.activity, { ref: shape.ref });
+          await context.send('hi');
+          const [, sentRef, options] = mockSender.send.mock.calls[0];
+          return { conversationId: sentRef.conversation.id as string, options };
+        };
+
+        it.each([
+          ['a messageBack or Action.Submit message', { type: 'message', replyToId: '105' }, fromCard],
+          ['an adaptiveCard/action invoke', { type: 'invoke', replyToId: '105' }, {}],
+          ['a message action invoke', { type: 'invoke', value: { messagePayload: { id: '105' } } }, {}],
+          ['a reaction', { type: 'messageReaction', id: '105' }, {}],
+          ['an edit', { type: 'messageUpdate', id: '105' }, {}],
+          ['a delete', { type: 'messageDelete', id: '105' }, {}],
+        ])('replies in the thread for %s on a message inside a thread', async (_name, shape, extra) => {
+          const result = await sendFrom(buildShape({ ...shape, channelData: chatChannelData('100', extra) }));
+
+          expect(result.conversationId).toBe(chatId);
+          expect(result.options).toEqual({ replyChainId: '100' });
+        });
+
+        it.each([
+          ['a messageBack or Action.Submit message', { type: 'message', replyToId: '100' }, fromCard],
+          ['an adaptiveCard/action invoke', { type: 'invoke', replyToId: '100' }, {}],
+          ['a message action invoke', { type: 'invoke', value: { messagePayload: { id: '100' } } }, {}],
+          ['a reaction', { type: 'messageReaction', id: '100' }, {}],
+          ['an edit', { type: 'messageUpdate', id: '100' }, {}],
+          ['a delete', { type: 'messageDelete', id: '100' }, {}],
+        ])('sends to the inbound conversation for %s on a top-level message', async (_name, shape, extra) => {
+          const result = await sendFrom(buildShape({ ...shape, channelData: chatChannelData('100', extra) }));
+
+          expect(result.conversationId).toBe('a:encrypted-conversation');
+          expect(result.options).toBeUndefined();
+        });
+
+        it('compares a message action with the message payload id, not the reply id', async () => {
+          const result = await sendFrom(
+            buildShape({
+              type: 'invoke',
+              replyToId: '100',
+              value: { messagePayload: { id: '105' } },
+              channelData: chatChannelData('100'),
+            })
+          );
+
+          expect(result.options).toEqual({ replyChainId: '100' });
+        });
+
+        it.each([
+          ['an encrypted replyToId', '1:abc'],
+          ['a replyToId of 0', '0'],
+          ['a replyToId with other characters', '12a'],
+          ['a replyToId with a prefix before the digits', 'x105'],
+          ['an empty replyToId', ''],
+        ])('does not place a card message or invoke with %s', async (_name, replyToId) => {
+          for (const type of ['message', 'invoke']) {
+            mockSender.send.mockClear();
+            const result = await sendFrom(
+              buildShape({ type, replyToId, channelData: chatChannelData('100', type === 'message' ? fromCard : {}) })
+            );
+
+            expect(result.conversationId).toBe('a:encrypted-conversation');
+            expect(result.options).toBeUndefined();
+          }
+        });
+
+        it.each([
+          ['null', null],
+          ['a string', 'payload'],
+          ['an object without a message payload', { action: { type: 'Action.Execute' } }],
+          ['an object with an empty message payload', { messagePayload: null }],
+        ])('compares an invoke whose value is %s with its replyToId', async (_name, value) => {
+          const inside = await sendFrom(
+            buildShape({ type: 'invoke', replyToId: '105', value, channelData: chatChannelData('100') })
+          );
+
+          expect(inside.conversationId).toBe(chatId);
+          expect(inside.options).toEqual({ replyChainId: '100' });
+
+          mockSender.send.mockClear();
+          const topLevel = await sendFrom(
+            buildShape({ type: 'invoke', replyToId: '100', value, channelData: chatChannelData('100') })
+          );
+
+          expect(topLevel.conversationId).toBe('a:encrypted-conversation');
+          expect(topLevel.options).toBeUndefined();
+        });
+
+        it('does not place a card message without a replyToId', async () => {
+          const result = await sendFrom(buildShape({ type: 'message', channelData: chatChannelData('100', fromCard) }));
+
+          expect(result.options).toBeUndefined();
+        });
+
+        it('places an invoke that is not tied to a message when the payload has a reply chain id', async () => {
+          const result = await sendFrom(buildShape({ type: 'invoke', channelData: chatChannelData('100') }));
+
+          expect(result.conversationId).toBe(chatId);
+          expect(result.options).toEqual({ replyChainId: '100' });
+        });
+
+        it('does not place an invoke that is not tied to a message when the payload has no reply chain id', async () => {
+          const result = await sendFrom(buildShape({ type: 'invoke', channelData: { chat: { id: chatId } } }));
+
+          expect(result.options).toBeUndefined();
+        });
+
+        it.each(['conversationUpdate', 'installationUpdate', 'event', 'typing'])('never places a %s', async (type) => {
+          const result = await sendFrom(buildShape({ type, id: '105', channelData: chatChannelData('100') }));
+
+          expect(result.conversationId).toBe('a:encrypted-conversation');
+          expect(result.options).toBeUndefined();
+        });
+
+        it.each(['message', 'invoke', 'messageReaction'])('does not place a %s in a group chat', async (type) => {
+          const result = await sendFrom(
+            buildShape({ type, id: '105', replyToId: '105', conversationType: 'groupChat', channelData: chatChannelData('100') })
+          );
+
+          expect(result.conversationId).toBe('a:encrypted-conversation');
+          expect(result.options).toBeUndefined();
+        });
+
+        it('does not place an invoke or reaction in a channel', async () => {
+          for (const type of ['invoke', 'messageReaction']) {
+            mockSender.send.mockClear();
+            const result = await sendFrom(
+              buildShape({
+                type,
+                id: '105',
+                replyToId: '105',
+                conversationType: 'channel',
+                channelData: { channel: { id: channelId }, replyChain: { id: '100' } },
+              })
+            );
+
+            expect(result.conversationId).toBe(`${channelId};messageid=100`);
+            expect(result.options).toBeUndefined();
+          }
+        });
+
+        it('places a card message in a channel in the reply chain of the thread', async () => {
+          const result = await sendFrom(
+            buildShape({
+              type: 'message',
+              replyToId: '105',
+              conversationType: 'channel',
+              channelData: { channel: { id: channelId }, replyChain: { id: '100' }, ...fromCard },
+            })
+          );
+
+          expect(result.conversationId).toBe(channelId);
+          expect(result.options).toEqual({ replyChainId: '100' });
         });
       });
 
