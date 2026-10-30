@@ -1,8 +1,11 @@
+import { isAxiosError } from 'axios';
+
 import {
   ActivityParams,
   ChannelData,
   Client,
   ConversationReference,
+  getPlanInfo,
   IMessageActivity,
   IMessageActivityInput,
   ITypingActivity,
@@ -18,6 +21,7 @@ import { ConsoleLogger, EventEmitter, ILogger } from '@microsoft/teams.common';
 import {
   IStreamer,
   IStreamerEvents,
+  PlanConflictStreamError,
   StreamCancelledError,
   StreamNotAllowedError,
   StreamTimedOutError,
@@ -58,6 +62,7 @@ export class HttpStream implements IStreamer {
   private _flushing: boolean = false;
   private _canceled: boolean = false;
   private _timedOut: boolean = false;
+  private _retired: boolean = false;
   private readonly _totalTimeout = 30000; // 30 seconds
 
   /**
@@ -93,6 +98,8 @@ export class HttpStream implements IStreamer {
 
   /**
    * Emit a new activity or text to the stream.
+   * An explicit replyToId on the final message is preserved; otherwise,
+   * the conversation reference's activity ID is used.
    * @param activity Activity object or string message.
    */
   /**
@@ -112,10 +119,9 @@ export class HttpStream implements IStreamer {
       throw new StreamCancelledError();
     }
 
-    // Emitting after close reopens the stream: start a new streamed message
-    // on the same instance.
-    if (this.closed) {
-      this._logger.debug('starting a new streamed message after close');
+    // Emitting after close or a retired Plan cycle starts a fresh stream cycle.
+    if (this.closed || this._retired) {
+      this._logger.debug('starting a new streamed message');
       this.resetForNextStream();
     }
 
@@ -170,12 +176,19 @@ export class HttpStream implements IStreamer {
   /**
    * Close the stream by sending the final message.
    * Waits for all queued activities to flush.
+   * A Plan timeout or final Plan conflict discards the failed cycle and raises once.
+   * Further closes return undefined until the next emit or update starts a fresh cycle.
    */
   async close() {
     // Closing is idempotent until the next emit/update reopens the stream.
     if (this.closed) {
       this._logger.debug('already closed');
       return this._result;
+    }
+
+    if (this._retired) {
+      this._logger.debug('failed stream cycle already retired, nothing to close');
+      return;
     }
 
     if (!this.index && !this.queue.length && !this._flushing) {
@@ -228,7 +241,7 @@ export class HttpStream implements IStreamer {
     } else {
       // Build final message activity from the last-emitted message input (last wins),
       // overlaying accumulated text, id, channelData, and the stream-final entity.
-      const activity = new MessageActivityInput(this.text)
+      const activity = new MessageActivityInput(this.text, { replyToId: this.finalActivity?.replyToId })
         .withId(this.id)
         .addAttachments(...finalAttachments)
         .addEntities(...finalEntities)
@@ -252,6 +265,10 @@ export class HttpStream implements IStreamer {
           // streamInfo entity + stream channel data so this routes to update, not create.
           res = await this.sendFinal();
         } else {
+          if (err instanceof PlanConflictStreamError && getPlanInfo(activity)) {
+            this.resetCurrentStream();
+            this._retired = true;
+          }
           throw err;
         }
       }
@@ -272,13 +289,13 @@ export class HttpStream implements IStreamer {
   }
 
   /**
-   * Send an activity through retry, treating terminal stream errors as non-retryable.
+   * Send through retry, excluding terminal stream errors and HTTP 409 Plan conflicts.
    * @param activity ActivityParams to send.
    */
   protected async sendWithRetry(activity: ActivityParams) {
     return promises.retry(() => this.send(activity), {
       logger: this._logger,
-      nonRetryable: [TerminalStreamError],
+      nonRetryable: [TerminalStreamError, PlanConflictStreamError],
     });
   }
 
@@ -288,8 +305,15 @@ export class HttpStream implements IStreamer {
    * Drops the `streaminfo` entity (added by `addStreamFinal()` on the normal
    * close path) and the stream channel data so `id` is kept and the send routes
    * through the update path instead of creating a duplicate message.
+   * Plan completion requires a POST: callers must resolve it through Plan.complete()
+   * after a timeout instead of retrying this ordinary-message fallback.
    */
   protected async sendFinal() {
+    if (getPlanInfo(this.finalActivity ?? {})) {
+      this.resetCurrentStream();
+      this._retired = true;
+      throw new StreamTimedOutError('Plan completion requires a POST; it cannot use the stream update fallback.');
+    }
     const finalAttachments = this.finalActivity?.attachments ?? [];
     const finalEntities = (this.finalActivity?.entities ?? []).filter((e) => e.type !== 'streaminfo');
     const finalSuggestedActions = this.finalActivity?.suggestedActions;
@@ -298,6 +322,7 @@ export class HttpStream implements IStreamer {
     const activity: IMessageActivityInput = {
       type: 'message',
       text: this.text,
+      replyToId: this.finalActivity?.replyToId,
       attachments: finalAttachments,
       entities: finalEntities,
     };
@@ -321,12 +346,7 @@ export class HttpStream implements IStreamer {
    * Prepare the stream instance to start a new stream cycle after close().
    */
   protected resetForNextStream() {
-    this.index = 0;
-    this.id = undefined;
-    this.text = '';
-    this.channelData = {};
-    this.finalActivity = undefined;
-    this.queue = [];
+    this.resetCurrentStream();
     this._result = undefined;
     this._timedOut = false;
   }
@@ -486,7 +506,7 @@ export class HttpStream implements IStreamer {
       ...params,
       from: this.ref.bot,
       conversation: this.ref.conversation,
-      replyToId: this.ref.activityId,
+      replyToId: params.replyToId ?? this.ref.activityId,
     };
 
     try {
@@ -507,6 +527,10 @@ export class HttpStream implements IStreamer {
 
       return { ...payload, ...res };
     } catch (err: any) {
+      if (isAxiosError(err) && err.response?.status === 409 && err.response.data?.error?.code === 'PlanConflict') {
+        throw new PlanConflictStreamError(err);
+      }
+
       // Various error codes are used for streaming.
       // https://learn.microsoft.com/en-us/microsoftteams/platform/bots/streaming-ux?tabs=csharp#error-codes
       if (err?.response?.status === 403) {
@@ -533,5 +557,15 @@ export class HttpStream implements IStreamer {
       }
       throw err;
     }
+  }
+
+  private resetCurrentStream() {
+    this._retired = false;
+    this.index = 0;
+    this.id = undefined;
+    this.text = '';
+    this.channelData = {};
+    this.finalActivity = undefined;
+    this.queue = [];
   }
 }

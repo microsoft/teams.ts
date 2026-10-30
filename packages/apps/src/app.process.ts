@@ -328,6 +328,20 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
         return res;
       };
 
+      let planAttached = false;
+      const getPlan = context.plan.bind(context);
+      context.plan = () => {
+        const plan = getPlan();
+        if (!planAttached) {
+          const planRef = structuredClone(context.ref);
+          plan.events.on('sent', (activity) => {
+            this.options.eventManager.onActivitySent({ ...structuredClone(planRef), activity });
+          });
+          planAttached = true;
+        }
+        return plan;
+      };
+
       context.stream.events.on('chunk', (activity) => {
         this.options.eventManager.onActivitySent({
           ...ref,

@@ -22,6 +22,7 @@ import { BotApiCredential, GraphCredential } from '../files/download';
 import { FilesAccessor } from '../files/files-accessor';
 import { IFilesAccessor } from '../files/types';
 import { OAuthSignInOptions, startOAuthSignIn } from '../oauth';
+import { Plan } from '../plan';
 import { TurnStateContainer } from '../state';
 import { IStreamer } from '../types';
 import { IActivitySender } from '../types/plugin/sender';
@@ -192,6 +193,14 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
   files: IFilesAccessor;
 
   /**
+   * Get the Plan bound to this inbound activity. Use new Plan(options) for a saved prompt.
+   *
+   * @experimental This API is in preview and may change in the future.
+   * Diagnostic: ExperimentalTeamsPlan
+   */
+  plan(): Plan;
+
+  /**
    * call the next event/middleware handler
    */
   next: (
@@ -289,6 +298,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   [key: string]: any;
 
   private activitySender: IActivitySender;
+  private _plan?: Plan;
   private readonly validateOAuthConnection?: IActivityContextConstructorArgs['validateOAuthConnection'];
   private readonly onOAuthSignInInitiated?: IActivityContextConstructorArgs['onOAuthSignInInitiated'];
   private readonly getOAuthConnectionStatus?: IActivityContextConstructorArgs['getOAuthConnectionStatus'];
@@ -352,6 +362,24 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       filesCredential,
       filesBotApiCredential
     );
+    this._plan = undefined;
+  }
+
+  /**
+   * Get the Plan bound to this inbound activity, scoping its client on first access.
+   *
+   * @experimental This API is in preview and may change in the future.
+   * Diagnostic: ExperimentalTeamsPlan
+   */
+  plan(): Plan {
+    if (!this._plan) {
+      this._plan = new Plan({
+        conversationId: this.ref.conversation.id,
+        replyToId: this.activity.id,
+        apiClient: this.api.fromServiceUrl({ serviceUrl: this.ref.serviceUrl }),
+      });
+    }
+    return this._plan;
   }
 
   /**
@@ -485,6 +513,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       state: this.state,
       stream: this.stream,
       files: this.files,
+      plan: this.plan.bind(this),
       isSignedIn: this.isSignedIn,
       connectionName: this.connectionName,
       userToken: this.userToken,

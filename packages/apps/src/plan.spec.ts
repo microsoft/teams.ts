@@ -1,0 +1,793 @@
+import { AxiosError, InternalAxiosRequestConfig } from 'axios';
+
+import {
+  Client, ConversationReference, IMessageActivityInput, ITokenProvider, MessageActivity, MessageActivityInput,
+  PlanInfoEntity, PlanType, SentActivity, Step,
+} from '@microsoft/teams.api';
+import { Client as HttpClient, ClientOptions, ConsoleLogger, LocalStorage } from '@microsoft/teams.common';
+
+import { ActivitySender } from './activity-sender';
+import { GraphClient } from './api';
+import { ActivityContext } from './contexts/activity';
+import { HttpStream } from './http/http-stream';
+import { Plan, PlanOptions } from './plan';
+import { StreamTimedOutError } from './types';
+
+class TestHttpClient extends HttpClient {
+  get instance() {
+    return this.http;
+  }
+
+  override clone(options?: ClientOptions): HttpClient {
+    const clone = new TestHttpClient({ ...this.options, ...options });
+    clone.instance.defaults.adapter = this.instance.defaults.adapter;
+    return clone;
+  }
+}
+
+type Response = { data?: unknown; status?: number; code?: string; message?: string };
+
+function setup(tokenProvider?: ITokenProvider) {
+  const ref: ConversationReference = {
+    activityId: 'prompt',
+    bot: { id: 'bot', role: 'bot' },
+    user: { id: 'user', role: 'user' },
+    conversation: { id: 'chat', conversationType: 'groupChat' },
+    channelId: 'msteams',
+    serviceUrl: 'https://example.com',
+  };
+  const requests: InternalAxiosRequestConfig[] = [];
+  const responses: Response[] = [];
+  const http = new TestHttpClient({ headers: { 'X-Application': 'kept' } });
+  http.instance.defaults.adapter = async (config) => {
+    requests.push(config);
+    const payload = JSON.parse(config.data);
+    const plan = payload.entities?.find((entity: { type: string }) => entity.type === 'planInfo');
+    const next = responses.shift() ?? (
+      plan && plan.planType !== 'complete' ? { data: null, status: 202 } : { data: { id: 'answer' }, status: 201 }
+    );
+    const response = { config, headers: {}, statusText: '', data: next.data, status: next.status ?? 201 };
+    if (next.code) {
+      response.data = { error: { code: next.code, message: next.message ?? 'Plan failed' } };
+    }
+    if (response.status >= 400) {
+      const code = response.status >= 500 ? AxiosError.ERR_BAD_RESPONSE : AxiosError.ERR_BAD_REQUEST;
+      throw new AxiosError('Request failed', code, config, undefined, response);
+    }
+    return response;
+  };
+  const api = new Client('https://different.example.com', http, {
+    tokenProvider,
+    ...(tokenProvider ? {
+      agenticIdentity: { agenticAppBlueprintId: 'blueprint', agenticAppId: 'agent', tenantId: 'tenant' },
+    } : {}),
+  });
+  const logger = new ConsoleLogger('plan-test', { level: 'error' });
+  const sender = new ActivitySender(logger, (serviceUrl) => api.fromServiceUrl({ serviceUrl }));
+  const stream = () => new HttpStream(api.fromServiceUrl({ serviceUrl: ref.serviceUrl }), ref, logger);
+  return { ref, api, logger, sender, requests, responses, stream };
+}
+
+const lookup: Step = { id: 'lookup', version: 1, title: 'Lookup', status: 'active' };
+const complete: PlanInfoEntity = { type: 'planInfo', planType: 'complete' };
+
+describe('Plan', () => {
+  it('serializes only the conversation and originating prompt IDs', () => {
+    const { api, ref, requests } = setup();
+    const plan = new Plan({ conversationId: ref.conversation.id, replyToId: 'prompt', apiClient: api });
+    plan.events.on('sent', jest.fn());
+
+    expect(JSON.parse(JSON.stringify(plan))).toEqual({ conversationId: 'chat', replyToId: 'prompt' });
+    expect(requests).toHaveLength(0);
+  });
+
+  it('reconstructs from saved IDs with a new runtime client and no inherited listeners', async () => {
+    const original = setup();
+    const options: PlanOptions = {
+      conversationId: 'chat;messageid=root', replyToId: 'original-prompt', apiClient: original.api,
+    };
+    const plan = new Plan(options);
+    const onOriginalSent = jest.fn();
+    plan.events.on('sent', onOriginalSent);
+    const serialized = JSON.stringify(plan);
+    const saved: Pick<PlanOptions, 'conversationId' | 'replyToId'> = JSON.parse(serialized);
+    const runtime = setup();
+    const scopedApi = runtime.api.fromServiceUrl({ serviceUrl: 'https://runtime.example.com' });
+    const clone = jest.spyOn(scopedApi, 'clone');
+    const restored = new Plan({ ...saved, apiClient: scopedApi });
+    const onRestoredSent = jest.fn();
+    restored.events.on('sent', onRestoredSent);
+
+    await restored.update([{ ...lookup, version: 2, status: 'completed' }]);
+    const result = await restored.complete('Background answer');
+
+    expect(restored.toJSON()).toEqual(saved);
+    expect(JSON.stringify(restored)).toBe(serialized);
+    expect(original.requests).toHaveLength(0);
+    expect(clone).not.toHaveBeenCalled();
+    expect(onOriginalSent).not.toHaveBeenCalled();
+    expect(onRestoredSent).toHaveBeenCalledTimes(2);
+    expect(onRestoredSent.mock.calls[1][0]).toBe(result);
+    expect(runtime.requests).toHaveLength(2);
+    for (const request of runtime.requests) {
+      expect(request.url).toBe('https://runtime.example.com/v3/conversations/chat;messageid=root/activities');
+      expect(JSON.parse(request.data)).toMatchObject({
+        replyToId: 'original-prompt', conversation: { id: 'chat;messageid=root' },
+      });
+    }
+  });
+
+  it('leaves empty prompt ID validation to the service', async () => {
+    const { api, ref, requests, responses } = setup();
+    responses.push({ status: 400, code: 'ServiceError' });
+    const plan = new Plan({ conversationId: ref.conversation.id, replyToId: '', apiClient: api });
+
+    await expect(plan.start([])).rejects.toMatchObject({
+      response: { status: 400, data: { error: { code: 'ServiceError' } } },
+    });
+    expect(requests).toHaveLength(1);
+    expect(JSON.parse(requests[0].data).replyToId).toBe('');
+  });
+
+  it.each([
+    ['start', 'start'], ['update', 'continue'], ['stop', 'stop'], ['error', 'error'],
+  ] as const)('sends %s as a prompt-bound typing control', async (method, operation) => {
+    const { api, ref, requests } = setup();
+    const plan = new Plan({ conversationId: ref.conversation.id, replyToId: 'original-prompt', apiClient: api });
+    const onSent = jest.fn<void, [SentActivity]>();
+    plan.events.on('sent', onSent);
+    const result = method === 'start' || method === 'update'
+      ? await plan[method]([lookup])
+      : await plan[method]();
+    expect(result).toBeUndefined();
+    expect(onSent).toHaveBeenCalledTimes(1);
+    expect(onSent).toHaveBeenCalledWith(expect.objectContaining({
+      id: 'DO_NOT_USE_PLACEHOLDER_ID', type: 'typing', replyToId: 'original-prompt',
+    }));
+    expect(requests).toHaveLength(1);
+    expect(requests[0].url).toBe('https://different.example.com/v3/conversations/chat/activities');
+    expect(JSON.parse(requests[0].data)).toEqual({
+      type: 'typing', replyToId: 'original-prompt',
+      conversation: { id: 'chat' },
+      entities: [{
+        type: 'planInfo', planType: operation,
+        ...(['start', 'continue'].includes(operation) ? { steps: [lookup] } : {}),
+      }],
+    });
+  });
+
+  it('preserves step details and sends only the supplied updates', async () => {
+    const { api, ref, requests } = setup();
+    const plan = new Plan({ conversationId: ref.conversation.id, replyToId: 'prompt', apiClient: api });
+    const steps: Step[] = [
+      {
+        ...lookup,
+        description: 'Checking the report.',
+        sources: [{ title: 'Report', url: 'https://example.com/report', icon: 'Text' }],
+      },
+      { id: 'answer', version: 1, title: 'Draft answer', status: 'proposed', sources: [] },
+    ];
+    const updates: Step[] = [{ ...lookup, version: 2, title: 'Sources checked', status: 'completed' }];
+    await plan.start(steps);
+    await plan.update(updates);
+
+    expect(JSON.parse(requests[0].data).entities).toStrictEqual([
+      { type: 'planInfo', planType: 'start', steps },
+    ]);
+    expect(JSON.parse(requests[1].data).entities).toStrictEqual([
+      { type: 'planInfo', planType: 'continue', steps: updates },
+    ]);
+  });
+
+  it.each(['start', 'update'] as const)('preserves an explicit empty step list for %s', async (method) => {
+    const { api, ref, requests } = setup();
+    await new Plan({ conversationId: ref.conversation.id, replyToId: 'prompt', apiClient: api })[method]([]);
+    expect(JSON.parse(requests[0].data).entities).toStrictEqual([
+      { type: 'planInfo', planType: method === 'start' ? 'start' : 'continue', steps: [] },
+    ]);
+  });
+
+  it('builds completion metadata synchronously without sending or changing the Plan', () => {
+    const { api, ref, requests } = setup();
+    const plan = new Plan({ conversationId: ref.conversation.id, replyToId: 'original-prompt', apiClient: api });
+    const onSent = jest.fn();
+    plan.events.on('sent', onSent);
+    const saved = plan.toJSON();
+
+    const message = plan.completion();
+
+    expect(message).toBeInstanceOf(MessageActivityInput);
+    expect(JSON.parse(JSON.stringify(message))).toEqual({
+      type: 'message', text: '', replyToId: 'original-prompt', entities: [complete],
+    });
+    expect(plan.toJSON()).toEqual(saved);
+    expect(requests).toHaveLength(0);
+    expect(onSent).not.toHaveBeenCalled();
+  });
+
+  it('returns independent completion builders and entities on every call', () => {
+    const { api, ref } = setup();
+    const plan = new Plan({ conversationId: ref.conversation.id, replyToId: 'prompt', apiClient: api });
+    const first = plan.completion();
+    const second = plan.completion();
+    expect(first).not.toBe(second);
+    expect(first.entities).not.toBe(second.entities);
+    expect(first.entities?.[0]).not.toBe(second.entities?.[0]);
+
+    const entity = first.entities?.[0];
+    if (entity?.type !== 'planInfo') throw new Error('Expected completion metadata');
+    entity.planType = 'stop';
+    first.replyToId = 'changed-prompt';
+    first.withText('Changed')
+      .withTextFormat('extendedmarkdown')
+      .withChannelData({ feedbackLoop: { type: 'default' } })
+      .addEntity({ type: 'planInfo', planType: 'error' });
+
+    for (const message of [second, plan.completion()]) {
+      expect(JSON.parse(JSON.stringify(message))).toEqual({
+        type: 'message', text: '', replyToId: 'prompt', entities: [complete],
+      });
+    }
+    expect(plan.replyToId).toBe('prompt');
+  });
+
+  it('completes with the answer ID and a single completion entity', async () => {
+    const { api, ref, requests } = setup();
+    const plan = new Plan({ conversationId: ref.conversation.id, replyToId: 'prompt', apiClient: api });
+    const onSent = jest.fn<void, [SentActivity]>();
+    plan.events.on('sent', onSent);
+    const result = await plan.complete('Done');
+    expect(result.id).toBe('answer');
+    expect(onSent).toHaveBeenCalledTimes(1);
+    expect(onSent.mock.calls[0][0]).toBe(result);
+    expect(JSON.parse(requests[0].data)).toEqual({
+      type: 'message', text: 'Done', replyToId: 'prompt',
+      conversation: { id: 'chat' }, entities: [complete],
+    });
+  });
+
+  it.each([false, true])('preserves caller metadata without mutating it (existing completion: %s)', async (existing) => {
+    const { api, ref, requests } = setup();
+    const message = new MessageActivityInput('Done', {
+      replyToId: 'other', conversation: { id: 'other-chat' },
+      textFormat: 'extendedmarkdown', summary: 'Fallback',
+      value: { custom: 'kept' }, channelData: { feedbackLoop: { type: 'default' } },
+      entities: JSON.parse('[{"type":"appMetadata","value":"kept"}]'),
+      attachments: [{ contentType: 'application/vnd.microsoft.card.adaptive', content: { type: 'AdaptiveCard' } }],
+    });
+    if (existing) message.addEntity(complete);
+    const original = JSON.stringify(message);
+    await new Plan({ conversationId: ref.conversation.id, replyToId: 'prompt', apiClient: api }).complete(message);
+    const payload = JSON.parse(requests[0].data);
+    expect(payload).toMatchObject({
+      ...JSON.parse(original), replyToId: 'prompt', conversation: { id: 'chat' },
+      entities: [{ type: 'appMetadata', value: 'kept' }, complete],
+    });
+    expect(payload.entities).toEqual([{ type: 'appMetadata', value: 'kept' }, complete]);
+    expect(JSON.stringify(message)).toBe(original);
+  });
+
+  it.each<PlanType>(['start', 'continue', 'stop', 'error'])('rejects a conflicting %s before sending', async (operation) => {
+    const { api, ref, requests } = setup();
+    const plan = new Plan({ conversationId: ref.conversation.id, replyToId: 'prompt', apiClient: api });
+    const onSent = jest.fn<void, [SentActivity]>();
+    plan.events.on('sent', onSent);
+    const message: IMessageActivityInput = {
+      type: 'message', text: 'Done', entities: [{ type: 'planInfo', planType: operation }],
+    };
+    await expect(plan.complete(message)).rejects.toThrow('non-complete');
+    expect(requests).toHaveLength(0);
+    expect(onSent).not.toHaveBeenCalled();
+  });
+
+  it('leaves duplicate completion entity validation to the service', async () => {
+    const { api, ref, requests, responses } = setup();
+    responses.push({ status: 400, code: 'ServiceError' });
+    await expect(new Plan({ conversationId: ref.conversation.id, replyToId: 'prompt', apiClient: api }).complete({
+      type: 'message', text: 'Done', entities: [complete, complete],
+    })).rejects.toMatchObject({
+      response: { status: 400, data: { error: { code: 'ServiceError' } } },
+    });
+    expect(requests).toHaveLength(1);
+    expect(JSON.parse(requests[0].data).entities).toEqual([complete, complete]);
+  });
+
+  it('rejects a non-complete operation even after a completion entity', async () => {
+    const { api, ref, requests } = setup();
+    await expect(new Plan({ conversationId: ref.conversation.id, replyToId: 'prompt', apiClient: api }).complete({
+      type: 'message', text: 'Done', entities: [complete, { type: 'planInfo', planType: 'stop' }],
+    })).rejects.toThrow('non-complete');
+    expect(requests).toHaveLength(0);
+  });
+
+  it('keeps the original IDs and snapshots caller-owned steps', async () => {
+    const { api, ref, requests } = setup();
+    const plan = new Plan({ conversationId: ref.conversation.id, replyToId: 'prompt', apiClient: api });
+    ref.bot = { ...ref.bot, id: 'changed' };
+    ref.conversation = { ...ref.conversation, id: 'changed' };
+    const steps = [{ ...lookup, sources: [{ title: 'Report', url: 'https://example.com/report' }] }];
+    const pending = plan.start(steps);
+    steps[0].title = 'changed';
+    steps[0].sources[0].title = 'changed';
+    await pending;
+    expect(JSON.parse(requests[0].data)).toMatchObject({
+      conversation: { id: 'chat' },
+      entities: [{ steps: [{ title: 'Lookup', sources: [{ title: 'Report' }] }] }],
+    });
+    expect(JSON.parse(requests[0].data).from).toBeUndefined();
+  });
+
+  it('uses the injected client scope and HTTP configuration without cloning it', async () => {
+    const getAppToken = jest.fn();
+    const getAgenticAppToken = jest.fn().mockResolvedValue('agent-token');
+    const { api, ref, requests } = setup({ getAppToken, getAgenticAppToken });
+    const clone = jest.spyOn(api, 'clone');
+    const fromServiceUrl = jest.spyOn(api, 'fromServiceUrl');
+    const plan = new Plan({ conversationId: ref.conversation.id, replyToId: 'prompt', apiClient: api });
+    expect(requests).toHaveLength(0);
+    await plan.stop();
+    expect(clone).not.toHaveBeenCalled();
+    expect(fromServiceUrl).not.toHaveBeenCalled();
+    expect(getAppToken).not.toHaveBeenCalled();
+    expect(getAgenticAppToken).toHaveBeenCalledWith('https://botapi.skype.com/.default', 'agent', 'tenant');
+    expect(requests[0].url).toContain('https://different.example.com/');
+    expect(requests[0].headers.get('Authorization')).toBe('Bearer agent-token');
+    expect(requests[0].headers.get('X-Application')).toBe('kept');
+  });
+
+  it('does not carry prompt reference metadata into Plan controls', async () => {
+    const { api, ref, requests } = setup();
+    ref.bot.isTargeted = true;
+    await new Plan({ conversationId: ref.conversation.id, replyToId: 'prompt', apiClient: api }).start([lookup]);
+    expect(requests).toHaveLength(1);
+    expect(JSON.parse(requests[0].data)).toMatchObject({
+      replyToId: 'prompt', conversation: { id: 'chat' },
+      entities: [{ type: 'planInfo', planType: 'start', steps: [lookup] }],
+    });
+    expect(JSON.parse(requests[0].data).from).toBeUndefined();
+  });
+
+  it('preserves an explicitly targeted completion recipient', async () => {
+    const { api, ref, requests } = setup();
+    const message = new MessageActivityInput('Private').withRecipient({ id: 'user', role: 'user' }, true);
+    await new Plan({ conversationId: ref.conversation.id, replyToId: 'prompt', apiClient: api }).complete(message);
+    expect(requests).toHaveLength(1);
+    expect(JSON.parse(requests[0].data)).toMatchObject({
+      recipient: { id: 'user', role: 'user', isTargeted: true }, entities: [complete],
+    });
+  });
+
+  it('preserves an ordinary explicit recipient', async () => {
+    const { api, ref, requests } = setup();
+    await new Plan({ conversationId: ref.conversation.id, replyToId: 'prompt', apiClient: api }).complete(
+      new MessageActivityInput('Explicit audience').withRecipient({ id: 'chosen', role: 'user' })
+    );
+    expect(requests[0].url).not.toContain('isTargetedActivity');
+    expect(JSON.parse(requests[0].data).recipient).toEqual({ id: 'chosen', role: 'user' });
+  });
+
+  it('caches one inbound Plan per context and scopes its client lazily', async () => {
+    const { api, ref, sender, logger, requests } = setup();
+    ref.activityId = 'ref-id';
+    const options = {
+      appId: 'app',
+      activity: new MessageActivity('Question', { replyToId: 'parent' })
+        .withId('prompt').withFrom(ref.user!).withRecipient(ref.bot)
+        .withConversation(ref.conversation),
+      api, ref, log: logger, activitySender: sender, connectionName: 'graph',
+      appGraph: new GraphClient(), userGraph: new GraphClient(), storage: new LocalStorage(), next: jest.fn(),
+    };
+    const ctx = new ActivityContext(options);
+    const other = new ActivityContext(options);
+    const fromServiceUrl = jest.spyOn(api, 'fromServiceUrl');
+    expect(fromServiceUrl).not.toHaveBeenCalled();
+    expect(ctx.plan()).toBe(ctx.plan());
+    expect(ctx.toInterface().plan()).toBe(ctx.plan());
+    expect(fromServiceUrl).toHaveBeenCalledTimes(1);
+    expect(fromServiceUrl).toHaveBeenCalledWith({ serviceUrl: ref.serviceUrl });
+    expect(ctx.plan().replyToId).toBe('prompt');
+    expect(other.plan()).not.toBe(ctx.plan());
+    expect(fromServiceUrl).toHaveBeenCalledTimes(2);
+    const onSent = jest.fn();
+    ctx.plan().events.on('sent', onSent);
+    await ctx.plan().stop();
+    await other.plan().stop();
+    expect(onSent).toHaveBeenCalledTimes(1);
+    expect(requests.map((request) => JSON.parse(request.data).replyToId)).toEqual(['prompt', 'prompt']);
+    expect(requests.every((request) => request.url?.startsWith(ref.serviceUrl))).toBe(true);
+  });
+
+  it('retains the context-created binding without using ctx.send or a mutable reference', async () => {
+    const { api, ref, sender, logger, requests } = setup();
+    const onSent = jest.fn<void, [SentActivity]>();
+    const ctx = new ActivityContext({
+      appId: 'app',
+      activity: new MessageActivity('Question', {
+        id: 'prompt', from: ref.user, recipient: ref.bot, conversation: ref.conversation,
+      }),
+      api, ref, log: logger, activitySender: sender, connectionName: 'graph',
+      appGraph: new GraphClient(), userGraph: new GraphClient(), storage: new LocalStorage(), next: jest.fn(),
+    });
+    const plan = ctx.plan();
+    plan.events.on('sent', onSent);
+    const send = jest.spyOn(ctx, 'send');
+    ctx.ref = {
+      ...ref,
+      serviceUrl: 'https://changed.example.com',
+      bot: { id: 'changed-bot', role: 'bot' },
+      conversation: { id: 'changed-chat', conversationType: 'groupChat' },
+    };
+
+    const result = await plan.complete('Done');
+
+    expect(send).not.toHaveBeenCalled();
+    expect(onSent).toHaveBeenCalledTimes(1);
+    expect(onSent.mock.calls[0][0]).toBe(result);
+    expect(requests).toHaveLength(1);
+    expect(requests[0].url).toBe('https://example.com/v3/conversations/chat/activities');
+    expect(JSON.parse(requests[0].data).conversation).toEqual({ id: 'chat' });
+
+    const event = onSent.mock.calls[0][0];
+    event.replyToId = 'listener-mutated-prompt';
+    event.entities?.push({ type: 'planInfo', planType: 'error' });
+    await ctx.plan().stop();
+
+    expect(ctx.plan()).toBe(plan);
+    expect(onSent).toHaveBeenCalledTimes(2);
+    expect(onSent.mock.calls[1][0]).toMatchObject({
+      conversation: { id: 'chat' }, replyToId: 'prompt',
+      entities: [{ type: 'planInfo', planType: 'stop' }],
+    });
+    expect(onSent.mock.calls[1][0].entities).not.toBe(event.entities);
+    expect(requests).toHaveLength(2);
+    expect(requests[1].url).toBe('https://example.com/v3/conversations/chat/activities');
+    expect(JSON.parse(requests[1].data).conversation).toEqual({ id: 'chat' });
+  });
+
+  it.each([false, true])('routes an existing answer ID through POST (streamed: %s)', async (streamed) => {
+    const { sender, ref, requests } = setup();
+    const input = new MessageActivityInput('Done', { replyToId: 'prompt' }).withId('answer').addEntity(complete);
+    if (streamed) input.addStreamFinal();
+    expect((await sender.send(input, ref)).id).toBe('answer');
+    expect(requests).toHaveLength(1);
+    expect(requests[0].method).toBe('post');
+    expect(JSON.parse(requests[0].data)).toMatchObject({ id: 'answer', replyToId: 'prompt' });
+  });
+
+  it.each([false, true])('uses existing targeted routing for Plan completions (existing ID: %s)', async (existingId) => {
+    const { api, ref, sender, logger, requests } = setup();
+    ref.bot.isTargeted = true;
+    const ctx = new ActivityContext({
+      appId: 'app',
+      activity: new MessageActivity('Private question', {
+        id: 'prompt', from: ref.user, recipient: ref.bot, conversation: ref.conversation,
+      }),
+      api, ref, log: logger, activitySender: sender, connectionName: 'graph',
+      appGraph: new GraphClient(), userGraph: new GraphClient(), storage: new LocalStorage(), next: jest.fn(),
+    });
+    expect(ctx.plan()).toBeInstanceOf(Plan);
+    const message = new MessageActivityInput('Private answer').addEntity(complete);
+    if (existingId) {
+      message.withId('answer').withRecipient({ id: 'user', role: 'user' }, true);
+    }
+    await ctx.send(message);
+    await ctx.send('Ordinary private reply');
+    expect(requests).toHaveLength(2);
+    for (const request of requests) {
+      expect(request.method).toBe('post');
+      expect(request.url).toContain('?isTargetedActivity=true');
+      expect(JSON.parse(request.data).recipient).toEqual({ id: 'user', role: 'user', isTargeted: true });
+    }
+    expect(JSON.parse(requests[0].data).entities).toContainEqual(complete);
+  });
+
+  it.each(['PlanNotFound', 'PlanConflict'])('propagates %s without restart, retry, or fallback', async (code) => {
+    const { api, ref, requests, responses } = setup();
+    const plan = new Plan({ conversationId: ref.conversation.id, replyToId: 'prompt', apiClient: api });
+    const onSent = jest.fn<void, [SentActivity]>();
+    plan.events.on('sent', onSent);
+    responses.push({ code, status: 409 });
+    await expect(plan.complete('Done')).rejects.toMatchObject({
+      response: { status: 409, data: { error: { code } } },
+    });
+    expect(requests).toHaveLength(1);
+    expect(onSent).not.toHaveBeenCalled();
+  });
+});
+
+describe('Plan HTTP stream', () => {
+  beforeEach(() => jest.useFakeTimers());
+  afterEach(() => jest.useRealTimers());
+
+  it.each(['prompt', 'original-prompt'])('emits completion() last and closes explicitly for %s', async (replyToId) => {
+    const { api, ref, stream: createStream, requests } = setup();
+    const plan = new Plan({ conversationId: ref.conversation.id, replyToId, apiClient: api });
+    const onSent = jest.fn();
+    plan.events.on('sent', onSent);
+    const stream = createStream();
+    const onClose = jest.fn();
+    stream.events.on('close', onClose);
+    stream.emit('Here is ');
+    stream.emit('the answer.');
+    await jest.runAllTimersAsync();
+    const final = plan.completion()
+      .withTextFormat('extendedmarkdown')
+      .withChannelData({ feedbackLoop: { type: 'default' } });
+    const original = JSON.stringify(final);
+    stream.emit(final);
+    await jest.runAllTimersAsync();
+
+    expect(stream.closed).toBe(false);
+    expect(onClose).not.toHaveBeenCalled();
+    for (const request of requests) {
+      const payload = JSON.parse(request.data);
+      expect(payload.type).toBe('typing');
+      expect(payload.entities).not.toContainEqual(complete);
+    }
+
+    const result = await stream.close();
+
+    expect(result).toMatchObject({ id: 'answer', replyToId, text: 'Here is the answer.' });
+    const payload = JSON.parse(requests[requests.length - 1].data);
+    expect(payload).toMatchObject({
+      type: 'message', id: 'answer', replyToId, conversation: ref.conversation,
+      text: 'Here is the answer.', textFormat: 'extendedmarkdown',
+      channelData: { feedbackLoop: { type: 'default' } },
+    });
+    expect(payload.entities.filter((entity: { type: string }) => entity.type === 'planInfo')).toEqual([complete]);
+    expect(payload.entities).toContainEqual(expect.objectContaining({ type: 'streaminfo', streamType: 'final' }));
+    expect(requests.every((request) => request.method === 'post')).toBe(true);
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(onSent).not.toHaveBeenCalled();
+    expect(JSON.stringify(final)).toBe(original);
+    expect(ref.activityId).toBe('prompt');
+  });
+
+  it.each([undefined, 'other-prompt'])('sends completion only on the final POST and preserves Plan metadata (replyToId: %s)', async (replyToId) => {
+    const { stream: createStream, requests, ref } = setup();
+    const stream = createStream();
+    stream.emit('Here is ');
+    stream.emit('the answer.');
+    const final = new MessageActivityInput('', {
+      entities: [complete], textFormat: 'extendedmarkdown',
+      channelData: { feedbackLoop: { type: 'default' } },
+      replyToId,
+    });
+    const original = JSON.stringify(final);
+    stream.emit(final);
+    const pending = stream.close();
+    await jest.runAllTimersAsync();
+    const result = await pending;
+    expect(result?.id).toBe('answer');
+    expect(result?.replyToId).toBe(replyToId ?? 'prompt');
+    const payloads = requests.map((request) => JSON.parse(request.data));
+    expect(requests.every((request) => request.method === 'post')).toBe(true);
+    for (const chunk of payloads.slice(0, -1)) {
+      expect(chunk.type).toBe('typing');
+      expect(chunk.replyToId).toBe('prompt');
+      expect(chunk.entities).not.toContainEqual(complete);
+    }
+    expect(payloads.at(-1)).toMatchObject({
+      type: 'message', id: 'answer', text: 'Here is the answer.', textFormat: 'extendedmarkdown',
+      replyToId: replyToId ?? 'prompt',
+      channelData: { feedbackLoop: { type: 'default' } },
+    });
+    expect(payloads.at(-1).entities).toContainEqual(complete);
+    expect(payloads.at(-1).entities).toContainEqual(expect.objectContaining({ type: 'streaminfo', streamType: 'final' }));
+    expect(JSON.stringify(final)).toBe(original);
+    expect(ref.activityId).toBe('prompt');
+    expect(await stream.close()).toBe(result);
+  });
+
+  it('uses the same final-message construction with and without Plan metadata', async () => {
+    const payloads: IMessageActivityInput[] = [];
+    for (const withPlan of [false, true]) {
+      const { stream: createStream, requests } = setup();
+      const stream = createStream();
+      const message = new MessageActivityInput('Answer', {
+        summary: 'Summary', value: { custom: 'value' },
+        recipient: { id: 'recipient', role: 'user' },
+      });
+      if (withPlan) message.addEntity(complete);
+      stream.emit(message);
+      await jest.runAllTimersAsync();
+      await stream.close();
+      const payload: IMessageActivityInput = JSON.parse(requests[requests.length - 1].data);
+      payload.entities = payload.entities?.filter((entity) => entity.type !== 'planInfo');
+      payloads.push(payload);
+    }
+    expect(payloads[1]).toEqual(payloads[0]);
+  });
+
+  it.each(['', null])('retains the stream ID after an empty completion response: %p', async (data) => {
+    const { stream: createStream, responses, requests } = setup();
+    const stream = createStream();
+    stream.emit(new MessageActivityInput('Answer').addEntity(complete));
+    await jest.runAllTimersAsync();
+    responses.push({ data, status: 202 });
+
+    expect(await stream.close()).toMatchObject({ id: 'answer', text: 'Answer' });
+    expect(requests).toHaveLength(2);
+    expect(JSON.parse(requests[1].data)).toMatchObject({ id: 'answer', entities: expect.arrayContaining([complete]) });
+  });
+
+  it.each(['inherited', 'explicit'] as const)('does not locally reject %s targeted Plan streaming', async (audience) => {
+    const { stream: createStream, ref, requests } = setup();
+    if (audience === 'inherited') ref.bot.isTargeted = true;
+    const stream = createStream();
+    const first = new MessageActivityInput('Private answer').addEntity(complete);
+    if (audience === 'explicit') first.withRecipient({ id: 'private-user', role: 'user' }, true);
+    stream.emit(first);
+    await jest.runAllTimersAsync();
+    await stream.close();
+    expect(requests).toHaveLength(2);
+    const final = JSON.parse(requests[1].data);
+    expect(final.entities).toContainEqual(complete);
+    expect(final.from).toEqual(ref.bot);
+  });
+
+  it('reopens after Plan completion without retaining Plan metadata', async () => {
+    const { stream: createStream, requests } = setup();
+    const stream = createStream();
+    stream.emit(new MessageActivityInput('Plan answer').addEntity(complete));
+    await jest.runAllTimersAsync();
+    await stream.close();
+    stream.emit('Next answer');
+    expect(stream.closed).toBe(false);
+    await jest.runAllTimersAsync();
+    await stream.close();
+    expect(stream.closed).toBe(true);
+    expect(requests).toHaveLength(4);
+    expect(JSON.parse(requests[3].data).entities).not.toContainEqual(complete);
+  });
+
+  it.each([
+    ['exceeded streaming time', 'timedOut'],
+    ['stream canceled by user', 'canceled'],
+  ] as const)('keeps existing close behavior after %s before any stream ID exists', async (message, status) => {
+    const { stream: createStream, responses, requests } = setup();
+    responses.push({ status: 403, code: 'ServiceError', message });
+    const stream = createStream();
+    stream.emit(new MessageActivityInput('Answer').addEntity(complete));
+    await jest.runAllTimersAsync();
+    expect(stream[status]).toBe(true);
+    await expect(stream.close()).resolves.toBeUndefined();
+    expect(requests).toHaveLength(1);
+  });
+
+  it.each([false, true])('never falls back to PUT on timeout (during chunk: %s)', async (duringChunk) => {
+    const { stream: createStream, requests, responses } = setup();
+    const stream = createStream();
+    stream.emit(new MessageActivityInput('Answer').addEntity(complete));
+    await jest.runAllTimersAsync();
+    responses.push({ code: 'ServiceError', message: 'exceeded streaming time', status: 403 });
+    if (duringChunk) {
+      stream.emit(new MessageActivityInput(' continued').addEntity(complete));
+      await jest.runAllTimersAsync();
+    }
+    await expect(stream.close()).rejects.toThrow(StreamTimedOutError);
+    expect(requests).toHaveLength(2);
+    expect(requests.every((request) => request.method === 'post')).toBe(true);
+  });
+
+  it('does not retry or fall back on HTTP 409 PlanConflict during completion', async () => {
+    const { stream: createStream, requests, responses } = setup();
+    const stream = createStream();
+    const onClose = jest.fn();
+    stream.events.on('close', onClose);
+    stream.emit(new MessageActivityInput('Answer').addEntity(complete));
+    await jest.runAllTimersAsync();
+    const message = 'The user stopped this plan. It can no longer be updated or completed.';
+    responses.push({ code: 'PlanConflict', status: 409, message });
+    const started = Date.now();
+    const closing = stream.close();
+    const rejection = expect(closing).rejects.toMatchObject({
+      name: 'PlanConflictStreamError',
+      code: AxiosError.ERR_BAD_REQUEST,
+      response: { status: 409, data: { error: { code: 'PlanConflict', message } } },
+      cause: expect.any(AxiosError),
+    });
+
+    await Promise.all([jest.runAllTimersAsync(), rejection]);
+
+    await expect(closing).rejects.toBeInstanceOf(AxiosError);
+    expect(Date.now()).toBe(started);
+    expect(requests).toHaveLength(2);
+    expect(requests.every((request) => request.method === 'post')).toBe(true);
+    expect(JSON.parse(requests[1].data).type).toBe('message');
+    expect(onClose).not.toHaveBeenCalled();
+    expect(stream.canceled).toBe(false);
+    expect(stream.timedOut).toBe(false);
+  });
+
+  it('uses the existing retry policy for PlanNotFound from a chunk', async () => {
+    const { stream: createStream, requests, responses } = setup();
+    responses.push({ code: 'PlanNotFound', status: 409 });
+    const stream = createStream();
+    stream.emit(new MessageActivityInput('Answer').addEntity(complete));
+    await jest.runAllTimersAsync();
+    await expect(stream.close()).resolves.toMatchObject({ id: 'answer' });
+    expect(requests).toHaveLength(3);
+  });
+
+  it.each(['emit', 'update'] as const)('starts fresh with %s after retiring a rejected final Plan completion', async (reopen) => {
+    const { stream: createStream, requests, responses } = setup();
+    const stream = createStream();
+    const onClose = jest.fn();
+    stream.events.on('close', onClose);
+    stream.emit(new MessageActivityInput('Rejected answer', {
+      entities: [complete], attachments: [{ contentType: 'text/plain', content: 'Old attachment' }],
+      channelData: { feedbackLoop: { type: 'default' } },
+    }));
+    await jest.runAllTimersAsync();
+    responses.push({ code: 'PlanConflict', status: 409 });
+
+    await expect(stream.close()).rejects.toMatchObject({ name: 'PlanConflictStreamError' });
+    expect(stream.closed).toBe(false);
+    expect(stream.canceled).toBe(false);
+    expect(stream.timedOut).toBe(false);
+    expect(onClose).not.toHaveBeenCalled();
+    await expect(stream.close()).resolves.toBeUndefined();
+    expect(requests).toHaveLength(2);
+
+    stream[reopen]('Fresh');
+    await jest.runAllTimersAsync();
+    const first = JSON.parse(requests[2].data);
+    expect(first.id).toBeUndefined();
+    expect(first.channelData).toMatchObject({
+      streamSequence: 1, streamType: reopen === 'update' ? 'informative' : 'streaming',
+    });
+    expect(first.channelData.streamId).toBeUndefined();
+    if (reopen === 'update') {
+      stream.emit('Fresh');
+      await jest.runAllTimersAsync();
+    }
+    const result = await stream.close();
+    expect(result).toMatchObject({ text: 'Fresh', attachments: [] });
+    expect(result?.entities).not.toContainEqual(complete);
+    expect(result?.channelData?.feedbackLoop).toBeUndefined();
+    expect(onClose).toHaveBeenCalledTimes(1);
+    const count = requests.length;
+    expect(await stream.close()).toBe(result);
+    expect(requests).toHaveLength(count);
+  });
+
+  it.each<Response>([
+    { code: 'PlanNotFound', status: 409 },
+    { code: 'OtherConflict', status: 409 },
+    { code: 'PlanConflict', status: 500 },
+    { code: 'PlanConflict', status: 503 },
+    { code: 'ServiceError', status: 500 },
+    { data: { error: null }, status: 409 },
+    { data: null, status: 409 },
+    { data: 'not JSON', status: 409 },
+    { status: 409 },
+  ])('uses the existing retry policy on completion for %j', async (response) => {
+    const { stream: createStream, requests, responses } = setup();
+    const stream = createStream();
+    stream.emit(new MessageActivityInput('Answer').addEntity(complete));
+    await jest.runAllTimersAsync();
+    responses.push(response);
+    const started = Date.now();
+    const closing = stream.close();
+    await Promise.all([
+      jest.runAllTimersAsync(),
+      expect(closing).resolves.toMatchObject({ id: 'answer' }),
+    ]);
+    expect(requests).toHaveLength(3);
+    expect(Date.now() - started).toBe(500);
+  });
+
+  it('propagates completion errors when the existing retry limit is exhausted', async () => {
+    const { stream: createStream, requests, responses } = setup();
+    const stream = createStream();
+    stream.emit(new MessageActivityInput('Answer').addEntity(complete));
+    await jest.runAllTimersAsync();
+    responses.push(...Array.from({ length: 5 }, () => ({ code: 'PlanConflict', status: 500 })));
+    const rejection = expect(stream.close()).rejects.toMatchObject({
+      response: { status: 500, data: { error: { code: 'PlanConflict' } } },
+    });
+    await Promise.all([jest.runAllTimersAsync(), rejection]);
+    expect(requests).toHaveLength(6);
+  });
+});

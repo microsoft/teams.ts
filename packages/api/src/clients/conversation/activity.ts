@@ -16,7 +16,13 @@ import {
   OUTBOUND_OPERATIONS,
   type ConversationActivityOperation
 } from '../../diagnostics/constants';
-import { resolveAadObjectId, type DeprecatedInputActivity, type Resource, type TeamsChannelAccount } from '../../models';
+import {
+  getPlanInfo,
+  resolveAadObjectId,
+  type DeprecatedInputActivity,
+  type Resource,
+  type TeamsChannelAccount
+} from '../../models';
 import { ApiClientSettings, mergeApiClientSettings } from '../api-client-settings';
 import {
   ensureApiOutboundTelemetryMiddleware,
@@ -111,13 +117,18 @@ export class ConversationActivityClient {
   async create(conversationId: string, params: ActivityParamsLike) {
     // TODO: Will be deprecated alongside accessor in ConversationClient
     const activity = toActivityParams(params);
+    const plan = getPlanInfo(activity);
     const res = await this.http.post<Resource>(
-                  `${this.serviceUrl}/v3/conversations/${conversationId}/activities`,
+      `${this.serviceUrl}/v3/conversations/${conversationId}/activities`,
       activity,
       apiOutboundTelemetryConfig(OUTBOUND_OPERATIONS.create, this.serviceUrl, conversationId, activity, {
         captureResponseActivityId: true,
       })
     );
+    if (plan && plan.planType !== 'complete') {
+      /** Plan returns `DO_NOT_USE_PLACEHOLDER_ID`, not a message ID. */
+      return { id: 'DO_NOT_USE_PLACEHOLDER_ID' };
+    }
     return res.data;
   }
 
@@ -149,8 +160,8 @@ export class ConversationActivityClient {
   async reply(conversationId: string, id: string, params: ActivityParamsLike): Promise<Resource>;
   async reply(conversationId: string, id: string, params: ActivityParamsLike) {
     // TODO: Will be deprecated alongside accessor in ConversationClient
-    const activity = toActivityParams(params);
-    activity.replyToId = id;
+    const activity = { ...toActivityParams(params), replyToId: id };
+    const plan = getPlanInfo(activity);
     const res = await this.http.post<Resource>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities`,
       activity,
@@ -158,6 +169,10 @@ export class ConversationActivityClient {
         captureResponseActivityId: true,
       })
     );
+    if (plan && plan.planType !== 'complete') {
+      /** Plan returns `DO_NOT_USE_PLACEHOLDER_ID`, not a message ID. */
+      return { id: 'DO_NOT_USE_PLACEHOLDER_ID' };
+    }
     return res.data;
   }
 

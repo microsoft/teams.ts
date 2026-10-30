@@ -1,4 +1,4 @@
-import { AxiosError } from 'axios';
+import { AxiosError, AxiosHeaders, InternalAxiosRequestConfig } from 'axios';
 
 import {
   StreamCancelledError,
@@ -100,6 +100,45 @@ describe('HttpStream', () => {
     expect(calls[1][1].text).toBe('Test message');
     const res = await stream.close();
     expect(res).toBeDefined();
+  });
+
+  test('does not retry HTTP 409 PlanConflict from a chunk and retains HTTP error details', async () => {
+    const config: InternalAxiosRequestConfig = { headers: new AxiosHeaders() };
+    const request = { id: 'request' };
+    const response = {
+      status: 409,
+      data: { error: { code: 'PlanConflict', message: 'The user stopped this plan.' } },
+      headers: {},
+      statusText: 'Conflict',
+      config,
+    };
+    const original = new AxiosError('Conflict', AxiosError.ERR_BAD_REQUEST, config, request, response);
+    client.conversations.createActivity.mockRejectedValue(original);
+    const stream = new HttpStream(client, ref, logger);
+    const onChunk = jest.fn();
+    stream.events.on('chunk', onChunk);
+    const started = Date.now();
+
+    stream.emit('Answer');
+    await jest.runAllTimersAsync();
+
+    expect(client.conversations.createActivity).toHaveBeenCalledTimes(1);
+    expect(client.conversations.updateActivity).not.toHaveBeenCalled();
+    expect(Date.now()).toBe(started);
+    expect(onChunk).not.toHaveBeenCalled();
+    expect(logger.error).toHaveBeenCalledTimes(1);
+    const error: unknown = logger.error.mock.calls[0][0];
+    expect(error).toBeInstanceOf(AxiosError);
+    if (!(error instanceof AxiosError)) throw new Error('Expected an AxiosError.');
+    expect(error.name).toBe('PlanConflictStreamError');
+    expect(error.message).toBe(original.message);
+    expect(error.code).toBe(original.code);
+    expect(error.config).toBe(config);
+    expect(error.request).toBe(request);
+    expect(error.response).toBe(response);
+    expect(error.cause).toBe(original);
+    expect(stream.canceled).toBe(false);
+    expect(stream.timedOut).toBe(false);
   });
 
   test('update sends typing activity', async () => {
@@ -349,7 +388,7 @@ describe('HttpStream', () => {
     expect(calls[1][1].textFormat).toBeUndefined();
   });
 
-  test('sendFinal (timeout fallback) retains the last emitted textFormat', async () => {
+  test('sendFinal (timeout fallback) retains the last emitted textFormat and replyToId', async () => {
     const stream = new HttpStream(client, ref, logger);
     let createCalls = 0;
     const updates: any[] = [];
@@ -373,12 +412,12 @@ describe('HttpStream', () => {
     );
     client.conversations.updateActivity.mockImplementation(
       async (_conversationId: any, id: any, activity: any) => {
-        updates.push({ id, text: activity.text, textFormat: activity.textFormat });
+        updates.push({ id, text: activity.text, textFormat: activity.textFormat, replyToId: activity.replyToId });
         return { ...activity, id };
       }
     );
 
-    stream.emit({ type: 'message', text: 'Final answer', textFormat: 'extendedmarkdown' });
+    stream.emit({ type: 'message', text: 'Final answer', textFormat: 'extendedmarkdown', replyToId: 'other-prompt' });
     const closePromise = stream.close();
     await jest.runAllTimersAsync();
     await closePromise;
@@ -387,6 +426,7 @@ describe('HttpStream', () => {
     expect(updates).toHaveLength(1);
     expect(updates[0].text).toBe('Final answer');
     expect(updates[0].textFormat).toBe('extendedmarkdown');
+    expect(updates[0].replyToId).toBe('other-prompt');
   });
 
   test('close waits for flush to complete before sending final message', async () => {

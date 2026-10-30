@@ -5,6 +5,7 @@ export * from './contexts';
 export * from './events';
 export * from './state';
 export * from './files';
+export * from './plan';
 export { DEFAULT_OAUTH_SETTINGS, OAuthFlow } from './oauth';
 export type {
   OAuthSettings,
