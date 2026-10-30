@@ -85,6 +85,7 @@ app.on('message', async (ctx) => {
         ctx.stream.emit(chunk);
         await sleep(500);
       }
+      // Emit last so the final streamed response also completes the Plan.
       ctx.stream.emit(plan.completion());
       await ctx.stream.close();
       break;

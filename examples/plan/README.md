@@ -47,9 +47,6 @@ npx turbo run build --filter=@examples/plan
 npm run dev --workspace=@examples/plan
 ```
 
-After building, `npm test --workspace=@examples/plan` checks the streaming sample
-in process without starting a server or making network requests.
-
 For Teams, expose `/api/messages` through a tunnel and use the official Teams CLI to create the app:
 
 ```bash

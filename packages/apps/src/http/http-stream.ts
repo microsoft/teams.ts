@@ -62,6 +62,7 @@ export class HttpStream implements IStreamer {
   private _flushing: boolean = false;
   private _canceled: boolean = false;
   private _timedOut: boolean = false;
+  private _retired: boolean = false;
   private readonly _totalTimeout = 30000; // 30 seconds
 
   /**
@@ -118,10 +119,9 @@ export class HttpStream implements IStreamer {
       throw new StreamCancelledError();
     }
 
-    // Emitting after close reopens the stream: start a new streamed message
-    // on the same instance.
-    if (this.closed) {
-      this._logger.debug('starting a new streamed message after close');
+    // Emitting after close or a retired Plan timeout starts a fresh stream cycle.
+    if (this.closed || this._retired) {
+      this._logger.debug('starting a new streamed message');
       this.resetForNextStream();
     }
 
@@ -176,12 +176,19 @@ export class HttpStream implements IStreamer {
   /**
    * Close the stream by sending the final message.
    * Waits for all queued activities to flush.
+   * A Plan timeout discards the failed cycle and raises once. Further closes return
+   * undefined until the next emit or update starts a fresh cycle.
    */
   async close() {
     // Closing is idempotent until the next emit/update reopens the stream.
     if (this.closed) {
       this._logger.debug('already closed');
       return this._result;
+    }
+
+    if (this._retired) {
+      this._logger.debug('failed stream cycle already retired, nothing to close');
+      return;
     }
 
     if (!this.index && !this.queue.length && !this._flushing) {
@@ -299,6 +306,8 @@ export class HttpStream implements IStreamer {
    */
   protected async sendFinal() {
     if (getPlanInfo(this.finalActivity ?? {})) {
+      this.resetCurrentStream();
+      this._retired = true;
       throw new StreamTimedOutError('Plan completion requires a POST; it cannot use the stream update fallback.');
     }
     const finalAttachments = this.finalActivity?.attachments ?? [];
@@ -333,12 +342,7 @@ export class HttpStream implements IStreamer {
    * Prepare the stream instance to start a new stream cycle after close().
    */
   protected resetForNextStream() {
-    this.index = 0;
-    this.id = undefined;
-    this.text = '';
-    this.channelData = {};
-    this.finalActivity = undefined;
-    this.queue = [];
+    this.resetCurrentStream();
     this._result = undefined;
     this._timedOut = false;
   }
@@ -549,5 +553,15 @@ export class HttpStream implements IStreamer {
       }
       throw err;
     }
+  }
+
+  private resetCurrentStream() {
+    this._retired = false;
+    this.index = 0;
+    this.id = undefined;
+    this.text = '';
+    this.channelData = {};
+    this.finalActivity = undefined;
+    this.queue = [];
   }
 }
