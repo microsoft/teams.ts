@@ -167,11 +167,17 @@ export class ConversationActivityClient {
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
    */
   async reply(conversationId: string, id: string, params: DeprecatedInputActivity): Promise<Resource>;
+  /**
+   * Reply to an activity in a conversation.
+   *
+   * To create an activity in a reply chain (thread), use {@link createReplyChain}.
+   * The activity id is not sent.
+   */
   async reply(conversationId: string, id: string, params: ActivityParams): Promise<Resource>;
   async reply(conversationId: string, id: string, params: ActivityParamsLike): Promise<Resource>;
-  async reply(conversationId: string, id: string, params: ActivityParamsLike) {
+  async reply(conversationId: string, _id: string, params: ActivityParamsLike) {
     // TODO: Will be deprecated alongside accessor in ConversationClient
-    const activity = { ...toActivityParams(params), replyToId: id };
+    const activity = toActivityParams(params);
     const plan = getPlanInfo(activity);
     const res = await this.http.post<Resource>(
       `${this.serviceUrl}/v3/conversations/${conversationId}/activities`,
