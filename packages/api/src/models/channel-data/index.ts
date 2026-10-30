@@ -9,6 +9,7 @@ import { NotificationInfo } from './notification-info';
 import { OnBehalfOf } from './on-behalf-of';
 import { ReplyChainInfo } from './reply-chain-info';
 import { ChannelDataSettings } from './settings';
+import { SourceInfo } from './source-info';
 import { TeamInfo } from './team-info';
 import { TenantInfo } from './tenant-info';
 
@@ -43,6 +44,11 @@ export type ChannelData = {
    * @experimental This API is in preview and may change in the future. Diagnostic: ExperimentalTeamsThreading
    */
   replyChain?: ReplyChainInfo;
+
+  /**
+   * @member {SourceInfo} [source] Where the activity was fired or invoked from.
+   */
+  source?: SourceInfo;
 
   /**
    * @member {string} [eventType] Type of event.
@@ -143,6 +149,7 @@ export * from './notification-info';
 export * from './on-behalf-of';
 export * from './reply-chain-info';
 export * from './settings';
+export * from './source-info';
 export * from './team-info';
 export * from './tenant-info';
 export * from './feedback-loop';
