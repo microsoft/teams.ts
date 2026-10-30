@@ -49,7 +49,6 @@ describe('ConversationClient', () => {
         {
           type: 'message',
           text: 'hi',
-          replyToId: '2',
         },
         expectTelemetryConfig()
       );
@@ -249,7 +248,6 @@ describe('ConversationClient', () => {
           {
             type: 'message',
             text: 'hi',
-            replyToId: '2',
           },
           expectTelemetryConfig()
         );
