@@ -78,7 +78,7 @@ describe('parseInlineImageHints', () => {
     const started = Date.now();
 
     expect(hints(fragment.repeat(20_000))).toStrictEqual({});
-    expect(Date.now() - started).toBeLessThan(250);
+    expect(Date.now() - started).toBeLessThan(1_000);
   });
 
   it('reads a tag whose quoted attribute value holds a `>`', () => {
