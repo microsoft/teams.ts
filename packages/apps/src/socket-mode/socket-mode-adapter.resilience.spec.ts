@@ -2,7 +2,8 @@ import { Client as HttpClient, ConsoleLogger } from '@microsoft/teams.common';
 
 import { NegotiateError } from './negotiate';
 import { SocketModeAdapter, SocketModeAdapterDeps } from './socket-mode-adapter';
-import { SocketActivityEnvelope } from './types';
+import { configureSocketModeForTest, SocketModeTestSettings } from './socket-mode.test-harness';
+import { SocketActivityEnvelope, SocketModeOptions } from './types';
 
 // A controllable fake for the single-generation connection so the adapter's
 // reconnect supervisor and dispatch fence can be driven
@@ -121,16 +122,18 @@ const setActivityHandler = new WeakMap<
 >();
 
 function createSocketModeAdapter(
-  options: Record<string, unknown>,
+  options: SocketModeOptions & SocketModeTestSettings,
   deps: Omit<SocketModeAdapterDeps, 'processActivity' | 'client'>
 ): SocketModeAdapter {
   let handler: ActivityHandler = async () => ({ status: 200 });
-  const server = new SocketModeAdapter(options as any, {
+  const { geos, negotiateBaseUrl, ...settings } = options;
+  const server = new SocketModeAdapter({ geos, negotiateBaseUrl }, {
     credentials: { clientId: 'bot1' } as any,
     client: new HttpClient(),
     ...deps,
     processActivity: (event) => handler(event),
   });
+  configureSocketModeForTest(server, settings);
   setActivityHandler.set(server, (next) => {
     handler = next;
   });
@@ -154,7 +157,7 @@ function onMessaging(
 }
 
 async function makeServer(
-  options: Record<string, unknown> = {},
+  options: SocketModeOptions & SocketModeTestSettings = {},
   logger: ConsoleLogger = new ConsoleLogger('test', { level: 'error' })
 ): Promise<SocketModeAdapter> {
   // Default to a single geo ([''] = no geo segment) so the per-connection
@@ -625,19 +628,22 @@ describe('SocketModeAdapter resilience', () => {
       }
     });
 
-    it('keeps retrying other negotiate failures such as HTTP 503', async () => {
+    it.each([
+      { status: 429, retryAfterMs: 15_000 },
+      { status: 503, retryAfterMs: 7_000 },
+    ])('honors Retry-After instead of backoff on HTTP $status', async ({ status, retryAfterMs }) => {
       jest.useFakeTimers();
       try {
         const server = await makeServer({ reconnectDelaysMs: [100] });
         await server.start();
         connState.startErrorQueue.push(
-          new NegotiateError('Socket Mode negotiate failed: HTTP 503', 7_000, 503),
-          new NegotiateError('Socket Mode negotiate failed: HTTP 503', undefined, 503)
+          new NegotiateError(`Socket Mode negotiate failed: HTTP ${status}`, retryAfterMs, status),
+          new NegotiateError(`Socket Mode negotiate failed: HTTP ${status}`, undefined, status)
         );
         connState.connections[0].drop(new Error('network drop'));
         await jest.advanceTimersByTimeAsync(100);
         expect(connState.connections).toHaveLength(2);
-        await jest.advanceTimersByTimeAsync(6_999);
+        await jest.advanceTimersByTimeAsync(retryAfterMs - 1);
         expect(connState.connections).toHaveLength(2);
         await jest.advanceTimersByTimeAsync(1);
         expect(connState.connections).toHaveLength(3);

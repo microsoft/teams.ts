@@ -76,8 +76,6 @@ export class SignalRSocketConnection implements ISocketConnection {
       })
       .configureLogging(this.signalRLogger([neg.accessToken]))
       .build();
-    connection.keepAliveIntervalInMilliseconds = this.context.keepAliveIntervalMs;
-    connection.serverTimeoutInMilliseconds = this.context.serverTimeoutMs;
     this.connection = connection;
 
     // A readiness gate: the socket is not usable until Teams backend service

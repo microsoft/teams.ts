@@ -37,8 +37,6 @@ import {
 
 const DEFAULT_READINESS_TIMEOUT_MS = 30_000;
 const DEFAULT_STARTUP_TIMEOUT_MS = 30_000;
-const DEFAULT_KEEPALIVE_INTERVAL_MS = 15_000;
-const DEFAULT_SERVER_TIMEOUT_MS = 30_000;
 
 /** Reconnect back-off bounds: capped exponential with full jitter. */
 const RECONNECT_INITIAL_DELAY_MS = 1_000;
@@ -180,6 +178,15 @@ export class SocketModeAdapter implements IHttpServerAdapter {
   private readonly log: ILogger;
   private _lifecycle: 'idle' | 'starting' | 'started' | 'stopped' = 'idle';
 
+  private readonly transportSettings: {
+    startupTimeoutMs: number;
+    readinessTimeoutMs: number;
+    reconnectDelaysMs?: readonly number[];
+  } = {
+    startupTimeoutMs: DEFAULT_STARTUP_TIMEOUT_MS,
+    readinessTimeoutMs: DEFAULT_READINESS_TIMEOUT_MS,
+  };
+
   /** One independent supervised connection per geo. */
   private geoSockets: GeoSocket[] = [];
 
@@ -269,7 +276,7 @@ export class SocketModeAdapter implements IHttpServerAdapter {
    * via {@link HttpServer.start}. The `port` argument is unused — Socket Mode
    * dials out rather than listening.
    *
-   * The initial connect for each geo is retried up to `startupTimeoutMs` before
+   * The initial connect for each geo is retried for up to 30 seconds before
    * `App.start()` rejects; once all geos are ready, each geo's supervisor keeps
    * it alive across drops and token expiry independently until {@link stop}.
    */
@@ -339,8 +346,7 @@ export class SocketModeAdapter implements IHttpServerAdapter {
         onDisconnected: (error, terminal) =>
           this.emit('disconnected', { geo, error, terminal }),
         onReconnected: () => this.emit('reconnected', { geo }),
-        startupTimeoutMs:
-          this.options.startupTimeoutMs ?? DEFAULT_STARTUP_TIMEOUT_MS,
+        startupTimeoutMs: this.transportSettings.startupTimeoutMs,
         tokenRefreshMarginMs: TOKEN_REFRESH_MARGIN_MS,
       },
       geo,
@@ -361,9 +367,7 @@ export class SocketModeAdapter implements IHttpServerAdapter {
         client: this.deps.client,
         getBotToken: () => this.acquireBotToken(),
         getConnectionIdToReplace,
-        readinessTimeoutMs: this.options.readinessTimeoutMs ?? DEFAULT_READINESS_TIMEOUT_MS,
-        keepAliveIntervalMs: this.options.keepAliveIntervalMs ?? DEFAULT_KEEPALIVE_INTERVAL_MS,
-        serverTimeoutMs: this.options.serverTimeoutMs ?? DEFAULT_SERVER_TIMEOUT_MS,
+        readinessTimeoutMs: this.transportSettings.readinessTimeoutMs,
       },
       handlers,
       this.log
@@ -372,7 +376,7 @@ export class SocketModeAdapter implements IHttpServerAdapter {
 
   /** Back-off delay (ms) for a reconnect attempt (shared policy across geos). */
   private backoffDelay(attempt: number): number {
-    const schedule = this.options.reconnectDelaysMs;
+    const schedule = this.transportSettings.reconnectDelaysMs;
     if (schedule && schedule.length > 0) {
       return schedule[Math.min(attempt, schedule.length - 1)];
     }

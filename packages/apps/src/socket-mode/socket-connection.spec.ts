@@ -3,6 +3,7 @@ import { Client as HttpClient, ConsoleLogger } from '@microsoft/teams.common';
 
 import { SignalRSocketConnection } from './socket-connection';
 import { SocketModeAdapter } from './socket-mode-adapter';
+import { configureSocketModeForTest } from './socket-mode.test-harness';
 import { SocketConnectionContext, SocketConnectionHandlers, SocketReadyFrame } from './types';
 
 type SignalRState = {
@@ -14,8 +15,6 @@ type SignalRState = {
     state: HubConnectionState;
     url?: string;
     options: IHttpConnectionOptions;
-    keepAliveIntervalInMilliseconds?: number;
-    serverTimeoutInMilliseconds?: number;
   }[];
   started: number;
   stopped: number;
@@ -106,8 +105,6 @@ function makeContext(overrides: Partial<SocketConnectionContext> = {}): SocketCo
     client,
     getBotToken: async () => 'bot-jwt',
     readinessTimeoutMs: 50,
-    keepAliveIntervalMs: 15000,
-    serverTimeoutMs: 30000,
     ...overrides,
   };
 }
@@ -122,10 +119,9 @@ function makeHandlers(overrides: Partial<SocketConnectionHandlers> = {}): Socket
 }
 
 function makeAdapter(getBotToken = async () => 'bot-jwt', reconnectDelayMs = 0): SocketModeAdapter {
-  return new SocketModeAdapter({
+  const adapter = new SocketModeAdapter({
     negotiateBaseUrl: 'https://apx.example',
     geos: ['amer'],
-    reconnectDelaysMs: [reconnectDelayMs],
   }, {
     client,
     tokenProvider: {
@@ -147,6 +143,8 @@ function makeAdapter(getBotToken = async () => 'bot-jwt', reconnectDelayMs = 0):
     messagingEndpoint: '/api/messages',
     logger: new ConsoleLogger('test', { level: 'error' }),
   });
+  configureSocketModeForTest(adapter, { reconnectDelaysMs: [reconnectDelayMs] });
+  return adapter;
 }
 
 describe('SignalRSocketConnection', () => {
@@ -539,14 +537,23 @@ describe('SignalRSocketConnection', () => {
     await conn.stop();
   });
 
-  it('applies explicit keep-alive and server-timeout to the connection', async () => {
+  it('leaves keep-alive and server timeout at the SignalR client defaults', async () => {
     const conn = new SignalRSocketConnection(
-      makeContext({ keepAliveIntervalMs: 1234, serverTimeoutMs: 5678 }),
+      makeContext(),
       makeHandlers()
     );
     await conn.start();
-    expect(state.connections[0].keepAliveIntervalInMilliseconds).toBe(1234);
-    expect(state.connections[0].serverTimeoutInMilliseconds).toBe(5678);
+    expect(state.connections[0]).not.toHaveProperty('keepAliveIntervalInMilliseconds');
+    expect(state.connections[0]).not.toHaveProperty('serverTimeoutInMilliseconds');
+
+    const signalr = jest.requireActual<typeof import('@microsoft/signalr')>('@microsoft/signalr');
+    const hub = new signalr.HubConnectionBuilder()
+      .withUrl('https://sr/hub', { transport: HttpTransportType.WebSockets })
+      .configureLogging(signalr.LogLevel.None)
+      .build();
+    expect(hub.keepAliveIntervalInMilliseconds).toBe(15_000);
+    expect(hub.serverTimeoutInMilliseconds).toBe(30_000);
+    await conn.stop();
   });
 
   it('rejects immediately when start is called with an already-aborted signal', async () => {

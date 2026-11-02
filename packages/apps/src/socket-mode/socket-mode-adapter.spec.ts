@@ -4,6 +4,7 @@ import { ConsoleLogger } from '@microsoft/teams.common';
 import { HttpServer } from '../http/http-server';
 import { createTestApp } from '../test-utils';
 
+import { configureSocketModeForTest } from './socket-mode.test-harness';
 import { SocketActivityEnvelope, SocketConnectionHandlers } from './types';
 
 // Replace the real SignalR-backed connection with a controllable fake so the
@@ -89,8 +90,9 @@ describe('SocketModeAdapter (through App)', () => {
     const app = createTestApp({
       logger: new ConsoleLogger('test', { level: 'error' }),
       clientId: 'bot1',
-      socketMode: { geos: [''], startupTimeoutMs: 0 },
+      socketMode: { geos: [''] },
     });
+    configureSocketModeForTest(app.socketMode!, { startupTimeoutMs: 0 });
 
     await expect(app.start()).rejects.toThrow('negotiate down');
     expect(app.socketMode?.status).toBe('stopped');
