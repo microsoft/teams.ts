@@ -37,7 +37,7 @@
   "dependencies": {
     "@microsoft/teams.cards": "*",
     "@microsoft/teams.common": "*",
-    "@opentelemetry/api": "^1.9.1",
+    "@opentelemetry/api": "^1.10.0",
     "jwt-decode": "^4.0.0",
     "qs": "^6.16.1"
   },

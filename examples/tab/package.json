@@ -34,11 +34,11 @@
     "@types/node": "^26.6.5",
     "@vitejs/plugin-react": "^6.1.2",
     "concurrently": "^10.0.6",
-    "dotenv": "^18.0.8",
+    "dotenv": "^18.0.9",
     "rimraf": "^6.0.1",
     "tsup": "^8.4.0",
     "tsx": "^4.23.15",
     "typescript": "^5.4.5",
-    "vite": "^8.3.4"
+    "vite": "^8.3.5"
   }
 }
