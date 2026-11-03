@@ -1,7 +1,7 @@
 import { AxiosError, AxiosHeaders, InternalAxiosRequestConfig } from 'axios';
 
+import type { IStreamer } from '../index';
 import {
-  StreamCancelledError,
   StreamNotAllowedError,
   StreamTimedOutError,
   TerminalStreamError,
@@ -51,6 +51,30 @@ describe('HttpStream', () => {
     );
     return () => calls;
   }
+
+  test('preserves the deprecated readonly boolean canceled getter', async () => {
+    mockCreate();
+    const stream = new HttpStream(client, ref, logger);
+    const publicStream: IStreamer = stream;
+    const canceled: boolean = publicStream.canceled;
+
+    expect(canceled).toBe(false);
+    expect(stream.canceled).toBe(false);
+    expect(() => {
+      // @ts-expect-error The public interface must remain readonly.
+      publicStream.canceled = true;
+    }).toThrow(TypeError);
+    expect(() => {
+      // @ts-expect-error The concrete class must remain getter-only.
+      stream.canceled = true;
+    }).toThrow(TypeError);
+
+    stream.emit('Answer');
+    await jest.runAllTimersAsync();
+    expect(stream.canceled).toBe(false);
+    await stream.close();
+    expect(stream.canceled).toBe(false);
+  });
 
   test('stream multiple emits with timer', async () => {
     const stream = new HttpStream(client, ref, logger);
@@ -137,7 +161,6 @@ describe('HttpStream', () => {
     expect(error.request).toBe(request);
     expect(error.response).toBe(response);
     expect(error.cause).toBe(original);
-    expect(stream.canceled).toBe(false);
     expect(stream.timedOut).toBe(false);
   });
 
@@ -203,85 +226,6 @@ describe('HttpStream', () => {
     );
     const result = await res;
     expect(result).toBeUndefined();
-  });
-
-  test('stream canceled on 403', async () => {
-    const stream = new HttpStream(client, ref, logger);
-    const axiosError = new AxiosError('Forbidden', '403', undefined, undefined, {
-      status: 403,
-      data: { error: { message: 'Content stream was canceled by user' } },
-      headers: {},
-      statusText: 'Forbidden',
-      config: {} as any,
-    });
-    client.conversations.createActivity.mockRejectedValue(axiosError);
-
-    stream.emit('Test message');
-    await jest.runAllTimersAsync();
-
-    expect(stream.canceled).toBe(true);
-  });
-
-  test('emit blocked after cancel', () => {
-    const stream = new HttpStream(client, ref, logger);
-    (stream as any)._canceled = true;
-
-    expect(() => stream.emit('Should fail')).toThrow(StreamCancelledError);
-  });
-
-  test('send blocked after cancel', async () => {
-    const stream = new HttpStream(client, ref, logger);
-    (stream as any)._canceled = true;
-
-    await expect((stream as any).send({ type: 'typing', text: 'test' })).rejects.toThrow(
-      StreamCancelledError
-    );
-  });
-
-  test('close returns undefined when canceled', async () => {
-    const stream = new HttpStream(client, ref, logger);
-    (stream as any)._canceled = true;
-    // Set index so we get past the "no content" early return
-    (stream as any).index = 1;
-
-    const result = await stream.close();
-    expect(result).toBeUndefined();
-    expect(logger.debug).toHaveBeenCalledWith('stream canceled, nothing to close');
-  });
-
-  test('stream canceled after successful message', async () => {
-    const stream = new HttpStream(client, ref, logger);
-    let callCount = 0;
-    const axiosError = new AxiosError('Forbidden', '403', undefined, undefined, {
-      status: 403,
-      data: { error: { message: 'Content stream was canceled by user' } },
-      headers: {},
-      statusText: 'Forbidden',
-      config: {} as any,
-    });
-
-    client.conversations.createActivity.mockImplementation(async (_conversationId: any, activity: any) => {
-      callCount++;
-      if (callCount === 1) {
-        return { ...activity, id: 'activity-1' };
-      }
-      throw axiosError;
-    });
-
-    // First emit succeeds
-    stream.emit('First message');
-    await jest.runAllTimersAsync();
-    expect(stream.canceled).toBe(false);
-    expect(callCount).toBe(1);
-
-    // Second emit triggers 403
-    stream.emit('Second message');
-    await jest.runAllTimersAsync();
-    expect(stream.canceled).toBe(true);
-    expect(callCount).toBe(2);
-
-    // Further emits throw
-    expect(() => stream.emit('Should fail')).toThrow(StreamCancelledError);
   });
 
   test('close sends final message with streamType final after update', async () => {
@@ -530,14 +474,14 @@ describe('HttpStream', () => {
 
   const errorCases: Array<[string, new (...args: any[]) => Error]> = [
     ['Content stream finished due to exceeded streaming time.', StreamTimedOutError],
-    ['Content stream was canceled by user.', StreamCancelledError],
     ['Content stream is not allowed', StreamNotAllowedError],
     ['Content stream is not allowed on an already completed streamed message', TerminalStreamError],
     ['Message size too large', TerminalStreamError],
     ['Request streamed content should contain the previously streamed content', TerminalStreamError],
+    ['Unexpected service failure', TerminalStreamError],
   ];
 
-  test.each(errorCases)('send maps 403 message "%s" to the correct error', async (message, expected) => {
+  test.each(errorCases)('send maps 403 message "%s" without retrying', async (message, expected) => {
     const stream = new HttpStream(client, ref, logger);
     const axiosError = new AxiosError('Forbidden', '403', undefined, undefined, {
       status: 403,
@@ -548,10 +492,13 @@ describe('HttpStream', () => {
     });
     client.conversations.createActivity.mockRejectedValue(axiosError);
 
-    await expect((stream as any).send({ type: 'typing', text: 'hi' })).rejects.toHaveProperty(
+    await expect(stream['sendWithRetry']({ type: 'typing', text: 'hi' })).rejects.toHaveProperty(
       'name',
       expected.name
     );
+    expect(client.conversations.createActivity).toHaveBeenCalledTimes(1);
+    expect(stream.timedOut).toBe(expected === StreamTimedOutError);
+    expect(stream.canceled).toBe(false);
   });
 
   test('send 403 with empty body raises a terminal stream error', async () => {
@@ -613,6 +560,9 @@ describe('HttpStream', () => {
     // After the timeout, close() updates the original message in place rather than
     // posting a duplicate: exactly one update, reusing the id, with no stream markers.
     expect(stream.timedOut).toBe(true);
+    expect(logger.warn).toHaveBeenCalledWith(
+      'The bot failed to complete the streaming process within the time limit of ten minutes from the first informative or content chunk.'
+    );
     expect(updates).toHaveLength(1);
     expect(updates[0].id).toBe('stream-1');
     expect(updates[0].text).toBe('Final answer');
@@ -637,7 +587,7 @@ describe('HttpStream', () => {
     client.conversations.createActivity.mockImplementation(
       async (_conversationId: any, activity: any) => {
         createCalls++;
-        // First chunk streams fine; the second chunk send trips the 2-minute limit.
+        // First chunk streams fine; the second chunk send trips the 10-minute limit.
         if (createCalls === 2) {
           throw timeoutError;
         }

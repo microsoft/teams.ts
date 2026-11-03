@@ -11,7 +11,8 @@ import {
 import { IEventEmitter } from '@microsoft/teams.common';
 
 /**
- * Raised when Teams cancels a stream (403) or when a stream operation is attempted after cancellation.
+ * @deprecated Legacy streaming cancellation is no longer emitted.
+ * Use normal streaming error handling instead.
  */
 export class StreamCancelledError extends Error {
   constructor(message?: string) {
@@ -31,7 +32,8 @@ export class TerminalStreamError extends Error {
 }
 
 /**
- * Raised when the bot failed to complete streaming within the two-minute limit.
+ * Raised when the service reports that streaming exceeded ten minutes from the
+ * first informative or content chunk.
  * A buffered Plan completion cannot use the ordinary PUT fallback. Resolve it
  * explicitly through Plan.complete() rather than retrying the same stream close.
  */
@@ -93,8 +95,8 @@ export interface IStreamer {
   readonly events: Omit<IEventEmitter<IStreamerEvents>, 'emit'>;
 
   /**
-   * whether the stream has been canceled.
-   * For example when the user pressed the Stop button.
+   * @deprecated The stop button is no longer supported. HttpStream always returns false.
+   * Use normal streaming error handling instead.
    */
   readonly canceled: boolean;
 

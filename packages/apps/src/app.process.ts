@@ -364,21 +364,11 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
         userId,
         stateLoader,
         async () => {
-          try {
-            const res = await next();
-            await context.stream.close();
-            return isInvokeResponse(res)
-              ? res
-              : { status: 200, body: res };
-          } catch (error: any) {
-            if (!isStreamCancelledError(error)) {
-              throw error;
-            }
-
-            this.options.log.debug('stream canceled, returning 200');
-            await context.stream.close();
-            return { status: 200 };
-          }
+          const res = await next();
+          await context.stream.close();
+          return isInvokeResponse(res)
+            ? res
+            : { status: 200, body: res };
         }
       );
 
@@ -543,6 +533,10 @@ function getActivityProcessAttributes(activity: Activity, serviceUrl: string): S
   return attributes;
 }
 
+/**
+ * @deprecated Teams no longer supports stopping a stream.
+ * Use normal streaming error handling instead.
+ */
 function isStreamCancelledError(error: any): boolean {
   return error instanceof StreamCancelledError || error?.name === 'StreamCancelledError';
 }
@@ -595,10 +589,8 @@ async function traceHandler<TPlugin extends IPlugin, T>(
       try {
         return await execute();
       } catch (error) {
-        if (!isStreamCancelledError(error)) {
-          recordTeamsBotHandlerFailure(handlerType, handlerDispatch);
-          recordTeamsBotApplicationException(span, error);
-        }
+        recordTeamsBotHandlerFailure(handlerType, handlerDispatch);
+        recordTeamsBotApplicationException(span, error);
         throw error;
       } finally {
         recordTeamsBotHandlerDuration(handlerType, handlerDispatch, Date.now() - startedAt);
