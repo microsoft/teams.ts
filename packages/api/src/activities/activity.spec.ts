@@ -1,4 +1,4 @@
-import { Account, ConversationAccount, SensitivityUsageInfo } from '../models';
+import { Account, ConversationAccount, SensitiveUsage, SensitivityUsageInfo } from '../models';
 
 import { Activity, ActivityInput } from './activity';
 import { MessageActivity } from './message';
@@ -344,6 +344,15 @@ describe('Activity', () => {
         name: 'Confidential',
         description: 'Internal only',
       });
+    });
+
+    it('should type the message-level position as a number', () => {
+      const usageInfo: SensitiveUsage = { '@type': 'CreativeWork', '@id': 'label-id', position: 2 };
+      // @ts-expect-error position is a number
+      const invalid: SensitiveUsage = { '@type': 'CreativeWork', '@id': 'label-id', position: 'high' };
+
+      expect(usageInfo.position).toBe(2);
+      expect(invalid.position).toBe('high');
     });
 
     it('should pass through a custom @type', () => {

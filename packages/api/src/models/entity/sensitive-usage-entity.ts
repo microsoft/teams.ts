@@ -32,6 +32,11 @@ export type SensitiveUsage = {
   description?: string;
 
   /**
+   * Priority of the label, used to pick the most restrictive label
+   */
+  position?: number;
+
+  /**
    * The pattern
    */
   pattern?: {
