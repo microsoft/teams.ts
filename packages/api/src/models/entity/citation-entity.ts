@@ -1,4 +1,5 @@
 import { MessageEntity } from './message-entity';
+import { SensitivityUsageInfo } from './sensitivity-usage-info';
 
 export type CitationIconName =
   | 'Microsoft Word'
@@ -99,7 +100,7 @@ export type Claim = {
     /**
      * Sensitivity content information
      */
-    usageInfo?: CitationUsageInfo;
+    usageInfo?: SensitivityUsageInfo;
   };
 };
 
@@ -141,9 +142,12 @@ export type CitationAppearance = {
   /**
    * Sensitivity content information
    */
-  usageInfo?: CitationUsageInfo;
+  usageInfo?: SensitivityUsageInfo;
 };
 
+/**
+ * @deprecated Use `SensitivityUsageInfo` instead.
+ */
 export type CitationUsageInfo = {
   /**
    * Unique identifier for the usage info

@@ -330,7 +330,9 @@ export class ActivityInput<T extends string = string> implements IActivityInput<
         keywords: appearance.keywords,
         text: appearance.text,
         url: appearance.url,
-        usageInfo: appearance.usageInfo,
+        usageInfo: appearance.usageInfo
+          ? { ...appearance.usageInfo, '@type': appearance.usageInfo['@type'] ?? 'CreativeWork' }
+          : undefined,
       },
     });
 
@@ -735,7 +737,9 @@ export class Activity<T extends string = string> implements IActivity<T> {
         keywords: appearance.keywords,
         text: appearance.text,
         url: appearance.url,
-        usageInfo: appearance.usageInfo,
+        usageInfo: appearance.usageInfo
+          ? { ...appearance.usageInfo, '@type': appearance.usageInfo['@type'] ?? 'CreativeWork' }
+          : undefined,
       },
     });
 

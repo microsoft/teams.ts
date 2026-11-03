@@ -1,6 +1,6 @@
-import { Account, ConversationAccount } from '../models';
+import { Account, ConversationAccount, SensitivityUsageInfo } from '../models';
 
-import { Activity } from './activity';
+import { Activity, ActivityInput } from './activity';
 import { MessageActivity } from './message';
 
 describe('Activity', () => {
@@ -309,6 +309,49 @@ describe('Activity', () => {
           ],
         },
       ]);
+    });
+  });
+
+  describe.each([
+    ['ActivityInput', () => new ActivityInput('message')],
+    ['Activity', () => new Activity({ type: 'message' })],
+  ])('addCitation usageInfo (%s)', (_, create) => {
+    it('should serialize citation usageInfo with @id only', () => {
+      const activity = create().addCitation(1, {
+        name: 'doc',
+        abstract: 'abstract',
+        usageInfo: { '@id': 'label-id' },
+      });
+
+      const json = JSON.parse(JSON.stringify(activity.entities));
+      expect(json[0].citation[0].appearance.usageInfo).toStrictEqual({
+        '@type': 'CreativeWork',
+        '@id': 'label-id',
+      });
+    });
+
+    it('should copy citation usageInfo', () => {
+      const usageInfo: SensitivityUsageInfo = { '@id': 'label-id', name: 'Confidential' };
+      const activity = create().addCitation(1, { name: 'doc', abstract: 'abstract', usageInfo });
+
+      usageInfo.name = 'Changed';
+
+      const json = JSON.parse(JSON.stringify(activity.entities));
+      expect(json[0].citation[0].appearance.usageInfo.name).toBe('Confidential');
+    });
+
+    it('should pass through a custom citation usageInfo @type', () => {
+      const activity = create().addCitation(1, {
+        name: 'doc',
+        abstract: 'abstract',
+        usageInfo: { '@type': 'CustomType', '@id': 'label-id' },
+      });
+
+      const json = JSON.parse(JSON.stringify(activity.entities));
+      expect(json[0].citation[0].appearance.usageInfo).toStrictEqual({
+        '@type': 'CustomType',
+        '@id': 'label-id',
+      });
     });
   });
 
