@@ -1,27 +1,27 @@
+import { buildWidgetHtml } from './widget-runtime';
+
 /**
- * Update Model Context widget - tests ui/update-model-context method.
- * Sends structured context to the host that can be used by AI in future turns.
+ * Update Model Context widget that exercises the `ui/update-model-context` method.
+ * It sends structured context to the host for use by AI in future turns.
  *
  * Protocol flow:
- *   1. User enters context JSON and clicks a button
- *   2. Widget sends JSON-RPC request: { method: "ui/update-model-context", params: { content, structuredContent } }
- *   3. Teams host stores the context for use by AI in subsequent turns
- *   4. Host responds with success/error
+ *   1. The user edits the context JSON and clicks a button.
+ *   2. The widget posts a `ui/update-model-context` request with `content` and/or `structuredContent`.
+ *   3. Teams stores the context for use in subsequent turns.
+ *   4. The host responds with success or an error.
  */
-export const UPDATE_CONTEXT_WIDGET_HTML = `<!DOCTYPE html>
-<html><head><meta charset="utf-8">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{overflow:auto}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;padding:16px;background:#fff;color:#242424;font-size:13px}
+export const UPDATE_CONTEXT_WIDGET_HTML = buildWidgetHtml({
+  appName: 'update-context-widget',
+  css: `
 h3{margin:0 0 8px}
 button{margin:4px 4px 4px 0;padding:6px 12px;border:1px solid #ccc;border-radius:4px;background:#f5f5f5;color:inherit;cursor:pointer;font-size:12px}
 button:hover{background:#e0e0e0}
-textarea{width:100%;height:60px;margin:8px 0;padding:8px;border:1px solid #ccc;border-radius:4px;font-family:monospace;font-size:11px;resize:vertical}
+textarea{display:block;width:100%;height:60px;margin:8px 0;padding:8px;border:1px solid #ccc;border-radius:4px;font-family:monospace;font-size:11px;resize:vertical}
 #status{margin-top:12px;padding:8px;background:#f0f9ff;border-radius:4px;white-space:pre-wrap;font-family:monospace;font-size:11px}
-</style></head><body>
+`,
+  body: `
 <h3>Update Model Context Widget</h3>
-<p>Tests <code>ui/update-model-context</code> - sends context for AI to use in future turns.</p>
+<p>Tests <code>ui/update-model-context</code>. It sends context for AI to use in future turns.</p>
 <textarea id="contextInput">{"userPreference": "dark mode", "currentPage": "settings"}</textarea>
 <div>
   <button onclick="sendStructuredContext()">Send Structured Context</button>
@@ -29,7 +29,8 @@ textarea{width:100%;height:60px;margin:8px 0;padding:8px;border:1px solid #ccc;b
   <button onclick="sendBoth()">Send Both</button>
 </div>
 <div id="status">Waiting...</div>
-<script>
+`,
+  script: `
 let nextId = 100;
 const pending = {};
 
@@ -50,50 +51,49 @@ function sendRequest(method, params) {
   });
 }
 
-async function sendStructuredContext() {
-  const el = document.getElementById('status');
-  const input = document.getElementById('contextInput').value;
-  let parsed;
-  try { parsed = JSON.parse(input); } catch (e) {
+function parseInput(el) {
+  try {
+    return JSON.parse(document.getElementById('contextInput').value);
+  } catch (e) {
     el.textContent = 'Invalid JSON in textarea';
-    return;
+    return undefined;
   }
-  el.textContent = 'Sending structured context...';
-  const response = await sendRequest('ui/update-model-context', {
-    structuredContent: parsed
-  });
-  el.textContent = response.error
-    ? 'Error: ' + JSON.stringify(response.error)
-    : 'Success! Context updated with structured data.';
+}
+
+async function update(label, params, doneText) {
+  const el = document.getElementById('status');
+  el.textContent = 'Sending ' + label + '...';
+  try {
+    await window.widgetReady;
+    const response = await sendRequest('ui/update-model-context', params);
+    el.textContent = response.error ? 'Error: ' + JSON.stringify(response.error) : doneText;
+  } catch (e) {
+    el.textContent = 'Exception: ' + e.message;
+  }
+}
+
+async function sendStructuredContext() {
+  const parsed = parseInput(document.getElementById('status'));
+  if (parsed === undefined) return;
+  await update('structured context', { structuredContent: parsed }, 'Success! Context updated with structured data.');
 }
 
 async function sendTextContext() {
-  const el = document.getElementById('status');
-  el.textContent = 'Sending text context...';
-  const response = await sendRequest('ui/update-model-context', {
-    content: [{ type: 'text', text: 'User is viewing the settings page and prefers dark mode.' }]
-  });
-  el.textContent = response.error
-    ? 'Error: ' + JSON.stringify(response.error)
-    : 'Success! Context updated with text content.';
+  await update(
+    'text context',
+    { content: [{ type: 'text', text: 'User is viewing the settings page and prefers dark mode.' }] },
+    'Success! Context updated with text content.'
+  );
 }
 
 async function sendBoth() {
-  const el = document.getElementById('status');
-  const input = document.getElementById('contextInput').value;
-  let parsed;
-  try { parsed = JSON.parse(input); } catch (e) {
-    el.textContent = 'Invalid JSON in textarea';
-    return;
-  }
-  el.textContent = 'Sending both text + structured context...';
-  const response = await sendRequest('ui/update-model-context', {
-    content: [{ type: 'text', text: 'User updated their preferences.' }],
-    structuredContent: parsed
-  });
-  el.textContent = response.error
-    ? 'Error: ' + JSON.stringify(response.error)
-    : 'Success! Context updated with both text and structured data.';
+  const parsed = parseInput(document.getElementById('status'));
+  if (parsed === undefined) return;
+  await update(
+    'text and structured context',
+    { content: [{ type: 'text', text: 'User updated their preferences.' }], structuredContent: parsed },
+    'Success! Context updated with both text and structured data.'
+  );
 }
-</script>
-</body></html>`;
+`,
+});

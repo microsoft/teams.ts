@@ -108,10 +108,38 @@ Bot returns (invoke response body):
 
 ## Note on widget HTML
 
-The widget HTML in `src/widgets/` is static HTML for rendering verification.
-Interactive behavior (callTool, messageBack, displayMode) requires the
-`@modelcontextprotocol/ext-apps` SDK which is provided by the Teams widget host
-page (`mcpwidget.html` on `widget-renderer.usercontent.microsoft`).
+The Teams SDK sends widget HTML exactly as written.
+Each widget owns the MCP Apps handshake and its own sizing.
+
+### Handshake
+
+A widget sends `ui/initialize` with `protocolVersion` `2026-01-26`, `appInfo` and `appCapabilities`.
+It waits for the response, then sends `ui/notifications/initialized`.
+
+### Height reporting
+
+After the handshake, a widget reports its height with `ui/notifications/size-changed`.
+Without a reporter the host leaves a widget at about 150px.
+
+The reporter is one `ResizeObserver` on one root element.
+It measures `getBoundingClientRect().height` without rounding and sends it after the handshake and on every change.
+Do not use `scrollHeight`, `100vh` or `height: 100%`.
+Set `html` and `body` margin to 0, give the root `display: flow-root`, and keep all content inside the root.
+
+`src/widgets/widget-runtime.ts` holds this snippet once.
+Every widget in `src/widgets/` is built with its `buildWidgetHtml` helper.
+
+### Payload fields
+
+`mcpUrl` and `correlationId` are optional payload fields.
+The Teams client combines `mcpUrl` with the owner id (`<ownerId>-<mcpUrl>`) as the input for deriving the hosting origin, so a widget produced by an MCP server must set `mcpUrl` to that server's URL to get its own hosting scope, and reads `correlationId` as the correlation vector, which it also returns to the bot.
+
+### callTool handlers
+
+The client adds `arguments.__msteams__ = { mcpUrl, correlationId }` to every callTool request and overwrites any value the bot supplied.
+The SDK passes it to the handler untouched.
+Handlers should ignore it, validate `arguments` as untrusted input, never throw, and not authorize from `activity.from`.
+Return `buildCallToolResponse(...)` so that `content`, `structuredContent` and `isError` are always present (defaults `[]`, `{}` and `false`).
 
 The bot-side code (`widget.callTool` handler in `src/index.ts`) is the primary
 test target. It verifies that:
