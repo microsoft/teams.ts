@@ -1,6 +1,6 @@
 import { IHtmlWidgetPayload, IHtmlWidgetSecurityPolicy } from '@microsoft/teams.api';
 
-import { buildHtmlWidgetMarkdown, buildHtmlWidgetMessage, injectWidgetProtocol, validateSecurityPolicy, tryGetWidgetModelContext, IHtmlWidgetMarkdownOptions, IInjectWidgetProtocolOptions } from './html-widget';
+import { buildHtmlWidgetMarkdown, buildHtmlWidgetMessage, validateSecurityPolicy, tryGetWidgetModelContext } from './html-widget';
 
 const MINIMAL_PAYLOAD: IHtmlWidgetPayload = {
   type: 'widget/mcp-ui',
@@ -33,29 +33,12 @@ describe('buildHtmlWidgetMarkdown', () => {
     expect(result.endsWith('\n```')).toBe(true);
   });
 
-  it('should auto-inject the widget protocol into the HTML', () => {
+  it('should not modify the HTML', () => {
     const result = buildHtmlWidgetMarkdown(MINIMAL_PAYLOAD);
     const jsonLine = result.split('\n').slice(1, -1).join('\n');
     const parsed = JSON.parse(jsonLine);
-    expect(parsed.html).toContain('ui/initialize');
-    expect(parsed.html).toContain('<div>Hello</div>');
-  });
-
-  it('should not double-inject if HTML already has the protocol', () => {
-    const htmlWithInit =
-      '<div>Hello</div><script>window.parent.postMessage({jsonrpc:\'2.0\',method:\'ui/initialize\'},\'*\')</script>';
-    const payload = { ...MINIMAL_PAYLOAD, html: htmlWithInit };
-    const result = buildHtmlWidgetMarkdown(payload);
-    const jsonLine = result.split('\n').slice(1, -1).join('\n');
-    const parsed = JSON.parse(jsonLine);
-    expect(parsed.html).toBe(htmlWithInit);
-  });
-
-  it('should use the payload name as the protocol app name', () => {
-    const result = buildHtmlWidgetMarkdown(MINIMAL_PAYLOAD);
-    const jsonLine = result.split('\n').slice(1, -1).join('\n');
-    const parsed = JSON.parse(jsonLine);
-    expect(parsed.html).toContain('name:\'Test Widget\'');
+    expect(parsed.html).toBe('<div>Hello</div>');
+    expect(parsed.html).not.toContain('<script');
   });
 
   it('should include text before the widget', () => {
@@ -77,49 +60,13 @@ describe('buildHtmlWidgetMarkdown', () => {
     expect(result.endsWith('\n```\n\nAfter')).toBe(true);
   });
 
-  it('should forward protocolOptions to injectWidgetProtocol', () => {
-    const result = buildHtmlWidgetMarkdown(MINIMAL_PAYLOAD, {
-      protocolOptions: {
-        notifications: ['tool-result'],
-      },
-    });
-    const jsonLine = result.split('\n').slice(1, -1).join('\n');
-    const parsed = JSON.parse(jsonLine);
-    expect(parsed.html).toContain('ui/notifications/tool-result');
-    expect(parsed.html).toContain('window.onToolResult');
-  });
-
-  it('should forward debugCspViolations through protocolOptions', () => {
-    const result = buildHtmlWidgetMarkdown(MINIMAL_PAYLOAD, {
-      protocolOptions: {
-        debugCspViolations: true,
-      },
-    });
-    const jsonLine = result.split('\n').slice(1, -1).join('\n');
-    const parsed = JSON.parse(jsonLine);
-    expect(parsed.html).toContain('securitypolicyviolation');
-  });
-
-  it('should use payload name even when protocolOptions is provided', () => {
-    const result = buildHtmlWidgetMarkdown(MINIMAL_PAYLOAD, {
-      protocolOptions: {
-        version: '2.0.0',
-      },
-    });
-    const jsonLine = result.split('\n').slice(1, -1).join('\n');
-    const parsed = JSON.parse(jsonLine);
-    expect(parsed.html).toContain('name:\'Test Widget\'');
-    expect(parsed.html).toContain('version:\'2.0.0\'');
-  });
-
   it('should serialize a full payload with all fields', () => {
     const result = buildHtmlWidgetMarkdown(FULL_PAYLOAD);
     const parsed = JSON.parse(result.replace('```html-widget\n', '').replace('\n```', ''));
     expect(parsed.type).toBe('widget/mcp-ui');
     expect(parsed.name).toBe('Weather Widget');
     expect(parsed.description).toBe('Current weather conditions');
-    expect(parsed.html).toContain('<div class="weather">72F</div>');
-    expect(parsed.html).toContain('ui/initialize');
+    expect(parsed.html).toBe('<div class="weather">72F</div>');
     expect(parsed.domain).toBe('https://weather.example.com');
     expect(parsed.securityPolicy.connectDomains).toEqual(['https://api.example.com']);
     expect(parsed.toolInput).toEqual({ location: 'Seattle, WA' });
@@ -223,215 +170,36 @@ describe('buildHtmlWidgetMessage', () => {
   });
 });
 
-describe('injectWidgetProtocol', () => {
-  const BARE_HTML = '<body><h1>Hello</h1></body>';
-  const BARE_HTML_NO_BODY = '<h1>Hello</h1>';
-
-  it('should inject the protocol script before </body>', () => {
-    const result = injectWidgetProtocol(BARE_HTML);
-    expect(result).toContain('ui/initialize');
-    expect(result).toContain('ui/notifications/size-changed');
-    expect(result).toContain('ui/notifications/initialized');
-    expect(result).toContain('</body>');
-    // Script should come before </body>
-    const scriptIdx = result.indexOf('ui/initialize');
-    const bodyIdx = result.indexOf('</body>');
-    expect(scriptIdx).toBeLessThan(bodyIdx);
+describe('buildHtmlWidgetMarkdown payload passthrough', () => {
+  it('should leave the widget HTML unchanged', () => {
+    const html = '<body><p>Hello</p></body>';
+    const result = buildHtmlWidgetMarkdown({ ...MINIMAL_PAYLOAD, html });
+    const parsed = JSON.parse(result.split('\n').slice(1, -1).join('\n'));
+    expect(parsed.html).toBe(html);
   });
 
-  it('should append script if no </body> tag exists', () => {
-    const result = injectWidgetProtocol(BARE_HTML_NO_BODY);
-    expect(result).toContain('ui/initialize');
-    expect(result).toContain('<h1>Hello</h1>');
-  });
+  it('should serialize mcpUrl and correlationId only when set', () => {
+    const without = JSON.parse(buildHtmlWidgetMarkdown(MINIMAL_PAYLOAD).split('\n')[1]);
+    expect(without).not.toHaveProperty('mcpUrl');
+    expect(without).not.toHaveProperty('correlationId');
 
-  it('should use custom app name and version', () => {
-    const result = injectWidgetProtocol(BARE_HTML, { name: 'my-widget', version: '2.0.0' });
-    expect(result).toContain('name:\'my-widget\'');
-    expect(result).toContain('version:\'2.0.0\'');
-  });
-
-  it('should use default name and version when not provided', () => {
-    const result = injectWidgetProtocol(BARE_HTML);
-    expect(result).toContain('name:\'widget\'');
-    expect(result).toContain('version:\'1.0.0\'');
-  });
-
-  it('should report a robust content height (documentElement + body, ceil) to avoid clipping', () => {
-    const result = injectWidgetProtocol(BARE_HTML);
-    // The size reporter must measure the taller of documentElement/body and round
-    // up, so trailing margins and sub-pixel content are never clipped by the host.
-    expect(result).toContain(
-      'height:Math.ceil(Math.max(document.documentElement.scrollHeight,document.body.scrollHeight))'
+    const withBoth = JSON.parse(
+      buildHtmlWidgetMarkdown({
+        ...MINIMAL_PAYLOAD,
+        mcpUrl: 'https://mcp.example.com',
+        correlationId: 'cv-123.0',
+      }).split('\n')[1]
     );
-    // Guard against regressing to the old body-only measurement.
-    expect(result).not.toContain('height:document.body.scrollHeight}');
+    expect(withBoth.mcpUrl).toBe('https://mcp.example.com');
+    expect(withBoth.correlationId).toBe('cv-123.0');
   });
 
-  it('should not modify HTML that already performs the ui/initialize handshake', () => {
-    const htmlWithInit =
-      '<body><script>window.parent.postMessage({method:\'ui/initialize\'},\'*\')</script></body>';
-    const result = injectWidgetProtocol(htmlWithInit);
-    expect(result).toBe(htmlWithInit);
-  });
-
-  it('should still inject when HTML only mentions ui/initialize in text or a comment', () => {
-    const htmlMentioningInit = '<body><!-- ui/initialize --><p>ui/initialize</p></body>';
-    const result = injectWidgetProtocol(htmlMentioningInit);
-    expect(result).not.toBe(htmlMentioningInit);
-    expect(result).toContain('method:\'ui/initialize\'');
-  });
-
-  it('should be idempotent -- calling twice produces the same output', () => {
-    const first = injectWidgetProtocol(BARE_HTML);
-    const second = injectWidgetProtocol(first);
-    expect(second).toBe(first);
-  });
-
-  it('should handle empty string HTML', () => {
-    const result = injectWidgetProtocol('');
-    expect(result).toContain('ui/initialize');
-    expect(result).toContain('<script>');
-  });
-
-  it('should inject before </body> in a full HTML document', () => {
-    const fullDoc = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body><div>Content</div></body></html>';
-    const result = injectWidgetProtocol(fullDoc);
-    expect(result).toContain('ui/initialize');
-    // Script should be between content and </body>
-    const contentIdx = result.indexOf('Content</div>');
-    const scriptIdx = result.indexOf('<script>');
-    const bodyIdx = result.indexOf('</body>');
-    expect(contentIdx).toBeLessThan(scriptIdx);
-    expect(scriptIdx).toBeLessThan(bodyIdx);
-  });
-
-  it('should match </body> naively even inside comments or strings', () => {
-    // Documents this known limitation: we do naive string matching
-    const htmlWithBodyInComment = '<body><!-- </body> --><p>Real content</p></body>';
-    const result = injectWidgetProtocol(htmlWithBodyInComment);
-    // Injects at first </body> occurrence (the one in the comment)
-    expect(result).toContain('ui/initialize');
-    const scriptIdx = result.indexOf('<script>');
-    const commentBodyIdx = result.indexOf('<!-- ');
-    // Script is injected before the first </body> (inside comment)
-    expect(scriptIdx).toBeGreaterThan(commentBodyIdx);
-  });
-
-  it('should include notification hooks only when opted in via notifications option', () => {
-    const withHooks = injectWidgetProtocol(BARE_HTML, {
-      notifications: ['tool-result', 'tool-input', 'host-context-changed'],
-    });
-    expect(withHooks).toContain('ui/notifications/tool-result');
-    expect(withHooks).toContain('window.onToolResult');
-    expect(withHooks).toContain('ui/notifications/tool-input');
-    expect(withHooks).toContain('window.onToolInput');
-    expect(withHooks).toContain('ui/notifications/host-context-changed');
-    expect(withHooks).toContain('window.onHostContextChanged');
-
-    const withoutHooks = injectWidgetProtocol(BARE_HTML);
-    expect(withoutHooks).not.toContain('onToolResult');
-    expect(withoutHooks).not.toContain('onToolInput');
-    expect(withoutHooks).not.toContain('onHostContextChanged');
-  });
-
-  it('should ignore unknown notification names', () => {
-    const result = injectWidgetProtocol(BARE_HTML, {
-      notifications: ['some-future-event'],
-    });
-    expect(result).not.toContain('ui/notifications/some-future-event');
-    expect(result).not.toContain('onSomeFutureEvent');
-  });
-
-  it('should inject hooks for all known notification types', () => {
-    const result = injectWidgetProtocol(BARE_HTML, {
-      notifications: ['tool-result', 'tool-input', 'tool-input-partial', 'tool-cancelled', 'host-context-changed', 'resource-teardown'],
-    });
-    expect(result).toContain('ui/notifications/tool-result');
-    expect(result).toContain('window.onToolResult');
-    expect(result).toContain('ui/notifications/tool-input-partial');
-    expect(result).toContain('window.onToolInputPartial');
-    expect(result).toContain('ui/notifications/tool-cancelled');
-    expect(result).toContain('window.onToolCancelled');
-    expect(result).toContain('ui/notifications/resource-teardown');
-    expect(result).toContain('window.onResourceTeardown');
-  });
-
-  it('should include availableDisplayModes in appCapabilities when provided', () => {
-    const result = injectWidgetProtocol(BARE_HTML, {
-      appCapabilities: { availableDisplayModes: ['inline', 'fullscreen'] },
-    });
-    expect(result).toContain('availableDisplayModes');
-    expect(result).toContain(JSON.stringify(['inline', 'fullscreen']));
-  });
-
-  it('should omit availableDisplayModes when not provided', () => {
-    const result = injectWidgetProtocol(BARE_HTML);
-    expect(result).not.toContain('availableDisplayModes');
-    expect(result).toContain('appCapabilities:{}');
-  });
-});
-
-describe('buildHtmlWidgetMarkdown integration', () => {
-  it('should inject protocol using payload name as appInfo name', () => {
-    const payload: IHtmlWidgetPayload = {
-      type: 'widget/mcp-ui',
-      name: 'My Custom Widget',
-      html: '<body><p>Hello</p></body>',
-      domain: 'https://example.com',
-    };
-    const result = buildHtmlWidgetMarkdown(payload);
-    const jsonLine = result.split('\n').slice(1, -1).join('\n');
-    const parsed = JSON.parse(jsonLine);
-    expect(parsed.html).toContain('name:\'My Custom Widget\'');
-  });
-
-  it('should not double-inject when HTML already has protocol', () => {
-    const htmlWithProtocol =
-      '<body><script>window.parent.postMessage({method:\'ui/initialize\'},\'*\')</script></body>';
-    const payload: IHtmlWidgetPayload = {
-      type: 'widget/mcp-ui',
-      name: 'Test',
-      html: htmlWithProtocol,
-      domain: 'https://example.com',
-    };
-    const result = buildHtmlWidgetMarkdown(payload);
-    const jsonLine = result.split('\n').slice(1, -1).join('\n');
-    const parsed = JSON.parse(jsonLine);
-    expect(parsed.html).toBe(htmlWithProtocol);
-  });
-
-  it('should produce valid output with minimal payload fields', () => {
-    const payload: IHtmlWidgetPayload = {
-      type: 'widget/mcp-ui',
-      name: 'Bare',
-      html: '<p>minimal</p>',
-      domain: 'https://example.com',
-    };
-    const result = buildHtmlWidgetMarkdown(payload);
-    expect(result.startsWith('```html-widget\n')).toBe(true);
-    expect(result.endsWith('\n```')).toBe(true);
-    const jsonLine = result.split('\n').slice(1, -1).join('\n');
-    const parsed = JSON.parse(jsonLine);
-    expect(parsed.html).toContain('ui/initialize');
-    expect(parsed.html).toContain('<p>minimal</p>');
-  });
-
-  it('should produce message with protocol injected end-to-end', () => {
-    const payload: IHtmlWidgetPayload = {
-      type: 'widget/mcp-ui',
-      name: 'E2E Widget',
-      html: '<body><div>test</div></body>',
-      domain: 'https://teams.microsoft.com',
-    };
-    const msg = buildHtmlWidgetMessage(payload);
+  it('should produce a message carrying the unmodified HTML', () => {
+    const msg = buildHtmlWidgetMessage({ ...MINIMAL_PAYLOAD, html: '<body><div>test</div></body>' });
     expect(msg.type).toBe('message');
     expect(msg.textFormat).toBe('extendedmarkdown');
-    // Parse the JSON from the markdown
-    const jsonLine = msg.text.split('\n').slice(1, -1).join('\n');
-    const parsed = JSON.parse(jsonLine);
-    expect(parsed.html).toContain('ui/initialize');
-    expect(parsed.html).toContain('name:\'E2E Widget\'');
+    const parsed = JSON.parse(msg.text.split('\n').slice(1, -1).join('\n'));
+    expect(parsed.html).toBe('<body><div>test</div></body>');
   });
 });
 
@@ -782,87 +550,6 @@ describe('validateSecurityPolicy', () => {
   });
 });
 
-describe('debugCspViolations', () => {
-  it('should inject CSP violation listener when enabled', () => {
-    const result = injectWidgetProtocol('<body><p>Hello</p></body>', {
-      debugCspViolations: true,
-    });
-    expect(result).toContain('securitypolicyviolation');
-    expect(result).toContain('blockedURI');
-    expect(result).toContain('violatedDirective');
-  });
-
-  it('should not inject CSP violation listener by default', () => {
-    const result = injectWidgetProtocol('<body><p>Hello</p></body>');
-    expect(result).not.toContain('securitypolicyviolation');
-  });
-
-  it('should not inject CSP violation listener when explicitly false', () => {
-    const result = injectWidgetProtocol('<body><p>Hello</p></body>', {
-      debugCspViolations: false,
-    });
-    expect(result).not.toContain('securitypolicyviolation');
-  });
-});
-
-describe('script injection prevention', () => {
-  it('should escape </script> in widget name to prevent HTML breakout', () => {
-    const result = injectWidgetProtocol('<body></body>', {
-      name: '</script><img src=x onerror=alert(1)>',
-    });
-    // Must not contain a literal </script> from the name
-    // The injected protocol adds one </script> at the end; the name must not add another
-    const scriptTags = result.match(/<\/script>/gi) || [];
-    expect(scriptTags.length).toBe(1); // only the closing tag of the injected script
-    expect(result).toContain('<\\/script>'); // escaped version
-  });
-
-  it('should escape </script> in widget version', () => {
-    const result = injectWidgetProtocol('<body></body>', {
-      version: '</script><svg onload=fetch("/steal")>',
-    });
-    const scriptTags = result.match(/<\/script>/gi) || [];
-    expect(scriptTags.length).toBe(1);
-  });
-
-  it('should escape newlines in name to prevent JS string breakout', () => {
-    const result = injectWidgetProtocol('<body></body>', {
-      name: 'line1\nline2\rline3',
-    });
-    // Should not contain raw newlines inside the script
-    const scriptContent = result.match(/<script>([\s\S]*?)<\/script>/i)?.[1] ?? '';
-    expect(scriptContent).not.toContain('\n');
-    expect(scriptContent).toContain('\\n');
-    expect(scriptContent).toContain('\\r');
-  });
-});
-
-describe('options immutability', () => {
-  it('should not mutate protocolOptions passed to buildHtmlWidgetMarkdown', () => {
-    const protocolOpts: IInjectWidgetProtocolOptions = {
-      version: '2.0.0',
-      notifications: ['tool-result'],
-    };
-    const options: IHtmlWidgetMarkdownOptions = { protocolOptions: protocolOpts };
-    const payload: IHtmlWidgetPayload = {
-      type: 'widget/mcp-ui',
-      name: 'MutationTest',
-      html: '<body>hi</body>',
-      domain: 'https://example.com',
-    };
-    buildHtmlWidgetMarkdown(payload, options);
-    // The original protocolOptions.name should remain unchanged
-    expect(protocolOpts.name).toBeUndefined();
-  });
-});
-
-describe('protocol version', () => {
-  it('should embed the correct MCP protocol version', () => {
-    const result = injectWidgetProtocol('<body></body>');
-    expect(result).toContain('protocolVersion:\'2026-01-26\'');
-  });
-});
-
 describe('subdomain matching in security policy', () => {
   it('should allow subdomain when parent domain is in policy', () => {
     const html = '<script src="https://cdn.example.com/lib.js"></script>';
@@ -884,26 +571,9 @@ describe('subdomain matching in security policy', () => {
 
 describe('unicode in widget name', () => {
   it('should pass unicode characters through correctly', () => {
-    const result = injectWidgetProtocol('<body></body>', {
-      name: 'Widget \u2764\uFE0F',
-    });
-    expect(result).toContain('name:\'Widget \u2764\uFE0F\'');
-  });
-});
-describe('snapshot: full injected script', () => {
-  it('should match the expected protocol script output', () => {
-    const result = injectWidgetProtocol('<body><h1>Hello</h1></body>', {
-      name: 'My Widget',
-      version: '2.0.0',
-      appCapabilities: { availableDisplayModes: ['inline', 'fullscreen'] },
-      notifications: ['tool-result', 'tool-input'],
-      debugCspViolations: true,
-    });
-
-    // Extract just the injected <script> block
-    const scriptMatch = result.match(/<script>([\s\S]*?)<\/script>/i);
-    expect(scriptMatch).not.toBeNull();
-    expect(scriptMatch![1]).toMatchSnapshot();
+    const result = buildHtmlWidgetMarkdown({ ...MINIMAL_PAYLOAD, name: 'Widget \u2764\uFE0F' });
+    const parsed = JSON.parse(result.split('\n')[1]);
+    expect(parsed.name).toBe('Widget \u2764\uFE0F');
   });
 });
 
