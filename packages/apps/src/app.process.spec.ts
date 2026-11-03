@@ -680,6 +680,35 @@ describe('App', () => {
       expect(response.body).toEqual(dialogOpenResponse);
     });
 
+    it('should pass htmlwidget/calltool arguments, including __msteams__, to the handler untouched', async () => {
+      const value = {
+        name: 'refresh',
+        arguments: {
+          counter: 1,
+          nested: { a: [1, 2] },
+          __msteams__: { mcpUrl: 'mcp.example.com', correlationId: 'cv.1' },
+        },
+      };
+      const snapshot = JSON.parse(JSON.stringify(value));
+      const callToolActivity = { type: 'invoke', name: 'htmlwidget/calltool', value };
+      let received: any;
+      let receivedActivity: any;
+
+      app.on('widget.callTool', ({ activity }) => {
+        received = activity.value;
+        receivedActivity = activity;
+        return { responseType: 'htmlwidget/calltoolresult', callToolResult: { content: [], structuredContent: {}, isError: false } };
+      });
+
+      const response = await app.process({ token, body: callToolActivity as any });
+
+      expect(response.status).toBe(200);
+      expect(received).toEqual(snapshot);
+      expect(received.arguments.__msteams__).toEqual({ mcpUrl: 'mcp.example.com', correlationId: 'cv.1' });
+      expect(value).toEqual(snapshot);
+      expect(receivedActivity.value.arguments).toEqual(snapshot.arguments);
+    });
+
     it('should return 500 status response if an error is thrown', async () => {
       const event: IActivityEvent = {
         token: token,
