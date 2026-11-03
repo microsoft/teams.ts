@@ -62,10 +62,9 @@ import { createStateLoader, TurnStateLoader } from './state';
 import { createOAuthStateLoader } from './state/loader';
 import { DEFAULT_TENANT_FOR_GRAPH_TOKEN, TokenManager } from './token-manager';
 import { AppTokenProvider, IAppTokenProvider } from './token-provider';
-import { AppEvents, IPlugin, PluginName, RouteHandler } from './types';
+import { ActivitySenderOptions, AppEvents, IPlugin, PluginName, RouteHandler } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 import { getBooleanEnvValue } from './utils/env';
-import { toThreadedConversationId } from './utils/thread';
 
 function isAppSendOptions(value: ActivityLike | DeprecatedInputActivity | AppSendOptions): value is AppSendOptions {
   if (typeof value === 'string') return false;
@@ -493,20 +492,28 @@ export class App<TPlugin extends IPlugin = IPlugin> {
   }
 
   /**
+   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   */
+  async send(conversationId: string, activity: DeprecatedInputActivity, options?: AppSendOptions): Promise<SentActivity>;
+  /**
    * send an activity proactively to a conversation.
    *
-   * Sends to the exact conversation ID provided. For channel threads,
-   * the conversation ID must include `;messageid=` - use {@link toThreadedConversationId}
-   * to construct it, or use {@link reply} which handles this automatically.
+   * Sends to the exact conversation ID provided.
+   * To reply in a reply chain (thread), use {@link reply}.
    *
    * @param conversationId the conversation to send to
    * @param activity the activity to send
    */
-  /**
-   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
-   */
-  async send(conversationId: string, activity: DeprecatedInputActivity, options?: AppSendOptions): Promise<SentActivity>;
   async send(conversationId: string, activity: ActivityLike, options?: AppSendOptions): Promise<SentActivity>;
+  /**
+   * send an activity proactively to a conversation.
+   *
+   * Sends to the exact conversation ID provided.
+   * To reply in a reply chain (thread), use {@link reply}.
+   *
+   * @param conversationId the conversation to send to
+   * @param activity the activity to send
+   */
   async send(
     conversationId: string,
     activity: ActivityLike | DeprecatedInputActivity,
@@ -517,49 +524,40 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     activity: ActivityLike | DeprecatedInputActivity,
     options?: AppSendOptions
   ) {
-    if (!this.id) {
-      throw new Error('App has no credentials set up');
-    }
-
-    const params = toActivityParams(activity);
-
-    const ref: ConversationReference = {
-      channelId: 'msteams',
-      serviceUrl: this.api.serviceUrl,
-      bot: {
-        id: this.id,
-        role: 'bot',
-      },
-      conversation: {
-        id: conversationId,
-      } as ConversationReference['conversation'],
-    };
-
-    const res = await this.activitySender.send(
-      params,
-      ref,
-      options?.agenticIdentity ? { agenticIdentity: options.agenticIdentity } : undefined,
-    );
-    return res;
+    return this.sendActivity(conversationId, activity, options);
   }
 
-  /**
-   * send an activity proactively as a threaded reply.
-   *
-   * Constructs a threaded conversation ID from the conversation ID
-   * and message ID via {@link toThreadedConversationId}, then sends
-   * to that thread. The service determines whether threading is
-   * supported for the given conversation type.
-   *
-   * @param conversationId the conversation ID
-   * @param messageId the thread root message ID
-   * @param activity the activity to send
-   */
   /**
    * @deprecated Use MessageActivityInput or TypingActivityInput instead.
    */
   async reply(conversationId: string, messageId: string, activity: DeprecatedInputActivity, options?: AppSendOptions): Promise<any>;
+  /**
+   * send an activity proactively as a reply in a reply chain (thread).
+   *
+   * Posts to the reply chain of the message `messageId`, in the chat or channel `conversationId`.
+   * Any error from the service is thrown, and the activity is not sent anywhere else.
+   * The SDK does not state where a client shows the message in a group chat.
+   *
+   * @param conversationId the id of the chat or channel: `channelData.chat.id` or `channelData.channel.id`, **not** `conversation.id`.
+   * @param messageId the id of the message at the root of the reply chain: `channelData.replyChain.id`
+   * @param activity the activity to send
+   * @throws Error when `conversationId` or `messageId` is empty or blank
+   * @throws Error when `conversationId` or `messageId` is a dot segment (`.` or `..`)
+   */
   async reply(conversationId: string, messageId: string, activity: ActivityLike, options?: AppSendOptions): Promise<any>;
+  /**
+   * send an activity proactively as a reply in a reply chain (thread).
+   *
+   * Posts to the reply chain of the message `messageId`, in the chat or channel `conversationId`.
+   * Any error from the service is thrown, and the activity is not sent anywhere else.
+   * The SDK does not state where a client shows the message in a group chat.
+   *
+   * @param conversationId the id of the chat or channel: `channelData.chat.id` or `channelData.channel.id`, **not** `conversation.id`.
+   * @param messageId the id of the message at the root of the reply chain: `channelData.replyChain.id`
+   * @param activity the activity to send
+   * @throws Error when `conversationId` or `messageId` is empty or blank
+   * @throws Error when `conversationId` or `messageId` is a dot segment (`.` or `..`)
+   */
   async reply(
     conversationId: string,
     messageId: string,
@@ -567,20 +565,25 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     options?: AppSendOptions
   ): Promise<any>;
   /**
-   * send an activity proactively to a conversation.
+   * send an activity proactively to a conversation, using the legacy two-argument form.
    *
-   * Sends to the exact conversation ID provided - threaded if
-   * it contains `;messageid=`, flat otherwise.
-   *
-   * @param conversationId the conversation to send to
-   * @param activity the activity to send
-   */
-  /**
-   * @deprecated Use MessageActivityInput or TypingActivityInput instead.
+   * @deprecated The two-argument form `reply(conversationId, activity)` is deprecated and will be removed in a future release. Use `send(conversationId, activity, options)` for a root message, or `reply(conversationId, messageId, activity, options)` to reply in a reply chain (thread).
+   * Passing a `DeprecatedInputActivity` is also deprecated. Use MessageActivityInput or TypingActivityInput instead.
    */
   async reply(conversationId: string, activity: DeprecatedInputActivity, options?: AppSendOptions): Promise<any>;
+  /**
+   * send an activity proactively to a conversation, using the legacy two-argument form.
+   *
+   * @deprecated The two-argument form `reply(conversationId, activity)` is deprecated and will be removed in a future release. Use `send(conversationId, activity, options)` for a root message, or `reply(conversationId, messageId, activity, options)` to reply in a reply chain (thread).
+   */
   async reply(conversationId: string, activity: ActivityLike, options?: AppSendOptions): Promise<any>;
+  /**
+   * send an activity proactively to a conversation, using the legacy two-argument form.
+   *
+   * @deprecated The two-argument form `reply(conversationId, activity)` is deprecated and will be removed in a future release. Use `send(conversationId, activity, options)` for a root message, or `reply(conversationId, messageId, activity, options)` to reply in a reply chain (thread).
+   */
   async reply(conversationId: string, activity: ActivityLike | DeprecatedInputActivity, options?: AppSendOptions): Promise<any>;
+  // Implementation shared by the three-argument form and the legacy two-argument form.
   async reply(
     conversationId: string,
     messageId: string | ActivityLike | DeprecatedInputActivity,
@@ -588,7 +591,14 @@ export class App<TPlugin extends IPlugin = IPlugin> {
     options?: AppSendOptions
   ) {
     if (typeof messageId === 'string' && activity !== undefined && !isAppSendOptions(activity)) {
-      return this.send(toThreadedConversationId(conversationId, messageId), activity, options);
+      if (!conversationId || conversationId.trim() === '') {
+        throw new Error('conversationId must be a non-empty string');
+      }
+      if (messageId.trim() === '') {
+        throw new Error('messageId must be a non-empty string');
+      }
+
+      return this.sendActivity(conversationId, activity, options, messageId);
     }
 
     const opts = activity && isAppSendOptions(activity) ? activity : options;
@@ -887,6 +897,38 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       return explicit;
     }
     return this.options.oauth?.defaultConnectionName !== undefined;
+  }
+
+  private async sendActivity(
+    conversationId: string,
+    activity: ActivityLike | DeprecatedInputActivity,
+    options?: AppSendOptions,
+    replyChainId?: string
+  ) {
+    if (!this.id) {
+      throw new Error('App has no credentials set up');
+    }
+
+    const params = toActivityParams(activity);
+
+    const ref: ConversationReference = {
+      channelId: 'msteams',
+      serviceUrl: this.api.serviceUrl,
+      bot: {
+        id: this.id,
+        role: 'bot',
+      },
+      conversation: {
+        id: conversationId,
+      } as ConversationReference['conversation'],
+    };
+
+    const senderOptions: ActivitySenderOptions | undefined =
+      options?.agenticIdentity || replyChainId
+        ? { agenticIdentity: options?.agenticIdentity, replyChainId }
+        : undefined;
+
+    return this.activitySender.send(params, ref, senderOptions);
   }
 
   /**

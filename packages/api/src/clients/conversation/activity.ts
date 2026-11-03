@@ -39,6 +39,17 @@ import { normalizeServiceUrl } from '../service-url';
 export type ActivityParams = IMessageActivityInput | ITypingActivityInput;
 type ActivityParamsLike = ActivityParams | DeprecatedInputActivity;
 
+function requireId(name: string, value: string) {
+  if (typeof value !== 'string' || value.trim() === '') {
+    throw new Error(`${name} must be a non-empty string`);
+  }
+
+  // A dot segment is not percent-encoded, so HTTP clients collapse it and the request leaves the replyChains route.
+  if (value === '.' || value === '..') {
+    throw new Error(`${name} must not be a dot segment`);
+  }
+}
+
 function apiOutboundTelemetryConfig(
   operation: ConversationActivityOperation,
   serviceUrl: string,
@@ -176,6 +187,38 @@ export class ConversationActivityClient {
     return res.data;
   }
 
+  /**
+   * Create an activity inside a reply chain (thread).
+   *
+   * @param conversationId the id of the chat or channel: `channelData.chat.id` or `channelData.channel.id`, **not** `conversation.id`.
+   * @param id the id of the message at the root of the reply chain: `channelData.replyChain.id`
+   * @param params the activity to send
+   * @throws Error when `conversationId` or `id` is empty or blank
+   * @throws Error when `conversationId` or `id` is a dot segment (`.` or `..`)
+   *
+   * @experimental This API is in preview and may change in the future. Diagnostic: ExperimentalTeamsThreading
+   */
+  async createReplyChain(conversationId: string, id: string, params: ActivityParams): Promise<Resource>;
+  async createReplyChain(conversationId: string, id: string, params: ActivityParams) {
+    return this.sendInReplyChain(conversationId, id, params, false);
+  }
+
+  /**
+   * Create an activity inside a reply chain (thread) that is visible only to the specified recipient.
+   *
+   * @param conversationId the id of the chat or channel: `channelData.chat.id` or `channelData.channel.id`, **not** `conversation.id`.
+   * @param id the id of the message at the root of the reply chain: `channelData.replyChain.id`
+   * @param params the activity to send
+   * @throws Error when `conversationId` or `id` is empty or blank
+   * @throws Error when `conversationId` or `id` is a dot segment (`.` or `..`)
+   *
+   * @experimental This API is in preview and may change in the future. Diagnostic: ExperimentalTeamsThreading
+   */
+  async createTargetedReplyChain(conversationId: string, id: string, params: ActivityParams): Promise<Resource>;
+  async createTargetedReplyChain(conversationId: string, id: string, params: ActivityParams) {
+    return this.sendInReplyChain(conversationId, id, params, true);
+  }
+
   async delete(conversationId: string, id: string) {
     const url = `${this.serviceUrl}/v3/conversations/${conversationId}/activities/${id}`;
     const res = await this.http.delete<void>(
@@ -246,6 +289,26 @@ export class ConversationActivityClient {
         conversationId,
         undefined,
         { activityId: id }
+      )
+    );
+    return res.data;
+  }
+
+  private async sendInReplyChain(conversationId: string, id: string, params: ActivityParams, targeted: boolean) {
+    requireId('conversationId', conversationId);
+    requireId('id', id);
+
+    const activity = toActivityParams(params);
+    const query = targeted ? '?isTargetedActivity=true' : '';
+    const res = await this.http.post<Resource>(
+      `${this.serviceUrl}/v3/conversations/${encodeURIComponent(conversationId)}/replyChains/${encodeURIComponent(id)}${query}`,
+      activity,
+      apiOutboundTelemetryConfig(
+        targeted ? OUTBOUND_OPERATIONS.createTargetedReplyChain : OUTBOUND_OPERATIONS.createReplyChain,
+        this.serviceUrl,
+        conversationId,
+        activity,
+        { captureResponseActivityId: true }
       )
     );
     return res.data;
