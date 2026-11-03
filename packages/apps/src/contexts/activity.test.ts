@@ -176,7 +176,7 @@ describe('ActivityContext', () => {
 
   describe('reply', () => {
     it('stamps quotedReply entity with activity id', async () => {
-      const activity = buildIncomingMessageActivity('Hello world');
+      const activity = buildIncomingMessageActivity('Hello world', '1793257586722');
       context = buildActivityContext(activity);
 
       await context.reply('What is up?');
@@ -187,40 +187,40 @@ describe('ActivityContext', () => {
         expect.arrayContaining([
           expect.objectContaining({
             type: 'quotedReply',
-            quotedReply: { messageId: 'test-activity-id' },
+            quotedReply: { messageId: '1793257586722' },
           }),
         ])
       );
     });
 
     it('prepends placeholder to text', async () => {
-      const activity = buildIncomingMessageActivity('Hello world');
+      const activity = buildIncomingMessageActivity('Hello world', '1793257586722');
       context = buildActivityContext(activity);
 
       await context.reply('What is up?');
 
       const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
-      expect(sentActivity.text).toEqual('<quoted messageId="test-activity-id"/> What is up?');
+      expect(sentActivity.text).toEqual('<quoted messageId="1793257586722"/> What is up?');
     });
 
     it('sets placeholder as text when reply text is empty', async () => {
-      const activity = buildIncomingMessageActivity('Hello world');
+      const activity = buildIncomingMessageActivity('Hello world', '1793257586722');
       context = buildActivityContext(activity);
 
       await context.reply('');
 
       const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
-      expect(sentActivity.text).toEqual('<quoted messageId="test-activity-id"/>');
+      expect(sentActivity.text).toEqual('<quoted messageId="1793257586722"/>');
     });
 
     it('sets placeholder as text when reply has no text', async () => {
-      const activity = buildIncomingMessageActivity('Hello world');
+      const activity = buildIncomingMessageActivity('Hello world', '1793257586722');
       context = buildActivityContext(activity);
 
       await context.reply({ type: 'message' });
 
       const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
-      expect(sentActivity.text).toEqual('<quoted messageId="test-activity-id"/>');
+      expect(sentActivity.text).toEqual('<quoted messageId="1793257586722"/>');
     });
 
     it('does not stamp entity when activity has no id', async () => {
@@ -233,6 +233,114 @@ describe('ActivityContext', () => {
       expect(sentActivity.entities).toBeUndefined();
     });
 
+    describe('quotability of the inbound activity', () => {
+      it('sends without a quote when the id is a service-generated f: id (card button message)', async () => {
+        const activity = buildIncomingMessageActivity('click', 'f:7be43fc9-1111-2222-3333-444455556666');
+        context = buildActivityContext(activity);
+
+        await context.reply('What is up?');
+
+        expect(mockSender.send).toHaveBeenCalledTimes(1);
+        const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+        expect(sentActivity.entities).toBeUndefined();
+        expect(sentActivity.text).toEqual('What is up?');
+      });
+
+      it.each(['0', '00', '000', '123abc', '12:34', '-5', '12.5', 'abc'])(
+        'sends without a quote when the id is the non-message value %j',
+        async (id) => {
+          const activity = buildIncomingMessageActivity('click', id);
+          context = buildActivityContext(activity);
+
+          await context.reply('What is up?');
+
+          const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+          expect(sentActivity.entities).toBeUndefined();
+          expect(sentActivity.text).toEqual('What is up?');
+        }
+      );
+
+      it('quotes an invoke that carries a plain numeric id', async () => {
+        const activity = {
+          ...buildIncomingMessageActivity('ignored', '1793257586722'),
+          type: 'invoke',
+          name: 'adaptiveCard/action',
+        } as unknown as Activity;
+        context = buildActivityContext(activity);
+
+        await context.reply('What is up?');
+
+        const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+        expect(sentActivity.text).toEqual('<quoted messageId="1793257586722"/> What is up?');
+      });
+
+      it('sends without a quote for an invoke that carries an f: id', async () => {
+        const activity = {
+          ...buildIncomingMessageActivity('ignored', 'f:7be43fc9-1111-2222-3333-444455556666'),
+          type: 'invoke',
+          name: 'adaptiveCard/action',
+        } as unknown as Activity;
+        context = buildActivityContext(activity);
+
+        await context.reply('What is up?');
+
+        const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+        expect(sentActivity.entities).toBeUndefined();
+        expect(sentActivity.text).toEqual('What is up?');
+      });
+
+      it('sends to the same conversation reference as send', async () => {
+        const activity = buildIncomingMessageActivity('click', 'f:7be43fc9-1111-2222-3333-444455556666');
+        context = buildActivityContext(activity);
+
+        await context.reply('What is up?');
+        await context.send('What is up?');
+
+        const [replyCall, sendCall] = (mockSender.send as jest.Mock).mock.calls;
+        expect(replyCall[1]).toBe(sendCall[1]);
+        expect(replyCall[0]).toEqual(sendCall[0]);
+      });
+
+      it('still quotes a message with a decimal id', async () => {
+        const activity = buildIncomingMessageActivity('typed', '1793257586722');
+        context = buildActivityContext(activity);
+
+        await context.reply('What is up?');
+
+        const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+        expect(sentActivity.text).toEqual('<quoted messageId="1793257586722"/> What is up?');
+      });
+
+      it.each(['messageUpdate', 'messageDelete', 'messageReaction'] as const)(
+        'still quotes a %s activity with a decimal id',
+        async (type) => {
+          const activity = {
+            ...buildIncomingMessageActivity('edited', '1793257586722'),
+            type,
+            channelData: { eventType: type === 'messageUpdate' ? 'editMessage' : 'softDeleteMessage' },
+          } as unknown as Activity;
+          context = buildActivityContext(activity);
+
+          await context.reply('What is up?');
+
+          const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+          expect(sentActivity.text).toEqual('<quoted messageId="1793257586722"/> What is up?');
+        }
+      );
+
+      it('still lets quote stamp an explicit message id on an invoke', async () => {
+        const activity = {
+          ...buildIncomingMessageActivity('ignored', 'f:7be43fc9-1111-2222-3333-444455556666'),
+          type: 'invoke',
+        } as unknown as Activity;
+        context = buildActivityContext(activity);
+
+        await context.quote('1793257586722', 'What is up?');
+
+        const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
+        expect(sentActivity.text).toEqual('<quoted messageId="1793257586722"/> What is up?');
+      });
+    });
   });
 
   describe('quote', () => {
@@ -280,7 +388,7 @@ describe('ActivityContext', () => {
         .withRecipient({ id: 'bot-id', name: 'Bot', role: 'bot' }, true)
         .withChannelId('test-channel')
         .withConversation({ id: 'test-conversation', conversationType: 'channel', isGroup: false })
-        .withId('test-activity-id');
+        .withId('1793257586722');
 
       context = buildActivityContext(activity);
 
@@ -288,9 +396,13 @@ describe('ActivityContext', () => {
 
       expect(mockSender.send).toHaveBeenCalledTimes(1);
       const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
-      // Reply prepends blockquote, but send() auto-populates addTargetedMessageInfo
-      // which strips quotedReply entities — the blockquote text remains since it's
-      // the legacy format, not the <quoted .../> placeholder.
+      // reply quotes the numeric inbound id, then send() strips the quotedReply entity
+      // and the <quoted .../> placeholder for targeted messages.
+      expect(sentActivity.entities).not.toEqual(
+        expect.arrayContaining([expect.objectContaining({ type: 'quotedReply' })])
+      );
+      expect(sentActivity.text).toEqual('Here is your agenda');
+      expect(sentActivity.text).not.toContain('<quoted');
       expect(sentActivity.recipient).toEqual(
         expect.objectContaining({
           id: 'test-user',
@@ -303,7 +415,7 @@ describe('ActivityContext', () => {
         expect.arrayContaining([
           expect.objectContaining({
             type: 'targetedMessageInfo',
-            messageId: 'test-activity-id',
+            messageId: '1793257586722',
           }),
         ])
       );

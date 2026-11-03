@@ -220,7 +220,10 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
   send(activity: ActivityLike | DeprecatedInputActivity, conversationRef?: ConversationReference): Promise<SentActivity>;
 
   /**
-   * reply to the inbound activity, automatically quoting the inbound message
+   * reply to the inbound activity, automatically quoting the inbound message.
+   * The response is automatically quoted only when the inbound activity id is a plain numeric message id.
+   * Otherwise (for example an invoke or a card action with a service-generated `f:` id) the activity is sent without a quote, exactly like {@link send}.
+   * Explicit quotes through {@link quote} are unchanged.
    * @param activity activity to send
    */
   /**
@@ -426,6 +429,9 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    *
    * In channels, sends to the current thread with a quoted reply.
    * In other scopes, sends with a quoted reply.
+   * The response is automatically quoted only when the inbound activity id is a plain numeric message id.
+   * Otherwise (for example an invoke or a card action with a service-generated `f:` id) the activity is sent without a quote, exactly like {@link send}.
+   * Explicit quotes through {@link quote} are unchanged.
    * To send without quoting, use {@link send}.
    *
    * @param activity the activity to send
@@ -437,7 +443,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   async reply(activity: ActivityLike): Promise<SentActivity>;
   async reply(activity: ActivityLike | DeprecatedInputActivity): Promise<SentActivity>;
   async reply(activity: ActivityLike | DeprecatedInputActivity) {
-    if (this.activity.id) {
+    if (isQuotableActivity(this.activity)) {
       return this.quote(this.activity.id, activity);
     }
     return this.send(activity);
@@ -587,6 +593,16 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     });
   }
 
+}
+
+/**
+ * Whether a response to the inbound activity is automatically quoted.
+ * That happens only when the inbound activity id is a plain numeric message id that is not all zeros.
+ * Other ids, such as the service-generated `f:<guid>` ids on invokes and card button messages, are never quoted automatically.
+ * The check looks only at the shape of the id and does not verify that the message exists.
+ */
+function isQuotableActivity(activity: Activity): boolean {
+  return !!activity.id && /^\d+$/.test(activity.id) && !/^0+$/.test(activity.id);
 }
 
 // Names of prototype methods (and getters) on ActivityContext that must not be
