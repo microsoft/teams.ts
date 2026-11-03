@@ -42,7 +42,7 @@ import { Router } from './router';
 import type { Route } from './router/route';
 import { IRoutes } from './routes';
 import { TurnStateLoader } from './state';
-import { IActivitySender, IPlugin, RouteHandler, StreamCancelledError } from './types';
+import { IActivitySender, IPlugin, RouteHandler } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 import { extractTenantId } from './utils';
 
@@ -531,14 +531,6 @@ function getActivityProcessAttributes(activity: Activity, serviceUrl: string): S
   }
 
   return attributes;
-}
-
-/**
- * @deprecated Teams no longer supports stopping a stream.
- * Use normal streaming error handling instead.
- */
-function isStreamCancelledError(error: any): boolean {
-  return error instanceof StreamCancelledError || error?.name === 'StreamCancelledError';
 }
 
 async function traceActivityProcess<T>(activity: Activity, serviceUrl: string, execute: (span: Span) => Promise<T>): Promise<T> {
