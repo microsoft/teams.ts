@@ -11,8 +11,7 @@ import {
 import { IEventEmitter } from '@microsoft/teams.common';
 
 /**
- * @deprecated Legacy streaming cancellation is no longer emitted.
- * Use normal streaming error handling instead.
+ * @deprecated Teams no longer supports stopping a stream.
  */
 export class StreamCancelledError extends Error {
   constructor(message?: string) {
@@ -95,8 +94,7 @@ export interface IStreamer {
   readonly events: Omit<IEventEmitter<IStreamerEvents>, 'emit'>;
 
   /**
-   * @deprecated The stop button is no longer supported. HttpStream always returns false.
-   * Use normal streaming error handling instead.
+   * @deprecated Teams no longer supports stopping a stream. HttpStream always returns false.
    */
   readonly canceled: boolean;
 

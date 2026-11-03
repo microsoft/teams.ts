@@ -64,8 +64,7 @@ export class HttpStream implements IStreamer {
   private readonly _totalTimeout = 30000; // 30 seconds
 
   /**
-   * @deprecated The stop button is no longer available; always returns false.
-   * Use normal streaming error handling instead.
+   * @deprecated Teams no longer supports stopping a stream; always returns false.
    */
   get canceled(): boolean {
     return false;
