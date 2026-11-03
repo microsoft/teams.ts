@@ -312,6 +312,102 @@ describe('Activity', () => {
     });
   });
 
+  describe('addSensitivityLabel', () => {
+    const create = () => new ActivityInput('message');
+    const rootEntities = (entities: any[] | undefined) =>
+      (entities || []).filter((e) => e.type === 'https://schema.org/Message' && e['@type'] === 'Message');
+
+    it('should set usageInfo on the root message entity', () => {
+      const activity = create().addSensitivityLabel({ '@id': 'label-id' });
+
+      expect(JSON.parse(JSON.stringify(activity.entities))).toStrictEqual([
+        {
+          type: 'https://schema.org/Message',
+          '@type': 'Message',
+          '@context': 'https://schema.org',
+          '@id': '',
+          usageInfo: { '@type': 'CreativeWork', '@id': 'label-id' },
+        },
+      ]);
+    });
+
+    it('should include optional name and description', () => {
+      const activity = create().addSensitivityLabel({
+        '@id': 'label-id',
+        name: 'Confidential',
+        description: 'Internal only',
+      });
+
+      expect(rootEntities(activity.entities)[0].usageInfo).toStrictEqual({
+        '@type': 'CreativeWork',
+        '@id': 'label-id',
+        name: 'Confidential',
+        description: 'Internal only',
+      });
+    });
+
+    it('should pass through a custom @type', () => {
+      const activity = create().addSensitivityLabel({ '@type': 'CustomType', '@id': 'label-id' });
+
+      expect(rootEntities(activity.entities)[0].usageInfo).toStrictEqual({
+        '@type': 'CustomType',
+        '@id': 'label-id',
+      });
+    });
+
+    it('should replace a previously added label', () => {
+      const activity = create()
+        .addSensitivityLabel({ '@id': 'first', name: 'First' })
+        .addSensitivityLabel({ '@id': 'second' });
+
+      const roots = rootEntities(activity.entities);
+      expect(roots).toHaveLength(1);
+      expect(roots[0].usageInfo).toStrictEqual({ '@type': 'CreativeWork', '@id': 'second' });
+    });
+
+    it.each([
+      ['label, ai, citation', ['label', 'ai', 'citation']],
+      ['label, citation, ai', ['label', 'citation', 'ai']],
+      ['ai, label, citation', ['ai', 'label', 'citation']],
+      ['ai, citation, label', ['ai', 'citation', 'label']],
+      ['citation, label, ai', ['citation', 'label', 'ai']],
+      ['citation, ai, label', ['citation', 'ai', 'label']],
+    ])('should keep a single root message entity when combined (%s)', (_, order) => {
+      const activity = create();
+      for (const step of order) {
+        if (step === 'label') activity.addSensitivityLabel({ '@id': 'label-id' });
+        if (step === 'ai') activity.addAiGenerated();
+        if (step === 'citation') activity.addCitation(1, { name: 'doc', abstract: 'abstract' });
+      }
+
+      const roots = rootEntities(activity.entities);
+      expect(activity.entities).toHaveLength(1);
+      expect(roots).toHaveLength(1);
+      expect(roots[0].usageInfo).toStrictEqual({ '@type': 'CreativeWork', '@id': 'label-id' });
+      expect(roots[0].additionalType).toEqual(['AIGeneratedContent']);
+      expect(roots[0].citation).toHaveLength(1);
+    });
+
+    it('should preserve position', () => {
+      const activity = create().addSensitivityLabel({ '@id': 'label-id', position: 2 });
+
+      expect(rootEntities(activity.entities)[0].usageInfo).toStrictEqual({
+        '@type': 'CreativeWork',
+        '@id': 'label-id',
+        position: 2,
+      });
+    });
+
+    it('should copy the label', () => {
+      const label: SensitivityUsageInfo = { '@id': 'label-id', name: 'Confidential' };
+      const activity = create().addSensitivityLabel(label);
+
+      label.name = 'Changed';
+
+      expect(rootEntities(activity.entities)[0].usageInfo.name).toBe('Confidential');
+    });
+  });
+
   describe.each([
     ['ActivityInput', () => new ActivityInput('message')],
     ['Activity', () => new Activity({ type: 'message' })],

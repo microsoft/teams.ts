@@ -12,6 +12,8 @@ import {
   MeetingInfo,
   MessageEntity,
   NotificationInfo,
+  SensitiveUsageEntity,
+  SensitivityUsageInfo,
   TeamInfo,
 } from '../models';
 
@@ -284,6 +286,17 @@ export class ActivityInput<T extends string = string> implements IActivityInput<
     }
 
     messageEntity.additionalType.push('AIGeneratedContent');
+    return this;
+  }
+
+  /**
+   * Add a Microsoft Purview sensitivity label to the message.
+   * Replaces any label previously added.
+   * @param label - The sensitivity label, identified by its Purview label ID.
+   */
+  addSensitivityLabel(label: SensitivityUsageInfo) {
+    const messageEntity: SensitiveUsageEntity = this.ensureSingleRootLevelMessageEntity();
+    messageEntity.usageInfo = { ...label, '@type': label['@type'] ?? 'CreativeWork' };
     return this;
   }
 
