@@ -514,7 +514,8 @@ export class HttpStream implements IStreamer {
       return { ...payload, ...res };
     } catch (err: any) {
       const id = replyChain.replyChainId;
-      if (!replyChain.inChannel || err?.response?.status !== 404 || !/^\d+$/.test(id) || /^0+$/.test(id)) {
+      const inChannel = this.ref.conversation?.conversationType === 'channel';
+      if (!inChannel || err?.response?.status !== 404 || !/^\d+$/.test(id) || /^0+$/.test(id)) {
         throw err;
       }
     }

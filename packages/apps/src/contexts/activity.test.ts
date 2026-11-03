@@ -797,7 +797,7 @@ describe('ActivityContext', () => {
           );
 
           expect(mockSender.createStream).toHaveBeenCalledWith(ref, {
-            replyChain: { chatOrChannelId: channelId, replyChainId: 'root-1', inChannel: true },
+            replyChain: { chatOrChannelId: channelId, replyChainId: 'root-1' },
           });
         });
 

@@ -31,7 +31,6 @@ export type StreamOptions = {
   /**
    * Places the stream in a reply chain (thread).
    * `chatOrChannelId` is the chat or channel id (`channelData.chat.id` or `channelData.channel.id`) and `replyChainId` is the id of the message at the root of the reply chain (`channelData.replyChain.id`).
-   * `inChannel` marks the chat or channel id as a channel id.
    */
   readonly replyChain?: {
     /**
@@ -42,7 +41,6 @@ export type StreamOptions = {
      * The id of the message at the root of the reply chain: `channelData.replyChain.id`.
      */
     readonly replyChainId: string;
-    readonly inChannel?: boolean;
   };
 };
 

@@ -435,7 +435,6 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
             replyChain: {
               chatOrChannelId: placement.chatOrChannelId,
               replyChainId: placement.replyChainId,
-              ...(placement.inChannel ? { inChannel: true } : {}),
             },
           }
         : undefined

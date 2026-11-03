@@ -95,13 +95,14 @@ describe('HttpStream', () => {
     });
 
     describe('in a channel', () => {
-      const channelChain = { chatOrChannelId: 'channel-id', replyChainId: '1680000000000', inChannel: true };
+      const channelChain = { chatOrChannelId: 'channel-id', replyChainId: '1680000000000' };
+      const channelRef = () => ({ ...ref, conversation: { ...ref.conversation, conversationType: 'channel' } });
       const notFound = () => Object.assign(new Error('Not Found'), { response: { status: 404 } });
 
       test('creates the first chunk in the inbound conversation when the reply chain route is not found, once', async () => {
         client.conversations.createReplyChainActivity = jest.fn().mockRejectedValue(notFound());
         mockCreate();
-        const stream = new HttpStream(client, { ...ref, activityId: 'inbound-1' }, logger, { replyChain: channelChain });
+        const stream = new HttpStream(client, { ...channelRef(), activityId: 'inbound-1' }, logger, { replyChain: channelChain });
 
         stream.emit('one');
         await jest.advanceTimersByTimeAsync(0);
@@ -117,7 +118,7 @@ describe('HttpStream', () => {
       test('keeps sending the following chunks to the message created by the fallback', async () => {
         client.conversations.createReplyChainActivity = jest.fn().mockRejectedValue(notFound());
         mockCreate();
-        const stream = new HttpStream(client, ref, logger, { replyChain: channelChain });
+        const stream = new HttpStream(client, channelRef(), logger, { replyChain: channelChain });
 
         stream.emit('one');
         await jest.advanceTimersByTimeAsync(0);
@@ -145,7 +146,7 @@ describe('HttpStream', () => {
           .fn()
           .mockRejectedValue(Object.assign(new Error('failed'), { response: { status } }));
         mockCreate();
-        const stream = new HttpStream(client, ref, logger, { replyChain: { ...channelChain, replyChainId } });
+        const stream = new HttpStream(client, channelRef(), logger, { replyChain: { ...channelChain, replyChainId } });
 
         stream.emit('one');
         await jest.advanceTimersByTimeAsync(0);
