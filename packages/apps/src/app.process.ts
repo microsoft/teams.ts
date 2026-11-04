@@ -42,7 +42,7 @@ import { Router } from './router';
 import type { Route } from './router/route';
 import { IRoutes } from './routes';
 import { TurnStateLoader } from './state';
-import { IActivitySender, IPlugin, RouteHandler, StreamCancelledError } from './types';
+import { IActivitySender, IPlugin, RouteHandler } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 import { extractTenantId } from './utils';
 
@@ -366,21 +366,11 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
         userId,
         stateLoader,
         async () => {
-          try {
-            const res = await next();
-            await context.stream.close();
-            return isInvokeResponse(res)
-              ? res
-              : { status: 200, body: res };
-          } catch (error: any) {
-            if (!isStreamCancelledError(error)) {
-              throw error;
-            }
-
-            this.options.log.debug('stream canceled, returning 200');
-            await context.stream.close();
-            return { status: 200 };
-          }
+          const res = await next();
+          await context.stream.close();
+          return isInvokeResponse(res)
+            ? res
+            : { status: 200, body: res };
         }
       );
 
@@ -545,10 +535,6 @@ function getActivityProcessAttributes(activity: Activity, serviceUrl: string): S
   return attributes;
 }
 
-function isStreamCancelledError(error: any): boolean {
-  return error instanceof StreamCancelledError || error?.name === 'StreamCancelledError';
-}
-
 async function traceActivityProcess<T>(activity: Activity, serviceUrl: string, execute: (span: Span) => Promise<T>): Promise<T> {
   const activityType = activity.type;
   const startedAt = Date.now();
@@ -597,10 +583,8 @@ async function traceHandler<TPlugin extends IPlugin, T>(
       try {
         return await execute();
       } catch (error) {
-        if (!isStreamCancelledError(error)) {
-          recordTeamsBotHandlerFailure(handlerType, handlerDispatch);
-          recordTeamsBotApplicationException(span, error);
-        }
+        recordTeamsBotHandlerFailure(handlerType, handlerDispatch);
+        recordTeamsBotApplicationException(span, error);
         throw error;
       } finally {
         recordTeamsBotHandlerDuration(handlerType, handlerDispatch, Date.now() - startedAt);

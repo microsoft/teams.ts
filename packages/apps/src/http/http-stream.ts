@@ -22,7 +22,6 @@ import {
   IStreamer,
   IStreamerEvents,
   PlanConflictStreamError,
-  StreamCancelledError,
   StreamNotAllowedError,
   StreamOptions,
   StreamTimedOutError,
@@ -62,22 +61,21 @@ export class HttpStream implements IStreamer {
   private _timeout?: NodeJS.Timeout;
   private _logger: ILogger;
   private _flushing: boolean = false;
-  private _canceled: boolean = false;
   private _timedOut: boolean = false;
   private _retired: boolean = false;
   private readonly _totalTimeout = 30000; // 30 seconds
 
   /**
-   * Whether the stream has been canceled.
-   * For example when the user pressed the Stop button.
+   * @deprecated Teams no longer supports stopping a stream; always returns false.
    */
   get canceled(): boolean {
-    return this._canceled;
+    return false;
   }
 
   /**
    * Whether the stream has timed out.
-   * For example when the streaming has exceeded two minutes.
+   * Set when the service reports ten minutes have elapsed since the first
+   * informative or content chunk.
    */
   get timedOut(): boolean {
     return this._timedOut;
@@ -123,10 +121,6 @@ export class HttpStream implements IStreamer {
       | ITypingActivityInput
       | string
   ) {
-    if (this._canceled) {
-      throw new StreamCancelledError();
-    }
-
     // Emitting after close or a retired Plan cycle starts a fresh stream cycle.
     if (this.closed || this._retired) {
       this._logger.debug('starting a new streamed message');
@@ -204,26 +198,16 @@ export class HttpStream implements IStreamer {
       return;
     }
 
-    if (this._canceled) {
-      this._logger.debug('stream canceled, nothing to close');
-      return;
-    }
-
     // Wait until all queued activities are flushed
     const start = Date.now();
 
-    while ((this.queue.length || !this.id || this._flushing) && !this._canceled) {
+    while (this.queue.length || !this.id || this._flushing) {
       if (Date.now() - start > this._totalTimeout) {
         this._logger.warn('Timeout while waiting for id and queue to flush');
         return;
       }
       this._logger.debug('waiting for id to be set or queue to be empty');
       await new Promise((resolve) => setTimeout(resolve, 100));
-    }
-
-    if (this._canceled) {
-      this._logger.debug('stream canceled, nothing to close');
-      return;
     }
 
     if (!this.id) {
@@ -244,7 +228,7 @@ export class HttpStream implements IStreamer {
     let res: SentActivity;
 
     if (this._timedOut) {
-      // Streaming already tripped the 2-minute limit; update the original message in place.
+      // Streaming already tripped the 10-minute limit; update the original message in place.
       res = await this.sendFinal();
     } else {
       // Build final message activity from the last-emitted message input (last wins),
@@ -268,7 +252,7 @@ export class HttpStream implements IStreamer {
         res = await this.sendWithRetry(activity);
       } catch (err) {
         if (err instanceof StreamTimedOutError) {
-          // The final streamed send tripped the 2-minute limit. Update the original
+          // The final streamed send tripped the 10-minute limit. Update the original
           // message in place with the buffered content: reuse the id and drop the
           // streamInfo entity + stream channel data so this routes to update, not create.
           res = await this.sendFinal();
@@ -440,9 +424,7 @@ export class HttpStream implements IStreamer {
         this._timeout = setTimeout(this.flush.bind(this), 500);
       }
     } catch (err) {
-      if (!(err instanceof StreamCancelledError)) {
-        this._logger.error(err, 'flush failed');
-      }
+      this._logger.error(err, 'flush failed');
     } finally {
       this._flushing = false;
     }
@@ -529,10 +511,6 @@ export class HttpStream implements IStreamer {
    * @param activity ActivityParams to send.
    */
   protected async send(activity: ActivityParams) {
-    if (this._canceled) {
-      throw new StreamCancelledError();
-    }
-
     const params = toActivityParams(activity);
     const payload = {
       ...params,
@@ -576,13 +554,9 @@ export class HttpStream implements IStreamer {
         if (normalized.includes('exceeded streaming time')) {
           this._timedOut = true;
           this._logger.warn(
-            'The bot failed to complete the streaming process within the strict time limit of two minutes.'
+            'The bot failed to complete the streaming process within the time limit of ten minutes from the first informative or content chunk.'
           );
           throw new StreamTimedOutError(message);
-        } else if (normalized.includes('cancel')) {
-          this._canceled = true;
-          this._logger.warn('The streaming was stopped by the user.');
-          throw new StreamCancelledError(message);
         } else if (normalized.includes('not allowed') && !normalized.includes('completed streamed message')) {
           this._logger.warn('The streaming API isn\'t allowed for the user or bot.');
           throw new StreamNotAllowedError(message);

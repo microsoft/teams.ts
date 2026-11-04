@@ -1,7 +1,5 @@
 import { ILogger } from '@microsoft/teams.common';
 
-import { StreamCancelledError } from '../../types';
-
 export type RetryOptions = {
   /**
    * the max number of attempts
@@ -35,10 +33,6 @@ export async function retry<T = any>(factory: () => Promise<T>, options?: RetryO
   try {
     return await factory();
   } catch (err) {
-    if (err instanceof StreamCancelledError || (err instanceof Error && err.name === 'StreamCancelledError')) {
-      throw err;
-    }
-
     if (nonRetryable.some((type) => err instanceof type)) {
       log?.debug('non-retryable error, not retrying');
       throw err;

@@ -641,16 +641,13 @@ describe('Plan HTTP stream', () => {
     expect(JSON.parse(requests[3].data).entities).not.toContainEqual(complete);
   });
 
-  it.each([
-    ['exceeded streaming time', 'timedOut'],
-    ['stream canceled by user', 'canceled'],
-  ] as const)('keeps existing close behavior after %s before any stream ID exists', async (message, status) => {
+  it('keeps existing close behavior after timeout before any stream ID exists', async () => {
     const { stream: createStream, responses, requests } = setup();
-    responses.push({ status: 403, code: 'ServiceError', message });
+    responses.push({ status: 403, code: 'ServiceError', message: 'exceeded streaming time' });
     const stream = createStream();
     stream.emit(new MessageActivityInput('Answer').addEntity(complete));
     await jest.runAllTimersAsync();
-    expect(stream[status]).toBe(true);
+    expect(stream.timedOut).toBe(true);
     await expect(stream.close()).resolves.toBeUndefined();
     expect(requests).toHaveLength(1);
   });
@@ -696,7 +693,6 @@ describe('Plan HTTP stream', () => {
     expect(requests.every((request) => request.method === 'post')).toBe(true);
     expect(JSON.parse(requests[1].data).type).toBe('message');
     expect(onClose).not.toHaveBeenCalled();
-    expect(stream.canceled).toBe(false);
     expect(stream.timedOut).toBe(false);
   });
 
@@ -724,7 +720,6 @@ describe('Plan HTTP stream', () => {
 
     await expect(stream.close()).rejects.toMatchObject({ name: 'PlanConflictStreamError' });
     expect(stream.closed).toBe(false);
-    expect(stream.canceled).toBe(false);
     expect(stream.timedOut).toBe(false);
     expect(onClose).not.toHaveBeenCalled();
     await expect(stream.close()).resolves.toBeUndefined();

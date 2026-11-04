@@ -24,7 +24,7 @@ import { IActivityEvent } from './events/activity';
 import { Plan } from './plan';
 import { TurnStateContainer } from './state';
 import { createTestApp } from './test-utils';
-import { PlanConflictStreamError } from './types';
+import { PlanConflictStreamError, StreamNotAllowedError, TerminalStreamError } from './types';
 
 jest.mock('./diagnostics/helpers', () => ({
   getTeamsBotApplicationTracer: jest.fn(),
@@ -454,8 +454,12 @@ describe('App', () => {
       expect(handlerSpan?.span.end).toHaveBeenCalled();
     });
 
-    it('records handler and activity process exceptions while preserving error responses', async () => {
-      const error = new Error('Test error');
+    it.each([
+      new Error('Test error'),
+      new StreamNotAllowedError(),
+      new TerminalStreamError(),
+      Object.assign(new Error('stream canceled'), { name: 'StreamCancelledError' }),
+    ])('records handler and activity process exceptions for %p while preserving error responses', async (error) => {
       app.use(() => {
         throw error;
       });
