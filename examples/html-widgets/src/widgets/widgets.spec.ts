@@ -22,7 +22,7 @@ const WIDGETS: Record<string, string> = {
 };
 
 function inlineScripts(html: string): string[] {
-  return [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]);
+  return [...html.matchAll(/<script>([\s\S]*?)<\/script>/gi)].map((m) => m[1]);
 }
 
 describe('sample widgets', () => {
