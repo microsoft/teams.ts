@@ -31,6 +31,7 @@ export * from './stream-info-entity';
 export * from './plan-info-entity';
 export * from './citation-entity';
 export * from './sensitive-usage-entity';
+export * from './sensitivity-usage-info';
 export * from './product-info-entity';
 export * from './quoted-reply-entity';
 export * from './targeted-message-info-entity';

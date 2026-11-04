@@ -445,6 +445,37 @@ describe('HttpStream', () => {
     expect(finalCall[1].textFormat).toBe('extendedmarkdown');
   });
 
+  test('keeps a sensitivity label from the last emitted message on the final message', async () => {
+    const stream = new HttpStream(client, ref, logger);
+    mockCreate();
+
+    const label = { '@type': 'CreativeWork', '@id': 'label-id' };
+    stream.emit('hello ');
+    stream.emit({
+      type: 'message',
+      text: 'world',
+      entities: [
+        {
+          type: 'https://schema.org/Message',
+          '@type': 'Message',
+          '@context': 'https://schema.org',
+          usageInfo: label,
+        } as any,
+      ],
+    });
+
+    const closePromise = stream.close();
+    await jest.runAllTimersAsync();
+    await closePromise;
+
+    const calls = client.conversations.createActivity.mock.calls;
+    const final = calls[calls.length - 1][1];
+    const roots = final.entities.filter((e: any) => e.type === 'https://schema.org/Message');
+    expect(final.type).toBe('message');
+    expect(roots).toHaveLength(1);
+    expect(roots[0].usageInfo).toStrictEqual(label);
+  });
+
   test('informative update carries its own textFormat, independent of finalActivity', async () => {
     const stream = new HttpStream(client, ref, logger);
     mockCreate();

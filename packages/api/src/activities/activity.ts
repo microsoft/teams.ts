@@ -12,6 +12,8 @@ import {
   MeetingInfo,
   MessageEntity,
   NotificationInfo,
+  SensitiveUsageEntity,
+  SensitivityUsageInfo,
   TeamInfo,
 } from '../models';
 
@@ -288,6 +290,17 @@ export class ActivityInput<T extends string = string> implements IActivityInput<
   }
 
   /**
+   * Add a Microsoft Purview sensitivity label to the message.
+   * Replaces any label previously added.
+   * @param label - The sensitivity label, identified by its Purview label ID.
+   */
+  addSensitivityLabel(label: SensitivityUsageInfo) {
+    const messageEntity: SensitiveUsageEntity = this.ensureSingleRootLevelMessageEntity();
+    messageEntity.usageInfo = { ...label, '@type': label['@type'] ?? 'CreativeWork' };
+    return this;
+  }
+
+  /**
    * Enable message feedback.
    * @param mode - `'default'` shows Teams' built-in thumbs up/down UI.
    *               `'custom'` triggers a `message/fetchTask` invoke so the bot can return its own task module dialog.
@@ -330,7 +343,9 @@ export class ActivityInput<T extends string = string> implements IActivityInput<
         keywords: appearance.keywords,
         text: appearance.text,
         url: appearance.url,
-        usageInfo: appearance.usageInfo,
+        usageInfo: appearance.usageInfo
+          ? { ...appearance.usageInfo, '@type': appearance.usageInfo['@type'] ?? 'CreativeWork' }
+          : undefined,
       },
     });
 
@@ -735,7 +750,9 @@ export class Activity<T extends string = string> implements IActivity<T> {
         keywords: appearance.keywords,
         text: appearance.text,
         url: appearance.url,
-        usageInfo: appearance.usageInfo,
+        usageInfo: appearance.usageInfo
+          ? { ...appearance.usageInfo, '@type': appearance.usageInfo['@type'] ?? 'CreativeWork' }
+          : undefined,
       },
     });
 

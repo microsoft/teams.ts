@@ -8,22 +8,33 @@ export type SensitiveUsageEntity = MessageEntity & {
 };
 
 export type SensitiveUsage = {
-  readonly type: 'https://schema.org/Message';
+  /** @deprecated Not part of the usageInfo contract. */
+  readonly type?: 'https://schema.org/Message';
 
   /**
-   * Required as 'CreativeWork'
+   * The schema.org type, typically 'CreativeWork'
    */
-  '@type': 'CreativeWork';
+  '@type': string;
+
+  /**
+   * The Purview sensitivity label ID
+   */
+  '@id'?: string;
 
   /**
    * Title of the content
    */
-  name: string;
+  name?: string;
 
   /**
    * Description of the content
    */
   description?: string;
+
+  /**
+   * Priority of the label, used to pick the most restrictive label
+   */
+  position?: number;
 
   /**
    * The pattern
