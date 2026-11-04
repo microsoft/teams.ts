@@ -27,10 +27,10 @@ Each concept is kept in a separate source module:
 
 | Command | Behavior |
 |---------|----------|
-| `thread reply` | `context.reply()` sends a reactive threaded reply |
-| `thread send` | `context.send()` sends to the same thread without quoting |
-| `thread proactive` | `app.reply()` sends a proactive threaded reply |
-| `thread manual` | `toThreadedConversationId()` and `app.send()` provide manual control |
+| `thread reply` | `context.reply()` sends a reactive, quoted reply. In a channel it is sent in the same thread. In a 1:1 chat it matches the level of your message (in the thread if your message is in one, otherwise top-level) |
+| `thread send` | `context.send()` sends reactively without quoting. In a channel it is sent in the same thread. In a 1:1 chat it matches the level of your message (in the thread if your message is in one, otherwise top-level) |
+| `thread proactive` | `app.reply()` replies in the reply chain (thread) of your message, using `channelData.chat.id` (or `channelData.channel.id`) and `channelData.replyChain.id`. Without `replyChain.id` the sample answers that there is not enough thread metadata |
+| `thread top-level` | `app.send()` to `channelData.chat.id` (or `channelData.channel.id`) sends a new top-level message |
 
 ### Reactions
 
@@ -46,8 +46,8 @@ Common reaction types include `like`, `heart`, `1f440_eyes`,
 
 ## Notes
 
-- Threading behavior depends on the conversation type. Proactive and manually constructed
-  threads may return a service error where threading is unsupported.
+- Threading behavior depends on the conversation type. Proactive threaded replies
+  may return a service error where threading is unsupported.
 - The reaction API accepts known reaction types as well as other reaction IDs supported by Teams.
 
 ## Teams CLI

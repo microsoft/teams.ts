@@ -1,10 +1,13 @@
-import { Activity } from '@microsoft/teams.api';
-import { App, IActivityContext, toThreadedConversationId } from '@microsoft/teams.apps';
+import { Activity, getAgenticIdentity } from '@microsoft/teams.api';
+import { App, IActivityContext } from '@microsoft/teams.apps';
 
 type MessageContext = IActivityContext<Extract<Activity, { type: 'message' }>>;
 
 /**
- * Handles the command that sends a reactive threaded reply.
+ * Handles the command that sends a reactive, quoted reply.
+ * In a 1:1 chat the reply matches the level of the inbound message: a reply to a message in a thread stays in the thread, and a reply to a top-level message is posted at top level.
+ * In a channel the reply stays in the reply chain (thread) of the inbound message, including when the inbound message is a top-level post.
+ * The reply is placed in a reply chain only when the payload carries `channelData.replyChain.id`.
  * @returns Whether the command matched.
  */
 export async function handleThreadReply(
@@ -15,12 +18,14 @@ export async function handleThreadReply(
     return false;
   }
 
-  await context.reply('This is a threaded reply to your message.');
+  await context.reply('This is a quoted reply. In a channel it goes in the same thread. In a 1:1 chat it matches the level of your message.');
   return true;
 }
 
 /**
- * Handles the command that sends to the current thread without quoting.
+ * Handles the command that sends reactively without quoting.
+ * In a channel, the message is sent in the same thread.
+ * In a 1:1 chat, it matches the level of the inbound message.
  * @returns Whether the command matched.
  */
 export async function handleThreadSend(
@@ -31,12 +36,15 @@ export async function handleThreadSend(
     return false;
   }
 
-  await context.send('This is sent to the same thread, without quoting.');
+  await context.send('This is sent without quoting. In a channel it goes in the same thread. In a 1:1 chat it matches the level of your message.');
   return true;
 }
 
 /**
- * Handles the command that sends a proactive threaded reply.
+ * Handles the command that sends a proactive reply in the reply chain (thread) of the inbound message.
+ * The reply chain is taken from `channelData.replyChain.id`.
+ * A proactive send runs without the inbound activity, so an agentic user must be named explicitly.
+ * `getAgenticIdentity` returns undefined when the inbound recipient is not an agentic user.
  * @returns Whether the command matched.
  */
 export async function handleProactiveThread(
@@ -48,43 +56,66 @@ export async function handleProactiveThread(
     return false;
   }
 
-  const { conversationId, threadRootId } = getThreadReference(context);
+  const { conversationId, replyChainId } = getThreadReference(context);
+  if (!conversationId || !replyChainId) {
+    await context.send(INSUFFICIENT_METADATA);
+    return true;
+  }
+
   await app.reply(
     conversationId,
-    threadRootId,
-    'This is a proactive threaded reply using `app.reply()`.'
+    replyChainId,
+    'This is a proactive reply in a thread, using `app.reply()`.',
+    { agenticIdentity: getAgenticIdentity(context.activity.recipient) }
   );
   return true;
 }
 
 /**
- * Handles the command that manually constructs a threaded conversation ID.
+ * Handles the command that sends a new top-level message to the chat or channel, outside any reply chain (thread).
  * @returns Whether the command matched.
  */
-export async function handleManualThread(
+export async function handleTopLevelThread(
   app: App,
   context: MessageContext,
   text: string
 ): Promise<boolean> {
-  if (text !== 'thread manual') {
+  if (text !== 'thread top-level') {
     return false;
   }
 
-  const { conversationId, threadRootId } = getThreadReference(context);
-  const threadId = toThreadedConversationId(conversationId, threadRootId);
+  const { conversationId } = getThreadReference(context);
+  if (!conversationId) {
+    await context.send(INSUFFICIENT_METADATA);
+    return true;
+  }
+
   await app.send(
-    threadId,
-    'This was sent using `toThreadedConversationId()` + `app.send()` for manual control.'
+    conversationId,
+    'This is a new top-level message, sent with `app.send()` to the id of the chat or channel.',
+    { agenticIdentity: getAgenticIdentity(context.activity.recipient) }
   );
   return true;
 }
 
+const INSUFFICIENT_METADATA =
+  'Not enough thread metadata on this message for the sample to address a thread: it reads `channelData.chat.id` or `channelData.channel.id` for the conversation id and `channelData.replyChain.id` for the root.';
+
+/**
+ * The ids come from the payload.
+ * `chat.id` identifies the chat and `channel.id` the channel.
+ * `replyChain.id` is the root of the reply chain (thread).
+ * A top-level post in a channel carries a `replyChain.id` equal to its own id.
+ * A payload without `replyChain.id` does not establish a root, so the sample does not infer one from the channel or the activity id.
+ * An id the payload does not carry is left undefined.
+ */
 function getThreadReference(context: MessageContext): {
-  conversationId: string;
-  threadRootId: string;
+  conversationId?: string;
+  replyChainId?: string;
 } {
-  const conversationId = context.ref.conversation.id;
-  const threadParts = conversationId.split(';messageid=');
-  const threadRootId = threadParts.length > 1 ? threadParts[1] : context.activity.id;
-  return { conversationId, threadRootId };
+  const channelData = context.activity.channelData;
+  return {
+    conversationId: channelData?.chat?.id ?? channelData?.channel?.id,
+    replyChainId: channelData?.replyChain?.id,
+  };
 }

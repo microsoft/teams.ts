@@ -66,6 +66,9 @@ describe('ActivitySender', () => {
         updateActivity: jest.fn().mockResolvedValue({ id: 'activity-1' }),
         createTargetedActivity: jest.fn().mockResolvedValue({ id: 'activity-1' }),
         updateTargetedActivity: jest.fn().mockResolvedValue({ id: 'activity-1' }),
+        createReplyChainActivity: jest.fn().mockResolvedValue({ id: 'reply-1' }),
+        replyToActivity: jest.fn().mockResolvedValue({ id: 'reply-1' }),
+        createTargetedReplyChainActivity: jest.fn().mockResolvedValue({ id: 'reply-1' }),
       },
     } as any;
 
@@ -282,6 +285,54 @@ describe('ActivitySender', () => {
     });
   });
 
+  describe('send with a reply chain id', () => {
+    it('should reply in the reply chain of the conversation in the reference', async () => {
+      const result = await sender.send({ type: 'message', text: 'hello' }, ref, { replyChainId: 'root-1' });
+
+      const conversations = (mockClient as any).conversations;
+      expect(conversations.createReplyChainActivity).toHaveBeenCalledWith(
+        'conv-123',
+        'root-1',
+        expect.objectContaining({ type: 'message', text: 'hello', from: ref.bot, conversation: ref.conversation })
+      );
+      expect(conversations.createActivity).not.toHaveBeenCalled();
+      expect(conversations.replyToActivity).not.toHaveBeenCalled();
+      expect(result).toEqual(expect.objectContaining({ id: 'reply-1' }));
+    });
+
+    it('should reply with a targeted activity in the reply chain', async () => {
+      const activity: ActivityParams = {
+        type: 'message',
+        text: 'hello',
+        recipient: { id: 'user-1', name: 'User', role: 'user', isTargeted: true },
+      };
+
+      await sender.send(activity, ref, { replyChainId: 'root-1' });
+
+      const conversations = (mockClient as any).conversations;
+      expect(conversations.createTargetedReplyChainActivity).toHaveBeenCalledWith('conv-123', 'root-1', expect.any(Object));
+      expect(conversations.createReplyChainActivity).not.toHaveBeenCalled();
+      expect(conversations.createTargetedActivity).not.toHaveBeenCalled();
+    });
+
+    it('should ignore the reply chain id when updating an existing activity', async () => {
+      await sender.send({ type: 'message', text: 'edited', id: 'existing-1' }, ref, { replyChainId: 'root-1' });
+
+      const conversations = (mockClient as any).conversations;
+      expect(conversations.updateActivity).toHaveBeenCalledWith('conv-123', 'existing-1', expect.any(Object));
+      expect(conversations.createReplyChainActivity).not.toHaveBeenCalled();
+    });
+
+    it('should keep the agentic identity when replying in the reply chain', async () => {
+      const agenticIdentity = { agenticAppBlueprintId: 'bp', agenticAppId: 'app', agenticUserId: 'user', tenantId: 'tenant' };
+
+      await sender.send({ type: 'message', text: 'hello' }, ref, { agenticIdentity, replyChainId: 'root-1' });
+
+      expect(createClient).toHaveBeenCalledWith(ref.serviceUrl, agenticIdentity);
+      expect((mockClient as any).conversations.createReplyChainActivity).toHaveBeenCalled();
+    });
+  });
+
   describe('agent365 baggage', () => {
     const agenticIdentity = {
       agenticAppId: 'agentic-app-id',
@@ -340,6 +391,23 @@ describe('ActivitySender', () => {
   });
 
   describe('createStream', () => {
+    it('should place the first chunk of the stream in the reply chain', async () => {
+      const replyChain = { chatOrChannelId: 'chat-id', replyChainId: 'root-1' };
+      const stream = sender.createStream(ref, { replyChain });
+
+      stream.emit('hello');
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      expect(mockClient.conversations.createReplyChainActivity).toHaveBeenCalledTimes(1);
+      expect(mockClient.conversations.createReplyChainActivity).toHaveBeenCalledWith(
+        'chat-id',
+        'root-1',
+        expect.objectContaining({ type: 'typing' })
+      );
+      expect(mockClient.conversations.createActivity).not.toHaveBeenCalled();
+      expect(mockClient.conversations.replyToActivity).not.toHaveBeenCalled();
+    });
+
     it('should return a stream instance', () => {
       const stream = sender.createStream(ref);
       expect(stream).toBeDefined();
