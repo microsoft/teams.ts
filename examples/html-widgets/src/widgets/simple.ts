@@ -1,25 +1,19 @@
+import { buildWidgetHtml } from './widget-runtime';
+
 /**
- * Simple static widget - no callbacks, no interactivity.
- * Verifies that the host renders the HTML correctly.
- *
- * Protocol flow:
- *   1. Bot sends this HTML inside a widget/mcp-ui payload
- *   2. SDK auto-injects the MCP Apps protocol via injectWidgetProtocol()
- *   3. Teams renders the HTML in a sandboxed iframe
- *   No postMessage calls needed - this is purely static content.
+ * Simple static widget with no callbacks.
+ * The shared runtime completes the handshake and reports the height, so the host sizes the iframe to the content.
  */
-export const SIMPLE_WIDGET_HTML = `<!DOCTYPE html>
-<html><head><meta charset="utf-8">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{overflow:auto}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-  padding:16px;background:#fff;color:#242424;font-size:13px}
+export const SIMPLE_WIDGET_HTML = buildWidgetHtml({
+  appName: 'simple-widget',
+  css: `
 h3{margin:0 0 8px 0;color:#333}
 p{margin:0;color:#666}
 .status{margin-top:12px;padding:8px;background:#f0f9ff;border-radius:4px}
-</style></head><body>
+`,
+  body: `
 <h3>Simple HTML Widget</h3>
 <p>This is a static HTML widget rendered inside a Teams message. No callbacks are needed.</p>
 <div class="status"><strong>Status:</strong> Rendered successfully</div>
-</body></html>`;
+`,
+});

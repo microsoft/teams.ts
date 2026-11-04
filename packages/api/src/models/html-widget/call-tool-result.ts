@@ -95,3 +95,31 @@ export interface IHtmlWidgetCallToolResponse {
    */
   callToolResult: IMcpUiCallToolResult;
 }
+
+/**
+ * Builds a complete tool result.
+ * `content`, `structuredContent` and `isError` are always present, defaulting to `[]`, `{}` and `false`, because an omitted field can reach the widget as `null`.
+ *
+ * @experimental This API is in preview and may change in the future.
+ * Diagnostic: ExperimentalTeamsHtmlWidget
+ */
+export function buildCallToolResult(result: IMcpUiCallToolResult = {}): Required<IMcpUiCallToolResult> {
+  return {
+    content: result.content ?? [],
+    structuredContent: result.structuredContent ?? {},
+    isError: result.isError ?? false,
+  };
+}
+
+/**
+ * Builds the `htmlwidget/calltool` invoke response body, applying the defaults of {@link buildCallToolResult}.
+ *
+ * @experimental This API is in preview and may change in the future.
+ * Diagnostic: ExperimentalTeamsHtmlWidget
+ */
+export function buildCallToolResponse(result: IMcpUiCallToolResult = {}): IHtmlWidgetCallToolResponse {
+  return {
+    responseType: 'htmlwidget/calltoolresult',
+    callToolResult: buildCallToolResult(result),
+  };
+}

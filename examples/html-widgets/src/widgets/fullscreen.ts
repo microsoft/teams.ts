@@ -1,29 +1,25 @@
+import { buildWidgetHtml } from './widget-runtime';
+
 /**
- * Fullscreen widget - requests fullscreen display mode from the host.
+ * Fullscreen widget that requests fullscreen display mode from the host.
  *
  * Protocol flow:
- *   1. User clicks "Go Fullscreen" button
- *   2. Widget sends JSON-RPC request: { method: "ui/request-display-mode", params: { mode: "fullscreen" } }
- *   3. Teams expands the widget iframe to fill available space
- *   4. Host responds with the new mode, widget updates its label
- *
- * The MCP Apps protocol boilerplate (ui/initialize handshake) is auto-injected
- * by injectWidgetProtocol() via the SDK builders.
+ *   1. The user clicks "Go Fullscreen".
+ *   2. The widget posts a `ui/request-display-mode` request with `{ mode: "fullscreen" }`.
+ *   3. Teams expands the widget to fill the available space.
+ *   4. The host responds with the new mode and the widget updates its label.
  */
-export const FULLSCREEN_WIDGET_HTML = `<!DOCTYPE html>
-<html><head><meta charset="utf-8">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{overflow:auto}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-  padding:16px;background:#fff;color:#242424;font-size:13px}
+export const FULLSCREEN_WIDGET_HTML = buildWidgetHtml({
+  appName: 'fullscreen-widget',
+  css: `
 h3{margin:0 0 8px 0}
 p{margin:0 0 12px 0;color:#666}
 button{padding:8px 16px;background:#107c10;color:#fff;border:none;border-radius:4px;cursor:pointer}
 button:hover{background:#0e6b0e}
 #content{margin-top:12px;padding:16px;background:#f0fff0;border-radius:4px}
 #modeLabel{font-weight:600}
-</style></head><body>
+`,
+  body: `
 <h3>Fullscreen Widget</h3>
 <p>Click the button to request fullscreen mode from Teams.</p>
 <button id="fsBtn">Go Fullscreen</button>
@@ -31,9 +27,9 @@ button:hover{background:#0e6b0e}
   <p>In fullscreen mode, this widget will expand to fill the available space.</p>
   <p>Current mode: <span id="modeLabel">inline</span></p>
 </div>
-<script>
+`,
+  script: `
 (function() {
-  // Request fullscreen display mode from the Teams host
   document.getElementById('fsBtn').addEventListener('click', function() {
     var id = 'fs-' + Math.random().toString(36).slice(2);
     window.parent.postMessage({
@@ -44,14 +40,14 @@ button:hover{background:#0e6b0e}
     }, '*');
   });
 
-  // Listen for display mode change responses
   window.addEventListener('message', function(e) {
+    if (e.source !== window.parent) return;
     var d = e.data;
-    if (d && d.jsonrpc === '2.0') {
+    if (d && d.jsonrpc === '2.0' && typeof d.id === 'string' && d.id.startsWith('fs-')) {
       if (d.result && d.result.mode) document.getElementById('modeLabel').textContent = d.result.mode;
       if (d.error) document.getElementById('modeLabel').textContent = 'Error: ' + JSON.stringify(d.error);
     }
   });
 })()
-</script>
-</body></html>`;
+`,
+});

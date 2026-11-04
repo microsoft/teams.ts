@@ -113,4 +113,19 @@ export interface IHtmlWidgetPayload {
    * Optional permissions the widget requests from the host.
    */
   permissions?: IHtmlWidgetPermissions;
+
+  /**
+   * Optional MCP URL for the widget.
+   * The Teams client combines this value with the owner id (`<ownerId>-<mcpUrl>`) as the input it uses to derive the widget's hosting origin.
+   * A widget produced by an MCP server must set this to that server's URL to get its own hosting scope.
+   * Serialized only when set.
+   */
+  mcpUrl?: string;
+
+  /**
+   * Optional correlation vector for the widget.
+   * The Teams client reads this value and returns it to the bot on callTool requests.
+   * Serialized only when set.
+   */
+  correlationId?: string;
 }

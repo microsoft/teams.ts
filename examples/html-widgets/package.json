@@ -14,6 +14,7 @@
     "lint": "npx eslint",
     "lint:fix": "npx eslint --fix",
     "build": "npx tsc",
+    "test": "npx jest",
     "start": "node .",
     "dev": "tsx watch -r dotenv/config src/index.ts"
   },
@@ -22,9 +23,12 @@
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
+    "@types/jest": "^30.0.0",
     "@types/node": "^26.6.5",
     "dotenv": "^18.0.9",
+    "jest": "^30.5.2",
     "rimraf": "^6.0.1",
+    "ts-jest": "^29.4.15",
     "tsx": "^4.23.15",
     "typescript": "^5.4.5"
   }

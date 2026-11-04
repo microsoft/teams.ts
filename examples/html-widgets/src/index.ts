@@ -4,9 +4,10 @@
  * This example demonstrates the full HTML widget capabilities for Teams bots.
  * Each command shows a different widget feature that developers can use as
  * a reference for building their own widget-enabled bots.
+ * Widgets own the MCP handshake and height reporting, see widgets/widget-runtime.ts.
  */
 
-import { IMcpUiCallToolResult } from '@microsoft/teams.api';
+import { buildCallToolResponse, IMcpUiCallToolResult } from '@microsoft/teams.api';
 import { App, buildHtmlWidgetMarkdown, buildHtmlWidgetMessage, tryGetWidgetModelContext, validateSecurityPolicy } from '@microsoft/teams.apps';
 import { ConsoleLogger } from '@microsoft/teams.common';
 
@@ -19,6 +20,7 @@ import { OPEN_LINK_WIDGET_HTML } from './widgets/open-link';
 
 import { SIMPLE_WIDGET_HTML } from './widgets/simple';
 import { UPDATE_CONTEXT_WIDGET_HTML } from './widgets/update-context';
+import { buildWidgetHtml } from './widgets/widget-runtime';
 
 const app = new App({
   logger: new ConsoleLogger('@examples/html-widgets', { level: 'debug' }),
@@ -64,7 +66,7 @@ app.on('message', async ({ send, activity }) => {
         securityPolicy: {
           connectDomains: ['https://teams.microsoft.com', 'https://teams.cloud.microsoft.com'],
         },
-        toolInput: { demo: true }, // Passed to the widget as initial context (available via toolInput in ui/initialize)
+        toolInput: { demo: true }, // Delivered to the widget after the handshake in a ui/notifications/tool-input notification
         toolOutput: {
           content: [{ type: 'text', text: 'Initial data loaded.' }],
           structuredContent: { counter: 0, lastAction: 'init' },
@@ -121,7 +123,7 @@ app.on('message', async ({ send, activity }) => {
         securityPolicy: {
           connectDomains: ['https://teams.microsoft.com'],
         },
-        toolInput: {}, // Passed to the widget as initial context (available via toolInput in ui/initialize)
+        toolInput: {}, // Delivered to the widget after the handshake in a ui/notifications/tool-input notification
         toolOutput: {
           content: [{ type: 'text', text: 'Ready.' }],
           structuredContent: { tools: ['getTime', 'roll', 'echo'] },
@@ -179,14 +181,17 @@ app.on('message', async ({ send, activity }) => {
   // Security policy validation
   // Demonstrates validateSecurityPolicy catching mismatched references.
   // This is a dev-time audit tool, not a security boundary - the browser's
-  // CSP enforcement is the real protection. Use debugCspViolations for runtime.
+  // CSP enforcement is the real protection. A securitypolicyviolation listener in the widget reports violations at runtime.
   if (text === '/validate') {
-    const htmlWithExternalRefs = `
+    const htmlWithExternalRefs = buildWidgetHtml({
+      appName: 'validation-demo',
+      body: `
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto">
-      <div style="font-family: Roboto, sans-serif; padding: 16px;">
+      <div style="font-family: Roboto, sans-serif;">
         <h2>Validation Demo</h2>
         <p>This widget was validated before sending.</p>
-      </div>`;
+      </div>`,
+    });
 
     // Step 1: validate against a restrictive policy to catch issues
     const strictPolicy = {
@@ -265,67 +270,63 @@ app.on('message', async ({ send, activity }) => {
 
 // ---------------------------------------------------------------------------
 // Handle htmlwidget/calltool invoke
-// This is the typed handler for when a widget calls a tool on the bot.
+// The client adds arguments.__msteams__ = { mcpUrl, correlationId } to every request.
+// The handler ignores it, validates the arguments as untrusted input, never throws,
+// and does not authorize from activity.from.
 // ---------------------------------------------------------------------------
-app.on('widget.callTool', async ({ activity }) => {
-  const { name, arguments: args } = activity.value;
-  console.log(`[widget.callTool] tool="${name}" args=${JSON.stringify(args)}`);
+type ToolArgs = Record<string, unknown>;
 
-  let callToolResult: IMcpUiCallToolResult;
+function readArgs(raw: unknown): ToolArgs {
+  if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) return {};
+  const { __msteams__, ...args } = raw as ToolArgs;
+  void __msteams__;
+  return args;
+}
+
+function runTool(name: string, args: ToolArgs): IMcpUiCallToolResult {
   switch (name) {
-    case 'refresh':
-      callToolResult = {
+    case 'refresh': {
+      const counter = typeof args.counter === 'number' ? args.counter : 0;
+      return {
         content: [{ type: 'text', text: 'Refreshed!' }],
-        structuredContent: {
-          counter: ((args as any)?.counter ?? 0) + 1,
-          lastAction: 'refresh',
-          timestamp: new Date().toISOString(),
-        },
-        isError: false,
+        structuredContent: { counter: counter + 1, lastAction: 'refresh', timestamp: new Date().toISOString() },
       };
-      break;
+    }
 
     case 'getTime':
-      callToolResult = {
+      return {
         content: [{ type: 'text', text: new Date().toLocaleTimeString() }],
         structuredContent: { time: new Date().toISOString() },
-        isError: false,
       };
-      break;
 
     case 'roll': {
-      const sides = (args as any)?.sides ?? 6;
+      const requested = typeof args.sides === 'number' ? Math.floor(args.sides) : 6;
+      const sides = Math.min(Math.max(requested, 2), 1000);
       const result = Math.floor(Math.random() * sides) + 1;
-      callToolResult = {
+      return {
         content: [{ type: 'text', text: `Rolled a ${result} (d${sides})` }],
         structuredContent: { result, sides },
-        isError: false,
       };
-      break;
     }
 
     case 'echo':
-      callToolResult = {
-        content: [{ type: 'text', text: JSON.stringify(args) }],
-        structuredContent: args,
-        isError: false,
-      };
-      break;
+      return { content: [{ type: 'text', text: JSON.stringify(args) }], structuredContent: args };
 
     default:
-      callToolResult = {
-        content: [{ type: 'text', text: `Unknown tool: ${name}` }],
-        isError: true,
-      };
-      break;
+      return { content: [{ type: 'text', text: `Unknown tool: ${name}` }], isError: true };
+  }
+}
+
+app.on('widget.callTool', async ({ activity }) => {
+  const { name, arguments: rawArgs } = activity.value;
+  let callToolResult: IMcpUiCallToolResult;
+  try {
+    callToolResult = runTool(String(name), readArgs(rawArgs));
+  } catch {
+    callToolResult = { content: [{ type: 'text', text: 'The tool failed.' }], isError: true };
   }
 
-  console.log('[widget.callTool] result=', JSON.stringify(callToolResult));
-
-  return {
-    responseType: 'htmlwidget/calltoolresult',
-    callToolResult,
-  };
+  return buildCallToolResponse(callToolResult);
 });
 
 app.start(process.env.PORT || 3978).catch(console.error);
