@@ -66,7 +66,7 @@ app.on('message', async ({ send, activity }) => {
         securityPolicy: {
           connectDomains: ['https://teams.microsoft.com', 'https://teams.cloud.microsoft.com'],
         },
-        toolInput: { demo: true }, // Passed to the widget as initial context (available via toolInput in ui/initialize)
+        toolInput: { demo: true }, // Delivered to the widget after the handshake in a ui/notifications/tool-input notification
         toolOutput: {
           content: [{ type: 'text', text: 'Initial data loaded.' }],
           structuredContent: { counter: 0, lastAction: 'init' },
@@ -123,7 +123,7 @@ app.on('message', async ({ send, activity }) => {
         securityPolicy: {
           connectDomains: ['https://teams.microsoft.com'],
         },
-        toolInput: {}, // Passed to the widget as initial context (available via toolInput in ui/initialize)
+        toolInput: {}, // Delivered to the widget after the handshake in a ui/notifications/tool-input notification
         toolOutput: {
           content: [{ type: 'text', text: 'Ready.' }],
           structuredContent: { tools: ['getTime', 'roll', 'echo'] },
