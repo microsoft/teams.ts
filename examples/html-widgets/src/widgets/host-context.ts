@@ -46,6 +46,7 @@ window.widgetReady.then((result) => {
 });
 
 window.addEventListener('message', (event) => {
+  if (event.source !== window.parent) return;
   const data = event.data;
   if (!data || data.method !== 'ui/notifications/host-context-changed') return;
 

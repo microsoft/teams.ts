@@ -62,8 +62,9 @@ describe('sample widgets', () => {
       const posted: any[] = [];
       const listeners: Array<(e: any) => void> = [];
       const observed: any[] = [];
+      const parent = { postMessage: (m: any) => posted.push(m) };
       const win: any = {
-        parent: { postMessage: (m: any) => posted.push(m) },
+        parent,
         addEventListener: (_: string, fn: any) => listeners.push(fn),
         removeEventListener: () => {},
       };
@@ -81,7 +82,7 @@ describe('sample widgets', () => {
       const [runtime] = inlineScripts(buildWidgetHtml({ appName: 'validation-demo', body: '<p>hi</p>' }));
       vm.runInNewContext(runtime, context);
       const initId = posted[0].id;
-      return { posted, win, observed, reply: (data: any) => listeners.forEach((fn) => fn({ data })), initId };
+      return { posted, win, observed, reply: (data: any, source: any = parent) => listeners.forEach((fn) => fn({ data, source })), initId };
     }
 
     it('should send ui/initialize first', () => {
@@ -97,6 +98,13 @@ describe('sample widgets', () => {
       expect(observed).toHaveLength(1);
       observed[0].cb();
       expect(posted[2]).toMatchObject({ method: 'ui/notifications/size-changed', params: { height: 123.5 } });
+    });
+
+    it('should ignore initialize results that do not come from the parent window', () => {
+      const { posted, observed, reply, initId } = runRuntime();
+      reply({ jsonrpc: '2.0', id: initId, result: {} }, {});
+      expect(posted).toHaveLength(1);
+      expect(observed).toHaveLength(0);
     });
 
     it('should reject widgetReady and not report size when initialize fails', async () => {

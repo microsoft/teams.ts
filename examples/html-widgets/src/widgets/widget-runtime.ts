@@ -48,6 +48,7 @@ function runtimeScript(appName: string, appCapabilities: object): string {
 
   window.widgetReady = new Promise(function (resolve, reject) {
     function onMessage(event) {
+      if (event.source !== window.parent) return;
       var data = event.data;
       if (!data || data.jsonrpc !== '2.0' || data.id !== initId) return;
       window.removeEventListener('message', onMessage);

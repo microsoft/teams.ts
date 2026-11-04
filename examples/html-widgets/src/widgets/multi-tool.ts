@@ -51,6 +51,7 @@ p{margin:0 0 12px 0;color:#666}
   });
 
   window.addEventListener('message', function(e) {
+    if (e.source !== window.parent) return;
     var d = e.data;
     if (d && d.jsonrpc === '2.0' && typeof d.id === 'string' && d.id.startsWith('call-')) {
       if (d.result) log.textContent += '\\nResult: ' + JSON.stringify(d.result);

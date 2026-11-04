@@ -41,6 +41,7 @@ button:hover{background:#0e6b0e}
   });
 
   window.addEventListener('message', function(e) {
+    if (e.source !== window.parent) return;
     var d = e.data;
     if (d && d.jsonrpc === '2.0' && typeof d.id === 'string' && d.id.startsWith('fs-')) {
       if (d.result && d.result.mode) document.getElementById('modeLabel').textContent = d.result.mode;

@@ -35,6 +35,7 @@ let nextId = 100;
 const pending = {};
 
 window.addEventListener('message', (event) => {
+  if (event.source !== window.parent) return;
   const data = event.data;
   if (data?.id && pending[data.id]) {
     const cb = pending[data.id];

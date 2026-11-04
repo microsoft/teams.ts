@@ -41,6 +41,7 @@ button:hover{background:#4b4fb7}
   });
 
   window.addEventListener('message', function(e) {
+    if (e.source !== window.parent) return;
     var d = e.data;
     if (d && d.jsonrpc === '2.0' && typeof d.id === 'string' && d.id.startsWith('call-')) {
       if (d.result) document.getElementById('result').textContent = JSON.stringify(d.result);
