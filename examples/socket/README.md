@@ -15,8 +15,7 @@ Socket Mode bots should not be submitted to Marketplace for publishing.
 
 - **Enabling Socket Mode** — `new App({ socketMode: true })` for WebSocket inbound delivery with no HTTP endpoint.
 - **Multi-geo by default** — a single bot opens one connection per geo
-  (`amer`, `emea`, `apac`) so it has inbound coverage across regions. Override
-  with `geos: [...]` or point at a custom ring with `negotiateBaseUrl`.
+  (`amer`, `emea`, `apac`) so it has inbound coverage across regions.
 - **Lifecycle events** — subscribing to `app.socketMode.events` for `ready`,
   `disconnected`, and `reconnected`. Each event carries the `geo` it relates to,
   since connections are per geo. Reconnects are automatic; the events are purely
@@ -45,10 +44,5 @@ You should see per-geo `ready` logs as each connection comes up, then `you said
 
 - **No HTTP surface** — tabs, remote functions, OAuth callbacks, and other
   browser routes are unavailable in Socket Mode.
-- **Canary and Pilot1 endpoints** — Socket Mode is currently available only on
-  the Canary (`https://canary.botapi.skype.com`) and Pilot1
-  (`https://pilot1.botapi.skype.com`) rings; the production default returns
-  503. The sample overrides `negotiateBaseUrl` to Canary, but Pilot1 works too.
-  Remove the override when production is enabled.
 - **Classic bot identity only** — Socket Mode connects with the bot's MSA App Id.
   Agentic identities are not supported today.

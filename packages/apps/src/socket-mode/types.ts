@@ -54,9 +54,7 @@ export type SocketModeOptions = {
    * Base URL of the Teams backend service endpoint used to negotiate the socket. The negotiate
    * request is sent to `{negotiateBaseUrl}/v3/websockets/connect`.
    *
-   * Defaults to {@link DEFAULT_SOCKET_MODE_NEGOTIATE_BASE_URL}. Override this to
-   * target a regional or Canary Teams backend service ring
-   * (e.g. `https://canary.botapi.skype.com/`).
+   * Defaults to {@link DEFAULT_SOCKET_MODE_NEGOTIATE_BASE_URL}.
    */
   readonly negotiateBaseUrl?: string;
 

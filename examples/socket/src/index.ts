@@ -16,20 +16,7 @@ const app = new App({
   // Receive activities over the Teams backend service-negotiated WebSocket.
   // Socket Mode starts no HTTP listener or public endpoint, so tabs, remote
   // functions, OAuth callbacks, and other browser routes are unavailable.
-  //
-  // By default this connects to all three geos. To target specific geos (or a
-  // single custom endpoint) set e.g. `geos: ['amer']`, or override the endpoint
-  // with `negotiateBaseUrl`.
-  socketMode: {
-    // geos: ['amer', 'emea', 'apac'], // the default
-
-    // NOTE: Socket Mode negotiate is currently only available on the Canary
-    // and Pilot1 rings — the production default (https://botapi.skype.com)
-    // returns 503 today. Pilot1 (https://pilot1.botapi.skype.com) is
-    // supported as well. Remove this override once Socket Mode is enabled in
-    // production.
-    negotiateBaseUrl: 'https://canary.botapi.skype.com',
-  },
+  socketMode: true,
 });
 
 // --- Socket lifecycle events -------------------------------------------------
