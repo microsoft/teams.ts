@@ -457,6 +457,7 @@ describe('App', () => {
       new Error('Test error'),
       new StreamNotAllowedError(),
       new TerminalStreamError(),
+      Object.assign(new Error('stream canceled'), { name: 'StreamCancelledError' }),
     ])('records handler and activity process exceptions for %p while preserving error responses', async (error) => {
       app.use(() => {
         throw error;
