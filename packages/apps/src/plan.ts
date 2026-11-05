@@ -18,7 +18,9 @@ import { EventEmitter } from '@microsoft/teams.common';
  * Diagnostic: ExperimentalTeamsPlan
  */
 export type PlanReplyChain = {
+  /** The chat id, `channelData.chat.id`. Not `conversation.id`. */
   readonly chatOrChannelId: string;
+  /** The id of the message at the root of the reply chain, `channelData.replyChain.id`. */
   readonly replyChainId: string;
 };
 
