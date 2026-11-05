@@ -2,14 +2,14 @@
 
 This project uses [Nerdbank.GitVersioning](https://github.com/dotnet/Nerdbank.GitVersioning) for automatic version management.
 
-Exactly one stable line is maintained at a time. It lives on a versioned branch named `release/v<major>.<minor>`, currently `release/v2.1`. `release/v2.0` is closed at `2.0.16` — it receives no further releases, and fixes for it ship forward as new patches on the current stable line.
+Exactly one stable line is maintained at a time. It lives on a versioned branch named `release/v<major>.<minor>`, currently `release/v2.2`. `release/v2.1` (closed at `2.1.1`) and `release/v2.0` (closed at `2.0.16`) receive no further releases, and fixes for them ship forward as new patches on the current stable line.
 
-This constraint exists because npm dist-tags are functional: `npm install @microsoft/teams.apps` resolves through `latest`, so publishing a stable `2.0.17` would repoint `latest` at it and silently downgrade every consumer off 2.1.x. The publish pipeline enforces this — `.azdo/publish.yml` declares a `currentStableBranch` variable, and a stable build from any other branch fails rather than moving `latest`.
+This constraint exists because npm dist-tags are functional: `npm install @microsoft/teams.apps` resolves through `latest`, so publishing a stable `2.1.2` would repoint `latest` at it and silently downgrade every consumer off 2.2.x. The publish pipeline enforces this — `.azdo/publish.yml` declares a `currentStableBranch` variable, and a stable build from any other branch fails rather than moving `latest`.
 
 Set `RELEASE_BRANCH` to the current stable line before running the commands below:
 
 ```bash
-RELEASE_BRANCH=release/v2.1
+RELEASE_BRANCH=release/v2.2
 ```
 
 ## Creating a Release
@@ -112,7 +112,7 @@ To bump from `2.0.x` to `2.1.x` or `3.0.x`:
 
 - Versions are computed automatically from git history based on `version.json`
 - **Main branch**: `X.Y.Z-preview.1`, `X.Y.Z-preview.2`, etc. (prerelease, published with `next` npm tag)
-- **Current stable release branch** (`currentStableBranch` in `.azdo/publish.yml`, currently `release/v2.1`): `X.Y.Z`, etc. (stable, published with `latest` npm tag)
+- **Current stable release branch** (`currentStableBranch` in `.azdo/publish.yml`, currently `release/v2.2`): `X.Y.Z`, etc. (stable, published with `latest` npm tag)
 - **Closed release branches** (for example, `release/v2.0`): no further releases. A stable build from one fails the publish pipeline, so `latest` can never be downgraded to an older line.
 
 ## Publishing
