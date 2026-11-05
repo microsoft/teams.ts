@@ -168,7 +168,7 @@ export type AppOptions<TPlugin extends IPlugin> = {
      * Cannot be combined with the deprecated `HttpPlugin`. Observe the socket via
      * {@link App.socketMode}.
      * WebSocket is only recommended for use when developing agents.
-     * Socket Mode is recommended for newly created bots; existing bots may require
+     * Socket Mode is recommended for new bots; existing bots may require
      * additional configuration.
      *
      * @experimental This API is in preview and may change in the future.
