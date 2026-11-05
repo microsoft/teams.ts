@@ -367,7 +367,7 @@ extends:
             artifactName: npm-packages
             targetPath: $(Pipeline.Workspace)/npm-packages
         steps:
-        - task: EsrpRelease@11
+        - task: EsrpRelease@12
           displayName: 'Publish packages to npm via ESRP'
           inputs:
             connectedservicename: 'TeamsESRP-Release-Npm'
