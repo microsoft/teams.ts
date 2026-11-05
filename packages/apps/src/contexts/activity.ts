@@ -458,9 +458,14 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    */
   plan(): Plan {
     if (!this._plan) {
+      const placement = this.getInboundReplyChainPlacement();
       this._plan = new Plan({
         conversationId: this.ref.conversation.id,
         replyToId: this.activity.id,
+        replyChain:
+          placement && !placement.inChannel
+            ? { chatOrChannelId: placement.chatOrChannelId, replyChainId: placement.replyChainId }
+            : undefined,
         apiClient: this.api.fromServiceUrl({ serviceUrl: this.ref.serviceUrl }),
       });
     }
