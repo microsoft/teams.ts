@@ -81,6 +81,42 @@ describe('Plan', () => {
     expect(requests).toHaveLength(0);
   });
 
+  it('completes in the reply chain when rebuilt from a saved placement, and keeps the saved shape', async () => {
+    const { api, requests } = setup();
+    const replyChain = { chatOrChannelId: '19:chat@unq.gbl.spaces', replyChainId: 'root' };
+    const saved = JSON.parse(JSON.stringify(
+      new Plan({ conversationId: 'a:opaque', replyToId: 'prompt', replyChain, apiClient: api })
+    ));
+    expect(saved).toEqual({ conversationId: 'a:opaque', replyToId: 'prompt', replyChain });
+
+    const restored = new Plan({ ...saved, apiClient: api });
+    await restored.complete('Done');
+
+    expect(requests[0].url).toBe('https://different.example.com/v3/conversations/19%3Achat%40unq.gbl.spaces/replyChains/root');
+    expect(JSON.parse(requests[0].data)).toMatchObject({
+      replyToId: 'prompt', conversation: { id: '19:chat@unq.gbl.spaces' },
+    });
+    expect(JSON.stringify(restored)).toBe(JSON.stringify(saved));
+  });
+
+  it('completes in the conversation when rebuilt from a saved shape without a placement', async () => {
+    const { api, requests } = setup();
+    const restored = new Plan({ conversationId: 'a:opaque', replyToId: 'prompt', apiClient: api });
+
+    await restored.complete('Done');
+
+    expect(requests[0].url).toBe('https://different.example.com/v3/conversations/a:opaque/activities');
+    expect(restored.toJSON()).toEqual({ conversationId: 'a:opaque', replyToId: 'prompt' });
+  });
+
+  it('sends typing updates to the conversation even with a saved placement', async () => {
+    const { api, requests } = setup();
+    const replyChain = { chatOrChannelId: '19:chat@unq.gbl.spaces', replyChainId: 'root' };
+    await new Plan({ conversationId: 'chat', replyToId: 'prompt', replyChain, apiClient: api }).start([]);
+
+    expect(requests[0].url).toBe('https://different.example.com/v3/conversations/chat/activities');
+  });
+
   it('reconstructs from saved IDs with a new runtime client and no inherited listeners', async () => {
     const original = setup();
     const options: PlanOptions = {

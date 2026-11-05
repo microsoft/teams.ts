@@ -1991,6 +1991,105 @@ describe('App', () => {
         expect(ref.conversation.id).toBe(channelId);
         expect(options).toEqual({ replyChainId: 'root-1' });
       });
+
+      describe('for a context Plan', () => {
+        const planFromHandler = async (body: IMessageActivity, run: (plan: ReturnType<ActivityContext['plan']>) => Promise<unknown>) => {
+          const create = jest.spyOn(ConversationClient.prototype, 'createActivity').mockResolvedValue({ id: 'answer' });
+          const createChain = jest.spyOn(ConversationClient.prototype, 'createReplyChainActivity')
+            .mockResolvedValue({ id: 'answer' });
+          app.on('message', async (ctx) => {
+            await run(ctx.plan());
+          });
+          await app.process({ token, body });
+          return { create, createChain };
+        };
+
+        it('completes in the reply chain of a chat thread', async () => {
+          const { create, createChain } = await planFromHandler(
+            inbound({
+              id: 'reply-2',
+              conversationId: 'a:encrypted',
+              conversationType: 'personal',
+              channelData: { chat: { id: chatId }, replyChain: { id: 'root-1' } },
+            }),
+            (plan) => plan.complete('Done')
+          );
+
+          expect(create).not.toHaveBeenCalled();
+          expect(createChain).toHaveBeenCalledTimes(1);
+          const [conversationId, rootId, payload] = createChain.mock.calls[0];
+          expect([conversationId, rootId]).toEqual([chatId, 'root-1']);
+          expect(payload).toMatchObject({ replyToId: 'reply-2', conversation: { id: chatId } });
+        });
+
+        it('completes in the conversation for a top-level chat message', async () => {
+          const { create, createChain } = await planFromHandler(
+            inbound({
+              id: 'root-1',
+              conversationId: 'a:encrypted',
+              conversationType: 'personal',
+              channelData: { chat: { id: chatId }, replyChain: { id: 'root-1' } },
+            }),
+            (plan) => plan.complete('Done')
+          );
+
+          expect(createChain).not.toHaveBeenCalled();
+          expect(create).toHaveBeenCalledTimes(1);
+          expect(create.mock.calls[0][0]).toBe('a:encrypted');
+        });
+
+        it('completes in the conversation for a channel message, which already carries the thread', async () => {
+          const suffixed = `${channelId};messageid=root-1`;
+          const { create, createChain } = await planFromHandler(
+            inbound({
+              id: 'reply-2',
+              conversationId: suffixed,
+              conversationType: 'channel',
+              channelData: { channel: { id: channelId }, replyChain: { id: 'root-1' } },
+            }),
+            (plan) => plan.complete('Done')
+          );
+
+          expect(createChain).not.toHaveBeenCalled();
+          expect(create.mock.calls[0][0]).toBe(suffixed);
+        });
+
+        it('sends typing updates to the conversation in a chat thread', async () => {
+          const { create, createChain } = await planFromHandler(
+            inbound({
+              id: 'reply-2',
+              conversationId: 'a:encrypted',
+              conversationType: 'personal',
+              channelData: { chat: { id: chatId }, replyChain: { id: 'root-1' } },
+            }),
+            (plan) => plan.start([])
+          );
+
+          expect(createChain).not.toHaveBeenCalled();
+          expect(create.mock.calls[0][0]).toBe('a:encrypted');
+        });
+
+        it('saves the placement of a chat thread so a rebuilt Plan completes in the thread', async () => {
+          let saved: unknown;
+          await planFromHandler(
+            inbound({
+              id: 'reply-2',
+              conversationId: 'a:encrypted',
+              conversationType: 'personal',
+              channelData: { chat: { id: chatId }, replyChain: { id: 'root-1' } },
+            }),
+            async (plan) => {
+              saved = JSON.parse(JSON.stringify(plan));
+            }
+          );
+
+          expect(saved).toEqual({
+            conversationId: 'a:encrypted',
+            replyToId: 'reply-2',
+            replyChain: { chatOrChannelId: chatId, replyChainId: 'root-1' },
+          });
+        });
+      });
     });
 
     it('should emit the "error" event when a route throws', async () => {

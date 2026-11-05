@@ -11,16 +11,36 @@ import {
 import { EventEmitter } from '@microsoft/teams.common';
 
 /**
+ * Reply chain (thread) of a chat that a Plan completion is posted to, as for `ctx.send`.
+ * `chatOrChannelId` is `channelData.chat.id` and `replyChainId` is `channelData.replyChain.id`.
+ *
+ * @experimental This API is in preview and may change in the future.
+ * Diagnostic: ExperimentalTeamsPlan
+ */
+export type PlanReplyChain = {
+  /** The chat id, `channelData.chat.id`. Not `conversation.id`. */
+  readonly chatOrChannelId: string;
+  /** The id of the message at the root of the reply chain, `channelData.replyChain.id`. */
+  readonly replyChainId: string;
+};
+
+/**
  * Bind a Plan to its originating prompt and inject the runtime client.
  *
  * @experimental This API is in preview and may change in the future.
  * Diagnostic: ExperimentalTeamsPlan
  */
 export type PlanOptions = {
-  /** Conversation ID, including any thread suffix, used for every Plan send. */
+  /** Conversation ID, including any thread suffix, used for typing updates and for completion unless `replyChain` is set. */
   readonly conversationId: string;
   /** Original prompt activity ID, not a later event, answer, or stream ID. */
   readonly replyToId: string;
+  /**
+   * Reply chain (thread) of a chat that the completion is posted to, as for `ctx.send`.
+   * `chatOrChannelId` is `channelData.chat.id` and `replyChainId` is `channelData.replyChain.id`.
+   * Omit it when `conversationId` already identifies the thread, as in a channel, or when the prompt is not inside a thread.
+   */
+  readonly replyChain?: PlanReplyChain;
   /** Runtime-only client, already scoped to the conversation's service URL and caller. */
   readonly apiClient: Client;
 };
@@ -32,6 +52,9 @@ export type PlanOptions = {
  * Targeted Plan scenarios are not supported. 
  * Plans use ordinary create routing, and completion() does not inherit
  * targeting from the originating context.
+ *
+ * In a chat thread, complete() is posted to the reply chain like `ctx.send`.
+ * Typing updates (start, update, stop, error) are sent to the conversation, as `ctx.send` does for typing activities.
  *
  * @experimental This API is in preview and may change in the future.
  * Diagnostic: ExperimentalTeamsPlan
@@ -49,18 +72,26 @@ export class Plan {
   /** Original prompt ID to which all Plan activities reply. */
   readonly replyToId: string;
 
+  /** Reply chain (thread) to which the completion is posted, if any. */
+  readonly replyChain?: PlanReplyChain;
+
   private readonly api: Client;
 
   /** Create a Plan from saved IDs and a configured client; no request or client cloning occurs. */
   constructor(options: PlanOptions) {
     this.conversationId = options.conversationId;
     this.replyToId = options.replyToId;
+    this.replyChain = options.replyChain;
     this.api = options.apiClient;
   }
 
-  /** Serialize only the prompt binding, excluding the client, credentials, and listeners. */
-  toJSON(): Pick<PlanOptions, 'conversationId' | 'replyToId'> {
-    return { conversationId: this.conversationId, replyToId: this.replyToId };
+  /** Serialize only the prompt binding and its placement, excluding the client, credentials, and listeners. */
+  toJSON(): Pick<PlanOptions, 'conversationId' | 'replyToId' | 'replyChain'> {
+    return {
+      conversationId: this.conversationId,
+      replyToId: this.replyToId,
+      ...(this.replyChain ? { replyChain: this.replyChain } : {}),
+    };
   }
 
   /** Start the bound Plan with the supplied ordered steps; API failures propagate. */
@@ -104,7 +135,7 @@ export class Plan {
       throw new TypeError('complete() cannot send non-complete Plan operations.');
     }
     if (!getPlanInfo(input)) input.addEntity({ type: 'planInfo', planType: 'complete' });
-    return this.send(input);
+    return this.send(input, this.replyChain);
   }
 
   private async sendUpdate(planType: PlanType, steps?: readonly Step[]) {
@@ -114,13 +145,15 @@ export class Plan {
     });
   }
 
-  private async send(activity: ActivityParams): Promise<SentActivity> {
+  private async send(activity: ActivityParams, replyChain?: PlanOptions['replyChain']): Promise<SentActivity> {
     const payload = {
       ...structuredClone(activity),
       replyToId: this.replyToId,
-      conversation: { id: this.conversationId },
+      conversation: { id: replyChain?.chatOrChannelId ?? this.conversationId },
     };
-    const result = await this.api.conversations.createActivity(this.conversationId, payload);
+    const result = replyChain
+      ? await this.api.conversations.createReplyChainActivity(replyChain.chatOrChannelId, replyChain.replyChainId, payload)
+      : await this.api.conversations.createActivity(this.conversationId, payload);
     const sent = { ...payload, ...result };
     this.events.emit('sent', sent);
     return sent;
