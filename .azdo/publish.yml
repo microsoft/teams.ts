@@ -37,7 +37,7 @@ variables:
 # The only branch allowed to publish the 'latest' npm dist-tag. Bump this when a
 # new stable line is cut; see "Bumping Major/Minor Version" in RELEASE.md.
 - name: currentStableBranch
-  value: 'release/v2.1'
+  value: 'release/v2.2'
 
 resources:
   repositories:
