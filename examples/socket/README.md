@@ -45,10 +45,5 @@ You should see per-geo `ready` logs as each connection comes up, then `you said
 
 - **No HTTP surface** — tabs, remote functions, OAuth callbacks, and other
   browser routes are unavailable in Socket Mode.
-- **Canary and Pilot1 endpoints** — Socket Mode is currently available only on
-  the Canary (`https://canary.botapi.skype.com`) and Pilot1
-  (`https://pilot1.botapi.skype.com`) rings; the production default returns
-  503. The sample overrides `negotiateBaseUrl` to Canary, but Pilot1 works too.
-  Remove the override when production is enabled.
 - **Classic bot identity only** — Socket Mode connects with the bot's MSA App Id.
   Agentic identities are not supported today.

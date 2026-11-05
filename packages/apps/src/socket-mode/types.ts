@@ -46,6 +46,7 @@ export type SocketModeStatus =
  * `new App({ socketMode: { ... } })`. Passing `socketMode: true` uses all
  * defaults.
  * WebSocket is only recommended for use when developing agents.
+ * Socket Mode is currently only available for new bots.
  *
  * @experimental This API is in preview and may change in the future.
  */
@@ -55,8 +56,7 @@ export type SocketModeOptions = {
    * request is sent to `{negotiateBaseUrl}/v3/websockets/connect`.
    *
    * Defaults to {@link DEFAULT_SOCKET_MODE_NEGOTIATE_BASE_URL}. Override this to
-   * target a regional or Canary Teams backend service ring
-   * (e.g. `https://canary.botapi.skype.com/`).
+   * target a different Teams backend service ring.
    */
   readonly negotiateBaseUrl?: string;
 
