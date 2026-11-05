@@ -9,6 +9,8 @@ import { ConsoleLogger } from '@microsoft/teams.common';
  * lifecycle. By default a single bot opens one connection per geo
  * (`amer`, `emea`, `apac`), so lifecycle events are reported per geo.
  * WebSocket is only recommended for use when developing agents.
+ * Socket Mode is recommended for newly created bots; existing bots may require
+ * additional configuration.
  */
 const app = new App({
   logger: new ConsoleLogger('@examples/socket', { level: 'debug' }),

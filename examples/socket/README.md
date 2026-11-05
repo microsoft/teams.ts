@@ -15,7 +15,8 @@ Socket Mode bots should not be submitted to Marketplace for publishing.
 
 - **Enabling Socket Mode** — `new App({ socketMode: true })` for WebSocket inbound delivery with no HTTP endpoint.
 - **Multi-geo by default** — a single bot opens one connection per geo
-  (`amer`, `emea`, `apac`) so it has inbound coverage across regions.
+  (`amer`, `emea`, `apac`) so it has inbound coverage across regions. Override
+  with `geos: [...]` or point at a custom ring with `negotiateBaseUrl`.
 - **Lifecycle events** — subscribing to `app.socketMode.events` for `ready`,
   `disconnected`, and `reconnected`. Each event carries the `geo` it relates to,
   since connections are per geo. Reconnects are automatic; the events are purely

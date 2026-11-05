@@ -46,6 +46,8 @@ export type SocketModeStatus =
  * `new App({ socketMode: { ... } })`. Passing `socketMode: true` uses all
  * defaults.
  * WebSocket is only recommended for use when developing agents.
+ * Socket Mode is recommended for newly created bots; existing bots may require
+ * additional configuration.
  *
  * @experimental This API is in preview and may change in the future.
  */
@@ -54,7 +56,8 @@ export type SocketModeOptions = {
    * Base URL of the Teams backend service endpoint used to negotiate the socket. The negotiate
    * request is sent to `{negotiateBaseUrl}/v3/websockets/connect`.
    *
-   * Defaults to {@link DEFAULT_SOCKET_MODE_NEGOTIATE_BASE_URL}.
+   * Defaults to {@link DEFAULT_SOCKET_MODE_NEGOTIATE_BASE_URL}. Override this to
+   * target a different Teams backend service ring.
    */
   readonly negotiateBaseUrl?: string;
 
