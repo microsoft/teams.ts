@@ -200,6 +200,8 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
 
   /**
    * Get the Plan bound to this inbound activity. Use new Plan(options) for a saved prompt.
+   * In a chat thread, a standalone `complete()` is posted to the reply chain, as `ctx.send` does.
+   * Typing updates, completions in a channel, and prompts outside a thread use the conversation.
    *
    * @experimental This API is in preview and may change in the future.
    * Diagnostic: ExperimentalTeamsPlan
@@ -452,6 +454,8 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
 
   /**
    * Get the Plan bound to this inbound activity, scoping its client on first access.
+   * In a chat thread, a standalone `complete()` is posted to the reply chain, as `ctx.send` does.
+   * Typing updates, completions in a channel, and prompts outside a thread use the conversation.
    *
    * @experimental This API is in preview and may change in the future.
    * Diagnostic: ExperimentalTeamsPlan
