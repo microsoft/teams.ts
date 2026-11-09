@@ -8,13 +8,6 @@ import { Client as HttpClient } from '@microsoft/teams.common';
 export const SOCKET_MODE_PROTOCOL_VERSION = 1;
 
 /**
- * Default Teams backend service host used to negotiate the Socket Mode connection when no
- * {@link SocketModeOptions.negotiateBaseUrl} is provided. The negotiate route
- * (`/v3/websockets/connect`) is appended to this base.
- */
-export const DEFAULT_SOCKET_MODE_NEGOTIATE_BASE_URL = 'https://botapi.skype.com';
-
-/**
  * The negotiate route appended to the Teams backend service base URL. Teams backend service exposes the Socket Mode
  * handshake at `POST {base}/v3/websockets/connect`.
  */
@@ -52,25 +45,16 @@ export type SocketModeStatus =
  */
 export type SocketModeOptions = {
   /**
-   * Base URL of the Teams backend service endpoint used to negotiate the socket. The negotiate
-   * request is sent to `{negotiateBaseUrl}/v3/websockets/connect`.
-   *
-   * Defaults to {@link DEFAULT_SOCKET_MODE_NEGOTIATE_BASE_URL}. Override this to
-   * target a different Teams backend service ring.
-   */
-  readonly negotiateBaseUrl?: string;
-
-  /**
    * Geographies to connect to. One independent socket is opened per geo, with
-   * the geo prefixed to the negotiate base hostname
-   * (`https://{geo}.{hostname}/v3/websockets/connect`), so a single bot has
+   * the geo prefixed to the SDK-owned negotiate hostname
+   * (`https://{geo}.botapi.skype.com/v3/websockets/connect`), so a single bot has
    * inbound coverage across regions — a conversation pinned to another geo is
    * still delivered over the socket instead of silently falling back to HTTP.
    *
-   * Defaults to `['amer', 'emea', 'apac']`. Every listed geo must connect for
-   * `App.start()` to succeed; each is then supervised independently, so one geo
-   * dropping never affects delivery on the others. Supported values are exactly
-   * `'amer'`, `'emea'`, and `'apac'`. Must be non-empty.
+   * Omitted or empty lists default to `['amer', 'emea', 'apac']`. Every listed
+   * geo must connect for `App.start()` to succeed; each is then supervised
+   * independently, so one geo dropping never affects delivery on the others.
+   *  They must be non-empty and unique.
    *
    * @default ['amer', 'emea', 'apac']
    */
@@ -235,7 +219,7 @@ export type SocketConnectionHandlers = {
  * connection.
  */
 export type SocketConnectionContext = {
-  /** Resolved negotiate URL (`{negotiateBaseUrl}/v3/websockets/connect`). */
+  /** Resolved regional negotiate URL. */
   readonly negotiateUrl: string;
   /** The app's shared HTTP client used for the negotiate request. */
   readonly client: HttpClient;

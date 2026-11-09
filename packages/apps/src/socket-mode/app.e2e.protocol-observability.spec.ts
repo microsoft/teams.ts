@@ -322,9 +322,13 @@ describe('Socket Mode E2E: protocol and observability', () => {
     await app.stop();
   });
 
-  it('exposes geo-tagged lifecycle events', async () => {
+  it.each([
+    ['amer', 'https://amer.botapi.skype.com/v3/websockets/connect'],
+    ['emea', 'https://emea.botapi.skype.com/v3/websockets/connect'],
+    ['apac', 'https://apac.botapi.skype.com/v3/websockets/connect'],
+  ])('exposes %s negotiate and geo-tagged lifecycle observability', async (geo, url) => {
     const app = createSocketTestApp({
-      socketMode: { geos: ['amer'], reconnectDelaysMs: [0] },
+      socketMode: { geos: [geo], reconnectDelaysMs: [0] },
     });
     const ready = jest.fn();
     const disconnected = jest.fn();
@@ -334,16 +338,18 @@ describe('Socket Mode E2E: protocol and observability', () => {
     app.socketMode!.events.on('reconnected', reconnected);
     await app.start();
 
+    expect(connectionState.contexts[0].negotiateUrl).toBe(url);
+
     const error = new Error('network drop');
     connectionState.connections[0].drop(error);
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(ready).toHaveBeenCalledWith({
-      geo: 'amer',
+      geo,
       frame: expect.objectContaining({ botKey: 'bot1' }),
     });
-    expect(disconnected).toHaveBeenCalledWith({ geo: 'amer', error, terminal: false });
-    expect(reconnected).toHaveBeenCalledWith({ geo: 'amer' });
+    expect(disconnected).toHaveBeenCalledWith({ geo, error, terminal: false });
+    expect(reconnected).toHaveBeenCalledWith({ geo });
     await app.stop();
   });
 });
