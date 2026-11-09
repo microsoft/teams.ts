@@ -186,7 +186,7 @@ describe('SignalRSocketConnection', () => {
 
   it('keeps server IDs independent across overlapping sockets', async () => {
     const first = new SignalRSocketConnection(
-      makeContext({ negotiateUrl: 'https://apx.example/amer/v3/websockets/connect' }),
+      makeContext({ negotiateUrl: 'https://amer.apx.example/v3/websockets/connect' }),
       makeHandlers()
     );
     await first.start();
@@ -198,7 +198,7 @@ describe('SignalRSocketConnection', () => {
       headers: {},
     });
     const next = new SignalRSocketConnection(
-      makeContext({ negotiateUrl: 'https://apx.example/emea/v3/websockets/connect' }),
+      makeContext({ negotiateUrl: 'https://emea.apx.example/v3/websockets/connect' }),
       makeHandlers()
     );
     await next.start();
@@ -224,7 +224,7 @@ describe('SignalRSocketConnection', () => {
       state.readyFrame = { connectionId: '' };
       await jest.advanceTimersByTimeAsync(240_000);
       expect(post).toHaveBeenCalledTimes(2);
-      expect(post.mock.calls[1][0]).toBe('https://apx.example/amer/v3/websockets/connect');
+      expect(post.mock.calls[1][0]).toBe('https://amer.apx.example/v3/websockets/connect');
       expect(post.mock.calls[1][2].headers[header]).toBe(' c1/+== ');
       expect(state.stopped).toBe(0);
 

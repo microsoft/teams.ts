@@ -92,7 +92,7 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
 
   it('renegotiates a fresh connection after an unexpected drop', async () => {
     const app = createSocketTestApp({
-      socketMode: { geos: [''], reconnectDelaysMs: [0] },
+      socketMode: { geos: ['amer'], reconnectDelaysMs: [0] },
     });
     const disconnected = jest.fn();
     const reconnected = jest.fn();
@@ -105,8 +105,8 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
     await ticks();
 
     expect(connectionState.connections).toHaveLength(2);
-    expect(disconnected).toHaveBeenCalledWith({ geo: '', error: dropped, terminal: false });
-    expect(reconnected).toHaveBeenCalledWith({ geo: '' });
+    expect(disconnected).toHaveBeenCalledWith({ geo: 'amer', error: dropped, terminal: false });
+    expect(reconnected).toHaveBeenCalledWith({ geo: 'amer' });
     expect(app.socketMode!.status).toBe('ready');
     await app.stop();
   });
@@ -152,7 +152,7 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
         connectionState.autoReadyQueue = [true, false];
         const handler = jest.fn();
         const app = createSocketTestApp({
-          socketMode: { geos: [''], reconnectDelaysMs: [0] },
+          socketMode: { geos: ['amer'], reconnectDelaysMs: [0] },
         });
         app.on('message', handler);
         await app.start();
@@ -197,7 +197,7 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
         let release!: () => void;
         const gate = new Promise<void>((resolve) => { release = resolve; });
         const app = createSocketTestApp({
-          socketMode: { geos: [''], reconnectDelaysMs: [0] },
+          socketMode: { geos: ['amer'], reconnectDelaysMs: [0] },
         });
         app.on('message', () => gate);
         await app.start();
@@ -232,7 +232,7 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
         const firstGate = new Promise<void>((resolve) => { finishFirst = resolve; });
         const secondGate = new Promise<void>((resolve) => { finishSecond = resolve; });
         const app = createSocketTestApp({
-          socketMode: { geos: [''], reconnectDelaysMs: [0] },
+          socketMode: { geos: ['amer'], reconnectDelaysMs: [0] },
         });
         app.on('message', ({ activity }) => activity.id === 'first' ? firstGate : secondGate);
         const disconnected = jest.fn();
@@ -297,7 +297,7 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
         connectionState.expiresInSeconds = 120;
         const releases = new Map<string, () => void>();
         const app = createSocketTestApp({
-          socketMode: { geos: [''], reconnectDelaysMs: [0] },
+          socketMode: { geos: ['amer'], reconnectDelaysMs: [0] },
         });
         app.on('message', ({ activity }) =>
           new Promise<void>((resolve) => { releases.set(activity.id, resolve); })
@@ -352,7 +352,7 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
         let release!: () => void;
         const gate = new Promise<void>((resolve) => { release = resolve; });
         const app = createSocketTestApp({
-          socketMode: { geos: [''], reconnectDelaysMs: [0] },
+          socketMode: { geos: ['amer'], reconnectDelaysMs: [0] },
         });
         app.on('message', () => gate);
         const disconnected = jest.fn();
@@ -393,7 +393,7 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
         connectionState.expiresInSeconds = 120;
         const handler = jest.fn();
         const app = createSocketTestApp({
-          socketMode: { geos: [''], reconnectDelaysMs: [100] },
+          socketMode: { geos: ['amer'], reconnectDelaysMs: [100] },
         });
         app.on('message', handler);
         await app.start();
@@ -439,7 +439,7 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
         connectionState.expiresInSeconds = 120;
         connectionState.autoReadyQueue = [true, false];
         const app = createSocketTestApp({
-          socketMode: { geos: [''], reconnectDelaysMs: [0] },
+          socketMode: { geos: ['amer'], reconnectDelaysMs: [0] },
         });
         const disconnected = jest.fn();
         const reconnected = jest.fn();
@@ -455,13 +455,13 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
         oldConnection.drop(error);
 
         expect(app.socketMode!.status).toBe('disconnected');
-        expect(disconnected).toHaveBeenCalledWith({ geo: '', error, terminal: false });
+        expect(disconnected).toHaveBeenCalledWith({ geo: 'amer', error, terminal: false });
 
         replacement.fireReady();
         await jest.advanceTimersByTimeAsync(0);
 
         expect(app.socketMode!.status).toBe('ready');
-        expect(reconnected).toHaveBeenCalledWith({ geo: '' });
+        expect(reconnected).toHaveBeenCalledWith({ geo: 'amer' });
         await app.stop();
       } finally {
         jest.useRealTimers();
@@ -487,13 +487,13 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
     await defaultApp.start();
 
     expect(connectionState.contexts[0]).toMatchObject({
-      negotiateUrl: 'https://botapi.skype.com/v3/websockets/connect',
+      negotiateUrl: 'https://amer.botapi.skype.com/v3/websockets/connect',
       readinessTimeoutMs: 30_000,
     });
     await defaultApp.stop();
 
     const unsupportedOptions = {
-      geos: [''],
+      geos: ['amer'],
       negotiateBaseUrl: 'https://apx.example/ring/',
       readinessTimeoutMs: 1234,
       keepAliveIntervalMs: 7000,
@@ -506,7 +506,7 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
     await customApp.start();
 
     expect(connectionState.contexts[1]).toMatchObject({
-      negotiateUrl: 'https://apx.example/ring/v3/websockets/connect',
+      negotiateUrl: 'https://amer.apx.example/ring/v3/websockets/connect',
       getConnectionIdToReplace: undefined,
       readinessTimeoutMs: 30_000,
     });
@@ -524,7 +524,7 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
     jest.useFakeTimers();
     const random = jest.spyOn(Math, 'random').mockReturnValue(0.5);
     const unsupportedOptions = {
-      geos: [''],
+      geos: ['amer'],
       startupTimeoutMs: 0,
       reconnectDelaysMs: [0],
     };
@@ -554,7 +554,7 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
 
   it('does not let a runtime override extend the 30-second startup budget', async () => {
     jest.useFakeTimers();
-    const unsupportedOptions = { geos: [''], startupTimeoutMs: 60_000 };
+    const unsupportedOptions = { geos: ['amer'], startupTimeoutMs: 60_000 };
     const app = createTestApp({ clientId: 'bot1', socketMode: unsupportedOptions });
     try {
       connectionState.startErrorQueue.push(

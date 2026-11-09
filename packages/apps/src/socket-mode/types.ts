@@ -62,16 +62,15 @@ export type SocketModeOptions = {
 
   /**
    * Geographies to connect to. One independent socket is opened per geo, with
-   * the geo appended as a path segment to the negotiate base
-   * (`{negotiateBaseUrl}/{geo}/v3/websockets/connect`), so a single bot has
+   * the geo prefixed to the negotiate base hostname
+   * (`https://{geo}.{hostname}/v3/websockets/connect`), so a single bot has
    * inbound coverage across regions — a conversation pinned to another geo is
    * still delivered over the socket instead of silently falling back to HTTP.
    *
    * Defaults to `['amer', 'emea', 'apac']`. Every listed geo must connect for
    * `App.start()` to succeed; each is then supervised independently, so one geo
-   * dropping never affects delivery on the others. Pass a single empty string
-   * (`['']`) to connect to the base negotiate URL with no geo segment. Must be
-   * non-empty.
+   * dropping never affects delivery on the others. Supported values are exactly
+   * `'amer'`, `'emea'`, and `'apac'`. Must be non-empty.
    *
    * @default ['amer', 'emea', 'apac']
    */
