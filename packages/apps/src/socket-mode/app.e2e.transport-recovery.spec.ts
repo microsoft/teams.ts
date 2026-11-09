@@ -494,7 +494,6 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
 
     const unsupportedOptions = {
       geos: ['amer'],
-      negotiateBaseUrl: 'https://apx.example/ring/',
       readinessTimeoutMs: 1234,
       keepAliveIntervalMs: 7000,
       serverTimeoutMs: 9000,
@@ -506,7 +505,7 @@ describe('Socket Mode E2E: exclusive transport, failure, ordering, and recovery'
     await customApp.start();
 
     expect(connectionState.contexts[1]).toMatchObject({
-      negotiateUrl: 'https://amer.apx.example/ring/v3/websockets/connect',
+      negotiateUrl: 'https://amer.botapi.skype.com/v3/websockets/connect',
       getConnectionIdToReplace: undefined,
       readinessTimeoutMs: 30_000,
     });

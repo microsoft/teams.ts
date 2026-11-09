@@ -20,9 +20,9 @@ export type NegotiateDeps = {
    */
   readonly getConnectionIdToReplace?: () => string | undefined;
   /**
-   * Abort the negotiate request after this many milliseconds so a bad
-   * `negotiateBaseUrl` (or a hung endpoint) can't leave the caller pending
-   * forever. Defaults to {@link DEFAULT_NEGOTIATE_TIMEOUT_MS}.
+   * Abort the negotiate request after this many milliseconds so a hung endpoint
+   * can't leave the caller pending forever. Defaults to
+   * {@link DEFAULT_NEGOTIATE_TIMEOUT_MS}.
    */
   readonly timeoutMs?: number;
   readonly log?: ILogger;

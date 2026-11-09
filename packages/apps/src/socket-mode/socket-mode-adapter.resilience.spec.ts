@@ -126,8 +126,8 @@ function createSocketModeAdapter(
   deps: Omit<SocketModeAdapterDeps, 'processActivity' | 'client'>
 ): SocketModeAdapter {
   let handler: ActivityHandler = async () => ({ status: 200 });
-  const { geos, negotiateBaseUrl, ...settings } = options;
-  const server = new SocketModeAdapter({ geos, negotiateBaseUrl }, {
+  const { geos, ...settings } = options;
+  const server = new SocketModeAdapter({ geos }, {
     credentials: { clientId: 'bot1' } as any,
     client: new HttpClient(),
     ...deps,
@@ -664,6 +664,9 @@ describe('SocketModeAdapter resilience', () => {
       ['amer', 'https://amer.botapi.skype.com/v3/websockets/connect'],
       ['emea', 'https://emea.botapi.skype.com/v3/websockets/connect'],
       ['apac', 'https://apac.botapi.skype.com/v3/websockets/connect'],
+      ['eur', 'https://eur.botapi.skype.com/v3/websockets/connect'],
+      ['AMER', 'https://AMER.botapi.skype.com/v3/websockets/connect'],
+      ['amer.amer', 'https://amer.amer.botapi.skype.com/v3/websockets/connect'],
     ])('resolves the public negotiate URL for %s', (geo, expectedUrl) => {
       const server = createSocketModeAdapter({ geos: [geo] }, {
         tokenProvider: { getAppToken: async () => 'app-token' } as any,
@@ -672,6 +675,25 @@ describe('SocketModeAdapter resilience', () => {
       });
 
       expect(server.negotiateUrl).toBe(expectedUrl);
+    });
+
+    it('uses custom geo values exactly as supplied for transport URLs', async () => {
+      const server = createSocketModeAdapter({ geos: ['eur', 'AMER', 'amer.amer'] }, {
+        tokenProvider: { getAppToken: async () => 'app-token' } as any,
+        messagingEndpoint: MESSAGING_ENDPOINT,
+        logger: new ConsoleLogger('test', { level: 'error' }),
+      });
+      onMessaging(server, jest.fn(async () => ({ status: 200 })));
+
+      await server.start();
+
+      expect(server.geoList).toEqual(['eur', 'AMER', 'amer.amer']);
+      expect(connState.connections.map((c: any) => c.context.negotiateUrl)).toEqual([
+        'https://eur.botapi.skype.com/v3/websockets/connect',
+        'https://AMER.botapi.skype.com/v3/websockets/connect',
+        'https://amer.amer.botapi.skype.com/v3/websockets/connect',
+      ]);
+      await server.stop();
     });
 
     it('opens one connection per default geo (amer/emea/apac) with geo-scoped URLs', async () => {
@@ -697,42 +719,46 @@ describe('SocketModeAdapter resilience', () => {
       await server.stop();
     });
 
-    it.each([
-      ['is empty', ''],
-      ['is unsupported', 'eur'],
-      ['uses uppercase', 'AMER'],
-      ['looks like a host', 'amer.example'],
-    ])('rejects a geo that $0 before entering connecting state', async (_case, geo) => {
-      const server = createSocketModeAdapter({ geos: ['amer', geo] }, {
+    it('uses the default geos for an explicit empty geo list', async () => {
+      const server = createSocketModeAdapter({ geos: [] }, {
+        tokenProvider: { getAppToken: async () => 'app-token' } as any,
+        messagingEndpoint: MESSAGING_ENDPOINT,
+        logger: new ConsoleLogger('test', { level: 'error' }),
+      });
+      onMessaging(server, jest.fn(async () => ({ status: 200 })));
+
+      await server.start();
+
+      expect(server.geoList).toEqual(['amer', 'emea', 'apac']);
+      expect(connState.connections).toHaveLength(3);
+      expect(server.status).toBe('ready');
+      await server.stop();
+    });
+
+    it('rejects an empty geo before entering connecting state', async () => {
+      const server = createSocketModeAdapter({ geos: ['amer', ''] }, {
+        tokenProvider: { getAppToken: async () => 'app-token' } as any,
+        messagingEndpoint: MESSAGING_ENDPOINT,
+        logger: new ConsoleLogger('test', { level: 'error' }),
+      });
+
+      await expect(server.start()).rejects.toThrow('socketMode.geos[1] must not be empty.');
+      expect(server.status).toBe('idle');
+      expect(connState.connections).toHaveLength(0);
+    });
+
+    it('rejects duplicate geos before entering connecting state', async () => {
+      const server = createSocketModeAdapter({ geos: ['amer', 'amer'] }, {
         tokenProvider: { getAppToken: async () => 'app-token' } as any,
         messagingEndpoint: MESSAGING_ENDPOINT,
         logger: new ConsoleLogger('test', { level: 'error' }),
       });
 
       await expect(server.start()).rejects.toThrow(
-        /socketMode\.geos\[1\] must be one of: amer, emea, apac/
+        'socketMode.geos must not contain duplicates.'
       );
       expect(server.status).toBe('idle');
       expect(connState.connections).toHaveLength(0);
-    });
-
-    it('prefixes the configured service hostname', async () => {
-      const server = createSocketModeAdapter({
-        geos: ['amer'],
-        negotiateBaseUrl: 'https://socket.example/ring',
-      }, {
-        tokenProvider: { getAppToken: async () => 'app-token' } as any,
-        messagingEndpoint: MESSAGING_ENDPOINT,
-        logger: new ConsoleLogger('test', { level: 'error' }),
-      });
-
-      await server.start();
-
-      expect((connState.connections[0] as any).context.negotiateUrl).toBe(
-        'https://amer.socket.example/ring/v3/websockets/connect'
-      );
-
-      await server.stop();
     });
 
     it('reconnects one geo independently without disturbing the others', async () => {
