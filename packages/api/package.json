@@ -39,7 +39,7 @@
     "@microsoft/teams.common": "*",
     "@opentelemetry/api": "^1.9.1",
     "jwt-decode": "^4.0.0",
-    "qs": "^6.16.1"
+    "qs": "^6.17.1"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",

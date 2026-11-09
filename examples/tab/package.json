@@ -31,8 +31,8 @@
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
-    "@types/node": "^26.6.5",
-    "@vitejs/plugin-react": "^6.1.2",
+    "@types/node": "^26.6.6",
+    "@vitejs/plugin-react": "^6.2.0",
     "concurrently": "^10.0.6",
     "dotenv": "^18.0.9",
     "rimraf": "^6.0.1",
