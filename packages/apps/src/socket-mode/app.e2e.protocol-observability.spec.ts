@@ -324,7 +324,7 @@ describe('Socket Mode E2E: protocol and observability', () => {
 
   it('exposes geo-tagged lifecycle events', async () => {
     const app = createSocketTestApp({
-      socketMode: { geos: [''], reconnectDelaysMs: [0] },
+      socketMode: { geos: ['amer'], reconnectDelaysMs: [0] },
     });
     const ready = jest.fn();
     const disconnected = jest.fn();
@@ -339,11 +339,11 @@ describe('Socket Mode E2E: protocol and observability', () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(ready).toHaveBeenCalledWith({
-      geo: '',
+      geo: 'amer',
       frame: expect.objectContaining({ botKey: 'bot1' }),
     });
-    expect(disconnected).toHaveBeenCalledWith({ geo: '', error, terminal: false });
-    expect(reconnected).toHaveBeenCalledWith({ geo: '' });
+    expect(disconnected).toHaveBeenCalledWith({ geo: 'amer', error, terminal: false });
+    expect(reconnected).toHaveBeenCalledWith({ geo: 'amer' });
     await app.stop();
   });
 });

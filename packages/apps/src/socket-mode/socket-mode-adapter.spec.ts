@@ -90,7 +90,7 @@ describe('SocketModeAdapter (through App)', () => {
     const app = createTestApp({
       logger: new ConsoleLogger('test', { level: 'error' }),
       clientId: 'bot1',
-      socketMode: { geos: [''] },
+      socketMode: { geos: ['amer'] },
     });
     configureSocketModeForTest(app.socketMode!, { startupTimeoutMs: 0 });
 

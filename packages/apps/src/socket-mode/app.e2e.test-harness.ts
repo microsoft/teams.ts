@@ -167,7 +167,7 @@ export function createSocketTestApp(
     socketMode?: boolean | (SocketModeOptions & SocketModeTestSettings);
   } = {}
 ): App {
-  const { socketMode = { geos: [''] }, ...appOptions } = options;
+  const { socketMode = { geos: ['amer'] }, ...appOptions } = options;
   const { geos, negotiateBaseUrl, ...settings } =
     typeof socketMode === 'object' ? socketMode : {};
   const app = createTestApp({

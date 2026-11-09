@@ -160,10 +160,10 @@ async function makeServer(
   options: SocketModeOptions & SocketModeTestSettings = {},
   logger: ConsoleLogger = new ConsoleLogger('test', { level: 'error' })
 ): Promise<SocketModeAdapter> {
-  // Default to a single geo ([''] = no geo segment) so the per-connection
+  // Default to a single geo so the per-connection
   // supervisor tests operate on exactly one connection; multi-geo behavior has
   // its own describe block below.
-  const server = createSocketModeAdapter({ geos: [''], ...options }, {
+  const server = createSocketModeAdapter({ geos: ['amer'], ...options }, {
     tokenProvider: { getAppToken: async () => 'app-token' } as any,
     messagingEndpoint: MESSAGING_ENDPOINT,
     logger,
@@ -238,7 +238,7 @@ describe('SocketModeAdapter resilience', () => {
           expect(connState.connections).toHaveLength(index + 2);
           expect(server.status).toBe('ready');
           expect(reconnected).toHaveBeenCalledTimes(index + 1);
-          expect(disconnected).toHaveBeenLastCalledWith({ geo: '', error, terminal: false });
+          expect(disconnected).toHaveBeenLastCalledWith({ geo: 'amer', error, terminal: false });
         }
 
         await jest.advanceTimersByTimeAsync(539_999);
@@ -367,7 +367,7 @@ describe('SocketModeAdapter resilience', () => {
         const recording = new ConsoleLogger('test', { level: 'error' });
         (recording as any).warn = (...args: any[]) => warnings.push(args);
 
-        const server = createSocketModeAdapter({ geos: [''], reconnectDelaysMs: [0] }, {
+        const server = createSocketModeAdapter({ geos: ['amer'], reconnectDelaysMs: [0] }, {
           tokenProvider: { getAppToken: async () => 'app-token' } as any,
           messagingEndpoint: MESSAGING_ENDPOINT,
           logger: recording,
@@ -517,13 +517,13 @@ describe('SocketModeAdapter resilience', () => {
     it('closes only the affected geo when a planned refresh is rejected with 403', async () => {
       jest.useFakeTimers();
       try {
-        connState.expiresInByUrl = { '/amer/': 120 };
+        connState.expiresInByUrl = { '//amer.': 120 };
         const server = await makeServer({ geos: ['amer', 'emea'], reconnectDelaysMs: [0] });
         const handler = jest.fn(async () => ({ status: 200 }));
         onMessaging(server, handler);
         await server.start();
         const byGeo = (geo: string) =>
-          connState.connections.find((c: any) => c.context.negotiateUrl.includes(`/${geo}/`))!;
+          connState.connections.find((c: any) => c.context.negotiateUrl.includes(`//${geo}.`))!;
         const affected = byGeo('amer');
         const healthy = byGeo('emea');
 
@@ -660,6 +660,20 @@ describe('SocketModeAdapter resilience', () => {
   });
 
   describe('multi-geo', () => {
+    it.each([
+      ['amer', 'https://amer.botapi.skype.com/v3/websockets/connect'],
+      ['emea', 'https://emea.botapi.skype.com/v3/websockets/connect'],
+      ['apac', 'https://apac.botapi.skype.com/v3/websockets/connect'],
+    ])('resolves the public negotiate URL for %s', (geo, expectedUrl) => {
+      const server = createSocketModeAdapter({ geos: [geo] }, {
+        tokenProvider: { getAppToken: async () => 'app-token' } as any,
+        messagingEndpoint: MESSAGING_ENDPOINT,
+        logger: new ConsoleLogger('test', { level: 'error' }),
+      });
+
+      expect(server.negotiateUrl).toBe(expectedUrl);
+    });
+
     it('opens one connection per default geo (amer/emea/apac) with geo-scoped URLs', async () => {
       const server = createSocketModeAdapter({ reconnectDelaysMs: [0] }, {
         tokenProvider: { getAppToken: async () => 'app-token' } as any,
@@ -674,11 +688,49 @@ describe('SocketModeAdapter resilience', () => {
       expect(connState.connections).toHaveLength(3);
       const urls = connState.connections.map((c: any) => c.context.negotiateUrl).sort();
       expect(urls).toEqual([
-        'https://botapi.skype.com/amer/v3/websockets/connect',
-        'https://botapi.skype.com/apac/v3/websockets/connect',
-        'https://botapi.skype.com/emea/v3/websockets/connect',
+        'https://amer.botapi.skype.com/v3/websockets/connect',
+        'https://apac.botapi.skype.com/v3/websockets/connect',
+        'https://emea.botapi.skype.com/v3/websockets/connect',
       ]);
       expect(server.status).toBe('ready');
+
+      await server.stop();
+    });
+
+    it.each([
+      ['is empty', ''],
+      ['is unsupported', 'eur'],
+      ['uses uppercase', 'AMER'],
+      ['looks like a host', 'amer.example'],
+    ])('rejects a geo that $0 before entering connecting state', async (_case, geo) => {
+      const server = createSocketModeAdapter({ geos: ['amer', geo] }, {
+        tokenProvider: { getAppToken: async () => 'app-token' } as any,
+        messagingEndpoint: MESSAGING_ENDPOINT,
+        logger: new ConsoleLogger('test', { level: 'error' }),
+      });
+
+      await expect(server.start()).rejects.toThrow(
+        /socketMode\.geos\[1\] must be one of: amer, emea, apac/
+      );
+      expect(server.status).toBe('idle');
+      expect(connState.connections).toHaveLength(0);
+    });
+
+    it('prefixes the configured service hostname', async () => {
+      const server = createSocketModeAdapter({
+        geos: ['amer'],
+        negotiateBaseUrl: 'https://socket.example/ring',
+      }, {
+        tokenProvider: { getAppToken: async () => 'app-token' } as any,
+        messagingEndpoint: MESSAGING_ENDPOINT,
+        logger: new ConsoleLogger('test', { level: 'error' }),
+      });
+
+      await server.start();
+
+      expect((connState.connections[0] as any).context.negotiateUrl).toBe(
+        'https://amer.socket.example/ring/v3/websockets/connect'
+      );
 
       await server.stop();
     });
@@ -755,7 +807,7 @@ describe('SocketModeAdapter resilience', () => {
     async function makeServerWithOnError(
       onError: (error: Error) => void | Promise<void>
     ): Promise<SocketModeAdapter> {
-      const server = createSocketModeAdapter({ geos: [''] }, {
+      const server = createSocketModeAdapter({ geos: ['amer'] }, {
         tokenProvider: { getAppToken: async () => 'app-token' } as any,
         messagingEndpoint: MESSAGING_ENDPOINT,
         onError,

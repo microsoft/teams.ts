@@ -47,7 +47,7 @@ const TOKEN_REFRESH_MARGIN_MS = 60_000;
 
 /**
  * Default geographies a bot connects to. One socket is opened per geo (the geo
- * is appended as a path segment to the negotiate base), so a single bot has
+ * is prefixed to the negotiate hostname), so a single bot has
  * inbound coverage across regions rather than only the geo it happened to dial.
  */
 const DEFAULT_GEOS = ['amer', 'emea', 'apac'] as const;
@@ -62,11 +62,17 @@ function isNonRetryableError(error: unknown): boolean {
   return error instanceof NegotiateError && error.isAuthError;
 }
 
-/** Join a base URL, an optional geo segment, and the negotiate path. */
+const SUPPORTED_GEOS: ReadonlySet<string> = new Set(DEFAULT_GEOS);
+
+/**
+ * Socket Mode supports only the backend's amer, emea, and apac geo labels.
+ * The selected geo is added as a subdomain before the negotiate path.
+ */
 function buildNegotiateUrl(base: string, geo: string): string {
-  const trimmedBase = base.replace(/\/+$/, '');
-  const seg = geo.trim().replace(/^\/+|\/+$/g, '');
-  return seg ? `${trimmedBase}/${seg}${SOCKET_MODE_NEGOTIATE_PATH}` : `${trimmedBase}${SOCKET_MODE_NEGOTIATE_PATH}`;
+  const url = new URL(base);
+  url.hostname = `${geo}.${url.hostname}`;
+  url.pathname = `${url.pathname.replace(/\/+$/, '')}${SOCKET_MODE_NEGOTIATE_PATH}`;
+  return url.toString();
 }
 
 /**
@@ -227,7 +233,7 @@ export class SocketModeAdapter implements IHttpServerAdapter {
   }
 
   /**
-   * Resolved negotiate URL for the first geo (`{base}/{geo}/v3/websockets/connect`).
+   * Resolved negotiate URL for the first geo (`https://{geo}.{host}/v3/websockets/connect`).
    * Primarily for diagnostics; each geo has its own URL.
    */
   get negotiateUrl(): string {
@@ -281,12 +287,16 @@ export class SocketModeAdapter implements IHttpServerAdapter {
    * it alive across drops and token expiry independently until {@link stop}.
    */
   async start(_port?: number | string): Promise<void> {
+    const geos = this.resolveGeos();
+    const negotiateUrls = geos.map((geo) => buildNegotiateUrl(this.negotiateBase, geo));
+
     this.stopped = false;
     this._lifecycle = 'starting';
     this.abort = new AbortController();
 
-    const geos = this.resolveGeos();
-    this.geoSockets = geos.map((geo) => this.createGeoSocket(geo));
+    this.geoSockets = geos.map((geo, index) =>
+      this.createGeoSocket(geo, negotiateUrls[index])
+    );
     this.log.info(
       `socket-mode: connecting to Socket Mode across ${geos.length} geo(s): ${geos.join(', ')}`
     );
@@ -330,7 +340,7 @@ export class SocketModeAdapter implements IHttpServerAdapter {
   }
 
   /** Build one geo supervisor from the adapter's narrow internal callbacks. */
-  private createGeoSocket(geo: string): GeoSocket {
+  private createGeoSocket(geo: string, negotiateUrl: string): GeoSocket {
     return new GeoSocket(
       {
         isAccepting: () => !this.stopped,
@@ -350,7 +360,7 @@ export class SocketModeAdapter implements IHttpServerAdapter {
         tokenRefreshMarginMs: TOKEN_REFRESH_MARGIN_MS,
       },
       geo,
-      buildNegotiateUrl(this.negotiateBase, geo),
+      negotiateUrl,
       this.log
     );
   }
@@ -439,11 +449,15 @@ export class SocketModeAdapter implements IHttpServerAdapter {
   private resolveGeos(): readonly string[] {
     const geos = this.options.geos ?? DEFAULT_GEOS;
     if (geos.length === 0) {
-      throw new Error(
-        'socketMode.geos must contain at least one geo. Pass a single empty string ([""]) ' +
-        'to connect to the base negotiate URL without a geo segment.'
-      );
+      throw new Error('socketMode.geos must contain at least one supported geo.');
     }
+    geos.forEach((geo, index) => {
+      if (!SUPPORTED_GEOS.has(geo)) {
+        throw new Error(
+          `socketMode.geos[${index}] must be one of: ${DEFAULT_GEOS.join(', ')}.`
+        );
+      }
+    });
     return geos;
   }
 
