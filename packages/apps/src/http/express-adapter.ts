@@ -1,4 +1,5 @@
 import http from 'http';
+import https from 'https';
 
 import express from 'express';
 
@@ -26,12 +27,12 @@ export class ExpressAdapter implements IHttpServerAdapter {
   readonly use: express.Application['use'];
 
   protected express: express.Application;
-  protected server?: http.Server;
+  protected server?: http.Server | https.Server;
   protected logger: ILogger;
   protected onError?: (err: Error) => void;
 
-  constructor(serverOrApp?: http.Server | express.Application, options?: { logger?: ILogger; onError?: (err: Error) => void }) {
-    if (serverOrApp instanceof http.Server) {
+  constructor(serverOrApp?: http.Server | https.Server | express.Application, options?: { logger?: ILogger; onError?: (err: Error) => void }) {
+    if (serverOrApp instanceof http.Server || serverOrApp instanceof https.Server) {
       // The adapter handles all requests on this server. Use the adapter's
       // methods (get, post, use, etc.) to add routes. If you need your own
       // Express app, pass it in instead and manage the server yourself.
