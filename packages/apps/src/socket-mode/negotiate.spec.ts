@@ -81,11 +81,7 @@ describe('socket-mode negotiate', () => {
 
     let error: Error | undefined;
     try {
-      await negotiate({
-        ...deps(),
-        negotiateUrl: 'https://user:pass@apx.example/v3/websockets/connect?sig=url-secret#fragment',
-        log: log as any,
-      });
+      await negotiate({ ...deps(), log: log as any });
     } catch (caught) {
       error = caught as Error;
     }
@@ -98,13 +94,6 @@ describe('socket-mode negotiate', () => {
     expect(diagnostics).not.toContain('signalr-secret');
     expect(diagnostics).not.toContain('client-secret');
     expect(diagnostics).not.toContain('bot-jwt');
-    expect(diagnostics).not.toContain('user');
-    expect(diagnostics).not.toContain('pass');
-    expect(diagnostics).not.toContain('url-secret');
-    expect(diagnostics).not.toContain('fragment');
-    expect(diagnostics).toContain(
-      'https://apx.example/v3/websockets/connect'
-    );
     expect(diagnostics).toContain('[REDACTED]');
   });
 

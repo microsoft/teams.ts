@@ -696,6 +696,25 @@ describe('SocketModeAdapter resilience', () => {
       await server.stop();
     });
 
+    it('fails startup through the transport when an unsupported backend geo is included', async () => {
+      const error = new Error('unsupported geo');
+      const server = createSocketModeAdapter({ geos: ['unsupported', 'amer'], startupTimeoutMs: 0 }, {
+        tokenProvider: { getAppToken: async () => 'app-token' } as any,
+        messagingEndpoint: MESSAGING_ENDPOINT,
+        logger: new ConsoleLogger('test', { level: 'error' }),
+      });
+      connState.startErrorQueue.push(error);
+
+      await expect(server.start()).rejects.toBe(error);
+
+      expect(server.geoList).toEqual(['unsupported', 'amer']);
+      expect(connState.connections.map((c: any) => c.context.negotiateUrl)).toEqual([
+        'https://unsupported.botapi.skype.com/v3/websockets/connect',
+        'https://amer.botapi.skype.com/v3/websockets/connect',
+      ]);
+      expect(server.status).toBe('stopped');
+    });
+
     it('opens one connection per default geo (amer/emea/apac) with geo-scoped URLs', async () => {
       const server = createSocketModeAdapter({ reconnectDelaysMs: [0] }, {
         tokenProvider: { getAppToken: async () => 'app-token' } as any,
