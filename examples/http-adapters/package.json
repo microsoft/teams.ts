@@ -15,13 +15,13 @@
     "@hono/node-server": "^2.1.5",
     "@microsoft/teams.apps": "*",
     "express": "^5.3.0",
-    "hono": "^4.13.14",
+    "hono": "^4.13.16",
     "restify": "^12.1.0"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
     "@types/express": "^5.0.0",
-    "@types/node": "^26.6.5",
+    "@types/node": "^26.6.6",
     "@types/restify": "^8.5.12",
     "dotenv": "^18.0.9",
     "tsx": "^4.23.15",

@@ -16,8 +16,8 @@
     "build:bundle:visualize": "npx vite-bundle-visualizer"
   },
   "dependencies": {
-    "@fluentui/react-components": "^9.74.11",
-    "@fluentui/react-icons": "^2.0.344",
+    "@fluentui/react-components": "^9.75.0",
+    "@fluentui/react-icons": "^2.0.345",
     "@microsoft/teams.api": "*",
     "@microsoft/teams.cards": "*",
     "@microsoft/teams.common": "*",
@@ -30,7 +30,7 @@
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-markdown": "^10.0.0",
-    "react-router": "^8.5.0",
+    "react-router": "^8.5.1",
     "remark-breaks": "^4.0.0",
     "zustand": "^5.0.16"
   },
@@ -38,7 +38,7 @@
     "@eslint/js": "^9.39.5",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.3.0",
-    "@vitejs/plugin-react": "^6.1.2",
+    "@vitejs/plugin-react": "^6.2.0",
     "eslint": "^9.19.0",
     "eslint-plugin-react-compiler": "^19.0.0-beta-ebf51a3-20250411",
     "eslint-plugin-react-hooks": "^5.0.0",
