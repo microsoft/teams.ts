@@ -90,7 +90,7 @@ describe('SocketModeAdapter (through App)', () => {
     const app = createTestApp({
       logger: new ConsoleLogger('test', { level: 'error' }),
       clientId: 'bot1',
-      socketMode: { geos: [''] },
+      socketMode: { geos: ['amer'] },
     });
     configureSocketModeForTest(app.socketMode!, { startupTimeoutMs: 0 });
 
@@ -98,14 +98,12 @@ describe('SocketModeAdapter (through App)', () => {
     expect(app.socketMode?.status).toBe('stopped');
   });
 
-  it('rejects sovereign clouds even when a custom negotiate endpoint is supplied', () => {
+  it('rejects sovereign clouds', () => {
     expect(() =>
       createTestApp({
         cloud: US_GOV,
         clientId: 'bot1',
-        socketMode: {
-          negotiateBaseUrl: 'https://socket.example',
-        },
+        socketMode: true,
       })
     ).toThrow(/supports only regular production clouds/i);
   });

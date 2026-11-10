@@ -1,6 +1,6 @@
 import { Client as HttpClient, ILogger } from '@microsoft/teams.common';
 
-import { redactSocketModeSecrets } from './redact';
+import { sanitizeSocketModeUrl, redactSocketModeSecrets } from './redact';
 import { NegotiateResult } from './types';
 
 /**
@@ -20,9 +20,9 @@ export type NegotiateDeps = {
    */
   readonly getConnectionIdToReplace?: () => string | undefined;
   /**
-   * Abort the negotiate request after this many milliseconds so a bad
-   * `negotiateBaseUrl` (or a hung endpoint) can't leave the caller pending
-   * forever. Defaults to {@link DEFAULT_NEGOTIATE_TIMEOUT_MS}.
+   * Abort the negotiate request after this many milliseconds so a hung endpoint
+   * can't leave the caller pending forever. Defaults to
+   * {@link DEFAULT_NEGOTIATE_TIMEOUT_MS}.
    */
   readonly timeoutMs?: number;
   readonly log?: ILogger;
@@ -143,7 +143,7 @@ export async function negotiate(deps: NegotiateDeps): Promise<NegotiateResult> {
 
   assertSecureNegotiateUrl(deps.negotiateUrl);
 
-  deps.log?.debug(`socket-mode: negotiate POST ${deps.negotiateUrl}`);
+  deps.log?.debug(`socket-mode: negotiate POST ${sanitizeSocketModeUrl(deps.negotiateUrl)}`);
 
   const replacesConnectionId = deps.getConnectionIdToReplace?.();
   const res = await deps.client.post<Partial<NegotiateResult>>(
