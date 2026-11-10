@@ -54,7 +54,7 @@ export type SocketModeOptions = {
    * Omitted or empty lists default to `['amer', 'emea', 'apac']`. Every listed
    * geo must connect for `App.start()` to succeed; each is then supervised
    * independently, so one geo dropping never affects delivery on the others.
-   *  They must be non-empty and unique.
+   * Geo values must be non-empty and case-insensitively unique.
    *
    * @default ['amer', 'emea', 'apac']
    */

@@ -749,8 +749,8 @@ describe('SocketModeAdapter resilience', () => {
       expect(connState.connections).toHaveLength(0);
     });
 
-    it('rejects duplicate geos before entering connecting state', async () => {
-      const server = createSocketModeAdapter({ geos: ['amer', 'amer'] }, {
+    it('rejects case-insensitive duplicate geos before entering connecting state', async () => {
+      const server = createSocketModeAdapter({ geos: ['amer', 'AMER'] }, {
         tokenProvider: { getAppToken: async () => 'app-token' } as any,
         messagingEndpoint: MESSAGING_ENDPOINT,
         logger: new ConsoleLogger('test', { level: 'error' }),
