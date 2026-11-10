@@ -433,7 +433,7 @@ export class SocketModeAdapter implements IHttpServerAdapter {
         throw new Error(`socketMode.geos[${index}] must not be empty.`);
       }
     });
-    if (new Set(geos).size !== geos.length) {
+    if (new Set(geos.map((geo) => geo.toLowerCase())).size !== geos.length) {
       throw new Error('socketMode.geos must not contain duplicates.');
     }
     return geos;
