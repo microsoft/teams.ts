@@ -660,23 +660,6 @@ describe('SocketModeAdapter resilience', () => {
   });
 
   describe('multi-geo', () => {
-    it.each([
-      ['amer', 'https://amer.botapi.skype.com/v3/websockets/connect'],
-      ['emea', 'https://emea.botapi.skype.com/v3/websockets/connect'],
-      ['apac', 'https://apac.botapi.skype.com/v3/websockets/connect'],
-      ['eur', 'https://eur.botapi.skype.com/v3/websockets/connect'],
-      ['AMER', 'https://AMER.botapi.skype.com/v3/websockets/connect'],
-      ['amer.amer', 'https://amer.amer.botapi.skype.com/v3/websockets/connect'],
-    ])('resolves the public negotiate URL for %s', (geo, expectedUrl) => {
-      const server = createSocketModeAdapter({ geos: [geo] }, {
-        tokenProvider: { getAppToken: async () => 'app-token' } as any,
-        messagingEndpoint: MESSAGING_ENDPOINT,
-        logger: new ConsoleLogger('test', { level: 'error' }),
-      });
-
-      expect(server.negotiateUrl).toBe(expectedUrl);
-    });
-
     it('uses custom geo values exactly as supplied for transport URLs', async () => {
       const server = createSocketModeAdapter({ geos: ['eur', 'AMER', 'amer.amer'] }, {
         tokenProvider: { getAppToken: async () => 'app-token' } as any,

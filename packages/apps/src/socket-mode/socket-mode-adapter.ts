@@ -227,16 +227,6 @@ export class SocketModeAdapter implements IHttpServerAdapter {
   }
 
   /**
-   * Resolved negotiate URL for the first geo
-   * (`https://{geo}.botapi.skype.com/v3/websockets/connect`).
-   * Primarily for diagnostics; each geo has its own URL.
-   */
-  get negotiateUrl(): string {
-    const geos = this.resolveGeos();
-    return buildNegotiateUrl(geos[0] ?? '');
-  }
-
-  /**
    * {@link IHttpServerAdapter} route registration. The owning {@link HttpServer}
    * registers its inbound-activity route here as part of normal server
    * initialization. Socket Mode dispatches through its internal app callback, so
