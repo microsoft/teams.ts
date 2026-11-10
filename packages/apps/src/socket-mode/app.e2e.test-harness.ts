@@ -167,14 +167,13 @@ export function createSocketTestApp(
     socketMode?: boolean | (SocketModeOptions & SocketModeTestSettings);
   } = {}
 ): App {
-  const { socketMode = { geos: [''] }, ...appOptions } = options;
-  const { geos, negotiateBaseUrl, ...settings } =
-    typeof socketMode === 'object' ? socketMode : {};
+  const { socketMode = { geos: ['amer'] }, ...appOptions } = options;
+  const { geos, ...settings } = typeof socketMode === 'object' ? socketMode : {};
   const app = createTestApp({
     clientId: 'bot1',
     logger: quietLogger(),
     ...appOptions,
-    socketMode: typeof socketMode === 'object' ? { geos, negotiateBaseUrl } : socketMode,
+    socketMode: typeof socketMode === 'object' ? { geos } : socketMode,
   });
   if (app.socketMode) configureSocketModeForTest(app.socketMode, settings);
   return app;

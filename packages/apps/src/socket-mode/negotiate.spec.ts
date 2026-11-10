@@ -97,6 +97,31 @@ describe('socket-mode negotiate', () => {
     expect(diagnostics).toContain('[REDACTED]');
   });
 
+  it('sanitizes the negotiate URL in diagnostics without changing the request URL', async () => {
+    const originalUrl =
+      'https://diagnostic-user:diagnostic-pass@apx.example/v3/websockets/connect?sig=query-secret#fragment-secret';
+    const log = {
+      debug: jest.fn(),
+    };
+    post.mockResolvedValue(
+      httpResponse({ url: 'wss://sr/hub', accessToken: 'sr-token', expiresIn: 3600 })
+    );
+
+    await negotiate({
+      ...deps(),
+      negotiateUrl: originalUrl,
+      log: log as any,
+    });
+
+    const diagnostics = log.debug.mock.calls.flat().join(' ');
+    expect(diagnostics).not.toContain('diagnostic-user');
+    expect(diagnostics).not.toContain('diagnostic-pass');
+    expect(diagnostics).not.toContain('query-secret');
+    expect(diagnostics).not.toContain('fragment-secret');
+    expect(diagnostics).toContain('https://apx.example/v3/websockets/connect');
+    expect(post.mock.calls[0][0]).toBe(originalUrl);
+  });
+
   it('parses Retry-After (delta-seconds) into NegotiateError.retryAfterMs on a 429', async () => {
     post.mockResolvedValue(
       httpResponse('slow down', 429, {
