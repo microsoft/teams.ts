@@ -1,15 +1,5 @@
 const REDACTED = '[REDACTED]';
 
-/** Removes credentials, query parameters, and fragments from a URL used in diagnostics. */
-export function sanitizeSocketModeUrl(value: string): string {
-  const url = new URL(value);
-  url.username = '';
-  url.password = '';
-  url.search = '';
-  url.hash = '';
-  return url.toString();
-}
-
 /**
  * Removes Socket Mode credentials from diagnostic text before it reaches logs
  * or caller-visible errors.
