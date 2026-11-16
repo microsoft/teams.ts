@@ -21,7 +21,7 @@
     "build:client": "npx vite build --outDir dist/client"
   },
   "dependencies": {
-    "@microsoft/teams-js": "^2.58.0",
+    "@microsoft/teams-js": "^2.59.0",
     "@microsoft/teams.apps": "*",
     "@microsoft/teams.client": "*",
     "@microsoft/teams.common": "*",
@@ -31,14 +31,14 @@
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
-    "@types/node": "^26.6.5",
-    "@vitejs/plugin-react": "^6.1.2",
-    "concurrently": "^10.0.6",
-    "dotenv": "^18.0.9",
-    "rimraf": "^6.0.1",
+    "@types/node": "^26.6.6",
+    "@vitejs/plugin-react": "^6.3.0",
+    "concurrently": "^10.0.7",
+    "dotenv": "^18.0.10",
+    "rimraf": "^6.1.4",
     "tsup": "^8.4.0",
     "tsx": "^4.23.15",
     "typescript": "^5.4.5",
-    "vite": "^8.3.5"
+    "vite": "^8.3.6"
   }
 }
