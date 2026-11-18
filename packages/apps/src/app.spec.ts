@@ -1,4 +1,5 @@
 import { ConfidentialClientApplication } from '@azure/msal-node';
+import axios, { InternalAxiosRequestConfig } from 'axios';
 import jwt from 'jsonwebtoken';
 
 import { CHINA, JsonWebToken, MessageActivity, PUBLIC, US_GOV, US_GOV_DOD, withOverrides } from '@microsoft/teams.api';
@@ -412,14 +413,14 @@ describe('App', () => {
       const mockSend = jest.fn().mockResolvedValue({ id: 'activity-id' });
       jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
 
-      await app.testSend(
+      await app.send(
         'conversation-id',
         { type: 'message', text: 'Hello' },
-        { agenticIdentity }
+        { agenticIdentity, serviceUrl: 'https://custom.service.url/teams' }
       );
 
       const [, ref, options] = mockSend.mock.calls[0];
-      expect(ref.serviceUrl).toBe(app.api.serviceUrl);
+      expect(ref.serviceUrl).toBe('https://custom.service.url/teams');
       expect(options).toEqual({ agenticIdentity });
     });
 
@@ -433,6 +434,105 @@ describe('App', () => {
       await expect(
         app.testSend('conversation-id', { type: 'message', text: 'Hello' })
       ).rejects.toThrow('App has no credentials set up');
+    });
+  });
+
+  describe('proactive service URL', () => {
+    const defaultUrl = 'https://default.service.url/teams';
+    const serviceUrl = 'https://custom.service.url/teams';
+    let app: App;
+    let adapter: jest.Mock;
+
+    beforeEach(() => {
+      adapter = jest.fn(async (config: InternalAxiosRequestConfig) => ({
+        config, headers: {}, status: 200, statusText: 'OK',
+        data: { id: 'activity-id' },
+      }));
+      jest.replaceProperty(axios.defaults, 'adapter', adapter);
+      app = new App({
+        httpServerAdapter: new TestAdapter(),
+        clientId: 'test-client-id',
+        serviceUrl: defaultUrl,
+      });
+      jest.spyOn(app.tokenProvider, 'getAppToken').mockResolvedValue(null);
+    });
+
+    afterEach(async () => {
+      await app.stop();
+      jest.restoreAllMocks();
+    });
+
+    it('sends and updates through the scoped client without adding serviceUrl to the payload', async () => {
+      await app.send('conversation-id', 'Hello', { serviceUrl });
+      await app.send('conversation-id', new MessageActivity('Updated').withId('existing-id'), { serviceUrl });
+
+      expect(adapter).toHaveBeenCalledTimes(2);
+      expect(adapter.mock.calls[0][0]).toMatchObject({
+        method: 'post',
+        url: `${serviceUrl}/v3/conversations/conversation-id/activities`,
+      });
+      expect(adapter.mock.calls[1][0]).toMatchObject({
+        method: 'put',
+        url: `${serviceUrl}/v3/conversations/conversation-id/activities/existing-id`,
+      });
+      for (const [config] of adapter.mock.calls) {
+        expect(JSON.parse(config.data)).not.toHaveProperty('serviceUrl');
+      }
+    });
+
+    it('uses the override for threaded and legacy replies without confusing string activities with message IDs', async () => {
+      await app.reply('conversation-id', 'root-id', 'Threaded', { serviceUrl });
+      await app.reply('conversation-id', 'Legacy string', { serviceUrl });
+
+      expect(adapter.mock.calls.map(([config]) => ({
+        method: config.method,
+        url: config.url,
+        text: JSON.parse(config.data).text,
+      }))).toEqual([
+        { method: 'post', url: `${serviceUrl}/v3/conversations/conversation-id/replyChains/root-id`, text: 'Threaded' },
+        { method: 'post', url: `${serviceUrl}/v3/conversations/conversation-id/activities`, text: 'Legacy string' },
+      ]);
+    });
+
+    it.each([undefined, { serviceUrl: undefined }])('preserves the configured fallback with options %j', async (options) => {
+      await app.send('conversation-id', 'Send', options);
+      await app.reply('conversation-id', 'root-id', 'Threaded', options);
+      await app.reply('conversation-id', 'Legacy', options);
+
+      expect(adapter.mock.calls.map(([config]) => config.url)).toEqual([
+        `${defaultUrl}/v3/conversations/conversation-id/activities`,
+        `${defaultUrl}/v3/conversations/conversation-id/replyChains/root-id`,
+        `${defaultUrl}/v3/conversations/conversation-id/activities`,
+      ]);
+    });
+
+    it('isolates overlapping overrides and subsequent calls using the configured URL', async () => {
+      let releaseFirst!: () => void;
+      const firstPending = new Promise<void>((resolve) => { releaseFirst = resolve; });
+      let firstStarted!: () => void;
+      const started = new Promise<void>((resolve) => { firstStarted = resolve; });
+      adapter.mockImplementationOnce(async (config: InternalAxiosRequestConfig) => {
+        firstStarted();
+        await firstPending;
+        return { config, headers: {}, status: 200, statusText: 'OK', data: { id: 'first-id' } };
+      });
+
+      const first = app.send('conversation-id', 'First', { serviceUrl });
+      await started;
+      try {
+        await app.send('conversation-id', 'Second', { serviceUrl: 'https://other.service.url/teams' });
+        await app.send('conversation-id', 'Default');
+
+        expect(adapter.mock.calls.map(([config]) => config.url)).toEqual([
+          `${serviceUrl}/v3/conversations/conversation-id/activities`,
+          'https://other.service.url/teams/v3/conversations/conversation-id/activities',
+          `${defaultUrl}/v3/conversations/conversation-id/activities`,
+        ]);
+        expect(app.api.serviceUrl).toBe(defaultUrl);
+      } finally {
+        releaseFirst();
+        await first;
+      }
     });
   });
 
@@ -789,9 +889,13 @@ describe('App', () => {
       jest.spyOn(app.testActivitySender, 'send').mockImplementation(mockSend);
       const agenticIdentity = { agenticAppBlueprintId: 'bp', agenticAppId: 'app', agenticUserId: 'user', tenantId: 'tenant' };
 
-      await (app as any).reply('19:abc@thread.skype', '123', { type: 'message', text: 'Hello' }, { agenticIdentity });
+      await app.reply('19:abc@thread.skype', '123', { type: 'message', text: 'Hello' }, {
+        agenticIdentity,
+        serviceUrl: 'https://custom.service.url/teams',
+      });
 
-      const [, , options] = mockSend.mock.calls[0];
+      const [, ref, options] = mockSend.mock.calls[0];
+      expect(ref.serviceUrl).toBe('https://custom.service.url/teams');
       expect(options).toEqual({ agenticIdentity, replyChainId: '123' });
     });
 

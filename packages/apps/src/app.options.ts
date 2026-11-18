@@ -24,6 +24,13 @@ import type { IPlugin } from './types';
  */
 export type AppSendOptions = {
   /**
+   * Teams backend service URL to use for this proactive send or reply only.
+   * Omit or use `undefined` to use the app's configured service URL.
+   * Does not change the app's API client or the URL used by other calls.
+   */
+  readonly serviceUrl?: string;
+
+  /**
    * Agentic identity scope to use when acquiring tokens for this send.
    */
   readonly agenticIdentity?: AgenticIdentity;

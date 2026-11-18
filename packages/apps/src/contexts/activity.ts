@@ -251,7 +251,7 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
    * @param conversationRef conversation reference to send to
    * @deprecated Passing a `DeprecatedInputActivity` is deprecated. Use MessageActivityInput or TypingActivityInput instead.
    * Passing a conversation reference is also deprecated and will be removed in a future release. Use `App.send()` to send to a different conversation.
-   * `App.send()` sends through the `serviceUrl` the app is configured with, unlike the context methods, which use the `serviceUrl` of the conversation reference (by default, the inbound activity's).
+   * `App.send()` uses `options.serviceUrl` or the app's configured URL. Context methods use the conversation reference's `serviceUrl` (by default, the inbound activity's).
    */
   send(activity: DeprecatedInputActivity, conversationRef?: ConversationReference): Promise<SentActivity>;
   /**
@@ -259,7 +259,7 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
    * @param activity activity to send
    * @param conversationRef conversation reference to send to
    * @deprecated Passing a conversation reference is deprecated and will be removed in a future release. Use `App.send()` to send to a different conversation.
-   * `App.send()` sends through the `serviceUrl` the app is configured with, unlike the context methods, which use the `serviceUrl` of the conversation reference (by default, the inbound activity's).
+   * `App.send()` uses `options.serviceUrl` or the app's configured URL. Context methods use the conversation reference's `serviceUrl` (by default, the inbound activity's).
    */
   send(activity: ActivityLike, conversationRef?: ConversationReference): Promise<SentActivity>;
   /**
@@ -267,7 +267,7 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
    * @param activity activity to send
    * @param conversationRef conversation reference to send to
    * @deprecated Passing a conversation reference is deprecated and will be removed in a future release. Use `App.send()` to send to a different conversation.
-   * `App.send()` sends through the `serviceUrl` the app is configured with, unlike the context methods, which use the `serviceUrl` of the conversation reference (by default, the inbound activity's).
+   * `App.send()` uses `options.serviceUrl` or the app's configured URL. Context methods use the conversation reference's `serviceUrl` (by default, the inbound activity's).
    */
   send(activity: ActivityLike | DeprecatedInputActivity, conversationRef?: ConversationReference): Promise<SentActivity>;
 
@@ -516,7 +516,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    * @param conversationRef conversation reference to send to
    * @deprecated Passing a `DeprecatedInputActivity` is deprecated. Use MessageActivityInput or TypingActivityInput instead.
    * Passing a conversation reference is also deprecated and will be removed in a future release. Use `App.send()` to send to a different conversation.
-   * `App.send()` sends through the `serviceUrl` the app is configured with, unlike the context methods, which use the `serviceUrl` of the conversation reference (by default, the inbound activity's).
+   * `App.send()` uses `options.serviceUrl` or the app's configured URL. Context methods use the conversation reference's `serviceUrl` (by default, the inbound activity's).
    */
   async send(activity: DeprecatedInputActivity, conversationRef?: ConversationReference): Promise<SentActivity>;
   /**
@@ -525,7 +525,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    * @param activity the activity to send
    * @param conversationRef conversation reference to send to
    * @deprecated Passing a conversation reference is deprecated and will be removed in a future release. Use `App.send()` to send to a different conversation.
-   * `App.send()` sends through the `serviceUrl` the app is configured with, unlike the context methods, which use the `serviceUrl` of the conversation reference (by default, the inbound activity's).
+   * `App.send()` uses `options.serviceUrl` or the app's configured URL. Context methods use the conversation reference's `serviceUrl` (by default, the inbound activity's).
    */
   async send(activity: ActivityLike, conversationRef?: ConversationReference): Promise<SentActivity>;
   /**
@@ -534,7 +534,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    * @param activity the activity to send
    * @param conversationRef conversation reference to send to
    * @deprecated Passing a conversation reference is deprecated and will be removed in a future release. Use `App.send()` to send to a different conversation.
-   * `App.send()` sends through the `serviceUrl` the app is configured with, unlike the context methods, which use the `serviceUrl` of the conversation reference (by default, the inbound activity's).
+   * `App.send()` uses `options.serviceUrl` or the app's configured URL. Context methods use the conversation reference's `serviceUrl` (by default, the inbound activity's).
    */
   async send(activity: ActivityLike | DeprecatedInputActivity, conversationRef?: ConversationReference): Promise<SentActivity>;
   async send(activity: ActivityLike | DeprecatedInputActivity, conversationRef?: ConversationReference) {
