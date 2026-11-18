@@ -503,6 +503,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    *
    * @param conversationId the conversation to send to
    * @param activity the activity to send
+   * @param options per-call service URL and agentic identity overrides; the service URL defaults to the app's configured URL
    */
   async send(conversationId: string, activity: ActivityLike, options?: AppSendOptions): Promise<SentActivity>;
   /**
@@ -513,6 +514,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    *
    * @param conversationId the conversation to send to
    * @param activity the activity to send
+   * @param options per-call service URL and agentic identity overrides; the service URL defaults to the app's configured URL
    */
   async send(
     conversationId: string,
@@ -541,6 +543,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * @param conversationId the id of the chat or channel: `channelData.chat.id` or `channelData.channel.id`, **not** `conversation.id`.
    * @param messageId the id of the message at the root of the reply chain: `channelData.replyChain.id`
    * @param activity the activity to send
+   * @param options per-call service URL and agentic identity overrides; the service URL defaults to the app's configured URL
    * @throws Error when `conversationId` or `messageId` is empty or blank
    * @throws Error when `conversationId` or `messageId` is a dot segment (`.` or `..`)
    */
@@ -555,6 +558,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
    * @param conversationId the id of the chat or channel: `channelData.chat.id` or `channelData.channel.id`, **not** `conversation.id`.
    * @param messageId the id of the message at the root of the reply chain: `channelData.replyChain.id`
    * @param activity the activity to send
+   * @param options per-call service URL and agentic identity overrides; the service URL defaults to the app's configured URL
    * @throws Error when `conversationId` or `messageId` is empty or blank
    * @throws Error when `conversationId` or `messageId` is a dot segment (`.` or `..`)
    */
@@ -913,7 +917,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
 
     const ref: ConversationReference = {
       channelId: 'msteams',
-      serviceUrl: this.api.serviceUrl,
+      serviceUrl: options?.serviceUrl ?? this.api.serviceUrl,
       bot: {
         id: this.id,
         role: 'bot',
