@@ -1159,15 +1159,6 @@ describe('ActivityContext', () => {
           expect(mockSender.send).toHaveBeenCalledWith(expect.objectContaining({ id: 'existing-1' }), ref);
         });
 
-        it('does not place a typing activity', async () => {
-          const ref = refFor('a:encrypted-conversation', 'personal');
-          context = buildActivityContext(replyInChain(), { ref });
-
-          await context.send({ type: 'typing' });
-
-          expect(mockSender.send).toHaveBeenCalledWith(expect.objectContaining({ type: 'typing' }), ref);
-        });
-
         it('does not place a send to a different conversation', async () => {
           const ref = refFor('a:encrypted-conversation', 'personal');
           context = buildActivityContext(replyInChain(), { ref });
@@ -1185,6 +1176,90 @@ describe('ActivityContext', () => {
           await context.send('hi', refFor('a:encrypted-conversation', 'personal'));
 
           expect(lastCall()[2]).toEqual({ replyChainId: 'root-1' });
+        });
+      });
+
+      describe('for a typing activity', () => {
+        const typingInChat = (conversationType: 'personal' | 'groupChat', id: string) => {
+          const conversationId = conversationType === 'personal' ? 'a:encrypted-conversation' : '19:group@thread.v2';
+          const ref = refFor(conversationId, conversationType);
+          context = buildActivityContext(
+            buildInbound({
+              conversationType,
+              conversationId,
+              id,
+              channelData: { chat: { id: chatId }, replyChain: { id: '100' } },
+            }),
+            { ref }
+          );
+          return ref;
+        };
+
+        it.each(['personal', 'groupChat'] as const)('places a typing activity in the reply chain when the inbound in a %s chat is inside a thread', async (conversationType) => {
+          typingInChat(conversationType, '105');
+
+          await context.send({ type: 'typing' });
+
+          const [params, sentRef, options] = lastCall();
+          expect(params.type).toBe('typing');
+          expect(sentRef.conversation.id).toBe(chatId);
+          expect(options).toEqual({ replyChainId: '100' });
+        });
+
+        it('sends a typing activity to the inbound conversation when the inbound is a top-level message in a chat', async () => {
+          const ref = typingInChat('personal', '100');
+
+          await context.send({ type: 'typing' });
+
+          expect(mockSender.send).toHaveBeenCalledWith(expect.objectContaining({ type: 'typing' }), ref);
+          expect(mockSender.send.mock.calls[0]).toHaveLength(2);
+        });
+
+        it('places a typing activity sent with reply like send, without a quote', async () => {
+          typingInChat('personal', '105');
+
+          await context.reply({ type: 'typing' });
+
+          const [params, sentRef, options] = lastCall();
+          expect(params.type).toBe('typing');
+          expect(params.entities).toBeUndefined();
+          expect(sentRef.conversation.id).toBe(chatId);
+          expect(options).toEqual({ replyChainId: '100' });
+        });
+
+        it.each([
+          ['a 404', 404],
+          ['a 400', 400],
+        ])('does not fall back in a chat after %s from the reply chain route', async (_name, status) => {
+          typingInChat('personal', '105');
+          mockSender.send.mockRejectedValueOnce(Object.assign(new Error('Rejected'), { response: { status } }));
+
+          await expect(context.send({ type: 'typing' })).rejects.toThrow('Rejected');
+          expect(mockSender.send).toHaveBeenCalledTimes(1);
+          expect(lastCall()[2]).toEqual({ replyChainId: '100' });
+        });
+
+        it('places a typing activity in the reply chain of a channel thread, and sends to the inbound conversation after a 404', async () => {
+          const suffixed = `${channelId};messageid=100`;
+          const ref = refFor(suffixed, 'channel');
+          context = buildActivityContext(
+            buildInbound({
+              conversationType: 'channel',
+              conversationId: suffixed,
+              id: '105',
+              channelData: { channel: { id: channelId }, replyChain: { id: '100' } },
+            }),
+            { ref }
+          );
+          mockSender.send.mockRejectedValueOnce(Object.assign(new Error('Not Found'), { response: { status: 404 } }));
+
+          await context.send({ type: 'typing' });
+
+          expect(mockSender.send).toHaveBeenCalledTimes(2);
+          const [, firstRef, firstOptions] = mockSender.send.mock.calls[0];
+          expect(firstRef.conversation.id).toBe(channelId);
+          expect(firstOptions).toEqual({ replyChainId: '100' });
+          expect(mockSender.send.mock.calls[1]).toEqual([expect.objectContaining({ type: 'typing' }), ref]);
         });
       });
 
