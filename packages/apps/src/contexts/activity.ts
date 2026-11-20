@@ -24,7 +24,7 @@ import { IFilesAccessor } from '../files/types';
 import { OAuthSignInOptions, startOAuthSignIn } from '../oauth';
 import { Plan } from '../plan';
 import { TurnStateContainer } from '../state';
-import { IStreamer } from '../types';
+import { IStreamer, ReplyMode, ReplyOptions } from '../types';
 import { IActivitySender } from '../types/plugin/sender';
 
 /**
@@ -86,6 +86,13 @@ export interface IActivityContextConstructorArgs {
   getOAuthConnectionStatus?: (
     context: IActivityContext
   ) => Promise<TokenStatus[]>;
+
+  /**
+   * The app's `activity.replyMode` setting, read by `reply` when the call passes no `replyMode`.
+   * @default 'combined'
+   * @internal
+   */
+  replyMode?: ReplyMode;
 }
 
 /**
@@ -276,33 +283,31 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
    */
   reply(activity: DeprecatedInputActivity): Promise<SentActivity>;
   /**
-   * reply to the inbound activity, automatically quoting the inbound message
+   * reply to the inbound activity, quoting it by default
    *
    * In a chat, sends into the reply chain (thread) when the inbound activity is inside one, and at top level otherwise.
    * The inbound activity can be a message, a card action, an invoke, a reaction, an edit or a delete.
    * In a channel, sends into the reply chain of the inbound message.
    * In a channel, when the service answers HTTP 404, sends to the inbound conversation instead.
    * Inbound activities without `channelData.replyChain.id`, and other inbound activities, are not placed, and the activity is sent to the inbound conversation.
-   * The response is automatically quoted only when the inbound activity id is a plain numeric message id.
-   * Otherwise (for example an invoke or a card action with a service-generated `f:` id) the activity is sent without a quote, exactly like {@link send}.
-   * Explicit quotes through {@link quote} are unchanged.
+   * The reply quotes the inbound activity only when that activity can be quoted, so a reply to a card action or another invoke is sent without a quote.
+   * `options.replyMode` overrides the app's `activity.replyMode` setting; in `thread` mode the quote is left out wherever the reply lands in a thread. See {@link ReplyMode}.
    *
-   * @param activity activity to send
+   * @param activity the activity to send
+   * @param options options for this reply
    */
-  reply(activity: ActivityLike): Promise<SentActivity>;
+  reply(activity: ActivityLike, options?: ReplyOptions): Promise<SentActivity>;
   /**
-   * reply to the inbound activity, automatically quoting the inbound message
+   * reply to the inbound activity, quoting it by default
    *
    * In a chat, sends into the reply chain (thread) when the inbound activity is inside one, and at top level otherwise.
    * The inbound activity can be a message, a card action, an invoke, a reaction, an edit or a delete.
    * In a channel, sends into the reply chain of the inbound message.
    * In a channel, when the service answers HTTP 404, sends to the inbound conversation instead.
    * Inbound activities without `channelData.replyChain.id`, and other inbound activities, are not placed, and the activity is sent to the inbound conversation.
-   * The response is automatically quoted only when the inbound activity id is a plain numeric message id.
-   * Otherwise (for example an invoke or a card action with a service-generated `f:` id) the activity is sent without a quote, exactly like {@link send}.
-   * Explicit quotes through {@link quote} are unchanged.
+   * The reply quotes the inbound activity only when that activity can be quoted, so a reply to a card action or another invoke is sent without a quote.
    *
-   * @param activity activity to send
+   * @param activity the activity to send
    */
   reply(activity: ActivityLike | DeprecatedInputActivity): Promise<SentActivity>;
 
@@ -378,6 +383,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   private readonly validateOAuthConnection?: IActivityContextConstructorArgs['validateOAuthConnection'];
   private readonly onOAuthSignInInitiated?: IActivityContextConstructorArgs['onOAuthSignInInitiated'];
   private readonly getOAuthConnectionStatus?: IActivityContextConstructorArgs['getOAuthConnectionStatus'];
+  private readonly replyMode?: ReplyMode;
 
   constructor(value: IBaseActivityContextOptions & IActivityContextConstructorArgs) {
     // Extract activitySender and next before Object.assign to avoid overwriting methods
@@ -387,6 +393,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
       validateOAuthConnection,
       onOAuthSignInInitiated,
       getOAuthConnectionStatus,
+      replyMode,
       filesCredential,
       filesBotApiCredential,
       ...rest
@@ -428,6 +435,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     this.validateOAuthConnection = validateOAuthConnection;
     this.onOAuthSignInInitiated = onOAuthSignInInitiated;
     this.getOAuthConnectionStatus = getOAuthConnectionStatus;
+    this.replyMode = replyMode;
     this.next = next;
     const placement = this.getInboundReplyChainPlacement();
     this.stream = activitySender.createStream(
@@ -579,41 +587,36 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    */
   async reply(activity: DeprecatedInputActivity): Promise<SentActivity>;
   /**
-   * send an activity in the current conversation with a visual quote
-   * of the inbound message.
+   * reply to the inbound activity, quoting it by default
    *
    * In a chat, sends into the reply chain (thread) when the inbound activity is inside one, and at top level otherwise.
    * The inbound activity can be a message, a card action, an invoke, a reaction, an edit or a delete.
    * In a channel, sends into the reply chain of the inbound message.
    * In a channel, when the service answers HTTP 404, sends to the inbound conversation instead.
    * Inbound activities without `channelData.replyChain.id`, and other inbound activities, are not placed, and the activity is sent to the inbound conversation.
-   * The response is automatically quoted only when the inbound activity id is a plain numeric message id.
-   * Otherwise (for example an invoke or a card action with a service-generated `f:` id) the activity is sent without a quote, exactly like {@link send}.
-   * Explicit quotes through {@link quote} are unchanged.
-   * To send without quoting, use {@link send}.
+   * The reply quotes the inbound activity only when that activity can be quoted, so a reply to a card action or another invoke is sent without a quote.
+   * `options.replyMode` overrides the app's `activity.replyMode` setting; in `thread` mode the quote is left out wherever the reply lands in a thread. See {@link ReplyMode}.
    *
    * @param activity the activity to send
+   * @param options options for this reply
    */
-  async reply(activity: ActivityLike): Promise<SentActivity>;
+  async reply(activity: ActivityLike, options?: ReplyOptions): Promise<SentActivity>;
   /**
-   * send an activity in the current conversation with a visual quote
-   * of the inbound message.
+   * reply to the inbound activity, quoting it by default
    *
    * In a chat, sends into the reply chain (thread) when the inbound activity is inside one, and at top level otherwise.
    * The inbound activity can be a message, a card action, an invoke, a reaction, an edit or a delete.
    * In a channel, sends into the reply chain of the inbound message.
    * In a channel, when the service answers HTTP 404, sends to the inbound conversation instead.
    * Inbound activities without `channelData.replyChain.id`, and other inbound activities, are not placed, and the activity is sent to the inbound conversation.
-   * The response is automatically quoted only when the inbound activity id is a plain numeric message id.
-   * Otherwise (for example an invoke or a card action with a service-generated `f:` id) the activity is sent without a quote, exactly like {@link send}.
-   * Explicit quotes through {@link quote} are unchanged.
-   * To send without quoting, use {@link send}.
+   * The reply quotes the inbound activity only when that activity can be quoted, so a reply to a card action or another invoke is sent without a quote.
    *
    * @param activity the activity to send
    */
   async reply(activity: ActivityLike | DeprecatedInputActivity): Promise<SentActivity>;
-  async reply(activity: ActivityLike | DeprecatedInputActivity) {
-    if (isQuotableActivity(this.activity)) {
+  async reply(activity: ActivityLike | DeprecatedInputActivity, options?: ReplyOptions) {
+    const mode = options?.replyMode ?? this.replyMode ?? 'combined';
+    if (isQuotableActivity(this.activity) && !(mode === 'thread' && this.isThreadableInbound())) {
       return this.quote(this.activity.id, activity);
     }
     return this.send(activity);
@@ -797,6 +800,15 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     }
 
     return this.getInboundReplyChainPlacement();
+  }
+
+  /**
+   * Whether a reply to the inbound activity lands in a thread: the inbound carries `channelData.replyChain.id` and either `channelData.channel.id` or `channelData.chat.id`.
+   * `thread` mode leaves the quote out of such replies.
+   */
+  private isThreadableInbound(): boolean {
+    const channelData = this.activity.channelData;
+    return isPresent(channelData?.replyChain?.id) && (isPresent(channelData?.channel?.id) || isPresent(channelData?.chat?.id));
   }
 
   private isSameConversation(conversationRef?: ConversationReference) {

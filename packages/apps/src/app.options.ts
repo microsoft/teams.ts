@@ -17,7 +17,7 @@ import type { IHttpServerAdapter } from './http/adapter';
 import type { OAuthSettings } from './oauth';
 import type { SocketModeOptions } from './socket-mode';
 import type { StateOptions } from './state';
-import type { IPlugin } from './types';
+import type { IPlugin, ReplyMode } from './types';
 
 /**
  * Options for proactive app sends and replies.
@@ -273,7 +273,7 @@ export type AppTelemetryOptions = {
 };
 
 /**
- * Options controlling inbound activity normalization.
+ * Options controlling inbound activity normalization and replies.
  */
 export type AppActivityOptions = {
   /**
@@ -286,4 +286,13 @@ export type AppActivityOptions = {
      */
     readonly stripText?: boolean | StripMentionsTextOptions;
   };
+
+  /**
+   * How the activity context's `reply` places and quotes its response. See {@link ReplyMode}.
+   * A `replyMode` passed to a single `reply` call overrides this setting.
+   * @default 'combined'
+   *
+   * @experimental This API is in preview and may change in the future. Diagnostic: ExperimentalTeamsThreading
+   */
+  readonly replyMode?: ReplyMode;
 };

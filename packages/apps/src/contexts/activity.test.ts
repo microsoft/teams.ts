@@ -15,6 +15,7 @@ import {
 import { Client as HttpClient, ILogger, IStorage } from '@microsoft/teams.common';
 
 import { ApiClient, GraphClient } from '../api';
+import { ReplyMode, ReplyOptions } from '../types';
 
 import {
   ActivityContext,
@@ -1260,6 +1261,144 @@ describe('ActivityContext', () => {
           expect(firstRef.conversation.id).toBe(channelId);
           expect(firstOptions).toEqual({ replyChainId: '100' });
           expect(mockSender.send.mock.calls[1]).toEqual([expect.objectContaining({ type: 'typing' }), ref]);
+        });
+      });
+
+      describe('reply mode', () => {
+        const suffixedChannel = `${channelId};messageid=100`;
+        const shapes: Record<string, () => { inbound: Activity; ref: ConversationReference }> = {
+          'a message inside a chat thread': () => ({
+            inbound: buildInbound({
+              conversationType: 'personal',
+              conversationId: 'a:encrypted-conversation',
+              id: '105',
+              channelData: { chat: { id: chatId }, replyChain: { id: '100' } },
+            }),
+            ref: refFor('a:encrypted-conversation', 'personal'),
+          }),
+          'a top-level chat message': () => ({
+            inbound: buildInbound({
+              conversationType: 'groupChat',
+              conversationId: '19:group@thread.v2',
+              id: '100',
+              channelData: { chat: { id: '19:group@thread.v2' }, replyChain: { id: '100' } },
+            }),
+            ref: refFor('19:group@thread.v2', 'groupChat'),
+          }),
+          'a channel message': () => ({
+            inbound: buildInbound({
+              conversationType: 'channel',
+              conversationId: suffixedChannel,
+              id: '105',
+              channelData: { channel: { id: channelId }, replyChain: { id: '100' } },
+            }),
+            ref: refFor(suffixedChannel, 'channel'),
+          }),
+          'a channel edit': () => ({
+            inbound: {
+              ...buildInbound({
+                conversationType: 'channel',
+                conversationId: suffixedChannel,
+                id: '105',
+                channelData: { channel: { id: channelId }, replyChain: { id: '100' } },
+              }),
+              type: 'messageUpdate',
+            } as unknown as Activity,
+            ref: refFor(suffixedChannel, 'channel'),
+          }),
+        };
+
+        const quoted = () =>
+          (lastCall()[0].entities ?? []).some((entity: { type: string }) => entity.type === 'quotedReply');
+
+        const replyFrom = async (shape: string, replyMode?: unknown, options?: unknown) => {
+          const { inbound, ref } = shapes[shape]();
+          context = buildActivityContext(inbound, { ref, replyMode: replyMode as ReplyMode });
+          await context.reply('hi', options as ReplyOptions);
+        };
+
+        it.each(Object.keys(shapes))('leaves out the quote in thread mode for %s', async (shape) => {
+          await replyFrom(shape, 'thread');
+
+          expect(quoted()).toBe(false);
+        });
+
+        it.each(
+          Object.keys(shapes).flatMap((shape) => [['combined', shape], ['quote', shape]])
+        )('keeps the quote in %s mode for %s', async (mode, shape) => {
+          await replyFrom(shape, mode);
+
+          expect(quoted()).toBe(true);
+        });
+
+        it('still places a thread mode reply inside a chat thread', async () => {
+          await replyFrom('a message inside a chat thread', 'thread');
+
+          const [, sentRef, options] = lastCall();
+          expect(sentRef.conversation.id).toBe(chatId);
+          expect(options).toEqual({ replyChainId: '100' });
+        });
+
+        it('keeps the quote in thread mode for a channel activity without a reply chain id', async () => {
+          const ref = refFor(suffixedChannel, 'channel');
+          context = buildActivityContext(
+            buildInbound({
+              conversationType: 'channel',
+              conversationId: suffixedChannel,
+              id: '105',
+              channelData: { channel: { id: channelId } },
+            }),
+            { ref, replyMode: 'thread' }
+          );
+
+          await context.reply('hi');
+
+          expect(quoted()).toBe(true);
+        });
+
+        it('keeps the quote in thread mode when the inbound has no chat or reply chain id', async () => {
+          const ref = refFor('19:meeting_abc@thread.v2', 'groupChat');
+          context = buildActivityContext(
+            buildInbound({
+              conversationType: 'groupChat',
+              conversationId: '19:meeting_abc@thread.v2',
+              id: '105',
+              channelData: { meeting: { id: 'meeting-1' } },
+            }),
+            { ref, replyMode: 'thread' }
+          );
+
+          await context.reply('hi');
+
+          expect(quoted()).toBe(true);
+          expect(mockSender.send).toHaveBeenCalledWith(expect.anything(), ref);
+        });
+
+        it('lets the per-call reply mode override the app setting', async () => {
+          await replyFrom('a message inside a chat thread', 'quote', { replyMode: 'thread' });
+          expect(quoted()).toBe(false);
+
+          mockSender.send.mockClear();
+          await replyFrom('a message inside a chat thread', 'thread', { replyMode: 'quote' });
+          expect(quoted()).toBe(true);
+        });
+
+        it('uses the app setting when the call passes options without a reply mode', async () => {
+          await replyFrom('a message inside a chat thread', 'thread', {});
+
+          expect(quoted()).toBe(false);
+        });
+
+        it('quotes by default when neither the app nor the call sets a reply mode', async () => {
+          await replyFrom('a message inside a chat thread');
+
+          expect(quoted()).toBe(true);
+        });
+
+        it('treats an unknown reply mode like combined', async () => {
+          await replyFrom('a message inside a chat thread', 'threads');
+
+          expect(quoted()).toBe(true);
         });
       });
 

@@ -289,6 +289,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       log: this.log,
       getId: () => this.id,
       getConnectionName: () => this.oauth.defaultConnectionName,
+      getReplyMode: () => this.options.activity?.replyMode,
       shouldFetchUserToken: () => this.shouldFetchUserToken(),
       validateOAuthConnection: (connectionName, connectionNameProvided) =>
         this.oauthFlowRegistry.validate(connectionName, connectionNameProvided),
