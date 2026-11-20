@@ -19,6 +19,7 @@ import { Client as HttpClient, ILogger, IStorage } from '@microsoft/teams.common
 import { ActivitySender } from './activity-sender';
 import { type ApiClient, GraphClient } from './api';
 import { EventManager } from './app.events';
+import type { AppActivityOptions } from './app.options';
 import { ActivityContext, IActivityContext } from './contexts';
 import {
   agent365BaggageFromActivity,
@@ -42,7 +43,7 @@ import { Router } from './router';
 import type { Route } from './router/route';
 import { IRoutes } from './routes';
 import { TurnStateLoader } from './state';
-import { IActivitySender, IPlugin, RouteHandler } from './types';
+import { IActivitySender, IPlugin, ReplyMode, RouteHandler } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 import { extractTenantId } from './utils';
 
@@ -94,6 +95,10 @@ export interface IActivityProcessorOptions<TPlugin extends IPlugin = IPlugin> {
    * @deprecated Registered OAuth flows own their connection names.
    */
   readonly getConnectionName: () => string;
+  /**
+   * Gets the app's {@link AppActivityOptions.replyMode} setting, passed to each activity context.
+   */
+  readonly getReplyMode: () => ReplyMode | undefined;
   /**
    * Whether to proactively fetch the legacy default-flow token for each inbound
    * activity. The result populates deprecated context OAuth fields.
@@ -303,6 +308,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
         storage: this.options.storage,
         isSignedIn: !!userToken,
         connectionName: this.options.getConnectionName(),
+        replyMode: this.options.getReplyMode(),
         validateOAuthConnection: this.options.validateOAuthConnection,
         onOAuthSignInInitiated: this.options.onOAuthSignInInitiated,
         getOAuthConnectionStatus: this.options.getOAuthConnectionStatus,

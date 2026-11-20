@@ -1933,6 +1933,33 @@ describe('App', () => {
         expect(options).toEqual({ replyChainId: 'root-1' });
       });
 
+      it('applies the app reply mode to ctx.reply', async () => {
+        await app.stop();
+        app = createTestApp({ activity: { replyMode: 'thread' } });
+        await app.start();
+        const send = jest
+          .spyOn(ActivitySender.prototype, 'send')
+          .mockImplementation(async (activity) => ({ id: 'sent-1', ...activity }) as any);
+        app.on('message', async (ctx) => {
+          await ctx.reply('response');
+        });
+
+        await app.process({
+          token,
+          body: inbound({
+            id: '105',
+            conversationId: 'a:encrypted',
+            conversationType: 'personal',
+            channelData: { chat: { id: chatId }, replyChain: { id: '100' } },
+          }),
+        });
+
+        expect(send).toHaveBeenCalledTimes(1);
+        const [params, , options] = send.mock.calls[0] as unknown as [any, any, any];
+        expect(params.entities ?? []).not.toEqual(expect.arrayContaining([expect.objectContaining({ type: 'quotedReply' })]));
+        expect(options).toEqual({ replyChainId: '100' });
+      });
+
       it('sends to the inbound conversation for a top-level message in a chat', async () => {
         const [, ref, options] = await sendFromHandler(
           inbound({

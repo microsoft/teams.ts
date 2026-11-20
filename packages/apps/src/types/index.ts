@@ -2,6 +2,7 @@ export * from './app-events';
 export * from './event-handler';
 export * from './plugin';
 export * from './prefixed';
+export * from './reply-mode';
 export * from './route-handler';
 export * from './streamer';
 export * from './suffixed';
