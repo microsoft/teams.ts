@@ -792,7 +792,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   }
 
   private getChatReplyChainPlacement(params: ActivityParams, conversationRef?: ConversationReference) {
-    if (params.type !== 'message' || params.id || !this.isSameConversation(conversationRef)) {
+    if ((params.type !== 'message' && params.type !== 'typing') || params.id || !this.isSameConversation(conversationRef)) {
       return undefined;
     }
 
