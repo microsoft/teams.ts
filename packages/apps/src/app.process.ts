@@ -2,13 +2,11 @@ import type { Span, SpanAttributes } from '@opentelemetry/api';
 
 import {
   Activity,
-  ActivityLike,
   ApiClientSettings,
   AgenticIdentity,
   Account,
   ChannelID,
   ConversationReference,
-  DeprecatedInputActivity,
   InvokeResponse,
   isInvokeResponse,
   IToken,
@@ -322,19 +320,9 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
       const userId = activity.from?.id;
       const stateLoader = this.options.getStateLoader();
 
-      const send = context.send.bind(context);
-      context.send = async (activity: ActivityLike | DeprecatedInputActivity, conversationRef?: ConversationReference) => {
-        const res = conversationRef
-          ? await send(activity, conversationRef)
-          : await send(activity);
-
-        this.options.eventManager.onActivitySent({
-          ...(conversationRef ?? ref),
-          activity: res,
-        });
-
-        return res;
-      };
+      context.events.on('sent', ({ ref, activity }) => {
+        this.options.eventManager.onActivitySent({ ...ref, activity });
+      });
 
       let planAttached = false;
       const getPlan = context.plan.bind(context);

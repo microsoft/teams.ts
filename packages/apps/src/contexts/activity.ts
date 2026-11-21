@@ -15,7 +15,7 @@ import {
   toActivityParams,
   TypingActivity,
 } from '@microsoft/teams.api';
-import { Client as HttpClient, ILogger, IStorage } from '@microsoft/teams.common';
+import { EventEmitter, Client as HttpClient, ILogger, IStorage } from '@microsoft/teams.common';
 
 import { ApiClient, GraphClient } from '../api';
 import { BotApiCredential, GraphCredential } from '../files/download';
@@ -234,10 +234,12 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
    * In a chat, sends into the reply chain (thread) when the inbound activity is inside one, and at top level otherwise.
    * The inbound activity can be a message, a card action, an invoke, a reaction, an edit or a delete.
    * In a channel, sends into the reply chain of the inbound message.
-   * In a channel, when the service answers HTTP 404, sends to the inbound conversation instead.
    * Inbound activities without `channelData.replyChain.id`, and other inbound activities, are not placed, and the activity is sent to the inbound conversation.
+   * To quote the inbound message, or in a chat start a thread under it, use {@link reply}.
    *
    * @param activity activity to send
+   * @throws Error in chat scope when the service rejects the thread; the activity is not sent elsewhere.
+   * @throws Error in channel scope when the service rejects the activity with a status other than HTTP 404, or the retry after a 404 fails.
    */
   send(activity: ActivityLike): Promise<SentActivity>;
   /**
@@ -246,10 +248,12 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
    * In a chat, sends into the reply chain (thread) when the inbound activity is inside one, and at top level otherwise.
    * The inbound activity can be a message, a card action, an invoke, a reaction, an edit or a delete.
    * In a channel, sends into the reply chain of the inbound message.
-   * In a channel, when the service answers HTTP 404, sends to the inbound conversation instead.
    * Inbound activities without `channelData.replyChain.id`, and other inbound activities, are not placed, and the activity is sent to the inbound conversation.
+   * To quote the inbound message, or in a chat start a thread under it, use {@link reply}.
    *
    * @param activity activity to send
+   * @throws Error in chat scope when the service rejects the thread; the activity is not sent elsewhere.
+   * @throws Error in channel scope when the service rejects the activity with a status other than HTTP 404, or the retry after a 404 fails.
    */
   send(activity: ActivityLike | DeprecatedInputActivity): Promise<SentActivity>;
   /**
@@ -285,29 +289,39 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
   /**
    * reply to the inbound activity, quoting it by default
    *
-   * In a chat, sends into the reply chain (thread) when the inbound activity is inside one, and at top level otherwise.
+   * In a chat, sends into the reply chain (thread) when the inbound activity is inside one.
+   * When the inbound activity is at top level, starts a thread under the message it is about (e.g. the user's message, the message the user reacted to, or the card the user clicked).
+   * If the message cannot be a thread root (e.g. a card button message whose id is not a message id), the reply remains at top level.
    * The inbound activity can be a message, a card action, an invoke, a reaction, an edit or a delete.
    * In a channel, sends into the reply chain of the inbound message.
-   * In a channel, when the service answers HTTP 404, sends to the inbound conversation instead.
-   * Inbound activities without `channelData.replyChain.id`, and other inbound activities, are not placed, and the activity is sent to the inbound conversation.
+   * For inbound activities without `channelData.replyChain.id`, and other inbound activities, the reply is sent to the inbound conversation.
+   * A typing activity never starts a new thread.
    * The reply quotes the inbound activity only when that activity can be quoted, so a reply to a card action or another invoke is sent without a quote.
-   * `options.replyMode` overrides the app's `activity.replyMode` setting; in `thread` mode the quote is left out wherever the reply lands in a thread. See {@link ReplyMode}.
+   * `options.replyMode` overrides the app's `activity.replyMode` setting.
+   * In `thread` mode the quote is left out, and in a chat `quote` mode keeps the reply at the level of the inbound activity. See {@link ReplyMode}.
    *
    * @param activity the activity to send
    * @param options options for this reply
+   * @throws Error in chat scope when the service rejects the thread; the reply is not sent elsewhere.
+   * @throws Error in channel scope when the service rejects the reply with a status other than HTTP 404, or the retry after a 404 fails.
    */
   reply(activity: ActivityLike, options?: ReplyOptions): Promise<SentActivity>;
   /**
    * reply to the inbound activity, quoting it by default
    *
-   * In a chat, sends into the reply chain (thread) when the inbound activity is inside one, and at top level otherwise.
+   * In a chat, sends into the reply chain (thread) when the inbound activity is inside one.
+   * When the inbound activity is at top level, starts a thread under the message it is about (e.g. the user's message, the message the user reacted to, or the card the user clicked).
+   * If the message cannot be a thread root (e.g. a card button message whose id is not a message id), the reply remains at top level.
    * The inbound activity can be a message, a card action, an invoke, a reaction, an edit or a delete.
    * In a channel, sends into the reply chain of the inbound message.
-   * In a channel, when the service answers HTTP 404, sends to the inbound conversation instead.
-   * Inbound activities without `channelData.replyChain.id`, and other inbound activities, are not placed, and the activity is sent to the inbound conversation.
+   * For inbound activities without `channelData.replyChain.id`, and other inbound activities, the reply is sent to the inbound conversation.
+   * A typing activity never starts a new thread.
    * The reply quotes the inbound activity only when that activity can be quoted, so a reply to a card action or another invoke is sent without a quote.
+   * In a chat, setting the app's `activity.replyMode` to `quote` keeps the reply at the level of the inbound activity. See {@link ReplyMode}.
    *
    * @param activity the activity to send
+   * @throws Error in chat scope when the service rejects the thread; the reply is not sent elsewhere.
+   * @throws Error in channel scope when the service rejects the reply with a status other than HTTP 404, or the retry after a 404 fails.
    */
   reply(activity: ActivityLike | DeprecatedInputActivity): Promise<SentActivity>;
 
@@ -355,6 +369,15 @@ export type IActivityContext<T extends Activity = Activity, TExtraContext = unkn
 
 type MessageActivityParams = ActivityParams & Partial<IMessageActivity> & { type: 'message' };
 
+type ReplyChainPlacement = { chatOrChannelId: string; replyChainId: string; inChannel: boolean };
+
+type SendCoreOptions = {
+  /** The conversation to send to, by default the inbound conversation. */
+  conversationRef?: ConversationReference;
+  /** At top level in a chat, start a thread under the origin message (see `canUseOriginAsRoot`). */
+  useOriginAsRoot?: boolean;
+};
+
 export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {} = {}>
   implements IBaseActivityContext<T, TExtraCtx> {
   appId!: string;
@@ -377,6 +400,12 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     context?: IActivityContext
   ) => (void | InvokeResponse) | Promise<void | InvokeResponse>;
   [key: string]: any;
+
+  /**
+   * Emits `sent` once for each activity this context sends with `send`, `reply` or `quote`.
+   * @internal
+   */
+  readonly events: EventEmitter<{ sent: { ref: ConversationReference; activity: SentActivity } }>;
 
   private activitySender: IActivitySender;
   private _plan?: Plan;
@@ -431,6 +460,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     }
 
     Object.assign(this, rest);
+    this.events = new EventEmitter();
     this.activitySender = activitySender;
     this.validateOAuthConnection = validateOAuthConnection;
     this.onOAuthSignInInitiated = onOAuthSignInInitiated;
@@ -497,11 +527,12 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    * In a chat, sends into the reply chain (thread) when the inbound activity is inside one, and at top level otherwise.
    * The inbound activity can be a message, a card action, an invoke, a reaction, an edit or a delete.
    * In a channel, sends into the reply chain of the inbound message.
-   * In a channel, when the service answers HTTP 404, sends to the inbound conversation instead.
    * Inbound activities without `channelData.replyChain.id`, and other inbound activities, are not placed, and the activity is sent to the inbound conversation.
-   * To send with a visual quote of the inbound message, use {@link reply}.
+   * To quote the inbound message, or in a chat start a thread under it, use {@link reply}.
    *
    * @param activity the activity to send
+   * @throws Error in chat scope when the service rejects the thread; the activity is not sent elsewhere.
+   * @throws Error in channel scope when the service rejects the activity with a status other than HTTP 404, or the retry after a 404 fails.
    */
   async send(activity: ActivityLike): Promise<SentActivity>;
   /**
@@ -510,11 +541,12 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    * In a chat, sends into the reply chain (thread) when the inbound activity is inside one, and at top level otherwise.
    * The inbound activity can be a message, a card action, an invoke, a reaction, an edit or a delete.
    * In a channel, sends into the reply chain of the inbound message.
-   * In a channel, when the service answers HTTP 404, sends to the inbound conversation instead.
    * Inbound activities without `channelData.replyChain.id`, and other inbound activities, are not placed, and the activity is sent to the inbound conversation.
-   * To send with a visual quote of the inbound message, use {@link reply}.
+   * To quote the inbound message, or in a chat start a thread under it, use {@link reply}.
    *
    * @param activity the activity to send
+   * @throws Error in chat scope when the service rejects the thread; the activity is not sent elsewhere.
+   * @throws Error in channel scope when the service rejects the activity with a status other than HTTP 404, or the retry after a 404 fails.
    */
   async send(activity: ActivityLike | DeprecatedInputActivity): Promise<SentActivity>;
   /**
@@ -546,40 +578,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    */
   async send(activity: ActivityLike | DeprecatedInputActivity, conversationRef?: ConversationReference): Promise<SentActivity>;
   async send(activity: ActivityLike | DeprecatedInputActivity, conversationRef?: ConversationReference) {
-    const params = toActivityParams(activity);
-
-    if (this.shouldOutboundBeAutoTargeted(params, conversationRef)) {
-      this.applyTargetedRecipient(params);
-    }
-
-    if (this.isTargetedOutbound(params)) {
-      // `targetedMessageInfo` points at the original targeted inbound message for prompt preview.
-      // Do not add it for generic targeted sends; Teams can reject it if the referenced activity
-      // was not itself delivered as a targeted message.
-      // The quote of the inbound message is removed only together with it, so a generic targeted send keeps an explicit quote.
-      if (this.isIncomingTargeted()) {
-        this.stripQuotedReplyMetadata(params);
-        this.addTargetedMessageInfo(params);
-      }
-    }
-
-    const ref = conversationRef ?? this.ref;
-    const placement = this.getChatReplyChainPlacement(params, conversationRef);
-    if (placement) {
-      try {
-        return await this.activitySender.send(
-          params,
-          { ...ref, conversation: { ...ref.conversation, id: placement.chatOrChannelId } },
-          { replyChainId: placement.replyChainId }
-        );
-      } catch (err: any) {
-        if (!placement.inChannel || err?.response?.status !== 404) {
-          throw err;
-        }
-      }
-    }
-
-    return this.activitySender.send(params, ref);
+    return this.sendCore(toActivityParams(activity), { conversationRef });
   }
 
   /**
@@ -589,37 +588,48 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   /**
    * reply to the inbound activity, quoting it by default
    *
-   * In a chat, sends into the reply chain (thread) when the inbound activity is inside one, and at top level otherwise.
+   * In a chat, sends into the reply chain (thread) when the inbound activity is inside one.
+   * When the inbound activity is at top level, starts a thread under the message it is about (e.g. the user's message, the message the user reacted to, or the card the user clicked).
+   * If the message cannot be a thread root (e.g. a card button message whose id is not a message id), the reply remains at top level.
    * The inbound activity can be a message, a card action, an invoke, a reaction, an edit or a delete.
    * In a channel, sends into the reply chain of the inbound message.
-   * In a channel, when the service answers HTTP 404, sends to the inbound conversation instead.
-   * Inbound activities without `channelData.replyChain.id`, and other inbound activities, are not placed, and the activity is sent to the inbound conversation.
+   * For inbound activities without `channelData.replyChain.id`, and other inbound activities, the reply is sent to the inbound conversation.
+   * A typing activity never starts a new thread.
    * The reply quotes the inbound activity only when that activity can be quoted, so a reply to a card action or another invoke is sent without a quote.
-   * `options.replyMode` overrides the app's `activity.replyMode` setting; in `thread` mode the quote is left out wherever the reply lands in a thread. See {@link ReplyMode}.
+   * `options.replyMode` overrides the app's `activity.replyMode` setting.
+   * In `thread` mode the quote is left out, and in a chat `quote` mode keeps the reply at the level of the inbound activity. See {@link ReplyMode}.
    *
    * @param activity the activity to send
    * @param options options for this reply
+   * @throws Error in chat scope when the service rejects the thread; the reply is not sent elsewhere.
+   * @throws Error in channel scope when the service rejects the reply with a status other than HTTP 404, or the retry after a 404 fails.
    */
   async reply(activity: ActivityLike, options?: ReplyOptions): Promise<SentActivity>;
   /**
    * reply to the inbound activity, quoting it by default
    *
-   * In a chat, sends into the reply chain (thread) when the inbound activity is inside one, and at top level otherwise.
+   * In a chat, sends into the reply chain (thread) when the inbound activity is inside one.
+   * When the inbound activity is at top level, starts a thread under the message it is about (e.g. the user's message, the message the user reacted to, or the card the user clicked).
+   * If the message cannot be a thread root (e.g. a card button message whose id is not a message id), the reply remains at top level.
    * The inbound activity can be a message, a card action, an invoke, a reaction, an edit or a delete.
    * In a channel, sends into the reply chain of the inbound message.
-   * In a channel, when the service answers HTTP 404, sends to the inbound conversation instead.
-   * Inbound activities without `channelData.replyChain.id`, and other inbound activities, are not placed, and the activity is sent to the inbound conversation.
+   * For inbound activities without `channelData.replyChain.id`, and other inbound activities, the reply is sent to the inbound conversation.
+   * A typing activity never starts a new thread.
    * The reply quotes the inbound activity only when that activity can be quoted, so a reply to a card action or another invoke is sent without a quote.
+   * In a chat, setting the app's `activity.replyMode` to `quote` keeps the reply at the level of the inbound activity. See {@link ReplyMode}.
    *
    * @param activity the activity to send
+   * @throws Error in chat scope when the service rejects the thread; the reply is not sent elsewhere.
+   * @throws Error in channel scope when the service rejects the reply with a status other than HTTP 404, or the retry after a 404 fails.
    */
   async reply(activity: ActivityLike | DeprecatedInputActivity): Promise<SentActivity>;
   async reply(activity: ActivityLike | DeprecatedInputActivity, options?: ReplyOptions) {
     const mode = options?.replyMode ?? this.replyMode ?? 'combined';
-    if (isQuotableActivity(this.activity) && !(mode === 'thread' && this.isThreadableInbound())) {
-      return this.quote(this.activity.id, activity);
-    }
-    return this.send(activity);
+    const params = toActivityParams(activity);
+    const isMessage = params.type === 'message';
+    const shouldQuote = isMessage && isQuotableActivity(this.activity) && !(mode === 'thread' && this.isThreadableInbound());
+    const toSend = shouldQuote ? this.withQuote(params, this.activity.id) : params;
+    return this.sendCore(toSend, { useOriginAsRoot: isMessage && mode !== 'quote' });
   }
 
   /**
@@ -638,9 +648,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     activity = toActivityParams(activity);
 
     if (activity.type === 'message') {
-      const message = MessageActivityInput.from(activity);
-      message.prependQuote(messageId);
-      return this.send(message);
+      return this.send(this.withQuote(activity, messageId));
     }
 
     return this.send(activity);
@@ -706,6 +714,66 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     };
   }
 
+  /**
+   * Sends an activity for `send`, `reply` and `quote`, and emits `sent` once it is sent.
+   * Applies targeting, then sends to the reply chain from `getChatReplyChainPlacement`, or else to `conversationRef` (by default the inbound conversation).
+   * `useOriginAsRoot` lets a response at top level in a chat start a thread under the origin message.
+   */
+  private async sendCore(
+    params: ActivityParams,
+    { conversationRef, useOriginAsRoot }: SendCoreOptions = {}
+  ): Promise<SentActivity> {
+    if (this.shouldOutboundBeAutoTargeted(params, conversationRef)) {
+      this.applyTargetedRecipient(params);
+    }
+
+    if (this.isTargetedOutbound(params)) {
+      // `targetedMessageInfo` points at the original targeted inbound message for prompt preview.
+      // Do not add it for generic targeted sends; Teams can reject it if the referenced activity
+      // was not itself delivered as a targeted message.
+      // The quote of the inbound message is removed only together with it, so a generic targeted send keeps an explicit quote.
+      if (this.isIncomingTargeted()) {
+        this.stripQuotedReplyMetadata(params);
+        this.addTargetedMessageInfo(params);
+      }
+    }
+
+    const ref = conversationRef ?? this.ref;
+    const placement = this.getChatReplyChainPlacement(params, { conversationRef, useOriginAsRoot });
+    let sent: SentActivity | undefined;
+    if (placement) {
+      try {
+        sent = await this.activitySender.send(
+          params,
+          { ...ref, conversation: { ...ref.conversation, id: placement.chatOrChannelId } },
+          { replyChainId: placement.replyChainId }
+        );
+      } catch (err: any) {
+        if (!placement.inChannel || err?.response?.status !== 404) {
+          throw err;
+        }
+      }
+    }
+
+    if (!sent) {
+      sent = await this.activitySender.send(params, ref);
+    }
+
+    this.events.emit('sent', { ref, activity: sent });
+    return sent;
+  }
+
+  /**
+   * Prepends the quote of `messageId` to a copy of the message, leaving the caller's message unchanged.
+   * @returns a copy of the message with the quote prepended and its own `entities` array
+   */
+  private withQuote(params: Extract<ActivityParams, { type: 'message' }>, messageId: string) {
+    const message = MessageActivityInput.from(params);
+    message.entities = [...(message.entities ?? [])];
+    message.prependQuote(messageId);
+    return message;
+  }
+
   private isIncomingTargeted() {
     return this.activity.recipient?.isTargeted === true;
   }
@@ -735,12 +803,12 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    *
    * In a chat see `isInsideThread` for which activities are inside a thread.
    * The destination is the chat, `channelData.chat.id`.
-   * When the inbound activity is on a top-level message the response is sent as a top-level message.
+   * When the inbound activity is on a top-level message the response is sent as a top-level message, unless `useOriginAsRoot` is set and `canUseOriginAsRoot` is true: then the response starts a thread under the origin message.
    *
    * Placement depends only on the payload: without `channelData.replyChain.id` and the chat or channel id the activity is not placed.
    * Returns undefined when an id is missing or blank, so the send goes to the inbound conversation.
    */
-  private getInboundReplyChainPlacement() {
+  private getInboundReplyChainPlacement({ useOriginAsRoot = false }: Pick<SendCoreOptions, 'useOriginAsRoot'> = {}): ReplyChainPlacement | undefined {
     const channelData = this.activity.channelData;
     const replyChainId = channelData?.replyChain?.id;
     if (!isPresent(replyChainId)) {
@@ -755,51 +823,91 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     }
 
     const chatId = channelData?.chat?.id;
-    return isPresent(chatId) && this.isInsideThread(replyChainId) ? { chatOrChannelId: chatId, replyChainId, inChannel: false } : undefined;
+    return isPresent(chatId) && (this.isInsideThread(replyChainId) || (useOriginAsRoot && this.canUseOriginAsRoot()))
+      ? { chatOrChannelId: chatId, replyChainId, inChannel: false }
+      : undefined;
   }
 
   /**
-   * Whether the inbound activity in a chat is inside a thread: `channelData.replyChain.id` differs from the id of the message the activity acts on.
-   * The message it acts on is:
-   * - `activity.id` for a message, an edit and a delete.
-   * - `replyToId` (the reacted message) for a reaction and for a message sent by a card button (a message with `channelData.source`).
-   * - `value.messagePayload.id` for a message action, and `replyToId` (the message the user acted on, for example a card or a message with feedback buttons) for any other invoke.
+   * Whether the inbound activity in a chat is inside a thread, by activity type:
+   * - `message` (without `channelData.source`), `messageUpdate`, `messageDelete`: the origin message id differs from `channelData.replyChain.id`.
+   * - `messageReaction`, and a `message` with `channelData.source` (e.g. sent by a card button): the origin message id is a plain number that differs from `channelData.replyChain.id`.
+   * - `invoke`: as for a reaction, or always when the invoke is not tied to a message (e.g. a compose-box extension or a `task/fetch` from a bot command).
+   * - Any other type: never.
    *
-   * An invoke that is not tied to a message (for example a compose-box extension or a `task/fetch` from a bot command) is inside a thread when `channelData.replyChain.id` is present.
-   * A `replyToId` or `messagePayload.id` that is not a plain number is never inside a thread, and neither are other inbound activities.
-   * A `source` without a non-empty string `name` and a `replyToId` that is null count as absent.
+   * A plain number excludes ids like a service-generated `f:` id or an encrypted id.
+   * See `getOriginMessageId` for which id is the origin message id.
    */
   private isInsideThread(replyChainId: string): boolean {
     const activity: Activity = this.activity;
-    const isOtherPlainId = (id?: string | null) => !!id && /^\d+$/.test(id) && !/^0+$/.test(id) && id !== replyChainId;
+    const originId = this.getOriginMessageId();
+    const isOtherPlainId = (id?: string) => isPlainMessageId(id) && id !== replyChainId;
 
     switch (activity.type) {
       case 'message':
-        return hasSource(activity.channelData) ? isOtherPlainId(activity.replyToId) : activity.id !== replyChainId;
+        return hasSource(activity.channelData) ? isOtherPlainId(originId) : originId !== replyChainId;
       case 'messageUpdate':
       case 'messageDelete':
-        return activity.id !== replyChainId;
+        return originId !== replyChainId;
       case 'messageReaction':
-        return isOtherPlainId(activity.replyToId);
-      case 'invoke': {
-        const payloadId =
-          typeof activity.value === 'object' && activity.value !== null && 'messagePayload' in activity.value
-            ? activity.value.messagePayload?.id
-            : undefined;
-        const messageId = (typeof payloadId === 'string' ? payloadId : undefined) ?? activity.replyToId;
-        return messageId === undefined || messageId === null ? true : isOtherPlainId(messageId);
-      }
+        return isOtherPlainId(originId);
+      case 'invoke':
+        return originId === undefined ? true : isOtherPlainId(originId);
       default:
         return false;
     }
   }
 
-  private getChatReplyChainPlacement(params: ActivityParams, conversationRef?: ConversationReference) {
+  /**
+   * The id of the message the inbound activity is about (the origin message):
+   * - `activity.id` for a message, an edit and a delete.
+   * - `replyToId` (the reacted message) for a reaction and for a message with `channelData.source` (e.g. sent by a card button).
+   * - `value.messagePayload.id` for a message action, and `replyToId` (the message the user acted on, for example a card or a message with feedback buttons) for any other invoke.
+   *
+   * A `source` without a non-empty string `name` and a `replyToId` that is null count as absent.
+   * @returns the origin message id, or undefined for an invoke that is not tied to a message and for other inbound activities
+   */
+  private getOriginMessageId(): string | undefined {
+    const activity: Activity = this.activity;
+
+    switch (activity.type) {
+      case 'message':
+        return (hasSource(activity.channelData) ? activity.replyToId : activity.id) ?? undefined;
+      case 'messageUpdate':
+      case 'messageDelete':
+        return activity.id;
+      case 'messageReaction':
+        return activity.replyToId ?? undefined;
+      case 'invoke': {
+        const payloadId =
+          typeof activity.value === 'object' && activity.value !== null && 'messagePayload' in activity.value
+            ? activity.value.messagePayload?.id
+            : undefined;
+        return (typeof payloadId === 'string' ? payloadId : undefined) ?? activity.replyToId ?? undefined;
+      }
+      default:
+        return undefined;
+    }
+  }
+
+  /**
+   * Whether a response at top level in a chat can start a thread under the origin message: the origin message id is a plain number equal to `channelData.replyChain.id`.
+   * For a reaction or a card action the origin message is the message the user acted on, not the inbound activity.
+   */
+  private canUseOriginAsRoot(): boolean {
+    const originId = this.getOriginMessageId();
+    return isPlainMessageId(originId) && originId === this.activity.channelData?.replyChain?.id;
+  }
+
+  private getChatReplyChainPlacement(
+    params: ActivityParams,
+    { conversationRef, useOriginAsRoot }: SendCoreOptions = {}
+  ) {
     if ((params.type !== 'message' && params.type !== 'typing') || params.id || !this.isSameConversation(conversationRef)) {
       return undefined;
     }
 
-    return this.getInboundReplyChainPlacement();
+    return this.getInboundReplyChainPlacement({ useOriginAsRoot });
   }
 
   /**
@@ -860,7 +968,12 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
  * The check looks only at the shape of the id and does not verify that the message exists.
  */
 function isQuotableActivity(activity: Activity): boolean {
-  return !!activity.id && /^\d+$/.test(activity.id) && !/^0+$/.test(activity.id);
+  return isPlainMessageId(activity.id);
+}
+
+// A plain numeric message id that is not all zeros.
+function isPlainMessageId(id: string | undefined): id is string {
+  return !!id && /^\d+$/.test(id) && !/^0+$/.test(id);
 }
 
 // An absent, null or nameless source means the activity was not sent by a card or a message action.
