@@ -6,9 +6,11 @@ import { type MockedObject } from 'jest-mock';
 import {
   Activity,
   ConversationReference,
+  Entity,
   FILE_DOWNLOAD_INFO_CONTENT_TYPE,
   IMessageActivity,
   MessageActivity,
+  MessageActivityInput,
   TokenExchangeResource,
   TokenPostResource,
 } from '@microsoft/teams.api';
@@ -232,6 +234,24 @@ describe('ActivityContext', () => {
 
       const sentActivity = (mockSender.send as jest.Mock).mock.calls[0][0];
       expect(sentActivity.entities).toBeUndefined();
+    });
+
+    it.each(['reply', 'quote'] as const)('does not add the quote to the entities of the message passed to %s', async (method) => {
+      context = buildActivityContext(buildIncomingMessageActivity('Hello world', '1793257586722'));
+      const message = new MessageActivityInput('What is up?').addEntity({ type: 'clientInfo' } as Entity);
+
+      if (method === 'reply') {
+        await context.reply(message);
+      } else {
+        await context.quote('1793257586722', message);
+      }
+
+      expect(message.entities).toEqual([{ type: 'clientInfo' }]);
+      expect(message.text).toBe('What is up?');
+      expect(mockSender.send.mock.calls[0][0].entities).toEqual([
+        { type: 'clientInfo' },
+        { type: 'quotedReply', quotedReply: { messageId: '1793257586722' } },
+      ]);
     });
 
     describe('quotability of the inbound activity', () => {
@@ -894,6 +914,26 @@ describe('ActivityContext', () => {
           expect(mockSender.send).toHaveBeenCalledTimes(1);
         });
 
+        it.each(['send', 'reply'] as const)('throws the error of the retry when ctx.%s retries after a 404 and the retry fails', async (method) => {
+          const ref = refFor(suffixed, 'channel');
+          context = buildActivityContext(
+            buildInbound({
+              conversationType: 'channel',
+              conversationId: suffixed,
+              id: 'reply-2',
+              channelData: { channel: { id: channelId }, replyChain: { id: 'root-1' } },
+            }),
+            { ref }
+          );
+          mockSender.send
+            .mockRejectedValueOnce(Object.assign(new Error('Not Found'), { response: { status: 404 } }))
+            .mockRejectedValueOnce(Object.assign(new Error('Retry failed'), { response: { status: 500 } }));
+
+          await expect(context[method]('hi')).rejects.toThrow('Retry failed');
+          expect(mockSender.send).toHaveBeenCalledTimes(2);
+          expect(mockSender.send.mock.calls[1]).toEqual([expect.anything(), ref]);
+        });
+
         it('keeps sending to the inbound conversation for a channel reply with no channel id', async () => {
           const ref = refFor(suffixed, 'channel');
           context = buildActivityContext(
@@ -1374,6 +1414,39 @@ describe('ActivityContext', () => {
           expect(mockSender.send).toHaveBeenCalledWith(expect.anything(), ref);
         });
 
+        it('reads only channelData to decide the quote: a channel payload with a blank channel id and no chat id keeps it in thread mode', async () => {
+          const ref = refFor(suffixedChannel, 'channel');
+          context = buildActivityContext(
+            buildInbound({
+              conversationType: 'channel',
+              conversationId: suffixedChannel,
+              id: '105',
+              channelData: { channel: { id: '  ' }, replyChain: { id: '100' } },
+            }),
+            { ref, replyMode: 'thread' }
+          );
+
+          await context.reply('hi');
+
+          expect(quoted()).toBe(true);
+        });
+
+        it('reads only channelData to decide the quote: a payload with channel and reply chain ids but no conversation type drops it in thread mode', async () => {
+          const ref = refFor(suffixedChannel, 'channel');
+          const inbound = buildInbound({
+            conversationType: 'channel',
+            conversationId: suffixedChannel,
+            id: '105',
+            channelData: { channel: { id: channelId }, replyChain: { id: '100' } },
+          });
+          delete (inbound.conversation as { conversationType?: string }).conversationType;
+          context = buildActivityContext(inbound, { ref, replyMode: 'thread' });
+
+          await context.reply('hi');
+
+          expect(quoted()).toBe(false);
+        });
+
         it('lets the per-call reply mode override the app setting', async () => {
           await replyFrom('a message inside a chat thread', 'quote', { replyMode: 'thread' });
           expect(quoted()).toBe(false);
@@ -1399,6 +1472,242 @@ describe('ActivityContext', () => {
           await replyFrom('a message inside a chat thread', 'threads');
 
           expect(quoted()).toBe(true);
+        });
+      });
+
+      describe('the sent event', () => {
+        it.each(['send', 'reply'] as const)('emits sent once with the inbound conversation when ctx.%s in a channel retries after a 404', async (method) => {
+          const suffixed = `${channelId};messageid=100`;
+          const ref = refFor(suffixed, 'channel');
+          context = buildActivityContext(
+            buildInbound({
+              conversationType: 'channel',
+              conversationId: suffixed,
+              id: '105',
+              channelData: { channel: { id: channelId }, replyChain: { id: '100' } },
+            }),
+            { ref }
+          );
+          mockSender.send
+            .mockRejectedValueOnce(Object.assign(new Error('Not Found'), { response: { status: 404 } }))
+            .mockResolvedValueOnce({ id: 'sent-1' });
+          const sent = jest.fn();
+          context.events.on('sent', sent);
+
+          await context[method]('hi');
+
+          expect(mockSender.send).toHaveBeenCalledTimes(2);
+          expect(sent).toHaveBeenCalledTimes(1);
+          expect(sent).toHaveBeenCalledWith({ ref, activity: { id: 'sent-1' } });
+        });
+
+        it('does not emit sent when the send throws', async () => {
+          const ref = refFor('a:encrypted-conversation', 'personal');
+          context = buildActivityContext(
+            buildInbound({
+              conversationType: 'personal',
+              conversationId: 'a:encrypted-conversation',
+              id: '105',
+              channelData: { chat: { id: chatId }, replyChain: { id: '100' } },
+            }),
+            { ref }
+          );
+          mockSender.send.mockRejectedValueOnce(Object.assign(new Error('Rejected'), { response: { status: 400 } }));
+          const sent = jest.fn();
+          context.events.on('sent', sent);
+
+          await expect(context.reply('hi')).rejects.toThrow('Rejected');
+          expect(sent).not.toHaveBeenCalled();
+        });
+      });
+
+      describe('replies at top level in a chat', () => {
+        const groupId = '19:group@thread.v2';
+        const fromCard = { source: { name: 'message' } };
+        type OriginShape = { type: string; id?: string; replyToId?: string; value?: unknown; extra?: Record<string, unknown> };
+
+        const topLevel = (
+          conversationType: 'personal' | 'groupChat',
+          shape: OriginShape
+        ) => {
+          const conversationId = conversationType === 'personal' ? 'a:encrypted-conversation' : groupId;
+          const destination = conversationType === 'personal' ? chatId : groupId;
+          const activity = {
+            type: shape.type,
+            id: shape.id ?? 'f:client-id',
+            replyToId: shape.replyToId,
+            value: shape.value,
+            text: 'Hello world',
+            channelId: 'test-channel',
+            from: { id: 'test-user', name: 'Test User', role: 'user' },
+            recipient: { id: 'bot-id', name: 'Bot', role: 'bot' },
+            conversation: { id: conversationId, conversationType, isGroup: conversationType === 'groupChat' },
+            channelData: { chat: { id: destination }, replyChain: { id: '100' }, ...shape.extra },
+          } as unknown as Activity;
+          return { activity, ref: refFor(conversationId, conversationType), destination };
+        };
+
+        const origins: Array<[string, OriginShape]> = [
+          ['a message', { type: 'message', id: '100' }],
+          ['a messageBack or Action.Submit message', { type: 'message', replyToId: '100', extra: fromCard }],
+          ['an adaptiveCard/action invoke', { type: 'invoke', replyToId: '100' }],
+          ['a message action invoke', { type: 'invoke', value: { messagePayload: { id: '100' } } }],
+          ['a reaction', { type: 'messageReaction', id: 'f:9f78d1f3', replyToId: '100' }],
+          ['an edit', { type: 'messageUpdate', id: '100' }],
+          ['a delete', { type: 'messageDelete', id: '100' }],
+        ];
+        const cases = (['personal', 'groupChat'] as const).flatMap((conversationType) =>
+          origins.map(([name, shape]) => [name, conversationType, shape] as const)
+        );
+
+        const replyAtTopLevel = async (
+          conversationType: 'personal' | 'groupChat',
+          shape: OriginShape,
+          replyMode?: ReplyMode
+        ) => {
+          const { activity, ref, destination } = topLevel(conversationType, shape);
+          context = buildActivityContext(activity, { ref, replyMode });
+          await context.reply('hi');
+          return { ref, destination };
+        };
+
+        it.each(cases)('starts a thread under the origin message for %s in a %s chat by default', async (_name, conversationType, shape) => {
+          const { destination } = await replyAtTopLevel(conversationType, shape);
+
+          const [, sentRef, options] = lastCall();
+          expect(sentRef.conversation.id).toBe(destination);
+          expect(options).toEqual({ replyChainId: '100' });
+        });
+
+        it.each(cases)('starts a thread under the origin message for %s in a %s chat in thread mode', async (_name, conversationType, shape) => {
+          const { destination } = await replyAtTopLevel(conversationType, shape, 'thread');
+
+          const [, sentRef, options] = lastCall();
+          expect(sentRef.conversation.id).toBe(destination);
+          expect(options).toEqual({ replyChainId: '100' });
+        });
+
+        it.each(cases)('keeps the reply at top level for %s in a %s chat in quote mode', async (_name, conversationType, shape) => {
+          const { ref } = await replyAtTopLevel(conversationType, shape, 'quote');
+
+          expect(mockSender.send).toHaveBeenCalledTimes(1);
+          expect(lastCall()).toEqual([expect.anything(), ref]);
+        });
+
+        it('quotes the inbound message in the new thread in combined mode, and leaves the quote out in thread mode', async () => {
+          await replyAtTopLevel('groupChat', { type: 'message', id: '100' }, 'combined');
+          expect(lastCall()[0].text).toBe('<quoted messageId="100"/> hi');
+          expect(lastCall()[2]).toEqual({ replyChainId: '100' });
+
+          mockSender.send.mockClear();
+          await replyAtTopLevel('groupChat', { type: 'message', id: '100' }, 'thread');
+          expect(lastCall()[0].text).toBe('hi');
+          expect(lastCall()[2]).toEqual({ replyChainId: '100' });
+        });
+
+        it.each([
+          ['a card message with an f: replyToId', { type: 'message', replyToId: 'f:7be43fc9', extra: fromCard }],
+          ['a card message without a replyToId', { type: 'message', extra: fromCard }],
+          ['an invoke with an encrypted replyToId', { type: 'invoke', replyToId: '1:abc' }],
+          ['a reaction without a replyToId', { type: 'messageReaction', id: '100' }],
+        ])('keeps the reply at top level when the origin message cannot start a thread: %s', async (_name, shape) => {
+          const { ref } = await replyAtTopLevel('personal', shape);
+
+          expect(lastCall()).toEqual([expect.anything(), ref]);
+        });
+
+        it('keeps the reply at top level when the origin and reply chain ids match but are not message ids', async () => {
+          const { activity, ref } = topLevel('personal', { type: 'invoke', replyToId: 'f:root', extra: { replyChain: { id: 'f:root' } } });
+          context = buildActivityContext(activity, { ref });
+
+          await context.reply('hi');
+
+          expect(lastCall()).toEqual([expect.anything(), ref]);
+        });
+
+        it('does not start a thread for a typing activity sent with reply', async () => {
+          const { activity, ref } = topLevel('personal', { type: 'message', id: '100' });
+          context = buildActivityContext(activity, { ref });
+
+          await context.reply({ type: 'typing' });
+
+          expect(lastCall()).toEqual([expect.objectContaining({ type: 'typing' }), ref]);
+        });
+
+        it('does not start a thread for send, quote, a stream or a plan', async () => {
+          const { activity, ref } = topLevel('groupChat', { type: 'message', id: '100' });
+          mockSender.createStream.mockClear();
+          (mockApiClient as unknown as { fromServiceUrl: jest.Mock }).fromServiceUrl = jest.fn().mockReturnValue({});
+          context = buildActivityContext(activity, { ref });
+
+          await context.send('hi');
+          await context.quote('100', 'hi');
+
+          expect(mockSender.send.mock.calls).toEqual([
+            [expect.anything(), ref],
+            [expect.anything(), ref],
+          ]);
+          expect(mockSender.createStream).toHaveBeenCalledWith(ref, undefined);
+          expect(context.plan().replyChain).toBeUndefined();
+        });
+
+        it('does not start a thread for send when the app reply mode is thread', async () => {
+          const { activity, ref } = topLevel('groupChat', { type: 'message', id: '100' });
+          context = buildActivityContext(activity, { ref, replyMode: 'thread' });
+
+          await context.send('hi');
+
+          expect(mockSender.send.mock.calls).toEqual([[expect.objectContaining({ text: 'hi' }), ref]]);
+        });
+
+        it.each([
+          ['a 404', 404],
+          ['a 400', 400],
+        ])('throws after %s from the reply chain route, without sending to top level', async (_name, status) => {
+          const { activity, ref } = topLevel('groupChat', { type: 'message', id: '100' });
+          context = buildActivityContext(activity, { ref });
+          mockSender.send.mockRejectedValueOnce(Object.assign(new Error('Rejected'), { response: { status } }));
+
+          await expect(context.reply('hi')).rejects.toThrow('Rejected');
+          expect(mockSender.send).toHaveBeenCalledTimes(1);
+          expect(lastCall()[2]).toEqual({ replyChainId: '100' });
+        });
+
+        it('starts a targeted thread reply for a targeted inbound message at top level in a group chat', async () => {
+          const { activity, ref } = topLevel('groupChat', { type: 'message', id: '100' });
+          (activity.recipient as { isTargeted?: boolean }).isTargeted = true;
+          context = buildActivityContext(activity, { ref });
+
+          await context.reply('hi');
+
+          const [params, sentRef, options] = lastCall();
+          expect(params.recipient).toEqual(expect.objectContaining({ id: 'test-user', isTargeted: true }));
+          expect(params.entities).not.toEqual(expect.arrayContaining([expect.objectContaining({ type: 'quotedReply' })]));
+          expect(sentRef.conversation.id).toBe(groupId);
+          expect(options).toEqual({ replyChainId: '100' });
+        });
+
+        it('keeps a targeted reply at top level in quote mode for a targeted inbound message in a group chat', async () => {
+          const { activity, ref } = topLevel('groupChat', { type: 'message', id: '100' });
+          (activity.recipient as { isTargeted?: boolean }).isTargeted = true;
+          context = buildActivityContext(activity, { ref, replyMode: 'quote' });
+
+          await context.reply('hi');
+
+          const [params, sentRef, options] = lastCall();
+          expect(params.recipient).toEqual(expect.objectContaining({ id: 'test-user', isTargeted: true }));
+          expect(params.entities).not.toEqual(expect.arrayContaining([expect.objectContaining({ type: 'quotedReply' })]));
+          expect(sentRef).toBe(ref);
+          expect(options).toBeUndefined();
+        });
+
+        it('treats an unknown reply mode like combined at top level', async () => {
+          const { destination } = await replyAtTopLevel('groupChat', { type: 'message', id: '100' }, 'threads' as ReplyMode);
+
+          const [params, sentRef, options] = lastCall();
+          expect(params.text).toBe('<quoted messageId="100"/> hi');
+          expect(sentRef.conversation.id).toBe(destination);
+          expect(options).toEqual({ replyChainId: '100' });
         });
       });
 

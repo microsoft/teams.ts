@@ -1256,6 +1256,63 @@ describe('App', () => {
       expect(sent.some((e) => e.activity !== undefined)).toBe(true);
     });
 
+    it.each(['send', 'reply', 'quote'] as const)('emits exactly one "activity.sent" event for ctx.%s', async (method) => {
+      const sent: IActivitySentEvent[] = [];
+      app.event('activity.sent', (event) => {
+        sent.push(event);
+      });
+      jest
+        .spyOn(ActivitySender.prototype, 'send')
+        .mockImplementation(async (activity) => ({ ...activity, id: 'sent-1' }) as any);
+
+      app.on('message', async (ctx) => {
+        if (method === 'quote') {
+          await ctx.quote('100', 'response');
+        } else {
+          await ctx[method]('response');
+        }
+      });
+
+      await app.process({ token, body: { ...messageActivity, id: 'inbound-id' } });
+
+      expect(sent).toHaveLength(1);
+      expect(sent[0]).toMatchObject({
+        activityId: 'inbound-id',
+        conversation: messageActivity.conversation,
+        activity: { id: 'sent-1', type: 'message' },
+      });
+    });
+
+    it('emits one "activity.sent" event with the inbound conversation when a reply starts a thread at top level in a chat', async () => {
+      const sent: IActivitySentEvent[] = [];
+      app.event('activity.sent', (event) => {
+        sent.push(event);
+      });
+      const senderSpy = jest
+        .spyOn(ActivitySender.prototype, 'send')
+        .mockImplementation(async (activity) => ({ ...activity, id: 'sent-1' }) as any);
+      const conversation = { id: 'a:encrypted-conversation', conversationType: 'personal', isGroup: false };
+
+      app.on('message', async ({ reply }) => {
+        await reply('response');
+      });
+
+      await app.process({
+        token,
+        body: {
+          ...messageActivity,
+          id: '100',
+          conversation,
+          channelData: { chat: { id: '19:user_bot@unq.gbl.spaces' }, replyChain: { id: '100' } },
+        } as any,
+      });
+
+      expect(senderSpy).toHaveBeenCalledTimes(1);
+      expect(senderSpy.mock.calls[0][2]).toEqual({ replyChainId: '100' });
+      expect(sent).toHaveLength(1);
+      expect(sent[0].conversation).toEqual(conversation);
+    });
+
     it.each([
       ['start', 'start'], ['update', 'continue'], ['stop', 'stop'], ['error', 'error'], ['complete', 'complete'],
     ] as const)('notifies app listeners once when a context Plan calls %s', async (method, operation) => {

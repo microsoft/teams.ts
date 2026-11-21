@@ -290,6 +290,7 @@ export type AppActivityOptions = {
   /**
    * How the activity context's `reply` places and quotes its response. See {@link ReplyMode}.
    * A `replyMode` passed to a single `reply` call overrides this setting.
+   * `quote` quotes the inbound message and matches the reply to the level of that message.
    * @default 'combined'
    *
    * @experimental This API is in preview and may change in the future. Diagnostic: ExperimentalTeamsThreading
