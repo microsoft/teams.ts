@@ -274,7 +274,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         emit: (name, event) => this.events.emit(name as any, event),
       },
     });
-    this.eventManager = new EventManager<TPlugin>(this.events, this.pluginManager.plugins);
+    this.eventManager = new EventManager<TPlugin>(this.events, this.pluginManager.plugins, this.log);
     this.activityProcessor = new ActivityProcessor<TPlugin>({
       router: this.router,
       plugins: this.pluginManager.plugins,
