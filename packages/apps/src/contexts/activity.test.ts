@@ -44,7 +44,7 @@ describe('ActivityContext', () => {
   beforeEach(() => {
     mockSender = {
       createStream: jest.fn().mockReturnValue({ write: jest.fn() }),
-      send: jest.fn(),
+      send: jest.fn().mockResolvedValue({ id: 'sent-1' }),
     };
 
     mockApiClient = {
@@ -499,7 +499,10 @@ describe('ActivityContext', () => {
         conversation: { id: conversationId, conversationType, isGroup: false },
       });
 
-      const lastCall = () => mockSender.send.mock.calls[0];
+      const lastCall = () => {
+        expect(mockSender.send).toHaveBeenCalledTimes(1);
+        return mockSender.send.mock.calls[0];
+      };
 
       it('replies in the reply chain when the inbound is inside one, in a chat', async () => {
         const ref = refFor('a:encrypted-conversation', 'personal');
