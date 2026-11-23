@@ -96,15 +96,16 @@ export async function handleProactiveReaction(
 
 /**
  * Registers handlers for reactions users add to or remove from bot messages.
+ * The thanks is sent with `reply`, so in a chat a reaction to a top-level message gets its answer in a thread under that message.
  */
 export function registerReactionEvents(app: App): void {
-  app.on('messageReaction', async ({ activity, send, log }) => {
+  app.on('messageReaction', async ({ activity, reply, log }) => {
     const reactionActivity = activity as MessageReactionActivity;
 
     for (const reaction of reactionActivity.reactionsAdded || []) {
       const userName = reaction.user?.displayName || 'Someone';
       log.info(`${userName} added a ${reaction.type} reaction`);
-      await send(`Thanks for the ${reaction.type} reaction, ${userName}!`);
+      await reply(`Thanks for the ${reaction.type} reaction, ${userName}!`);
     }
 
     for (const reaction of reactionActivity.reactionsRemoved || []) {
