@@ -36,15 +36,16 @@ app.on('message', async (context) => {
     await context.send(
       '**Interacting with Messages**\n\n' +
       '**Quoting:**\n' +
-      '- `quote reply` - auto-quote your message\n' +
+      '- `quote reply` - auto-quote your message with `replyMode: quote` (stays at the level of your message)\n' +
       '- `quote message` - quote a previously sent message\n' +
       '- `quote add` - compose a quote with the message builder\n' +
       '- `quote batch` - combine multiple quotes\n' +
       '- `quote manual` - combine a quote and text manually\n\n' +
       '**Threading:**\n' +
-      '- `thread reply` - send a reactive, quoted reply (in a channel, in the same thread; in a 1:1 chat, matches the level of your message)\n' +
-      '- `thread send` - send reactively without quoting (in a channel, in the same thread; in a 1:1 chat, matches the level of your message)\n' +
-      '- `thread proactive` - send a proactive reply in a thread on your message\n' +
+      '- `thread reply` - reply with the default reply mode, `combined` (in a chat, starts a thread under your top-level message, quoted)\n' +
+      '- `thread reply unquoted` - reply with `replyMode: thread` (same placement, no quote)\n' +
+      '- `thread send` - send reactively without quoting (in a channel, in the same thread; in a chat, matches the level of your message)\n' +
+      '- `thread proactive` - send a proactive reply in a thread on your message, as a bot does when it replies later\n' +
       '- `thread top-level` - send a new top-level message, outside any reply chain (thread)\n\n' +
       '**Reactions:**\n' +
       '- `reaction add <type>` - add a reaction to your message\n' +
