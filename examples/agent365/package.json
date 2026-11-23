@@ -19,16 +19,16 @@
     "dev:proactive": "tsx -r dotenv/config src/proactive.ts"
   },
   "dependencies": {
-    "@microsoft/opentelemetry": "1.5.0",
+    "@microsoft/opentelemetry": "1.6.0",
     "@microsoft/teams.api": "*",
     "@microsoft/teams.apps": "*",
     "@microsoft/teams.common": "*"
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
-    "@types/node": "^26.6.5",
-    "dotenv": "^18.0.9",
-    "rimraf": "^6.0.1",
+    "@types/node": "^26.6.6",
+    "dotenv": "^18.0.10",
+    "rimraf": "^6.1.4",
     "tsx": "^4.23.15",
     "typescript": "^5.4.5"
   }

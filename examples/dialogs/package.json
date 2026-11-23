@@ -25,9 +25,9 @@
     "@microsoft/teams.cards": "*"
   },
   "devDependencies": {
-    "rimraf": "^6.0.1",
-    "@types/node": "^26.6.5",
-    "dotenv": "^18.0.9",
+    "rimraf": "^6.1.4",
+    "@types/node": "^26.6.6",
+    "dotenv": "^18.0.10",
     "env-cmd": "latest",
     "tsx": "^4.23.15",
     "typescript": "^5.4.5"
