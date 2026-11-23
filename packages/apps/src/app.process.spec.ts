@@ -1256,6 +1256,43 @@ describe('App', () => {
       expect(sent.some((e) => e.activity !== undefined)).toBe(true);
     });
 
+    it.each([
+      ['a listener that throws', () => {
+        throw new Error('listener failed');
+      }],
+      ['an async listener that rejects', async () => {
+        await Promise.resolve();
+        throw new Error('listener failed');
+      }],
+    ])('logs %s on "activity.sent" instead of leaving an unhandled rejection', async (_name, listener) => {
+      const unhandled = jest.fn();
+      process.on('unhandledRejection', unhandled);
+      const logger = { debug: jest.fn(), info: jest.fn(), warn: jest.fn(), error: jest.fn(), trace: jest.fn(), log: jest.fn() } as any;
+      logger.child = jest.fn().mockReturnValue(logger);
+      const logged = createTestApp({ logger });
+      logged.start();
+      logged.event('activity.sent', listener);
+      jest
+        .spyOn(ActivitySender.prototype, 'send')
+        .mockImplementation(async (activity) => ({ ...activity, id: 'sent-1' }) as any);
+      let result: SentActivity | undefined;
+      logged.on('message', async (ctx) => {
+        result = await ctx.send('response');
+      });
+
+      try {
+        await logged.process({ token, body: messageActivity });
+        await new Promise((resolve) => setImmediate(resolve));
+
+        expect(result).toMatchObject({ id: 'sent-1' });
+        expect(logger.error).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ message: 'listener failed' }));
+        expect(unhandled).not.toHaveBeenCalled();
+      } finally {
+        process.off('unhandledRejection', unhandled);
+        logged.stop();
+      }
+    });
+
     it.each(['send', 'reply', 'quote'] as const)('emits exactly one "activity.sent" event for ctx.%s', async (method) => {
       const sent: IActivitySentEvent[] = [];
       app.event('activity.sent', (event) => {

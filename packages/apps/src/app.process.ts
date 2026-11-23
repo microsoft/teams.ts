@@ -35,7 +35,7 @@ import {
   recordTeamsBotHandlerUnmatched,
   recordTeamsBotActivityProcessDuration
 } from './diagnostics/helpers';
-import { IActivityEvent } from './events';
+import { IActivityEvent, IActivitySentEvent } from './events';
 import { selectFilesCredential, selectInlineImageCredential } from './files-credential';
 import { Router } from './router';
 import type { Route } from './router/route';
@@ -321,7 +321,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
       const stateLoader = this.options.getStateLoader();
 
       context.events.on('sent', ({ ref, activity }) => {
-        this.options.eventManager.onActivitySent({ ...ref, activity });
+        this.notifyActivitySent({ ...ref, activity });
       });
 
       let planAttached = false;
@@ -331,7 +331,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
         if (!planAttached) {
           const planRef = structuredClone(context.ref);
           plan.events.on('sent', (activity) => {
-            this.options.eventManager.onActivitySent({ ...structuredClone(planRef), activity });
+            this.notifyActivitySent({ ...structuredClone(planRef), activity });
           });
           planAttached = true;
         }
@@ -339,17 +339,11 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
       };
 
       context.stream.events.on('chunk', (activity) => {
-        this.options.eventManager.onActivitySent({
-          ...ref,
-          activity,
-        });
+        this.notifyActivitySent({ ...ref, activity });
       });
 
       context.stream.events.on('close', (activity) => {
-        this.options.eventManager.onActivitySent({
-          ...ref,
-          activity,
-        });
+        this.notifyActivitySent({ ...ref, activity });
       });
 
       const response = await this.executeTurnLifecycle(
@@ -376,6 +370,16 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
 
       return response;
     }));
+  }
+
+  /**
+   * Notifies plugins and `activity.sent` listeners without delaying the send.
+   * A failing listener is logged, so it cannot become an unhandled rejection.
+   */
+  private notifyActivitySent(event: IActivitySentEvent) {
+    this.options.eventManager.onActivitySent(event).catch((err) => {
+      this.options.log.error('activity.sent handler failed', err);
+    });
   }
 
   private async executeTurnLifecycle(
