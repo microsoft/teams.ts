@@ -62,7 +62,7 @@ export class HandoffAgentExecutor implements AgentExecutor {
       // per-conversation history, so subsequent user replies continue.
       const greeting = await this._agent.greetWithHandoff(newConvId, handoff);
 
-      await this._app.send(newConvId, greeting);
+      await this._app.send(newConvId, greeting, { serviceUrl: handoff.serviceUrl });
       this._log.info(`[${this._config.name}/A2A] proactive greeting sent (conv=${newConvId})`);
 
       this._publishText(

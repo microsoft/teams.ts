@@ -28,7 +28,7 @@ User-A    Alice (LLM)               Bob (A2A executor + LLM)
   |           |   tenantId, serviceUrl,        |   → new 1:1 conv with the user
   |           |   summary)                     |  agent.greetWithHandoff()
   |           |<------- ack -------------------|   → seeds history + greeting
-  |<- "I've handed you to Bob"                 |  app.send(newConvId, greeting)
+  |<- "I've handed you to Bob"                 |  app.send(newConvId, greeting, { serviceUrl })
   |                                            |
   |   (Bob's DM lights up with a new message)  |
   |- reply --->|<- delivered in Bob's DM ------|
@@ -58,7 +58,11 @@ User-A    Alice (LLM)               Bob (A2A executor + LLM)
    user turn, producing a greeting that already answers the question.
    The turn is left in the per-conversation history, so when the user
    replies in their new DM, Bob picks up coherently.
-5. Bob sends the greeting via `app.send(newConvId, greeting)`.
+5. Bob sends the greeting via
+   `app.send(newConvId, greeting, { serviceUrl: handoff.serviceUrl })`.
+   Conversation creation and the greeting use the same service URL from the
+   handoff. The override applies only to this send and does not change the
+   receiving bot's configured service URL.
 
 The bots are symmetric — the same flow runs in reverse from Bob to Alice.
 

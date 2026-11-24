@@ -82,6 +82,24 @@ main().catch(console.error);
 
 See the [HTTP adapter examples](https://github.com/microsoft/teams.ts/tree/main/examples/http-adapters) for framework integration samples.
 
+## Proactive messaging
+
+Pass `serviceUrl` in the existing send or reply options to route an individual
+proactive activity to the Teams backend service URL for its conversation.
+
+```ts
+await app.send(conversationId, 'Proactive notification', { serviceUrl });
+
+// Use channelData.chat.id or channelData.channel.id for chatOrChannelId,
+// and channelData.replyChain.id for rootMessageId.
+await app.reply(chatOrChannelId, rootMessageId, 'Threaded reply', { serviceUrl });
+```
+
+Omitting `serviceUrl` or passing `undefined` uses the app's configured service URL.
+An override affects only that call, including when calls overlap; it does not
+change `app.api.serviceUrl` or remember inbound service URLs. You can combine
+`serviceUrl` with `agenticIdentity` in the same options object.
+
 ## Examples
 
 See the [examples folder](https://github.com/microsoft/teams.ts/tree/main/examples) for agents, tabs, message extensions, proactive messaging, Graph, AI/MCP, A2A, and more.
