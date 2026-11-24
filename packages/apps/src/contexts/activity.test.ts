@@ -1016,7 +1016,7 @@ describe('ActivityContext', () => {
           ['a messageBack or Action.Submit message', { type: 'message', replyToId: '105' }, fromCard],
           ['an adaptiveCard/action invoke', { type: 'invoke', replyToId: '105' }, {}],
           ['a message action invoke', { type: 'invoke', value: { messagePayload: { id: '105' } } }, {}],
-          ['a reaction', { type: 'messageReaction', id: 'f:9f78d1f3', replyToId: '105' }, {}],
+          ['a reaction', { type: 'messageReaction', id: '105', replyToId: '105' }, {}],
           ['an edit', { type: 'messageUpdate', id: '105' }, {}],
           ['a delete', { type: 'messageDelete', id: '105' }, {}],
         ])('replies in the thread for %s on a message inside a thread', async (_name, shape, extra) => {
@@ -1030,7 +1030,7 @@ describe('ActivityContext', () => {
           ['a messageBack or Action.Submit message', { type: 'message', replyToId: '100' }, fromCard],
           ['an adaptiveCard/action invoke', { type: 'invoke', replyToId: '100' }, {}],
           ['a message action invoke', { type: 'invoke', value: { messagePayload: { id: '100' } } }, {}],
-          ['a reaction', { type: 'messageReaction', id: 'f:9f78d1f3', replyToId: '100' }, {}],
+          ['a reaction', { type: 'messageReaction', id: '100', replyToId: '100' }, {}],
           ['an edit', { type: 'messageUpdate', id: '100' }, {}],
           ['a delete', { type: 'messageDelete', id: '100' }, {}],
         ])('sends to the inbound conversation for %s on a top-level message', async (_name, shape, extra) => {
@@ -1047,6 +1047,15 @@ describe('ActivityContext', () => {
 
           expect(result.conversationId).toBe('a:encrypted-conversation');
           expect(result.options).toBeUndefined();
+        });
+
+        it('places a reaction by its replyToId when its own id differs', async () => {
+          const result = await sendFrom(
+            buildShape({ type: 'messageReaction', id: '100', replyToId: '105', channelData: chatChannelData('100') })
+          );
+
+          expect(result.conversationId).toBe(chatId);
+          expect(result.options).toEqual({ replyChainId: '100' });
         });
 
         it('compares a message action with the message payload id, not the reply id', async () => {
@@ -1555,7 +1564,7 @@ describe('ActivityContext', () => {
           ['a messageBack or Action.Submit message', { type: 'message', replyToId: '100', extra: fromCard }],
           ['an adaptiveCard/action invoke', { type: 'invoke', replyToId: '100' }],
           ['a message action invoke', { type: 'invoke', value: { messagePayload: { id: '100' } } }],
-          ['a reaction', { type: 'messageReaction', id: 'f:9f78d1f3', replyToId: '100' }],
+          ['a reaction', { type: 'messageReaction', id: '100', replyToId: '100' }],
           ['an edit', { type: 'messageUpdate', id: '100' }],
           ['a delete', { type: 'messageDelete', id: '100' }],
         ];
@@ -1604,6 +1613,19 @@ describe('ActivityContext', () => {
 
           mockSender.send.mockClear();
           await replyAtTopLevel('groupChat', { type: 'message', id: '100' }, 'thread');
+          expect(lastCall()[0].text).toBe('hi');
+          expect(lastCall()[2]).toEqual({ replyChainId: '100' });
+        });
+
+        it('quotes the reacted message in the new thread for a reaction in combined mode, and leaves the quote out in thread mode', async () => {
+          const reaction: OriginShape = { type: 'messageReaction', id: '100', replyToId: '100' };
+
+          await replyAtTopLevel('groupChat', reaction);
+          expect(lastCall()[0].text).toBe('<quoted messageId="100"/> hi');
+          expect(lastCall()[2]).toEqual({ replyChainId: '100' });
+
+          mockSender.send.mockClear();
+          await replyAtTopLevel('groupChat', reaction, 'thread');
           expect(lastCall()[0].text).toBe('hi');
           expect(lastCall()[2]).toEqual({ replyChainId: '100' });
         });
