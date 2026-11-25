@@ -36,7 +36,7 @@ export interface IActivity<T extends string = string> {
   /**
    * Contains the date and time that the message was sent, in UTC, expressed in ISO-8601 format.
    */
-  timestamp?: Date;
+  timestamp?: string;
 
   /**
    * A locale name for the contents of the text field.
@@ -52,7 +52,7 @@ export interface IActivity<T extends string = string> {
    *
    * For example, 2016-09-23T13:07:49.4714686-07:00.
    */
-  localTimestamp?: Date;
+  localTimestamp?: string;
 
   /**
    * Contains an ID that uniquely identifies the channel. Set by the channel.
@@ -463,7 +463,7 @@ export class Activity<T extends string = string> implements IActivity<T> {
   /**
    * Contains the date and time that the message was sent, in UTC, expressed in ISO-8601 format.
    */
-  timestamp?: Date;
+  timestamp?: string;
 
   /**
    * A locale name for the contents of the text field.
@@ -479,7 +479,7 @@ export class Activity<T extends string = string> implements IActivity<T> {
    *
    * For example, 2016-09-23T13:07:49.4714686-07:00.
    */
-  localTimestamp?: Date;
+  localTimestamp?: string;
 
   /**
    * Contains an ID that uniquely identifies the channel. Set by the channel.
@@ -626,8 +626,13 @@ export class Activity<T extends string = string> implements IActivity<T> {
     return this;
   }
 
-  withTimestamp(value: Date) {
-    this.timestamp = value;
+  /**
+   * Sets the activity timestamp as an ISO-8601 string.
+   *
+   * @deprecated  Use ActivityInput/MessageActivityInput/TypingActivityInput when constructing outbound activities.
+   */
+  withTimestamp(value: Date | string) {
+    this.timestamp = value instanceof Date ? value.toISOString() : value;
     return this;
   }
 
@@ -636,8 +641,13 @@ export class Activity<T extends string = string> implements IActivity<T> {
     return this;
   }
 
-  withLocalTimestamp(value: Date) {
-    this.localTimestamp = value;
+  /**
+   * Sets the activity's local timestamp as an ISO-8601 string.
+   *
+   * @deprecated Use ActivityInput/MessageActivityInput/TypingActivityInput when constructing outbound activities.
+   */
+  withLocalTimestamp(value: Date | string) {
+    this.localTimestamp = value instanceof Date ? value.toISOString() : value;
     return this;
   }
 
