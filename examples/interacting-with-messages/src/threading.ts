@@ -9,14 +9,14 @@ const REPLY_COMMANDS = new Map<string, { replyMode?: ReplyMode; text: string }>(
   }],
   ['thread reply unquoted', {
     replyMode: 'thread',
-    text: 'This reply uses `replyMode: \'thread\'`. It lands in a thread like `combined`, without a quote.',
+    text: 'This reply uses `replyMode: \'thread\'`. It is placed like `combined`, without the quote when it lands in a thread.',
   }],
 ]);
 
 /**
  * Handles the commands that reply to the inbound message in a thread.
  * `thread reply` uses the app's reply mode, `combined` by default: in a chat, a reply to a top-level message starts a thread under it, a reply inside a thread stays in that thread, and the inbound message is quoted.
- * `thread reply unquoted` passes `{ replyMode: 'thread' }`: the same placement, without the quote.
+ * `thread reply unquoted` passes `{ replyMode: 'thread' }`: the same placement, without the quote when the reply lands in a thread.
  * The `quote` mode is shown by the `quote reply` command.
  * In a channel every reply goes in the thread of the inbound message, so the mode only decides the quote.
  * The app-wide default is set with `new App({ activity: { replyMode } })`.

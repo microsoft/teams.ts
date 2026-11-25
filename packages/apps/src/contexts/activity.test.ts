@@ -1391,6 +1391,34 @@ describe('ActivityContext', () => {
           expect(options).toEqual({ replyChainId: '100' });
         });
 
+        it.each([
+          ['a message inside a chat thread', () => chatId],
+          ['a channel message', () => channelId],
+        ])('keeps a quote mode reply in the thread for %s', async (shape, destination) => {
+          await replyFrom(shape, 'quote');
+
+          const [, sentRef, options] = lastCall();
+          expect(sentRef.conversation.id).toBe(destination());
+          expect(options).toEqual({ replyChainId: '100' });
+        });
+
+        it('starts a thread for a top-level chat message when the call passes thread mode over an app set to quote', async () => {
+          await replyFrom('a top-level chat message', 'quote', { replyMode: 'thread' });
+
+          const [, sentRef, options] = lastCall();
+          expect(sentRef.conversation.id).toBe('19:group@thread.v2');
+          expect(options).toEqual({ replyChainId: '100' });
+        });
+
+        it('keeps a top-level chat reply at top level when the call passes quote mode over an app set to thread', async () => {
+          await replyFrom('a top-level chat message', 'thread', { replyMode: 'quote' });
+
+          const [, sentRef, options] = lastCall();
+          expect(sentRef.conversation.id).toBe('19:group@thread.v2');
+          expect(options).toBeUndefined();
+          expect(quoted()).toBe(true);
+        });
+
         it('keeps the quote in thread mode for a channel activity without a reply chain id', async () => {
           const ref = refFor(suffixedChannel, 'channel');
           context = buildActivityContext(
@@ -1443,7 +1471,7 @@ describe('ActivityContext', () => {
           expect(quoted()).toBe(true);
         });
 
-        it('reads only channelData to decide the quote: a payload with channel and reply chain ids but no conversation type drops it in thread mode', async () => {
+        it('keeps the quote in thread mode for a payload with channel and reply chain ids but no conversation type, which is not placed', async () => {
           const ref = refFor(suffixedChannel, 'channel');
           const inbound = buildInbound({
             conversationType: 'channel',
@@ -1456,7 +1484,8 @@ describe('ActivityContext', () => {
 
           await context.reply('hi');
 
-          expect(quoted()).toBe(false);
+          expect(quoted()).toBe(true);
+          expect(lastCall()).toEqual([expect.anything(), ref]);
         });
 
         it('lets the per-call reply mode override the app setting', async () => {
@@ -1639,6 +1668,15 @@ describe('ActivityContext', () => {
           const { ref } = await replyAtTopLevel('personal', shape);
 
           expect(lastCall()).toEqual([expect.anything(), ref]);
+        });
+
+        it('keeps the quote in thread mode when the reply stays at top level because the origin message cannot start a thread', async () => {
+          const { ref } = await replyAtTopLevel('personal', { type: 'messageReaction', id: '100' }, 'thread');
+
+          const [params, sentRef, options] = lastCall();
+          expect(sentRef).toBe(ref);
+          expect(options).toBeUndefined();
+          expect(params.text).toBe('<quoted messageId="100"/> hi');
         });
 
         it('keeps the reply at top level when the origin and reply chain ids match but are not message ids', async () => {

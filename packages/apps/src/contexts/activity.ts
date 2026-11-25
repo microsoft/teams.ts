@@ -298,7 +298,7 @@ export interface IBaseActivityContext<T extends Activity = Activity, TExtraCtx e
    * A typing activity never starts a new thread.
    * The reply quotes the inbound activity only when that activity can be quoted, so a reply to a card action or another invoke is sent without a quote.
    * `options.replyMode` overrides the app's `activity.replyMode` setting.
-   * In `thread` mode the quote is left out, and in a chat `quote` mode keeps the reply at the level of the inbound activity. See {@link ReplyMode}.
+   * In `thread` mode the quote is left out when the reply lands in a thread, and in a chat `quote` mode keeps the reply at the level of the inbound activity. See {@link ReplyMode}.
    *
    * @param activity the activity to send
    * @param options options for this reply
@@ -597,7 +597,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
    * A typing activity never starts a new thread.
    * The reply quotes the inbound activity only when that activity can be quoted, so a reply to a card action or another invoke is sent without a quote.
    * `options.replyMode` overrides the app's `activity.replyMode` setting.
-   * In `thread` mode the quote is left out, and in a chat `quote` mode keeps the reply at the level of the inbound activity. See {@link ReplyMode}.
+   * In `thread` mode the quote is left out when the reply lands in a thread, and in a chat `quote` mode keeps the reply at the level of the inbound activity. See {@link ReplyMode}.
    *
    * @param activity the activity to send
    * @param options options for this reply
@@ -627,7 +627,7 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     const mode = options?.replyMode ?? this.replyMode ?? 'combined';
     const params = toActivityParams(activity);
     const isMessage = params.type === 'message';
-    const shouldQuote = isMessage && isQuotableActivity(this.activity) && !(mode === 'thread' && this.isThreadableInbound());
+    const shouldQuote = isMessage && isQuotableActivity(this.activity) && !(mode === 'thread' && this.isThreadModeReplyThreaded());
     const toSend = shouldQuote ? this.withQuote(params, this.activity.id) : params;
     return this.sendCore(toSend, { useOriginAsRoot: isMessage && mode !== 'quote' });
   }
@@ -911,12 +911,17 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   }
 
   /**
-   * Whether a reply to the inbound activity lands in a thread: the inbound carries `channelData.replyChain.id` and either `channelData.channel.id` or `channelData.chat.id`.
-   * `thread` mode leaves the quote out of such replies.
+   * Whether a `thread` mode reply lands in a thread, so `thread` mode leaves the quote out.
+   * In a channel every reply goes into the thread of the inbound message, through the reply chain or the inbound conversation, so the inbound needs only `channelData.replyChain.id` and `channelData.channel.id` or `channelData.chat.id`.
+   * In a chat the reply must be placed in a reply chain (see `getInboundReplyChainPlacement`).
    */
-  private isThreadableInbound(): boolean {
-    const channelData = this.activity.channelData;
-    return isPresent(channelData?.replyChain?.id) && (isPresent(channelData?.channel?.id) || isPresent(channelData?.chat?.id));
+  private isThreadModeReplyThreaded(): boolean {
+    if (this.activity.conversation?.conversationType === 'channel') {
+      const channelData = this.activity.channelData;
+      return isPresent(channelData?.replyChain?.id) && (isPresent(channelData?.channel?.id) || isPresent(channelData?.chat?.id));
+    }
+
+    return this.getInboundReplyChainPlacement({ useOriginAsRoot: true }) !== undefined;
   }
 
   private isSameConversation(conversationRef?: ConversationReference) {
