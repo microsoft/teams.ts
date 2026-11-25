@@ -24,7 +24,8 @@ import { IActivityEvent } from './events/activity';
 import { Plan } from './plan';
 import { TurnStateContainer } from './state';
 import { createTestApp } from './test-utils';
-import { PlanConflictStreamError, StreamNotAllowedError, TerminalStreamError } from './types';
+import { IPlugin, PlanConflictStreamError, StreamNotAllowedError, TerminalStreamError } from './types';
+import { Plugin } from './types/plugin/decorators';
 
 jest.mock('./diagnostics/helpers', () => ({
   getTeamsBotApplicationTracer: jest.fn(),
@@ -1310,11 +1311,11 @@ describe('App', () => {
         }
       });
 
-      await app.process({ token, body: { ...messageActivity, id: 'inbound-id' } });
+      await app.process({ token, body: { ...messageActivity, id: '100' } });
 
       expect(sent).toHaveLength(1);
       expect(sent[0]).toMatchObject({
-        activityId: 'inbound-id',
+        activityId: '100',
         conversation: messageActivity.conversation,
         activity: { id: 'sent-1', type: 'message' },
       });
@@ -2052,6 +2053,67 @@ describe('App', () => {
         const [params, , options] = send.mock.calls[0] as unknown as [any, any, any];
         expect(params.entities ?? []).not.toEqual(expect.arrayContaining([expect.objectContaining({ type: 'quotedReply' })]));
         expect(options).toEqual({ replyChainId: '100' });
+      });
+
+      it('keeps the app reply mode when a plugin context returns a replyMode key', async () => {
+        await app.stop();
+        @Plugin({ name: 'replyModeContextPlugin', version: '0.0.1', description: 'returns a replyMode context key' })
+        class ReplyModeContextPlugin implements IPlugin {
+          async onActivity() {
+            return { replyMode: 'thread' };
+          }
+        }
+        app = createTestApp({ activity: { replyMode: 'quote' }, plugins: [new ReplyModeContextPlugin() as IPlugin] });
+        await app.start();
+        const send = jest
+          .spyOn(ActivitySender.prototype, 'send')
+          .mockImplementation(async (activity) => ({ id: 'sent-1', ...activity }) as any);
+        app.on('message', async (ctx) => {
+          await ctx.reply('response');
+        });
+
+        await app.process({
+          token,
+          body: inbound({
+            id: '100',
+            conversationId: 'a:encrypted',
+            conversationType: 'personal',
+            channelData: { chat: { id: chatId }, replyChain: { id: '100' } },
+          }),
+        });
+
+        expect(send).toHaveBeenCalledTimes(1);
+        const [, ref, options] = send.mock.calls[0] as unknown as [any, any, any];
+        expect(ref.conversation.id).toBe('a:encrypted');
+        expect(options).toBeUndefined();
+      });
+
+      it('keeps ctx.reply at top level with the quote when the app reply mode is quote', async () => {
+        await app.stop();
+        app = createTestApp({ activity: { replyMode: 'quote' } });
+        await app.start();
+        const send = jest
+          .spyOn(ActivitySender.prototype, 'send')
+          .mockImplementation(async (activity) => ({ id: 'sent-1', ...activity }) as any);
+        app.on('message', async (ctx) => {
+          await ctx.reply('response');
+        });
+
+        await app.process({
+          token,
+          body: inbound({
+            id: '100',
+            conversationId: 'a:encrypted',
+            conversationType: 'personal',
+            channelData: { chat: { id: chatId }, replyChain: { id: '100' } },
+          }),
+        });
+
+        expect(send).toHaveBeenCalledTimes(1);
+        const [params, ref, options] = send.mock.calls[0] as unknown as [any, any, any];
+        expect(params.entities).toEqual(expect.arrayContaining([expect.objectContaining({ type: 'quotedReply' })]));
+        expect(ref.conversation.id).toBe('a:encrypted');
+        expect(options).toBeUndefined();
       });
 
       it('sends to the inbound conversation for a top-level message in a chat', async () => {
