@@ -1471,6 +1471,24 @@ describe('ActivityContext', () => {
           expect(quoted()).toBe(true);
         });
 
+        it('keeps the quote in thread mode for a channel payload with a chat id instead of a channel id, which is not placed', async () => {
+          const ref = refFor(suffixedChannel, 'channel');
+          context = buildActivityContext(
+            buildInbound({
+              conversationType: 'channel',
+              conversationId: suffixedChannel,
+              id: '105',
+              channelData: { chat: { id: chatId }, replyChain: { id: '100' } },
+            }),
+            { ref, replyMode: 'thread' }
+          );
+
+          await context.reply('hi');
+
+          expect(quoted()).toBe(true);
+          expect(lastCall()).toEqual([expect.anything(), ref]);
+        });
+
         it('keeps the quote in thread mode for a payload with channel and reply chain ids but no conversation type, which is not placed', async () => {
           const ref = refFor(suffixedChannel, 'channel');
           const inbound = buildInbound({

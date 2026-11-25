@@ -912,13 +912,13 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
 
   /**
    * Whether a `thread` mode reply lands in a thread, so `thread` mode leaves the quote out.
-   * In a channel every reply goes into the thread of the inbound message, through the reply chain or the inbound conversation, so the inbound needs only `channelData.replyChain.id` and `channelData.channel.id` or `channelData.chat.id`.
+   * In a channel every reply goes into the thread of the inbound message, through the reply chain or the inbound conversation, so the inbound needs only `channelData.replyChain.id` and `channelData.channel.id`.
    * In a chat the reply must be placed in a reply chain (see `getInboundReplyChainPlacement`).
    */
   private isThreadModeReplyThreaded(): boolean {
     if (this.activity.conversation?.conversationType === 'channel') {
       const channelData = this.activity.channelData;
-      return isPresent(channelData?.replyChain?.id) && (isPresent(channelData?.channel?.id) || isPresent(channelData?.chat?.id));
+      return isPresent(channelData?.replyChain?.id) && isPresent(channelData?.channel?.id);
     }
 
     return this.getInboundReplyChainPlacement({ useOriginAsRoot: true }) !== undefined;
