@@ -306,14 +306,14 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
         storage: this.options.storage,
         isSignedIn: !!userToken,
         connectionName: this.options.getConnectionName(),
-        replyMode: this.options.getReplyMode(),
         validateOAuthConnection: this.options.validateOAuthConnection,
         onOAuthSignInInitiated: this.options.onOAuthSignInInitiated,
         getOAuthConnectionStatus: this.options.getOAuthConnectionStatus,
         filesCredential,
         filesBotApiCredential,
         activitySender,
-        ...pluginContexts
+        ...pluginContexts,
+        replyMode: this.options.getReplyMode(),
       });
 
       const conversationId = activity.conversation?.id;
