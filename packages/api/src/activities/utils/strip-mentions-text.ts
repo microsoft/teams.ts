@@ -1,3 +1,4 @@
+import { MentionEntity } from '../../models';
 import { IMessageActivity, IMessageUpdateActivity } from '../message';
 import { ITypingActivity } from '../typing';
 
@@ -20,6 +21,14 @@ export type StripMentionsTextOptions = {
    *     output: Hello my-bot! How are you?
    */
   tagOnly?: boolean;
+
+  /**
+   * when `true`, only mentions at the start of the text
+   * are removed; mentions later in the text are preserved.
+   * Eg. input: <at>my-bot</at> help <at>my-bot</at>
+   *     output: help <at>my-bot</at>
+   */
+  leadingOnly?: boolean;
 };
 
 /**
@@ -28,27 +37,63 @@ export type StripMentionsTextOptions = {
  */
 export function stripMentionsText<TActivity extends TextActivity>(
   activity: TActivity,
-  { accountId, tagOnly }: StripMentionsTextOptions = {}
+  { accountId, tagOnly, leadingOnly }: StripMentionsTextOptions = {}
 ): TActivity['text'] {
   if (!activity.text) return;
 
   let text = activity.text;
+  const mentions = (activity.entities?.filter((e) => e.type === 'mention') || []).filter(
+    (mention) => !accountId || mention.mentioned.id === accountId
+  );
 
-  for (const mention of activity.entities?.filter((e) => e.type === 'mention') || []) {
-    if (accountId && mention.mentioned.id !== accountId) {
-      continue;
-    }
+  if (leadingOnly) {
+    return stripLeadingMentions(text, mentions, tagOnly);
+  }
 
-    if (mention.text) {
-      const textWithoutTags = mention.text.replace('<at>', '').replace('</at>', '');
-      text = text.replace(mention.text, !tagOnly ? '' : textWithoutTags);
-    } else if (mention.mentioned.name) {
-      text = text.replace(
-        `<at>${mention.mentioned.name}</at>`,
-        !tagOnly ? '' : mention.mentioned.name
-      );
-    }
+  for (const mention of mentions) {
+    const tag = getMentionTag(mention);
+
+    if (!tag) continue;
+
+    text = text.replace(tag, !tagOnly ? '' : getMentionName(tag));
   }
 
   return text.trim();
+}
+
+/**
+ * remove matching mentions only while they appear at the start of the text
+ */
+function stripLeadingMentions(text: string, mentions: MentionEntity[], tagOnly?: boolean) {
+  const tags = mentions.map(getMentionTag).filter((tag): tag is string => !!tag);
+  let remaining = text.trimStart();
+  let stripped = '';
+
+  while (true) {
+    const tag = tags.find((t) => remaining.startsWith(t));
+
+    if (!tag) break;
+
+    if (tagOnly) {
+      stripped += getMentionName(tag);
+      const rest = remaining.slice(tag.length);
+      const trimmed = rest.trimStart();
+      stripped += rest.slice(0, rest.length - trimmed.length);
+      remaining = trimmed;
+    } else {
+      remaining = remaining.slice(tag.length).trimStart();
+    }
+  }
+
+  return (stripped + remaining).trim();
+}
+
+function getMentionTag(mention: MentionEntity) {
+  if (mention.text) return mention.text;
+  if (mention.mentioned.name) return `<at>${mention.mentioned.name}</at>`;
+  return undefined;
+}
+
+function getMentionName(tag: string) {
+  return tag.replace('<at>', '').replace('</at>', '');
 }
