@@ -43,7 +43,7 @@ app.on('message', async (context) => {
       '- `quote manual` - combine a quote and text manually\n\n' +
       '**Threading:**\n' +
       '- `thread reply` - reply with the default reply mode, `combined` (in a chat, starts a thread under your top-level message, quoted)\n' +
-      '- `thread reply unquoted` - reply with `replyMode: thread` (same placement, no quote)\n' +
+      '- `thread reply unquoted` - reply with `replyMode: thread` (same placement, no quote when it lands in a thread)\n' +
       '- `thread send` - send reactively without quoting (in a channel, in the same thread; in a chat, matches the level of your message)\n' +
       '- `thread proactive` - send a proactive reply in a thread on your message, as a bot does when it replies later\n' +
       '- `thread top-level` - send a new top-level message, outside any reply chain (thread)\n\n' +

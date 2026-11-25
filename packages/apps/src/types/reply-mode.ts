@@ -3,12 +3,13 @@
  *
  * - `combined`: in a chat, a reply to a top-level message goes into a thread under that message, and a reply inside a thread stays in that thread. The inbound message is quoted.
  * - `quote`: the reply stays at the level of the inbound message (top level or the same thread) and quotes it.
- * - `thread`: like `combined`, without the quote.
+ * - `thread`: like `combined`, without the quote when the reply lands in a thread.
  *
  * In a channel every reply already goes into the thread of the inbound message, so the mode only decides the quote: `thread` drops it, `combined` and `quote` keep it.
  * The mode applies to message activities only.
  * It does not affect `app.reply`, `send`, `quote`, streams or plans.
- * When the inbound activity carries no `channelData.chat.id` and `channelData.replyChain.id` (e.g. in a meeting), a reply is never threaded and keeps the quote in every mode.
+ * A reply that does not land in a thread keeps the quote in every mode, including `thread`.
+ * In a chat that is when the inbound activity carries no `channelData.chat.id` and `channelData.replyChain.id` (e.g. in a meeting), or the message it is about cannot start a thread.
  * The reply quotes the inbound activity only when that activity can be quoted, so a reply to a card action or another invoke is sent without a quote.
  *
  * @experimental This API is in preview and may change in the future. Diagnostic: ExperimentalTeamsThreading
