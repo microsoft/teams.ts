@@ -1697,6 +1697,17 @@ describe('ActivityContext', () => {
           expect(params.text).toBe('<quoted messageId="100"/> hi');
         });
 
+        it.each(['personal', 'groupChat'] as const)('updates a reply that started a thread in a %s chat through the inbound conversation', async (conversationType) => {
+          const { ref, destination } = await replyAtTopLevel(conversationType, { type: 'message', id: '100' });
+          expect(mockSender.send.mock.calls[0][1].conversation.id).toBe(destination);
+          expect(mockSender.send.mock.calls[0][2]).toEqual({ replyChainId: '100' });
+
+          await context.send({ type: 'message', id: 'sent-1', text: 'Done' });
+
+          expect(mockSender.send).toHaveBeenCalledTimes(2);
+          expect(mockSender.send.mock.calls[1]).toEqual([expect.objectContaining({ id: 'sent-1', text: 'Done' }), ref]);
+        });
+
         it('keeps the reply at top level when the origin and reply chain ids match but are not message ids', async () => {
           const { activity, ref } = topLevel('personal', { type: 'invoke', replyToId: 'f:root', extra: { replyChain: { id: 'f:root' } } });
           context = buildActivityContext(activity, { ref });
