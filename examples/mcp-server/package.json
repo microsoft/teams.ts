@@ -33,12 +33,12 @@
   },
   "devDependencies": {
     "@microsoft/teams.config": "*",
-    "@modelcontextprotocol/inspector": "^2.12.0",
+    "@modelcontextprotocol/inspector": "^2.15.0",
     "@types/express": "^5.0.0",
-    "@types/node": "^26.6.5",
-    "dotenv": "^18.0.9",
+    "@types/node": "^26.6.6",
+    "dotenv": "^18.0.10",
     "env-cmd": "latest",
-    "rimraf": "^6.0.1",
+    "rimraf": "^6.1.4",
     "tsx": "^4.23.15",
     "typescript": "^5.4.5"
   }
