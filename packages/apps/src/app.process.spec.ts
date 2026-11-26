@@ -24,7 +24,8 @@ import { IActivityEvent } from './events/activity';
 import { Plan } from './plan';
 import { TurnStateContainer } from './state';
 import { createTestApp } from './test-utils';
-import { PlanConflictStreamError, StreamNotAllowedError, TerminalStreamError } from './types';
+import { IPlugin, PlanConflictStreamError, StreamNotAllowedError, TerminalStreamError } from './types';
+import { Plugin } from './types/plugin/decorators';
 
 jest.mock('./diagnostics/helpers', () => ({
   getTeamsBotApplicationTracer: jest.fn(),
@@ -1257,6 +1258,100 @@ describe('App', () => {
     });
 
     it.each([
+      ['a listener that throws', () => {
+        throw new Error('listener failed');
+      }],
+      ['an async listener that rejects', async () => {
+        await Promise.resolve();
+        throw new Error('listener failed');
+      }],
+    ])('logs %s on "activity.sent" instead of leaving an unhandled rejection', async (_name, listener) => {
+      const unhandled = jest.fn();
+      process.on('unhandledRejection', unhandled);
+      const logger = { debug: jest.fn(), info: jest.fn(), warn: jest.fn(), error: jest.fn(), trace: jest.fn(), log: jest.fn() } as any;
+      logger.child = jest.fn().mockReturnValue(logger);
+      const logged = createTestApp({ logger });
+      logged.start();
+      logged.event('activity.sent', listener);
+      jest
+        .spyOn(ActivitySender.prototype, 'send')
+        .mockImplementation(async (activity) => ({ ...activity, id: 'sent-1' }) as any);
+      let result: SentActivity | undefined;
+      logged.on('message', async (ctx) => {
+        result = await ctx.send('response');
+      });
+
+      try {
+        await logged.process({ token, body: messageActivity });
+        await new Promise((resolve) => setImmediate(resolve));
+
+        expect(result).toMatchObject({ id: 'sent-1' });
+        expect(logger.error).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ message: 'listener failed' }));
+        expect(unhandled).not.toHaveBeenCalled();
+      } finally {
+        process.off('unhandledRejection', unhandled);
+        logged.stop();
+      }
+    });
+
+    it.each(['send', 'reply', 'quote'] as const)('emits exactly one "activity.sent" event for ctx.%s', async (method) => {
+      const sent: IActivitySentEvent[] = [];
+      app.event('activity.sent', (event) => {
+        sent.push(event);
+      });
+      jest
+        .spyOn(ActivitySender.prototype, 'send')
+        .mockImplementation(async (activity) => ({ ...activity, id: 'sent-1' }) as any);
+
+      app.on('message', async (ctx) => {
+        if (method === 'quote') {
+          await ctx.quote('100', 'response');
+        } else {
+          await ctx[method]('response');
+        }
+      });
+
+      await app.process({ token, body: { ...messageActivity, id: '100' } });
+
+      expect(sent).toHaveLength(1);
+      expect(sent[0]).toMatchObject({
+        activityId: '100',
+        conversation: messageActivity.conversation,
+        activity: { id: 'sent-1', type: 'message' },
+      });
+    });
+
+    it('emits one "activity.sent" event with the inbound conversation when a reply starts a thread at top level in a chat', async () => {
+      const sent: IActivitySentEvent[] = [];
+      app.event('activity.sent', (event) => {
+        sent.push(event);
+      });
+      const senderSpy = jest
+        .spyOn(ActivitySender.prototype, 'send')
+        .mockImplementation(async (activity) => ({ ...activity, id: 'sent-1' }) as any);
+      const conversation = { id: 'a:encrypted-conversation', conversationType: 'personal', isGroup: false };
+
+      app.on('message', async ({ reply }) => {
+        await reply('response');
+      });
+
+      await app.process({
+        token,
+        body: {
+          ...messageActivity,
+          id: '100',
+          conversation,
+          channelData: { chat: { id: '19:user_bot@unq.gbl.spaces' }, replyChain: { id: '100' } },
+        } as any,
+      });
+
+      expect(senderSpy).toHaveBeenCalledTimes(1);
+      expect(senderSpy.mock.calls[0][2]).toEqual({ replyChainId: '100' });
+      expect(sent).toHaveLength(1);
+      expect(sent[0].conversation).toEqual(conversation);
+    });
+
+    it.each([
       ['start', 'start'], ['update', 'continue'], ['stop', 'stop'], ['error', 'error'], ['complete', 'complete'],
     ] as const)('notifies app listeners once when a context Plan calls %s', async (method, operation) => {
       const sent: IActivitySentEvent[] = [];
@@ -1931,6 +2026,94 @@ describe('App', () => {
 
         expect(ref.conversation.id).toBe(chatId);
         expect(options).toEqual({ replyChainId: 'root-1' });
+      });
+
+      it('applies the app reply mode to ctx.reply', async () => {
+        await app.stop();
+        app = createTestApp({ activity: { replyMode: 'thread' } });
+        await app.start();
+        const send = jest
+          .spyOn(ActivitySender.prototype, 'send')
+          .mockImplementation(async (activity) => ({ id: 'sent-1', ...activity }) as any);
+        app.on('message', async (ctx) => {
+          await ctx.reply('response');
+        });
+
+        await app.process({
+          token,
+          body: inbound({
+            id: '105',
+            conversationId: 'a:encrypted',
+            conversationType: 'personal',
+            channelData: { chat: { id: chatId }, replyChain: { id: '100' } },
+          }),
+        });
+
+        expect(send).toHaveBeenCalledTimes(1);
+        const [params, , options] = send.mock.calls[0] as unknown as [any, any, any];
+        expect(params.entities ?? []).not.toEqual(expect.arrayContaining([expect.objectContaining({ type: 'quotedReply' })]));
+        expect(options).toEqual({ replyChainId: '100' });
+      });
+
+      it('keeps the app reply mode when a plugin context returns a replyMode key', async () => {
+        await app.stop();
+        @Plugin({ name: 'replyModeContextPlugin', version: '0.0.1', description: 'returns a replyMode context key' })
+        class ReplyModeContextPlugin implements IPlugin {
+          async onActivity() {
+            return { replyMode: 'thread' };
+          }
+        }
+        app = createTestApp({ activity: { replyMode: 'quote' }, plugins: [new ReplyModeContextPlugin() as IPlugin] });
+        await app.start();
+        const send = jest
+          .spyOn(ActivitySender.prototype, 'send')
+          .mockImplementation(async (activity) => ({ id: 'sent-1', ...activity }) as any);
+        app.on('message', async (ctx) => {
+          await ctx.reply('response');
+        });
+
+        await app.process({
+          token,
+          body: inbound({
+            id: '100',
+            conversationId: 'a:encrypted',
+            conversationType: 'personal',
+            channelData: { chat: { id: chatId }, replyChain: { id: '100' } },
+          }),
+        });
+
+        expect(send).toHaveBeenCalledTimes(1);
+        const [, ref, options] = send.mock.calls[0] as unknown as [any, any, any];
+        expect(ref.conversation.id).toBe('a:encrypted');
+        expect(options).toBeUndefined();
+      });
+
+      it('keeps ctx.reply at top level with the quote when the app reply mode is quote', async () => {
+        await app.stop();
+        app = createTestApp({ activity: { replyMode: 'quote' } });
+        await app.start();
+        const send = jest
+          .spyOn(ActivitySender.prototype, 'send')
+          .mockImplementation(async (activity) => ({ id: 'sent-1', ...activity }) as any);
+        app.on('message', async (ctx) => {
+          await ctx.reply('response');
+        });
+
+        await app.process({
+          token,
+          body: inbound({
+            id: '100',
+            conversationId: 'a:encrypted',
+            conversationType: 'personal',
+            channelData: { chat: { id: chatId }, replyChain: { id: '100' } },
+          }),
+        });
+
+        expect(send).toHaveBeenCalledTimes(1);
+        const [params, ref, options] = send.mock.calls[0] as unknown as [any, any, any];
+        expect(params.entities).toEqual(expect.arrayContaining([expect.objectContaining({ type: 'quotedReply' })]));
+        expect(ref.conversation.id).toBe('a:encrypted');
+        expect(options).toBeUndefined();
       });
 
       it('sends to the inbound conversation for a top-level message in a chat', async () => {

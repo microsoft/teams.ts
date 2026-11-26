@@ -28,6 +28,7 @@ export async function handleQuotedMessage(context: MessageContext): Promise<bool
 
 /**
  * Handles the command that replies with an automatic quote.
+ * It passes `{ replyMode: 'quote' }` so the reply stays at the level of the inbound message instead of starting a thread.
  * @returns Whether the command matched.
  */
 export async function handleQuoteReply(
@@ -38,7 +39,7 @@ export async function handleQuoteReply(
     return false;
   }
 
-  await context.reply('Thanks for your message! This reply auto-quotes it using `reply()`.');
+  await context.reply('Thanks for your message! This reply auto-quotes it using `reply()`.', { replyMode: 'quote' });
   return true;
 }
 

@@ -2,13 +2,11 @@ import type { Span, SpanAttributes } from '@opentelemetry/api';
 
 import {
   Activity,
-  ActivityLike,
   ApiClientSettings,
   AgenticIdentity,
   Account,
   ChannelID,
   ConversationReference,
-  DeprecatedInputActivity,
   InvokeResponse,
   isInvokeResponse,
   IToken,
@@ -19,6 +17,7 @@ import { Client as HttpClient, ILogger, IStorage } from '@microsoft/teams.common
 import { ActivitySender } from './activity-sender';
 import { type ApiClient, GraphClient } from './api';
 import { EventManager } from './app.events';
+import type { AppActivityOptions } from './app.options';
 import { ActivityContext, IActivityContext } from './contexts';
 import {
   agent365BaggageFromActivity,
@@ -36,13 +35,13 @@ import {
   recordTeamsBotHandlerUnmatched,
   recordTeamsBotActivityProcessDuration
 } from './diagnostics/helpers';
-import { IActivityEvent } from './events';
+import { IActivityEvent, IActivitySentEvent } from './events';
 import { selectFilesCredential, selectInlineImageCredential } from './files-credential';
 import { Router } from './router';
 import type { Route } from './router/route';
 import { IRoutes } from './routes';
 import { TurnStateLoader } from './state';
-import { IActivitySender, IPlugin, RouteHandler } from './types';
+import { IActivitySender, IPlugin, ReplyMode, RouteHandler } from './types';
 import { PluginAdditionalContext } from './types/app-routing';
 import { extractTenantId } from './utils';
 
@@ -94,6 +93,10 @@ export interface IActivityProcessorOptions<TPlugin extends IPlugin = IPlugin> {
    * @deprecated Registered OAuth flows own their connection names.
    */
   readonly getConnectionName: () => string;
+  /**
+   * Gets the app's {@link AppActivityOptions.replyMode} setting, passed to each activity context.
+   */
+  readonly getReplyMode: () => ReplyMode | undefined;
   /**
    * Whether to proactively fetch the legacy default-flow token for each inbound
    * activity. The result populates deprecated context OAuth fields.
@@ -309,26 +312,17 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
         filesCredential,
         filesBotApiCredential,
         activitySender,
-        ...pluginContexts
+        ...pluginContexts,
+        replyMode: this.options.getReplyMode(),
       });
 
       const conversationId = activity.conversation?.id;
       const userId = activity.from?.id;
       const stateLoader = this.options.getStateLoader();
 
-      const send = context.send.bind(context);
-      context.send = async (activity: ActivityLike | DeprecatedInputActivity, conversationRef?: ConversationReference) => {
-        const res = conversationRef
-          ? await send(activity, conversationRef)
-          : await send(activity);
-
-        this.options.eventManager.onActivitySent({
-          ...(conversationRef ?? ref),
-          activity: res,
-        });
-
-        return res;
-      };
+      context.events.on('sent', ({ ref, activity }) => {
+        this.notifyActivitySent({ ...ref, activity });
+      });
 
       let planAttached = false;
       const getPlan = context.plan.bind(context);
@@ -337,7 +331,7 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
         if (!planAttached) {
           const planRef = structuredClone(context.ref);
           plan.events.on('sent', (activity) => {
-            this.options.eventManager.onActivitySent({ ...structuredClone(planRef), activity });
+            this.notifyActivitySent({ ...structuredClone(planRef), activity });
           });
           planAttached = true;
         }
@@ -345,17 +339,11 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
       };
 
       context.stream.events.on('chunk', (activity) => {
-        this.options.eventManager.onActivitySent({
-          ...ref,
-          activity,
-        });
+        this.notifyActivitySent({ ...ref, activity });
       });
 
       context.stream.events.on('close', (activity) => {
-        this.options.eventManager.onActivitySent({
-          ...ref,
-          activity,
-        });
+        this.notifyActivitySent({ ...ref, activity });
       });
 
       const response = await this.executeTurnLifecycle(
@@ -382,6 +370,16 @@ export class ActivityProcessor<TPlugin extends IPlugin = IPlugin> {
 
       return response;
     }));
+  }
+
+  /**
+   * Notifies plugins and `activity.sent` listeners without delaying the send.
+   * A failing listener is logged, so it cannot become an unhandled rejection.
+   */
+  private notifyActivitySent(event: IActivitySentEvent) {
+    this.options.eventManager.onActivitySent(event).catch((err) => {
+      this.options.log.error('activity.sent handler failed', err);
+    });
   }
 
   private async executeTurnLifecycle(

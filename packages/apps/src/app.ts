@@ -274,7 +274,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
         emit: (name, event) => this.events.emit(name as any, event),
       },
     });
-    this.eventManager = new EventManager<TPlugin>(this.events, this.pluginManager.plugins);
+    this.eventManager = new EventManager<TPlugin>(this.events, this.pluginManager.plugins, this.log);
     this.activityProcessor = new ActivityProcessor<TPlugin>({
       router: this.router,
       plugins: this.pluginManager.plugins,
@@ -289,6 +289,7 @@ export class App<TPlugin extends IPlugin = IPlugin> {
       log: this.log,
       getId: () => this.id,
       getConnectionName: () => this.oauth.defaultConnectionName,
+      getReplyMode: () => this.options.activity?.replyMode,
       shouldFetchUserToken: () => this.shouldFetchUserToken(),
       validateOAuthConnection: (connectionName, connectionNameProvided) =>
         this.oauthFlowRegistry.validate(connectionName, connectionNameProvided),

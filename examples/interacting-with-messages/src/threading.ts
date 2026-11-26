@@ -1,31 +1,45 @@
 import { Activity, getAgenticIdentity } from '@microsoft/teams.api';
-import { App, IActivityContext } from '@microsoft/teams.apps';
+import { App, IActivityContext, ReplyMode } from '@microsoft/teams.apps';
 
 type MessageContext = IActivityContext<Extract<Activity, { type: 'message' }>>;
 
+const REPLY_COMMANDS = new Map<string, { replyMode?: ReplyMode; text: string }>([
+  ['thread reply', {
+    text: 'This reply uses the default reply mode, `combined`. In a chat it starts a thread under your top-level message, or stays in your thread, and quotes your message.',
+  }],
+  ['thread reply unquoted', {
+    replyMode: 'thread',
+    text: 'This reply uses `replyMode: \'thread\'`. It is placed like `combined`, without the quote when it lands in a thread.',
+  }],
+]);
+
 /**
- * Handles the command that sends a reactive, quoted reply.
- * In a 1:1 chat the reply matches the level of the inbound message: a reply to a message in a thread stays in the thread, and a reply to a top-level message is posted at top level.
- * In a channel the reply stays in the reply chain (thread) of the inbound message, including when the inbound message is a top-level post.
- * The reply is placed in a reply chain only when the payload carries `channelData.replyChain.id`.
+ * Handles the commands that reply to the inbound message in a thread.
+ * `thread reply` uses the app's reply mode, `combined` by default: in a chat, a reply to a top-level message starts a thread under it, a reply inside a thread stays in that thread, and the inbound message is quoted.
+ * `thread reply unquoted` passes `{ replyMode: 'thread' }`: the same placement, without the quote when the reply lands in a thread.
+ * The `quote` mode is shown by the `quote reply` command.
+ * In a channel every reply goes in the thread of the inbound message, so the mode only decides the quote.
+ * The app-wide default is set with `new App({ activity: { replyMode } })`.
  * @returns Whether the command matched.
  */
 export async function handleThreadReply(
   context: MessageContext,
   text: string
 ): Promise<boolean> {
-  if (text !== 'thread reply') {
+  const command = REPLY_COMMANDS.get(text);
+  if (!command) {
     return false;
   }
 
-  await context.reply('This is a quoted reply. In a channel it goes in the same thread. In a 1:1 chat it matches the level of your message.');
+  await context.reply(command.text, { replyMode: command.replyMode });
   return true;
 }
 
 /**
  * Handles the command that sends reactively without quoting.
  * In a channel, the message is sent in the same thread.
- * In a 1:1 chat, it matches the level of the inbound message.
+ * In a chat, it matches the level of the inbound message: in the thread when the inbound message is in one, otherwise at top level.
+ * In a chat, unlike `reply`, `send` never starts a new thread.
  * @returns Whether the command matched.
  */
 export async function handleThreadSend(
@@ -36,7 +50,7 @@ export async function handleThreadSend(
     return false;
   }
 
-  await context.send('This is sent without quoting. In a channel it goes in the same thread. In a 1:1 chat it matches the level of your message.');
+  await context.send('This is sent without quoting. In a channel it goes in the same thread. In a chat it matches the level of your message.');
   return true;
 }
 

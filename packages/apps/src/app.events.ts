@@ -1,4 +1,4 @@
-import { EventEmitter } from '@microsoft/teams.common';
+import { EventEmitter, ILogger } from '@microsoft/teams.common';
 
 import {
   IActivityEvent,
@@ -18,7 +18,8 @@ import { AppEvents, IPlugin } from './types';
 export class EventManager<TPlugin extends IPlugin = IPlugin> {
   constructor(
     private readonly events: EventEmitter<AppEvents<TPlugin>>,
-    private readonly plugins: ReadonlyArray<TPlugin>
+    private readonly plugins: ReadonlyArray<TPlugin>,
+    private readonly log?: ILogger
   ) { }
 
   async onError(event: IErrorEvent) {
@@ -35,14 +36,23 @@ export class EventManager<TPlugin extends IPlugin = IPlugin> {
     this.events.emit('activity', event);
   }
 
+  /**
+   * Notifies each plugin, then the `activity.sent` listeners, of a sent activity.
+   * A failing plugin hook is logged and the remaining plugins and listeners still run.
+   * Listener failures, including rejected async listeners, are logged by the emitter, so this never rejects.
+   */
   async onActivitySent(event: IActivitySentEvent) {
     for (const plugin of this.plugins) {
       if (plugin.onActivitySent) {
-        await plugin.onActivitySent(event);
+        try {
+          await plugin.onActivitySent(event);
+        } catch (err) {
+          this.log?.error('plugin onActivitySent failed', err);
+        }
       }
     }
 
-    this.events.emit('activity.sent', event);
+    await this.events.emitAsync('activity.sent', event);
   }
 
   async onActivityResponse(event: IActivityResponseEvent) {
