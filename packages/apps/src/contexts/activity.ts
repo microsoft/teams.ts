@@ -893,8 +893,13 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
   /**
    * Whether a response at top level in a chat can start a thread under the origin message: the origin message id is a plain number equal to `channelData.replyChain.id`.
    * For a reaction or a card action the origin message is the message the user acted on, not the inbound activity.
+   * Never true for a targeted inbound message: a reply chain rooted on a targeted message is rejected by the service (`400 Replies are not allowed for Targeted Messages`).
    */
   private canUseOriginAsRoot(): boolean {
+    if (this.isIncomingTargeted()) {
+      return false;
+    }
+
     const originId = this.getOriginMessageId();
     return isPlainMessageId(originId) && originId === this.activity.channelData?.replyChain?.id;
   }
