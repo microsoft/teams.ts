@@ -723,6 +723,13 @@ export class ActivityContext<T extends Activity = Activity, TExtraCtx extends {}
     params: ActivityParams,
     { conversationRef, useOriginAsRoot }: SendCoreOptions = {}
   ): Promise<SentActivity> {
+    // Targeting below changes `recipient` and `entities`; work on a copy so the caller's object stays unchanged.
+    const copy = Object.assign(Object.create(Object.getPrototypeOf(params)), params) as ActivityParams;
+    if (copy.entities) {
+      copy.entities = [...copy.entities];
+    }
+    params = copy;
+
     if (this.shouldOutboundBeAutoTargeted(params, conversationRef)) {
       this.applyTargetedRecipient(params);
     }
