@@ -2076,6 +2076,37 @@ describe('ActivityContext', () => {
         );
       });
 
+      it.each(['send', 'reply'] as const)('does not change a message reused across targeted turns with %s', async (method) => {
+        const template = new MessageActivityInput('noted');
+        const snapshot = JSON.parse(JSON.stringify(template));
+        const inboundFor = (id: string, userId: string) =>
+          new MessageActivity('Hello world')
+            .withFrom({ id: userId, name: userId, role: 'user' })
+            .withRecipient({ id: 'bot-id', name: 'Bot', role: 'bot' }, true)
+            .withChannelId('test-channel')
+            .withConversation({ id: 'test-conversation', conversationType: 'channel', isGroup: false })
+            .withId(id);
+
+        context = buildActivityContext(inboundFor('1772129782001', 'user-1'));
+        await context[method](template);
+        expect(JSON.parse(JSON.stringify(template))).toEqual(snapshot);
+
+        context = buildActivityContext(inboundFor('1772129782002', 'user-2'));
+        await context[method](template);
+        expect(JSON.parse(JSON.stringify(template))).toEqual(snapshot);
+
+        const [first, second] = mockSender.send.mock.calls.map(([params]) => params);
+        expect(first.recipient).toEqual(expect.objectContaining({ id: 'user-1', isTargeted: true }));
+        expect(second.recipient).toEqual(expect.objectContaining({ id: 'user-2', isTargeted: true }));
+        expect(first.entities).toEqual(
+          expect.arrayContaining([expect.objectContaining({ type: 'targetedMessageInfo', messageId: '1772129782001' })])
+        );
+        expect(second.entities).toEqual(
+          expect.arrayContaining([expect.objectContaining({ type: 'targetedMessageInfo', messageId: '1772129782002' })])
+        );
+        expect(second.entities.filter((e: any) => e.type === 'targetedMessageInfo')).toHaveLength(1);
+      });
+
       it('does not auto-populate targetedMessageInfo when incoming activity is not targeted', async () => {
         const activity = buildIncomingMessageActivity('Hello world');
         context = buildActivityContext(activity);
