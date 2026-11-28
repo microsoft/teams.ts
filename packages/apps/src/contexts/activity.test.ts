@@ -1765,7 +1765,7 @@ describe('ActivityContext', () => {
           expect(lastCall()[2]).toEqual({ replyChainId: '100' });
         });
 
-        it('starts a targeted thread reply for a targeted inbound message at top level in a group chat', async () => {
+        it('does not start a thread for a targeted inbound message at top level in a group chat, even with a reply chain id', async () => {
           const { activity, ref } = topLevel('groupChat', { type: 'message', id: '100' });
           (activity.recipient as { isTargeted?: boolean }).isTargeted = true;
           context = buildActivityContext(activity, { ref });
@@ -1775,8 +1775,8 @@ describe('ActivityContext', () => {
           const [params, sentRef, options] = lastCall();
           expect(params.recipient).toEqual(expect.objectContaining({ id: 'test-user', isTargeted: true }));
           expect(params.entities).not.toEqual(expect.arrayContaining([expect.objectContaining({ type: 'quotedReply' })]));
-          expect(sentRef.conversation.id).toBe(groupId);
-          expect(options).toEqual({ replyChainId: '100' });
+          expect(sentRef).toBe(ref);
+          expect(options).toBeUndefined();
         });
 
         it('keeps a targeted reply at top level in quote mode for a targeted inbound message in a group chat', async () => {
